@@ -1,0 +1,59 @@
+.program hx711
+
+.define public T1 10             ; 1us
+.define public T2 10             ; 1us
+.define public T3 10             ; 1us
+.define public T4 1              ; 1us
+
+; could possibly use y to hold the gain and decrement?
+
+.wrap_target
+pull block
+out x, 5
+wait 0 pin 0
+jmp bitloop
+
+bitloop:
+    jmp x-- readbit
+    push block
+.wrap
+
+readbit:
+    set pins, 1     [T2 - 1]
+    set pins, 0     [T4 - 1]
+    in pins, 1      [T3 - 1]
+    jmp bitloop
+
+
+% c-sdk {
+void hx711_program_init(PIO pio, uint sm, uint offset, const uint clkPin, const uint dataPin) {
+
+    pio_sm_config cfg = hx711_program_get_default_config(offset);
+
+    //set the clock for 1 microsecond resolution 
+    float div = (float)clock_get_hz(clk_sys) / 1000000;
+    sm_config_set_clkdiv(&cfg, div);
+
+    //clock pin setup
+    //
+    pio_sm_set_out_pins(pio, sm, clkPin, 1);
+    pio_sm_set_set_pins(pio, sm, clkPin, 1);
+    pio_gpio_init(pio, clkPin);
+    pio_sm_set_consecutive_pindirs(pio, sm, clkPin, 1, true);
+    sm_config_set_set_pins(&cfg, clkPin, 1);
+    sm_config_set_out_pins(&cfg, clkPin, 1);
+
+
+    //data pin setup
+    //
+    pio_sm_set_in_pins(pio, sm, dataPin);
+    pio_sm_set_consecutive_pindirs(pio, sm, dataPin, 1, false);
+    pio_gpio_init(pio, dataPin);
+    sm_config_set_in_pins(&cfg, dataPin);
+    sm_config_set_in_shift(&cfg, false, false, 32);
+
+    pio_sm_init(pio, sm, offset, &cfg);
+    pio_sm_set_enabled(pio, sm, true);
+
+}
+%}
