@@ -1,3 +1,7 @@
 {
-    "cmake.configureOnOpen": true
+    "cmake.configureOnOpen": true,
+    "files.associations": {
+        "hx711.h": "c",
+        "hx711.pio.h": "c"
+    }
 }

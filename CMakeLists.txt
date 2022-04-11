@@ -24,7 +24,7 @@ cmake_minimum_required(VERSION 3.12)
 
 include(pico_sdk_import.cmake)
 
-project(hx711test C ASM)
+project(hx711test C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 
 if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")

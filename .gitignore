@@ -3,8 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=c,c++,visualstudio,visualstudiocode,linux,cmake,ninja
 
 # custom
-build/
-.vscode/
+build/**
 
 
 ### C ###
@@ -117,12 +116,12 @@ _deps
 .ninja_log
 
 ### VisualStudioCode ###
-#.vscode/*
-#!.vscode/settings.json
-#!.vscode/tasks.json
-#!.vscode/launch.json
-#!.vscode/extensions.json
-#!.vscode/*.code-snippets
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
 .history/

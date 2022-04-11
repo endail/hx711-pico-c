@@ -22,8 +22,8 @@
 
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "hx711.pio.h"
 #include "../include/hx711.h"
+#include "hx711.pio.h"
 
 int main() {
 
