@@ -43,23 +43,30 @@
 .define T3 1                ; 1us
 .define T4 1                ; 1us
 
+; y is used to store the last bit read count
+; x is used to as the bit decrement count for the current loop
+
+set y, 25                   ; used to store the last bit count
+                            ; a default 25 is given, as this matches the
+                            ; default gain (128) for the HX711
+
 .wrap_target
-pull block                  ; block until we receive data from application
+public start:               ; set to public, because the application
+                            ; ought to be able to jump directly to this
+                            ; point at any time
+    pull                    ; pull in any data if it's available, but don't
+                            ; wait if there isn't any
+    jmp !osre getbitcount   ; import the bit count if data is available
+    mov y, x                ; if the jump didn't occur, copy y into x
+                            ; before waiting for the pin
 
-out x, 5                    ; read 5 bits into x; this is the number of
-                            ; bits to read from the hx711.
-                            ; 5 bits will give a max range of 32. this is
-                            ; sufficient to hold the max expected bits to
-                            ; read (27).
-
-wait 0 pin 0 [T1 - 1]       ; wait until data pin goes low and delay for
+waitpin:
+    wait 0 pin 0 [T1 - 1]   ; wait until data pin goes low and delay for
                             ; T1 - 1 cycles
-
 bitloop:
     jmp x-- readbit         ; keep jumping to readbit while x > 0
-    push block              ; after reading all bits, push data back to
-                            ; application and go back to waiting for data
-                            ; to be received
+    push                    ; after reading all bits, push data back to
+                            ; application
 .wrap
 
 readbit:
@@ -67,6 +74,14 @@ readbit:
     set pins, 0 [T4 - 1]    ; set clock pin low and delay for T4 - 1 cycles
     in pins, 1              ; read bit from data pin into input register
     jmp bitloop
+
+getbitcount:
+    out x, 32               ; copy all the bits from the out register into
+                            ; x. even though only 5 bits are needed, copying
+                            ; all 32 will clear the out register bit count
+                            ; which is needed for the jump !osre condition
+    mov x, y                ; store a copy of the bit count
+    jmp waitpin             ; go to waiting for the pin to go low
 
 
 % c-sdk {
