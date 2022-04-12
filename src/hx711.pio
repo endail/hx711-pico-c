@@ -55,9 +55,9 @@ out x, 5                    ; read 5 bits into x; this is the number of
 wait 0 pin 0 [T1 - 1]       ; wait until data pin goes low and delay for
                             ; T1 - 1 cycles
 
-
-jmp x-- readbit             ; keep jumping to readbit while x > 0
-push block                  ; after reading all bits, push data back to
+bitloop:
+    jmp x-- readbit         ; keep jumping to readbit while x > 0
+    push block              ; after reading all bits, push data back to
                             ; application and go back to waiting for data
                             ; to be received
 .wrap
@@ -66,6 +66,7 @@ readbit:
     set pins, 1 [T3 - 1]    ; set clock pin high and delay for T3 - 1 cycles
     set pins, 0 [T4 - 1]    ; set clock pin low and delay for T4 - 1 cycles
     in pins, 1              ; read bit from data pin into input register
+    jmp bitloop
 
 
 % c-sdk {
