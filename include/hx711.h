@@ -29,17 +29,6 @@
 const uint8_t HX711_READ_BITS;
 
 typedef enum {
-    hz_10,
-    hz_80,
-    other
-} hx711_rate_t;
-
-typedef enum {
-    a,
-    b
-} hx711_channel_t;
-
-typedef enum {
     gain_128 = 25,
     gain_32 = 26,
     gain_64 = 27
