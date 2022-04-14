@@ -42,6 +42,9 @@ int main() {
 
     hx711_set_gain(&hx, gain_128);
 
+    //sleep_ms(400); //settling time @ 10Hz
+    sleep_ms(50); //settling time @ 80Hz
+
     while(true) {
         printf("%i\n", hx711_get_value_fast(&hx));
     }
