@@ -65,17 +65,17 @@ set x, (GAIN_COUNT - 1)     ; Set an initial default gain (this is 0-based).
 
 .wrap_target
 
+wait 0 pin 0 ; [T1 - 1]     ; Wait until data pin goes low and delay for
+                            ; T1 - 1 cycles. The delay here has been omitted
+                            ; due to other instructions below occurring
+                            ; before pulsing the clock pin.
+
 pull noblock                ; Pull in any data if it's available, but don't
                             ; wait if there isn't any. If no data is there,
                             ; preload from x.
 
 out x, 2                    ; Get 2 bits from the OSR into x. This is enough
                             ; to hold the max expected value (2).
-
-wait 0 pin 0 ; [T1 - 1]     ; Wait until data pin goes low and delay for
-                            ; T1 - 1 cycles. The delay here has been omitted
-                            ; due to other instructions below occurring
-                            ; before pulsing the clock pin.
 
 set y, (READ_BITS - 1)      ; Read y number of bits. -1 is subtracted due
                             ; to the bitloop executing at least once.
@@ -91,6 +91,7 @@ bitloop:
                             ; T3 delay, a second delay should not be needed.
 
     in pins, 1              ; Read bit from data pin into ISR.
+
     jmp y-- bitloop         ; Keep jumping back to bitloop while y > 0.
 
                             ; At this point, all 24 bits have been read
