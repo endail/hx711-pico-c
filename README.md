@@ -10,4 +10,4 @@ I have used [this helpful tutorial](https://paulbupejr.com/raspberry-pi-pico-win
 
 ![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
 
-The .gif above illustrates the current example code obtaining data from a HX711 operating at 80Hz. I tapped on the connected load cell to show the change in value.
+The .gif above illustrates the current example code obtaining data from a HX711 operating at 80Hz.
