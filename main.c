@@ -49,6 +49,6 @@ int main() {
         printf("%i\n", hx711_get_value_fast(&hx));
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 
 }
