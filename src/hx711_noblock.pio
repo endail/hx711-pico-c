@@ -210,11 +210,12 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         &cfg,
         hx->data_pin);
 
+    //left shit in bits
     sm_config_set_in_shift(
         &cfg,
-        false,
-        false,
-        32);
+        false,  //false=shift in left
+        false,  //false=autopush disabled
+        32);    //32=bit threshold for autopush
 
     pio_sm_init(
         hx->_pio,
