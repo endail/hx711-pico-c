@@ -97,7 +97,7 @@ bitloop:
                             ; and can be pushed back to the application.
 
     push noblock            ; Push data back, but don't wait because there's
-                            ; more to due - setting the gain.
+                            ; more to do - setting the gain.
 
     mov y, x                ; y will hold the number of times to pulse the
                             ; clock pin minus 1.
