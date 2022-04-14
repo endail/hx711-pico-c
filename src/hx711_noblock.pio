@@ -20,13 +20,21 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; 
-; This program waits for an integer representing the number of bits
-; from application code. That integer is in the range 25 to 27. The
-; program sends back a 32-bit integer. The lower 24 bits contain the
-; value read from the HX711. The next 1 to 3 bits are incidental to
-; setting the HX711's gain and should be ignored by the application.
+; This program pulls a 32-bit integer from application code and uses
+; it to set the gain on the HX711. If an integer is not provided, the
+; previously provided integer is used. A default integer of 0
+; corresponding to a gain of 128 is used until an integer is provided.
+; The integer provided should be in the range 0 to 2, inclusive.
 ; 
-; Details are given on page 5 of the HX711's datasheet
+; This program constantly and automatically refills the ISR with the
+; newest value from the HX711 without providing a gain value from
+; application code.
+; 
+; The lower 24 bits contain the value from the HX711. The next (upper)
+; bits should all be 0, but in any case should be ignored by
+; application code.
+; 
+; Details are given on page 5 of the HX711's datasheet.
 ; 
 ; NOTES:
 ; 1. This program assumes the state machine is running at 1MHz.
@@ -36,52 +44,66 @@
 ; pin has gone high. Given each bit is read in serial, the T2 delay is
 ; not needed.
 ; 
-.program hx711
+; 3. The 'x' register is used to store the last count of bits to read
+; and to preload the OSR with if the OSR is empty. See pg. 350 of the
+; RP2040 datasheet for details about this when the 'noblock' option is
+; given.
+;
+; 4. The 'y' register is used to as the decrement counter for the bit
+; read counter. This variable is 0-based.
+; 
+.program hx711_noblock
 
+.define READ_BITS 24        ; 24 bits to read from HX711
+.define GAIN_COUNT 1        ; Default gain (0=128, 1=32, 2=64)
 .define T1 1                ; 1us
-.define T2 1                ; 1us
+; .define T2 1              ; 1us - this value is not used (see above)
 .define T3 1                ; 1us
 .define T4 1                ; 1us
 
-; y is used to store the last bit read count
-; x is used to as the bit decrement count for the current loop
-
-set y, 25                   ; used to store the last bit count
-                            ; a default 25 is given, as this matches the
-                            ; default gain (128) for the HX711
+set x, (READ_BITS - 1)      ; Set an initial default gain (this is 0-based).
 
 .wrap_target
-public start:               ; set to public, because the application
-                            ; ought to be able to jump directly to this
-                            ; point at any time
-    pull                    ; pull in any data if it's available, but don't
-                            ; wait if there isn't any
-    jmp !osre getbitcount   ; import the bit count if data is available
-    mov y, x                ; if the jump didn't occur, copy y into x
-                            ; before waiting for the pin
 
-waitpin:
-    wait 0 pin 0 [T1 - 1]   ; wait until data pin goes low and delay for
-                            ; T1 - 1 cycles
+pull noblock                ; Pull in any data if it's available, but don't
+                            ; wait if there isn't any. If no data is there,
+                            ; preload from x.
+
+out x, 2                    ; Get 2 bits from the OSR into x. This is enough
+                            ; to hold the max expected value (2).
+
+wait 0 pin 0 [T1 - 1]       ; Wait until data pin goes low and delay for
+                            ; T1 - 1 cycles.
+
+set y, (READ_BITS - 1)      ; Read y number of bits. -1 is subtracted due
+                            ; to the bitloop executing at least once.
+
+in null, 32                 ; Reset the ISR to all 0 just before starting
+                            ; to read a new value.
+
 bitloop:
-    jmp x-- readbit         ; keep jumping to readbit while x > 0
-    push                    ; after reading all bits, push data back to
-                            ; application
+    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
+    set pins, 0 [T4 - 1]    ; Set clock pin low and delay.
+    in pins, 1              ; Read bit from data pin into ISR.
+    jmp y-- bitloop         ; Keep jumping back to bitloop while y > 0.
+
+                            ; At this point, all 24 bits have been read
+                            ; and can be pushed back to the application.
+
+    push noblock            ; Push data back, but don't wait because there's
+                            ; more to due - setting the gain.
+    mov y, x                ; y will hold the number of times to pulse the
+                            ; clock pin minus 1.
+
+gainloop:
+    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
+    set pins, 0 [T4 - 1]    ; Set clock pin low and delay.
+    jmp y-- gainloop        ; Keep pulsing while y > 0.
+
+                            ; At this point, the gain has been set for the
+                            ; next reading, so go back to the start.
+
 .wrap
-
-readbit:
-    set pins, 1 [T3 - 1]    ; set clock pin high and delay for T3 - 1 cycles
-    set pins, 0 [T4 - 1]    ; set clock pin low and delay for T4 - 1 cycles
-    in pins, 1              ; read bit from data pin into input register
-    jmp bitloop
-
-getbitcount:
-    out x, 32               ; copy all the bits from the out register into
-                            ; x. even though only 5 bits are needed, copying
-                            ; all 32 will clear the out register bit count
-                            ; which is needed for the jump !osre condition
-    mov x, y                ; store a copy of the bit count
-    jmp waitpin             ; go to waiting for the pin to go low
 
 
 % c-sdk {
@@ -111,9 +133,9 @@ getbitcount:
 #include "hardware/pio.h"
 #include "../include/hx711.h"
 
-void hx711_program_init(hx711_t* const hx) {
+void hx711_noblock_program_init(hx711_t* const hx) {
 
-    pio_sm_config cfg = hx711_program_get_default_config(hx->_offset);
+    pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_offset);
 
     //set state machine to 1MHz clock speed
     const float div = (float)(clock_get_hz(clk_sys)) / 1000000;

@@ -21,26 +21,29 @@
 // SOFTWARE.
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "pico/stdlib.h"
 #include "../include/hx711.h"
-#include "hx711.pio.h"
+#include "hx711_noblock.pio.h"
 
 int main() {
 
     stdio_init_all();
 
     hx711_t hx;
-    
+
     hx711_init(
         &hx,
-        14,
-        15,
+        14, //gpio 14
+        15, //gpio 15
         pio0,
-        &hx711_program,
-        &hx711_program_init);
-    
+        &hx711_noblock_program,
+        &hx711_noblock_program_init);
+
+    hx711_set_config(&hx, gain_128);
+
     while(true) {
-        printf("%i\n", hx711_get_twos_comp(hx711_get_value(&hx)));
+        printf("%i\n", hx711_get_value_fast(&hx));
     }
 
     return 0;

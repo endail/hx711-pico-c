@@ -39,11 +39,12 @@ add_executable(main
         )
 
 pico_generate_pio_header(main
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.pio
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
         )
 
 target_link_libraries(main
         hardware_pio
+        pico_malloc
         pico_stdlib
         pico_sync
         )

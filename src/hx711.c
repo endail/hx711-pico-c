@@ -23,7 +23,9 @@
 #include <assert.h>
 #include "../include/hx711.h"
 
-int hx711_init(
+const uint8_t HX711_READ_BITS = 24;
+
+void hx711_init(
     hx711_t* const hx,
     const uint clk,
     const uint dat,
@@ -56,8 +58,6 @@ int hx711_init(
         prog_init(hx);
 
         sem_release(&hx->_sem);
-
-        return 0;
 
 }
 
@@ -93,10 +93,10 @@ void hx711_set_config(hx711_t* const hx, const hx711_gain_t gain) {
 
     sem_acquire_blocking(&hx->_sem);
 
-    pio_sm_put(
+    pio_sm_put_blocking(
         hx->_pio,
         hx->_state_mach,
-        (uint32_t)gain);
+        (((uint32_t)gain) - HX711_READ_BITS) - 1);
 
     pio_sm_get_blocking(
         hx->_pio,
@@ -109,44 +109,47 @@ void hx711_set_config(hx711_t* const hx, const hx711_gain_t gain) {
 }
 
 int32_t hx711_get_twos_comp(const uint32_t val) {
-    assert(val <= 0x800000);
     return (int32_t)(-(val & 0x800000) + (val & 0x7fffff));
 }
 
-bool hx711_is_min_saturated(const uint32_t val) {
-    assert(val <= 0x800000);
+bool hx711_is_min_saturated(const int32_t val) {
     return val == 0x7fffff;
 }
 
-bool hx711_is_max_saturated(const uint32_t val) {
-    assert(val <= 0x800000);
+bool hx711_is_max_saturated(const int32_t val) {
     return val == 0x800000;
 }
 
-uint32_t hx711_get_value(hx711_t* const hx) {
-
-    //data to send indicates how many times the HX711 chip
-    //will read a bit
-    //this number should be between 25 and 27 according to
-    //the gain
-    assert(hx->gain >= 25 && hx->gain <= 27);
+int32_t hx711_get_value(hx711_t* const hx) {
 
     sem_acquire_blocking(&hx->_sem);
 
     pio_sm_put_blocking(
         hx->_pio,
         hx->_state_mach,
-        (uint32_t)hx->gain);
+        (((uint32_t)hx->gain) - HX711_READ_BITS) - 1);
 
-    //top 8 bits SHOULD be 0, but just to be sure, grab the
-    //bottom 24 bits
     const uint32_t val = pio_sm_get_blocking(
         hx->_pio,
-        hx->_state_mach) & 0xffffff;
+        hx->_state_mach);
 
     sem_release(&hx->_sem);
 
-    return val;
+    return hx711_get_twos_comp(val & 0xffffff);
+
+}
+
+int32_t hx711_get_value_fast(hx711_t* const hx) {
+
+    sem_acquire_blocking(&hx->_sem);
+
+    const uint32_t val = pio_sm_get_blocking(
+        hx->_pio,
+        hx->_state_mach);
+
+    sem_release(&hx->_sem);
+
+    return hx711_get_twos_comp(val & 0xffffff);
 
 }
 

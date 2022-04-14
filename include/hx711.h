@@ -26,6 +26,8 @@
 #include "hardware/pio.h"
 #include "pico/sync.h"
 
+const uint8_t HX711_READ_BITS;
+
 typedef enum {
     hz_10,
     hz_80,
@@ -65,7 +67,7 @@ typedef struct {
 
 typedef void (*program_init_t)(hx711_t* const);
 
-int hx711_init(
+void hx711_init(
     hx711_t* const hx,
     const uint clk,
     const uint dat,
@@ -81,11 +83,13 @@ void hx711_set_config(
 
 int32_t hx711_get_twos_comp(const uint32_t val);
 
-bool hx711_is_min_saturated(const uint32_t val);
+bool hx711_is_min_saturated(const int32_t val);
 
-bool hx711_is_max_saturated(const uint32_t val);
+bool hx711_is_max_saturated(const int32_t val);
 
-uint32_t hx711_get_value(hx711_t* const hx);
+int32_t hx711_get_value(hx711_t* const hx);
+
+int32_t hx711_get_value_fast(hx711_t* const hx);
 
 void hx711_set_power(
     hx711_t* const hx,
