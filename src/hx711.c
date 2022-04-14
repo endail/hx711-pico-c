@@ -31,7 +31,7 @@ void hx711_init(
     const uint dat,
     PIO pio,
     const pio_program_t* prog,
-    program_init_t prog_init) {
+    hx711_program_init_t prog_init) {
 
         sem_init(
             &hx->_sem,

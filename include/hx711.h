@@ -65,7 +65,7 @@ typedef struct {
 
 } hx711_t;
 
-typedef void (*program_init_t)(hx711_t* const);
+typedef void (*hx711_program_init_t)(hx711_t* const);
 
 void hx711_init(
     hx711_t* const hx,
@@ -73,7 +73,7 @@ void hx711_init(
     const uint dat,
     PIO pio,
     const pio_program_t* prog,
-    program_init_t);
+    hx711_program_init_t);
 
 void hx711_close(hx711_t* const hx);
 
