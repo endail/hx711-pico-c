@@ -56,12 +56,12 @@
 
 .define READ_BITS 24        ; 24 bits to read from HX711
 .define GAIN_COUNT 1        ; Default gain (0=128, 1=32, 2=64)
-.define T1 1                ; 1us
+; .define T1 1              ; 1us - this value is not used (see below)
 ; .define T2 1              ; 1us - this value is not used (see above)
 .define T3 1                ; 1us
-.define T4 1                ; 1us
+; .define T4 1              ; 1us - this value is not used (see below)
 
-set x, (READ_BITS - 1)      ; Set an initial default gain (this is 0-based).
+set x, (GAIN_COUNT - 1)     ; Set an initial default gain (this is 0-based).
 
 .wrap_target
 
@@ -72,8 +72,10 @@ pull noblock                ; Pull in any data if it's available, but don't
 out x, 2                    ; Get 2 bits from the OSR into x. This is enough
                             ; to hold the max expected value (2).
 
-wait 0 pin 0 [T1 - 1]       ; Wait until data pin goes low and delay for
-                            ; T1 - 1 cycles.
+wait 0 pin 0 ; [T1 - 1]     ; Wait until data pin goes low and delay for
+                            ; T1 - 1 cycles. The delay here has been omitted
+                            ; due to other instructions below occurring
+                            ; before pulsing the clock pin.
 
 set y, (READ_BITS - 1)      ; Read y number of bits. -1 is subtracted due
                             ; to the bitloop executing at least once.
@@ -83,7 +85,11 @@ in null, 32                 ; Reset the ISR to all 0 just before starting
 
 bitloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
-    set pins, 0 [T4 - 1]    ; Set clock pin low and delay.
+    set pins, 0 ; [T4 - 1]  ; Set clock pin low and delay. There is only a
+                            ; 0.1us delay between the clock pin going high
+                            ; and the data pin being ready. Given the above
+                            ; T3 delay, a second delay should not be needed.
+
     in pins, 1              ; Read bit from data pin into ISR.
     jmp y-- bitloop         ; Keep jumping back to bitloop while y > 0.
 
@@ -92,12 +98,17 @@ bitloop:
 
     push noblock            ; Push data back, but don't wait because there's
                             ; more to due - setting the gain.
+
     mov y, x                ; y will hold the number of times to pulse the
                             ; clock pin minus 1.
 
 gainloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
-    set pins, 0 [T4 - 1]    ; Set clock pin low and delay.
+    set pins, 0 ; [T4 - 1]  ; Set clock pin low and delay.  There is only a
+                            ; 0.1us delay between the clock pin going high
+                            ; and the data pin being ready. Given the above
+                            ; T3 delay, a second delay should not be needed.
+
     jmp y-- gainloop        ; Keep pulsing while y > 0.
 
                             ; At this point, the gain has been set for the
