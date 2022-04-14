@@ -89,7 +89,7 @@ void hx711_close(hx711_t* const hx) {
 
 }
 
-void hx711_set_config(hx711_t* const hx, const hx711_gain_t gain) {
+void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     sem_acquire_blocking(&hx->_sem);
 

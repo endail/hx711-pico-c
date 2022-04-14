@@ -77,7 +77,7 @@ void hx711_init(
 
 void hx711_close(hx711_t* const hx);
 
-void hx711_set_config(
+void hx711_set_gain(
     hx711_t* const hx,
     const hx711_gain_t gain);
 

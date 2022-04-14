@@ -40,7 +40,7 @@ int main() {
         &hx711_noblock_program,
         &hx711_noblock_program_init);
 
-    hx711_set_config(&hx, gain_128);
+    hx711_set_gain(&hx, gain_128);
 
     while(true) {
         printf("%i\n", hx711_get_value_fast(&hx));
