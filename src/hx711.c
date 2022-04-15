@@ -124,25 +124,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
     sem_acquire_blocking(&hx->_sem);
 
-    pio_sm_put_blocking(
-        hx->_pio,
-        hx->_state_mach,
-        (((uint32_t)hx->gain) - HX711_READ_BITS) - 1);
-
-    const uint32_t val = pio_sm_get_blocking(
-        hx->_pio,
-        hx->_state_mach);
-
-    sem_release(&hx->_sem);
-
-    return hx711_get_twos_comp(val & 0xffffff);
-
-}
-
-int32_t hx711_get_value_fast(hx711_t* const hx) {
-
-    sem_acquire_blocking(&hx->_sem);
-
+    //block until a value is available
     const uint32_t val = pio_sm_get_blocking(
         hx->_pio,
         hx->_state_mach);

@@ -78,8 +78,6 @@ bool hx711_is_max_saturated(const int32_t val);
 
 int32_t hx711_get_value(hx711_t* const hx);
 
-int32_t hx711_get_value_fast(hx711_t* const hx);
-
 void hx711_set_power(
     hx711_t* const hx,
     const hx711_power_t pwr);
