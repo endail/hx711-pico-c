@@ -108,10 +108,6 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
 }
 
-int32_t hx711_get_twos_comp(const uint32_t val) {
-    return (int32_t)(-(val & 0x800000) + (val & 0x7fffff));
-}
-
 bool hx711_is_min_saturated(const int32_t val) {
     return val == -0x800000; //−8,388,608
 }
@@ -125,13 +121,19 @@ int32_t hx711_get_value(hx711_t* const hx) {
     sem_acquire_blocking(&hx->_sem);
 
     //block until a value is available
-    const uint32_t val = pio_sm_get_blocking(
+    uint32_t rawVal = pio_sm_get_blocking(
         hx->_pio,
         hx->_state_mach);
 
     sem_release(&hx->_sem);
 
-    return hx711_get_twos_comp(val & 0xffffff);
+    //only use the bottom 24 bits
+    rawVal = rawVal & 0xffffff;
+
+    //get the twos complement value
+    const int32_t val = -(rawVal & 0x800000) + (rawVal & 0x7fffff);
+
+    return val;
 
 }
 

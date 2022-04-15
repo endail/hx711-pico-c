@@ -74,8 +74,6 @@ void hx711_set_gain(
     hx711_t* const hx,
     const hx711_gain_t gain);
 
-int32_t hx711_get_twos_comp(const uint32_t val);
-
 bool hx711_is_min_saturated(const int32_t val);
 
 bool hx711_is_max_saturated(const int32_t val);
