@@ -40,7 +40,7 @@ void hx711_init(
 
         hx->clock_pin = clk;
         hx->data_pin = dat;
-        hx->gain = gain_128;
+        hx->gain = hx711_gain_128;
 
         gpio_init(clk);
         gpio_set_dir(clk, GPIO_OUT);

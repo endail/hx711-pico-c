@@ -31,21 +31,24 @@ int main() {
 
     stdio_init_all();
 
+    const uint clkPin = 14;
+    const uint datPin = 15;
+
     hx711_t hx;
 
     hx711_init(
         &hx,
-        14, //gpio 14
-        15, //gpio 15
+        clkPin,
+        datPin,
         pio0,
         &hx711_noblock_program,
         &hx711_noblock_program_init);
 
-    hx711_set_power(&hx, down);
+    hx711_set_power(&hx, hx711_pwr_down);
     sleep_ms(1);
-    hx711_set_power(&hx, up);
+    hx711_set_power(&hx, hx711_pwr_up);
 
-    hx711_set_gain(&hx, gain_128);
+    hx711_set_gain(&hx, hx711_gain_128);
 
     //sleep_ms(400); //settling time @ 10Hz
     sleep_ms(50); //settling time @ 80Hz

@@ -29,14 +29,18 @@
 const uint8_t HX711_READ_BITS;
 
 typedef enum {
-    gain_128 = 25,
-    gain_32 = 26,
-    gain_64 = 27
+    hx711_gain_128 = 25,
+    hx711_gain_32 = 26,
+    hx711_gain_64 = 27
 } hx711_gain_t;
 
+/**
+ * These enum values cast to a bool
+ * when setting pin value.
+ */
 typedef enum {
-    up = 1,
-    down = 0
+    hx711_pwr_up = 1,
+    hx711_pwr_down = 0
 } hx711_power_t;
 
 typedef struct {
