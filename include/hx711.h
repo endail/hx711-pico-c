@@ -54,7 +54,7 @@ typedef struct {
     uint _state_mach;
     uint _offset;
 
-    semaphore_t _sem;
+    mutex_t _mut;
 
 } hx711_t;
 

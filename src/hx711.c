@@ -33,10 +33,8 @@ void hx711_init(
     const pio_program_t* prog,
     hx711_program_init_t prog_init) {
 
-        sem_init(
-            &hx->_sem,
-            0,
-            1);
+        mutex_init(&hx->_mut);
+        mutex_enter_blocking(&hx->_mut);
 
         hx->clock_pin = clk;
         hx->data_pin = dat;
@@ -57,13 +55,13 @@ void hx711_init(
 
         prog_init(hx);
 
-        sem_release(&hx->_sem);
+        mutex_exit(&hx->_mut);
 
 }
 
 void hx711_close(hx711_t* const hx) {
 
-    sem_acquire_blocking(&hx->_sem);
+    mutex_enter_blocking(&hx->_mut);
 
     pio_sm_set_enabled(
         hx->_pio,
@@ -85,13 +83,13 @@ void hx711_close(hx711_t* const hx) {
         hx->data_pin,
         false);
 
-    sem_release(&hx->_sem);
+    mutex_exit(&hx->_mut);
 
 }
 
 void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
-    sem_acquire_blocking(&hx->_sem);
+    mutex_enter_blocking(&hx->_mut);
 
     //gain value is 0-based and calculated by:
     //gain = clock pulses - 24 - 1
@@ -109,7 +107,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     hx->gain = gain;
 
-    sem_release(&hx->_sem);
+    mutex_exit(&hx->_mut);
 
 }
 
@@ -123,14 +121,14 @@ bool hx711_is_max_saturated(const int32_t val) {
 
 int32_t hx711_get_value(hx711_t* const hx) {
 
-    sem_acquire_blocking(&hx->_sem);
+    mutex_enter_blocking(&hx->_mut);
 
     //block until a value is available
     uint32_t rawVal = pio_sm_get_blocking(
         hx->_pio,
         hx->_state_mach);
 
-    sem_release(&hx->_sem);
+    mutex_exit(&hx->_mut);
 
     //only use the bottom 24 bits
     rawVal = rawVal & 0xffffff;
@@ -143,7 +141,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
 }
 
 void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
-    sem_acquire_blocking(&hx->_sem);
+    mutex_enter_blocking(&hx->_mut);
     gpio_put(hx->clock_pin, (bool)pwr);
-    sem_release(&hx->_sem);
+    mutex_exit(&hx->_mut);
 }
