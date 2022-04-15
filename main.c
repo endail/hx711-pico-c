@@ -46,7 +46,11 @@ int main() {
         &hx711_noblock_program,
         &hx711_noblock_program_init);
 
-    hx711_set_gain(&hx, gain_128);
+    hx711_set_power(&hx, down);
+    sleep_ms(1);
+    hx711_set_power(&hx, up);
+
+    //hx711_set_gain(&hx, gain_128);
 
     //sleep_ms(400); //settling time @ 10Hz
     sleep_ms(50); //settling time @ 80Hz
