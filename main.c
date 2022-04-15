@@ -25,10 +25,16 @@
 #include "pico/stdlib.h"
 #include "../include/hx711.h"
 #include "hx711_noblock.pio.h"
+#include "pico/malloc.h"
 
 int main() {
 
     stdio_init_all();
+
+    const uint arrlen = 30;
+    int32_t* arr = malloc(arrlen * sizeof(int32_t));
+    int32_t* ptr = &arr[0];
+    int32_t* end = &arr[arrlen - 1];
 
     hx711_t hx;
 
