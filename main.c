@@ -31,11 +31,6 @@ int main() {
 
     stdio_init_all();
 
-    const uint arrlen = 30;
-    int32_t* arr = malloc(arrlen * sizeof(int32_t));
-    int32_t* ptr = &arr[0];
-    int32_t* end = &arr[arrlen - 1];
-
     hx711_t hx;
 
     hx711_init(
@@ -56,7 +51,19 @@ int main() {
     sleep_ms(50); //settling time @ 80Hz
 
     while(true) {
-        printf("%i\n", hx711_get_value(&hx));
+        
+        const int32_t val = hx711_get_value(&hx);
+
+        if(hx711_is_min_saturated(val)) {
+            printf("ERROR: MIN\n");
+        }
+        else if(hx711_is_max_saturated(val)) {
+            printf("ERROR: MAX\n");
+        }
+        else {
+            printf("%i\n", val);
+        }
+
     }
 
     return EXIT_SUCCESS;

@@ -113,11 +113,11 @@ int32_t hx711_get_twos_comp(const uint32_t val) {
 }
 
 bool hx711_is_min_saturated(const int32_t val) {
-    return val == 0x7fffff;
+    return val == -0x800000; //−8,388,608
 }
 
 bool hx711_is_max_saturated(const int32_t val) {
-    return val == 0x800000;
+    return val == 0x7fffff; //8,388,607
 }
 
 int32_t hx711_get_value(hx711_t* const hx) {
