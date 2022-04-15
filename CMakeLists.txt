@@ -36,6 +36,9 @@ pico_sdk_init()
 add_executable(main
         main.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/mass.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/scale.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/util.c
         )
 
 pico_generate_pio_header(main

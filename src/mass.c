@@ -1,0 +1,125 @@
+// MIT License
+// 
+// Copyright (c) 2022 Daniel Robertson
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#include "../include/mass.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+const double MASS_RATIOS[] = {
+    1.0,
+    1000.0,
+    1000000.0,
+    1000000000.0,
+    1000000000000.0,
+    1016046908800.0,
+    907184740000.0,
+    6350293180.0,
+    453592370.0,
+    28349523.125
+};
+
+const char* const MASS_NAMES[] = {
+    "μg",
+    "mg",
+    "g",
+    "kg",
+    "ton",
+    "ton (IMP)",
+    "ton (US)",
+    "st",
+    "lb",
+    "oz"
+};
+
+const double* const mass_unit_to_ratio(const mass_unit_t u) {
+    return &MASS_RATIOS[(uint)u];
+}
+
+const char* const mass_unit_to_string(const mass_unit_t u) {
+    return MASS_NAMES[(uint)u];
+}
+
+const uint8_t MASS_TO_STRING_BUFF_SIZE = 64;
+
+void mass_get_value(
+    const mass_t* const m,
+    double* const val) {
+        mass_convert(&m->ug, val, mass_ug, m->unit);
+}
+
+void mass_set_value(
+    mass_t* const m,
+    const mass_unit_t unit,
+    const double* const val) {
+        mass_convert(val, &m->ug, unit, mass_ug);
+        m->unit = unit;
+}
+
+void mass_to_string(
+    const mass_t* const m,
+    char* const buff) {
+
+        double n; //value
+        mass_convert(&m->ug, &n, mass_ug, m->unit);
+        double i; //int part
+        const double f = modf(n, &i); //frac part
+        int32_t d = 0;
+
+        if(f != 0) {
+            d = (int32_t)fmax(0, (1 - log10(fabs(f))));
+        }
+            
+        snprintf(
+            buff,
+            MASS_TO_STRING_BUFF_SIZE,
+            "%01.*f %s",
+            d,
+            n,
+            mass_unit_to_string(m->unit));
+
+}
+
+void mass_convert(
+    const double* const fromAmount,
+    double* const toAmount,
+    const mass_unit_t fromUnit,
+    const mass_unit_t toUnit) {
+
+        if(fromUnit == toUnit) {
+            *toAmount = *fromAmount;
+            return;
+        }
+
+        if(toUnit == mass_ug) {
+            *toAmount = *fromAmount * *mass_unit_to_ratio(fromUnit);
+            return;
+        }
+
+        if(fromUnit == mass_ug) {
+            *toAmount = *fromAmount / *mass_unit_to_ratio(toUnit);
+            return;
+        }
+
+        mass_convert(fromAmount, toAmount, toUnit, mass_ug);
+
+}

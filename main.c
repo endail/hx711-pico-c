@@ -23,9 +23,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pico/stdlib.h"
+#include <string.h>
 #include "../include/hx711.h"
 #include "hx711_noblock.pio.h"
-#include "pico/malloc.h"
+#include "../include/scale.h"
 
 int main() {
 
@@ -33,8 +34,12 @@ int main() {
 
     const uint clkPin = 14;
     const uint datPin = 15;
+    const int32_t refUnit = -440;
+    const int32_t offset = -369500;
+    const mass_unit_t unit = mass_g;
 
     hx711_t hx;
+    scale_t sc;
 
     hx711_init(
         &hx,
@@ -53,8 +58,30 @@ int main() {
     //sleep_ms(400); //settling time @ 10Hz
     sleep_ms(50); //settling time @ 80Hz
 
+    scale_init(&sc, &hx, offset, refUnit, unit);
+
+    mass_t mass;
+    scale_options_t opt;
+    char buff[MASS_TO_STRING_BUFF_SIZE];
+
+    opt.strat_type = strategy_type_samples;
+    opt.read_type = read_type_median;
+    opt.samples = 500;
+
+    scale_zero(&sc, &opt);
+    printf("Zeroing done!\n");
+
+    opt.samples = 30;
+
     while(true) {
         
+        memset(&buff[0], 0, sizeof(buff));
+
+        scale_weight(&sc, &mass, &opt);
+        mass_to_string(&mass, buff);
+        printf("%s\n", buff);
+
+        /*
         const int32_t val = hx711_get_value(&hx);
 
         if(hx711_is_min_saturated(val)) {
@@ -66,6 +93,7 @@ int main() {
         else {
             printf("%i\n", val);
         }
+        */
 
     }
 
