@@ -134,9 +134,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
     rawVal = rawVal & 0xffffff;
 
     //get the twos complement value
-    const int32_t val = -(rawVal & 0x800000) + (rawVal & 0x7fffff);
-
-    return val;
+    return -(rawVal & 0x800000) + (rawVal & 0x7fffff);
 
 }
 
