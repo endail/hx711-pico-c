@@ -29,6 +29,11 @@
 
 const uint8_t HX711_READ_BITS = 24;
 
+const uint16_t HX711_SETTLING_TIMES[] = {
+    400,
+    50
+};
+
 void hx711_init(
     hx711_t* const hx,
     const uint clk,
@@ -128,6 +133,10 @@ bool hx711_is_min_saturated(const int32_t val) {
 
 bool hx711_is_max_saturated(const int32_t val) {
     return val == 0x7fffff; //8,388,607
+}
+
+uint16_t hx711_get_settling_time(const hx711_rate_t rate) {
+    return HX711_SETTLING_TIMES[(int)rate];
 }
 
 int32_t hx711_get_value(hx711_t* const hx) {

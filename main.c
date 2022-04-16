@@ -53,34 +53,29 @@ int main() {
         &hx711_noblock_program,
         &hx711_noblock_program_init);
 
-    hx711_set_power(&hx, hx711_pwr_down);
-    sleep_ms(1);
-    hx711_set_power(&hx, hx711_pwr_up);
-
+    //set gain and reset
     hx711_set_gain(&hx, hx711_gain_128);
-
-    //sleep_ms(400); //settling time @ 10Hz
-    sleep_ms(50); //settling time @ 80Hz
+    hx711_set_power(&hx, hx711_pwr_down);
+    sleep_us(HX711_SLEEP_TIMEOUT);
+    hx711_set_power(&hx, hx711_pwr_up);
+    sleep_ms(hx711_get_settling_time(hx711_rate_80));
 
     scale_init(&sc, &hx, offset, refUnit, unit);
 
     opt.strat = strategy_type_time;
-    opt.timeout = 5000000; //5 seconds
+    opt.timeout = 5 * 1000000; //5 seconds
 
     printf("Zeroing for %uus...\n", opt.timeout);
     scale_zero(&sc, &opt);
     printf("Zeroing done!\n");
 
-    opt.timeout = 1000000;
+    opt.timeout = 1 * 1000000; //1 second
 
     while(true) {
-        
         memset(buff, 0, MASS_TO_STRING_BUFF_SIZE);
-
         scale_weight(&sc, &mass, &opt);
         mass_to_string(&mass, buff);
         printf("%s\n", buff);
-
     }
 
     return EXIT_SUCCESS;

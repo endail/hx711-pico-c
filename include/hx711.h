@@ -28,6 +28,13 @@
 #include "pico/mutex.h"
 
 const uint8_t HX711_READ_BITS;
+const uint8_t HX711_SLEEP_TIMEOUT = 60; //us
+extern const uint16_t HX711_SETTLING_TIMES[]; //ms
+
+typedef enum {
+    hx711_rate_10 = 0,
+    hx711_rate_80
+} hx711_rate_t;
 
 typedef enum {
     hx711_gain_128 = 25,
@@ -78,6 +85,8 @@ void hx711_set_gain(
 bool hx711_is_min_saturated(const int32_t val);
 
 bool hx711_is_max_saturated(const int32_t val);
+
+uint16_t hx711_get_settling_time(const hx711_rate_t rate);
 
 int32_t hx711_get_value(hx711_t* const hx);
 
