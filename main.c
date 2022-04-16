@@ -68,7 +68,8 @@ int main() {
     opt.timeout = 5 * 1000000;
     scale_zero(&sc, &opt);
 
-    opt.timeout = 1 * 1000000; //1 second
+    opt.strat = strategy_type_samples;
+    opt.samples = 3;
 
     while(true) {
         memset(buff, 0, MASS_TO_STRING_BUFF_SIZE);

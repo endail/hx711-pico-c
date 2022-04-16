@@ -10,4 +10,4 @@ I have used [this helpful tutorial](https://paulbupejr.com/raspberry-pi-pico-win
 
 ![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
 
-The .gif above illustrates the current example code obtaining data from a HX711 operating at 80Hz.
+The .gif above illustrates the current example code obtaining data from a HX711 operating at 80 samples per second. Each line shows the weight calculated from the median of 3 samples. I applied pressure to the load cell to show the change in weight.
