@@ -45,7 +45,6 @@ int main() {
     mass_t mass;
     char buff[MASS_TO_STRING_BUFF_SIZE];
 
-
     hx711_init(
         &hx,
         clkPin,
