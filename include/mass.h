@@ -20,15 +20,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef _MASS_H_
-#define _MASS_H_
+#ifndef _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
+#define _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
 
 #include <stdint.h>
 
 extern const double MASS_RATIOS[];
-
 extern const char* const MASS_NAMES[];
+const uint8_t MASS_TO_STRING_BUFF_SIZE;
 
+/**
+ * Enum values are mapped to MASS_RATIOS and MASS_NAMES
+ */
 typedef enum {
     mass_ug = 0,
     mass_mg,
@@ -42,14 +45,13 @@ typedef enum {
     mass_oz
 } mass_unit_t;
 
-const char* const mass_unit_to_string(const mass_unit_t);
+const char* const mass_unit_to_string(const mass_unit_t u);
+const double* const mass_unit_to_ratio(const mass_unit_t u);
 
 typedef struct {
     double ug;
     mass_unit_t unit;
 } mass_t;
-
-const uint8_t MASS_TO_STRING_BUFF_SIZE;
 
 void mass_get_value(
     const mass_t* const m,
@@ -60,6 +62,10 @@ void mass_set_value(
     const mass_unit_t unit,
     const double* const val);
 
+
+/**
+ * buff must be at least MASS_TO_STRING_BUFF_SIZE in length
+ */
 void mass_to_string(
     const mass_t* const m,
     char* const buff);

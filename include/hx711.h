@@ -20,11 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef _HX711_H_
-#define _HX711_H_
+#ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
+#define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
+#include <stdint.h>
 #include "hardware/pio.h"
-#include "pico/sync.h"
+#include "pico/mutex.h"
 
 const uint8_t HX711_READ_BITS;
 
@@ -66,7 +67,7 @@ void hx711_init(
     const uint dat,
     PIO pio,
     const pio_program_t* prog,
-    hx711_program_init_t);
+    hx711_program_init_t prog_init_func);
 
 void hx711_close(hx711_t* const hx);
 

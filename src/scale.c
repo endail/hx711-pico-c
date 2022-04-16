@@ -20,10 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "../include/scale.h"
-#include "../include/util.h"
+#include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include "pico/malloc.h"
+#include "pico/platform.h"
+#include "pico/time.h"
+#include "../include/scale.h"
+#include "../include/util.h"
+
+const scale_options_t SCALE_DEFAULT_OPTIONS = {
+    .strat_type = strategy_type_samples,
+    .read_type = read_type_median,
+    .samples = 3, //3 samples
+    .timeout = 1000000 //1 second
+};
 
 void scale_init(
     scale_t* const sc,
@@ -31,6 +42,7 @@ void scale_init(
     const int32_t offset,
     const int32_t ref_unit,
     const mass_unit_t unit) {
+        //TODO: init a mutex here?
         sc->_hx = hx;
         sc->offset = offset;
         sc->ref_unit = ref_unit;
@@ -41,40 +53,52 @@ void scale_normalise(
     const scale_t* const sc,
     const double* const raw,
     double* const normalised) {
+
+        assert(sc != NULL);
+        assert(raw != NULL);
+        assert(normalised != NULL);
+
         *normalised = (*raw - sc->offset) / sc->ref_unit;
+
 }
 
 void scale_get_values_samples(
     scale_t* const sc,
-    int32_t* const arr,
+    int32_t** const arr,
     const size_t len) {
 
+        assert(sc != NULL);
+        assert(arr != NULL);
+
+        //TODO: error checking
+        *arr = malloc(__fast_mul(len, sizeof(int32_t)));
+
         for(size_t i = 0; i < len; ++i) {
-            arr[i] = hx711_get_value(sc->_hx);
+            (*arr)[i] = hx711_get_value(sc->_hx);
         }
 
 }
 
 void scale_get_values_timeout(
     scale_t* const sc,
-    int32_t* arr,
+    int32_t** arr,
     size_t* len,
-    const uint64_t timeout) {
+    const uint64_t* const timeout) {
 
-        size_t curLen = 0;
-        int32_t* curArr = NULL;
+        assert(sc != NULL);
+        assert(arr != NULL);
+        assert(len != NULL);
+        assert(timeout != NULL);
 
-        const absolute_time_t endTime = delayed_by_us(
-            get_absolute_time(),
-            timeout);
+        const absolute_time_t endTime = make_timeout_time_us(*timeout);
 
         while(!time_reached(endTime)) {
-            curArr = (int32_t*)realloc(curArr, ++curLen * sizeof(int32_t));
-            curArr[curLen - 1] = hx711_get_value(sc->_hx);
+            ++(*len);
+            //TODO: error checking
+            *arr = realloc(*arr, __fast_mul(*len, sizeof(int32_t)));
+            //hx711_get_value will block, so no busy-waiting here
+            (*arr)[(*len) - 1] = hx711_get_value(sc->_hx);
         }
-
-        arr = curArr;
-        *len = curLen;
 
 }
 
@@ -83,36 +107,39 @@ void scale_read(
     double* const val,
     const scale_options_t* const opt) {
 
-        int32_t* arr;
-        size_t len;
+        assert(sc != NULL);
+        assert(val != NULL);
+        assert(opt != NULL);
+
+        int32_t* arr = NULL;
+        size_t len = 0;
 
         switch(opt->strat_type) {
+        case strategy_type_time:
+            scale_get_values_timeout(sc, &arr, &len, &opt->timeout);
+            break;
+
         case strategy_type_samples:
-            arr = (int32_t*)malloc(opt->samples * sizeof(int32_t));
-            scale_get_values_samples(sc, arr, opt->samples);
+        default:
+            scale_get_values_samples(sc, &arr, opt->samples);
             len = opt->samples;
             break;
-        case strategy_type_time:
-            scale_get_values_timeout(sc, arr, &len, opt->timeout);
-            break;
-        default:
-            return;
+
         }
         
         if(len == 0) {
-            //return an error
+            //TODO: return an error?
+            free(arr);
             return;
         }
 
         switch(opt->read_type) {
-        case read_type_median:
-            util_median(arr, len, val);
-            break;
         case read_type_average:
             util_average(arr, len, val);
             break;
+        case read_type_median:
         default:
-            //error!
+            util_median(arr, len, val);
             break;
         }
 
@@ -123,6 +150,9 @@ void scale_read(
 void scale_zero(
     scale_t* const sc,
     const scale_options_t* const opt) {
+
+        assert(sc != NULL);
+        assert(opt != NULL);
 
         double val;
         const int32_t refBackup = sc->ref_unit;
@@ -138,8 +168,15 @@ void scale_weight(
     scale_t* const sc,
     mass_t* const m,
     const scale_options_t* const opt) {
+
+        assert(sc != NULL);
+        assert(m != NULL);
+        assert(opt != NULL);
+
         double val;
+
         scale_read(sc, &val, opt);
         scale_normalise(sc, &val, &val);
         mass_set_value(m, sc->unit, &val);
+
 }

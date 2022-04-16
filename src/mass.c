@@ -20,10 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "../include/mass.h"
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../include/mass.h"
 
 const double MASS_RATIOS[] = {
     1.0,
@@ -51,42 +52,55 @@ const char* const MASS_NAMES[] = {
     "oz"
 };
 
-const double* const mass_unit_to_ratio(const mass_unit_t u) {
-    return &MASS_RATIOS[(uint)u];
-}
+const uint8_t MASS_TO_STRING_BUFF_SIZE = 64;
 
 const char* const mass_unit_to_string(const mass_unit_t u) {
-    return MASS_NAMES[(uint)u];
+    return MASS_NAMES[(int)u];
 }
 
-const uint8_t MASS_TO_STRING_BUFF_SIZE = 64;
+const double* const mass_unit_to_ratio(const mass_unit_t u) {
+    return &MASS_RATIOS[(int)u];
+}
 
 void mass_get_value(
     const mass_t* const m,
     double* const val) {
+
+        assert(m != NULL);
+        assert(val != NULL);
+
         mass_convert(&m->ug, val, mass_ug, m->unit);
+
 }
 
 void mass_set_value(
     mass_t* const m,
     const mass_unit_t unit,
     const double* const val) {
+
+        assert(m != NULL);
+        assert(val != NULL);
+        
         mass_convert(val, &m->ug, unit, mass_ug);
         m->unit = unit;
+
 }
 
 void mass_to_string(
     const mass_t* const m,
     char* const buff) {
 
+        assert(m != NULL);
+        assert(buff != NULL);
+
         double n; //value
         mass_convert(&m->ug, &n, mass_ug, m->unit);
         double i; //int part
         const double f = modf(n, &i); //frac part
-        int32_t d = 0;
+        int d = 0; //decimal count
 
         if(f != 0) {
-            d = (int32_t)fmax(0, (1 - log10(fabs(f))));
+            d = (int)fmax(0, (1 - log10(fabs(f))));
         }
             
         snprintf(
@@ -104,6 +118,9 @@ void mass_convert(
     double* const toAmount,
     const mass_unit_t fromUnit,
     const mass_unit_t toUnit) {
+
+        assert(fromAmount != NULL);
+        assert(toAmount != NULL);
 
         if(fromUnit == toUnit) {
             *toAmount = *fromAmount;

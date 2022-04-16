@@ -21,6 +21,10 @@
 // SOFTWARE.
 
 #include <assert.h>
+#include <stdint.h>
+#include "hardware/gpio.h"
+#include "hardware/pio.h"
+#include "pico/mutex.h"
 #include "../include/hx711.h"
 
 const uint8_t HX711_READ_BITS = 24;
@@ -31,7 +35,10 @@ void hx711_init(
     const uint dat,
     PIO pio,
     const pio_program_t* prog,
-    hx711_program_init_t prog_init) {
+    hx711_program_init_t prog_init_func) {
+
+        assert(hx != NULL);
+        assert(prog != NULL);
 
         mutex_init(&hx->_mut);
         mutex_enter_blocking(&hx->_mut);
@@ -53,13 +60,15 @@ void hx711_init(
         hx->_offset = pio_add_program(hx->_pio, hx->_prog);
         hx->_state_mach = pio_claim_unused_sm(hx->_pio, true);
 
-        prog_init(hx);
+        prog_init_func(hx);
 
         mutex_exit(&hx->_mut);
 
 }
 
 void hx711_close(hx711_t* const hx) {
+
+    assert(hx != NULL);
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -88,6 +97,8 @@ void hx711_close(hx711_t* const hx) {
 }
 
 void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
+
+    assert(hx != NULL);
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -121,6 +132,8 @@ bool hx711_is_max_saturated(const int32_t val) {
 
 int32_t hx711_get_value(hx711_t* const hx) {
 
+    assert(hx != NULL);
+
     mutex_enter_blocking(&hx->_mut);
 
     //block until a value is available
@@ -139,7 +152,11 @@ int32_t hx711_get_value(hx711_t* const hx) {
 }
 
 void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
+    
+    assert(hx != NULL);
+    
     mutex_enter_blocking(&hx->_mut);
     gpio_put(hx->clock_pin, (bool)pwr);
     mutex_exit(&hx->_mut);
+
 }

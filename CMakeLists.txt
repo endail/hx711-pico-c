@@ -46,10 +46,16 @@ pico_generate_pio_header(main
         )
 
 target_link_libraries(main
+        hardware_gpio
         hardware_pio
+        pico_divider
+        pico_double
+        pico_float
         pico_malloc
+        pico_mem_ops
         pico_stdlib
         pico_sync
+        pico_time
         )
 
 pico_add_extra_outputs(main)

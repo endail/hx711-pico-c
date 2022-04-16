@@ -20,9 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef _SCALE_H_
-#define _SCALE_H_
+#ifndef _SCALE_H_4B64A868_05B1_4F4C_99CF_E75ED9BAED50
+#define _SCALE_H_4B64A868_05B1_4F4C_99CF_E75ED9BAED50
 
+#include <stdint.h>
+#include <stddef.h>
 #include "hx711.h"
 #include "mass.h"
 
@@ -42,6 +44,8 @@ typedef struct {
     size_t samples;
     uint64_t timeout;
 } scale_options_t;
+
+const scale_options_t SCALE_DEFAULT_OPTIONS;
 
 typedef struct {
 
@@ -67,14 +71,14 @@ void scale_normalise(
 
 void scale_get_values_samples(
     scale_t* const sc,
-    int32_t* const arr,
+    int32_t** const arr,
     const size_t len);
 
 void scale_get_values_timeout(
     scale_t* const sc,
-    int32_t* arr,
+    int32_t** arr,
     size_t* len,
-    const uint64_t timeout);
+    const uint64_t* const timeout);
 
 void scale_read(
     scale_t* const sc,

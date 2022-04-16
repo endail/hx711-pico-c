@@ -40,6 +40,10 @@ int main() {
 
     hx711_t hx;
     scale_t sc;
+    scale_options_t opt = SCALE_DEFAULT_OPTIONS;
+    mass_t mass;
+    char buff[MASS_TO_STRING_BUFF_SIZE];
+
 
     hx711_init(
         &hx,
@@ -60,40 +64,22 @@ int main() {
 
     scale_init(&sc, &hx, offset, refUnit, unit);
 
-    mass_t mass;
-    scale_options_t opt;
-    char buff[MASS_TO_STRING_BUFF_SIZE];
+    opt.strat_type = strategy_type_time;
+    opt.timeout = 5000000; //5 seconds
 
-    opt.strat_type = strategy_type_samples;
-    opt.read_type = read_type_median;
-    opt.samples = 500;
-
+    printf("Zeroing for %uus...\n", opt.timeout);
     scale_zero(&sc, &opt);
     printf("Zeroing done!\n");
 
-    opt.samples = 30;
+    opt.timeout = 1000000;
 
     while(true) {
         
-        memset(&buff[0], 0, sizeof(buff));
+        memset(buff, 0, MASS_TO_STRING_BUFF_SIZE);
 
         scale_weight(&sc, &mass, &opt);
         mass_to_string(&mass, buff);
         printf("%s\n", buff);
-
-        /*
-        const int32_t val = hx711_get_value(&hx);
-
-        if(hx711_is_min_saturated(val)) {
-            printf("ERROR: MIN\n");
-        }
-        else if(hx711_is_max_saturated(val)) {
-            printf("ERROR: MAX\n");
-        }
-        else {
-            printf("%i\n", val);
-        }
-        */
 
     }
 

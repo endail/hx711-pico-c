@@ -3,6 +3,10 @@
     "files.associations": {
         "hx711.h": "c",
         "hx711.pio.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "mutex": "c",
+        "sync.h": "c",
+        "mutex.h": "c",
+        "cstdio": "c"
     }
 }
