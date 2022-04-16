@@ -68,6 +68,7 @@ int main() {
     opt.timeout = 5 * 1000000;
     scale_zero(&sc, &opt);
 
+    //switch to obtaining 3 samples
     opt.strat = strategy_type_samples;
     opt.samples = 3;
 
