@@ -39,8 +39,8 @@ typedef enum {
 } read_type_t;
 
 typedef struct {
-    strategy_type_t strat_type;
-    read_type_t read_type;
+    strategy_type_t strat;
+    read_type_t read;
     size_t samples;
     uint64_t timeout;
 } scale_options_t;

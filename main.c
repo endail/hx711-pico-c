@@ -64,7 +64,7 @@ int main() {
 
     scale_init(&sc, &hx, offset, refUnit, unit);
 
-    opt.strat_type = strategy_type_time;
+    opt.strat = strategy_type_time;
     opt.timeout = 5000000; //5 seconds
 
     printf("Zeroing for %uus...\n", opt.timeout);

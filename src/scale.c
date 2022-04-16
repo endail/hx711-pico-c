@@ -30,8 +30,8 @@
 #include "../include/util.h"
 
 const scale_options_t SCALE_DEFAULT_OPTIONS = {
-    .strat_type = strategy_type_samples,
-    .read_type = read_type_median,
+    .strat = strategy_type_samples,
+    .read = read_type_median,
     .samples = 3, //3 samples
     .timeout = 1000000 //1 second
 };
@@ -114,7 +114,7 @@ void scale_read(
         int32_t* arr = NULL;
         size_t len = 0;
 
-        switch(opt->strat_type) {
+        switch(opt->strat) {
         case strategy_type_time:
             scale_get_values_timeout(sc, &arr, &len, &opt->timeout);
             break;
@@ -133,7 +133,7 @@ void scale_read(
             return;
         }
 
-        switch(opt->read_type) {
+        switch(opt->read) {
         case read_type_average:
             util_average(arr, len, val);
             break;
