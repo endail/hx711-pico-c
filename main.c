@@ -20,13 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <stdio.h>
 #include <stdlib.h>
-#include "pico/stdlib.h"
+#include <stdio.h>
 #include <string.h>
+#include "pico/stdlib.h"
+#include "pico/time.h"
 #include "../include/hx711.h"
-#include "hx711_noblock.pio.h"
 #include "../include/scale.h"
+#include "hx711_noblock.pio.h"
 
 int main() {
 
@@ -62,12 +63,10 @@ int main() {
 
     scale_init(&sc, &hx, offset, refUnit, unit);
 
+    //spend 5 seconds obtaining samples to zero the scale
     opt.strat = strategy_type_time;
-    opt.timeout = 5 * 1000000; //5 seconds
-
-    printf("Zeroing for %uus...\n", opt.timeout);
+    opt.timeout = 5 * 1000000;
     scale_zero(&sc, &opt);
-    printf("Zeroing done!\n");
 
     opt.timeout = 1 * 1000000; //1 second
 

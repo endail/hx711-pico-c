@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include "hardware/timer.h"
 #include "pico/malloc.h"
 #include "pico/platform.h"
 #include "pico/time.h"
@@ -124,7 +125,6 @@ void scale_read(
             scale_get_values_samples(sc, &arr, opt->samples);
             len = opt->samples;
             break;
-
         }
         
         if(len == 0) {
@@ -137,6 +137,7 @@ void scale_read(
         case read_type_average:
             util_average(arr, len, val);
             break;
+        
         case read_type_median:
         default:
             util_median(arr, len, val);

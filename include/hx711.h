@@ -28,7 +28,7 @@
 #include "pico/mutex.h"
 
 const uint8_t HX711_READ_BITS;
-const uint8_t HX711_SLEEP_TIMEOUT = 60; //us
+const uint8_t HX711_SLEEP_TIMEOUT; //us
 extern const uint16_t HX711_SETTLING_TIMES[]; //ms
 
 typedef enum {

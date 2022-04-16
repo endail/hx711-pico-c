@@ -46,8 +46,10 @@ pico_generate_pio_header(main
         )
 
 target_link_libraries(main
+        hardware_clocks
         hardware_gpio
         hardware_pio
+        hardware_timer
         pico_divider
         pico_double
         pico_float

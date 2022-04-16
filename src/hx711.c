@@ -29,6 +29,8 @@
 
 const uint8_t HX711_READ_BITS = 24;
 
+const uint8_t HX711_SLEEP_TIMEOUT = 60;
+
 const uint16_t HX711_SETTLING_TIMES[] = {
     400,
     50
