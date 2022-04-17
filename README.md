@@ -12,6 +12,8 @@ I have used [this helpful tutorial](https://paulbupejr.com/raspberry-pi-pico-win
 
 The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second. Each line shows the weight calculated from the median of 3 samples. I applied pressure to the load cell to show the change in weight.
 
+You do not need to use or `#include` the scale functionality if you only want to use the HX711 functions.
+
 ## (Brief) Documentation
 
 Not everything is documented here, but this simplified documentation is likely to be the most relevant.
