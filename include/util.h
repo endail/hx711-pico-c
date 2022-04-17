@@ -26,6 +26,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void util_average(
     const int32_t* const arr,
     const size_t len,
@@ -39,5 +43,9 @@ void util_median(
 int util__median_compare_func(
     const void* a,
     const void* b);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

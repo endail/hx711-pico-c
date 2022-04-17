@@ -27,6 +27,10 @@
 #include "hardware/pio.h"
 #include "pico/mutex.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const uint8_t HX711_READ_BITS;
 const uint8_t HX711_SLEEP_TIMEOUT; //us
 extern const uint16_t HX711_SETTLING_TIMES[]; //ms
@@ -93,5 +97,9 @@ int32_t hx711_get_value(hx711_t* const hx);
 void hx711_set_power(
     hx711_t* const hx,
     const hx711_power_t pwr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

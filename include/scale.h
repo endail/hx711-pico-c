@@ -28,6 +28,10 @@
 #include "hx711.h"
 #include "mass.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     strategy_type_samples,
     strategy_type_time
@@ -93,5 +97,9 @@ void scale_weight(
     scale_t* const sc,
     mass_t* const m,
     const scale_options_t* const opt);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

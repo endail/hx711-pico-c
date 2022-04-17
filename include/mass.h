@@ -25,6 +25,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const double MASS_RATIOS[];
 extern const char* const MASS_NAMES[];
 const uint8_t MASS_TO_STRING_BUFF_SIZE;
@@ -75,5 +79,9 @@ void mass_convert(
     double* const toAmount,
     const mass_unit_t fromUnit,
     const mass_unit_t toUnit);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
