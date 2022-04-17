@@ -119,6 +119,10 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
         hx->_state_mach,
         (((uint32_t)gain) - HX711_READ_BITS) - 1);
 
+    /**
+     * Block to read (and discard) the current conversion
+     * period's value before relinquishing mutex.
+     */
     pio_sm_get_blocking(
         hx->_pio,
         hx->_state_mach);
