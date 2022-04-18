@@ -80,8 +80,8 @@ void scale_get_values_samples(
 
 void scale_get_values_timeout(
     scale_t* const sc,
-    int32_t** arr,
-    size_t* len,
+    int32_t** const arr,
+    size_t* const len,
     const uint64_t* const timeout);
 
 void scale_read(
