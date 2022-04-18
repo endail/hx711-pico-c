@@ -56,7 +56,7 @@
 
 .define READ_BITS 23        ; 24 bits to read from HX711 (this is 0-based)
 .define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64)
-; .define T1 1              ; 1us - this value is not used (see below)
+.define T1 1                ; 1us - this value is not used (see below)
 ; .define T2 1              ; 1us - this value is not used (see above)
 .define T3 1                ; 1us
 ; .define T4 1              ; 1us - this value is not used (see below)
@@ -67,17 +67,10 @@ set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
 set y, READ_BITS            ; Read y number of bits. This is 0-based.
 
-pull noblock                ; Pull in any data if it's available, but don't
-                            ; wait if there isn't any. If no data is there,
-                            ; preload from x.
-
-out x, 2                    ; Get 2 bits from the OSR into x. This is enough
-                            ; to hold the max expected value (2).
-
-wait 0 pin 0 ; [T1 - 1]     ; Wait until data pin goes low and delay for
-                            ; T1 - 1 cycles. The delay here has been omitted
-                            ; due to other instructions below occurring
-                            ; before pulsing the clock pin.
+wait 0 pin 0 [T1 - 1]       ; Wait until data pin goes low and delay for
+                            ; T1 - 1 cycles. The delay between going low and
+                            ; the first rising clock pulse is min 0.1us. So
+                            ; a 1us delay should be safe.
 
 bitloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
@@ -96,8 +89,18 @@ bitloop:
     push noblock            ; Push data back, but don't wait because there's
                             ; more to do - setting the gain.
 
-    mov y, x                ; y will hold the number of times to pulse the
-                            ; clock pin minus 1.
+                            ; Defer obtaining the gain from the application
+                            ; until the last moment. So...
+
+    pull noblock            ; Pull in any data if it's available, but don't
+                            ; wait if there isn't any. If no data is there,
+                            ; preload from x (this is what noblock does).
+
+    out x, 2                ; Get 2 bits from the OSR into x. This is enough
+                            ; to hold the max expected value (2).
+
+    mov y, x                ; Copy x into y. y will hold the number of clock
+                            ; pulses minus 1.
 
 gainloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.

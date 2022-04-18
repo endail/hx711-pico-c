@@ -109,23 +109,20 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     mutex_enter_blocking(&hx->_mut);
 
-    //gain value is 0-based and calculated by:
-    //gain = clock pulses - 24 - 1
-    //ie. gain of 128 is 25 clock pulses, so
-    //gain = 25 - 24 - 1
-    //gain = 0
+    /**
+     * gain value is 0-based and calculated by:
+     * gain = clock pulses - 24 - 1
+     * ie. gain of 128 is 25 clock pulses, so
+     * gain = 25 - 24 - 1
+     * gain = 0
+     */
     pio_sm_put_blocking(
         hx->_pio,
         hx->_state_mach,
         (((uint32_t)gain) - HX711_READ_BITS) - 1);
 
-    /**
-     * Block to read (and discard) the current conversion
-     * period's value before relinquishing mutex.
-     */
-    pio_sm_get_blocking(
-        hx->_pio,
-        hx->_state_mach);
+    //should not need to obtain a value, as the gain should
+    //now be set for the next value
 
     hx->gain = gain;
 
