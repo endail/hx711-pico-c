@@ -82,7 +82,7 @@ void scale_get_values_timeout(
     scale_t* const sc,
     int32_t** const arr,
     size_t* const len,
-    const uint64_t* const timeout);
+    const absolute_time_t* const timeout);
 
 void scale_read(
     scale_t* const sc,

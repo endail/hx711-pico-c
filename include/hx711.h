@@ -86,6 +86,8 @@ void hx711_set_gain(
     hx711_t* const hx,
     const hx711_gain_t gain);
 
+int32_t hx711_get_twos_comp(int32_t val);
+
 bool hx711_is_min_saturated(const int32_t val);
 
 bool hx711_is_max_saturated(const int32_t val);
@@ -93,6 +95,11 @@ bool hx711_is_max_saturated(const int32_t val);
 uint16_t hx711_get_settling_time(const hx711_rate_t rate);
 
 int32_t hx711_get_value(hx711_t* const hx);
+
+bool hx711_get_value_timeout(
+    hx711_t* const hx,
+    const absolute_time_t* const timeout,
+    int32_t* val);
 
 void hx711_set_power(
     hx711_t* const hx,

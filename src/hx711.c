@@ -130,6 +130,11 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
 }
 
+int32_t hx711_get_twos_comp(int32_t val) {
+    val = val & 0xffffff; // only use bottom 24 bits
+    return -(val & 0x800000) + (val & 0x7fffff);
+}
+
 bool hx711_is_min_saturated(const int32_t val) {
     return val == -0x800000; //−8,388,608
 }
@@ -155,11 +160,34 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
     mutex_exit(&hx->_mut);
 
-    //only use the bottom 24 bits
-    rawVal = rawVal & 0xffffff;
+    return hx711_get_twos_comp(rawVal);
 
-    //get the twos complement value
-    return -(rawVal & 0x800000) + (rawVal & 0x7fffff);
+}
+
+bool hx711_get_value_timeout(
+    hx711_t* const hx,
+    const absolute_time_t* const timeout,
+    int32_t* val) {
+    
+        assert(hx != NULL);
+        assert(val != NULL);
+
+        bool didTimeout = true;
+
+        mutex_enter_blocking(&hx->_mut);
+
+        while(!time_reached(*timeout)) {
+            //check if 24 bits available
+            if(pio_sm_get_rx_fifo_level(hx->_pio, hx->_state_mach) >= HX711_READ_BITS) {
+                didTimeout = false;
+                *val = hx711_get_twos_comp(pio_sm_get(hx->_pio, hx->_state_mach));
+                break;
+            }
+        }
+
+        mutex_exit(&hx->_mut);
+
+        return didTimeout;
 
 }
 

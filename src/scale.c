@@ -84,21 +84,27 @@ void scale_get_values_timeout(
     scale_t* const sc,
     int32_t** const arr,
     size_t* const len,
-    const uint64_t* const timeout) {
+    const absolute_time_t* const timeout) {
 
         assert(sc != NULL);
         assert(arr != NULL);
         assert(len != NULL);
         assert(timeout != NULL);
 
-        const absolute_time_t endTime = make_timeout_time_us(*timeout);
+        int32_t val;
 
-        while(!time_reached(endTime)) {
-            ++(*len);
-            //TODO: error checking
-            *arr = realloc(*arr, __fast_mul(*len, sizeof(int32_t)));
-            //hx711_get_value will block, so no busy-waiting here
-            (*arr)[(*len) - 1] = hx711_get_value(sc->_hx);
+        while(true) {
+
+            if(hx711_get_value_timeout(sc->_hx, timeout, &val)) {
+                ++(*len);
+                *arr = realloc(*arr, __fast_mul(*len, sizeof(int32_t)));
+                (*arr)[(*len) - 1] = val;
+            }
+            else {
+                //timeout reached!
+                break;
+            }
+
         }
 
 }
@@ -114,15 +120,24 @@ void scale_read(
 
         int32_t* arr = NULL;
         size_t len = 0;
+        absolute_time_t timeout;
 
         switch(opt->strat) {
         case strategy_type_time:
-            scale_get_values_timeout(sc, &arr, &len, &opt->timeout);
+            timeout = make_timeout_time_us(opt->timeout);
+            scale_get_values_timeout(
+                sc,
+                &arr,
+                &len,
+                &timeout);
             break;
 
         case strategy_type_samples:
         default:
-            scale_get_values_samples(sc, &arr, opt->samples);
+            scale_get_values_samples(
+                sc,
+                &arr,
+                opt->samples);
             len = opt->samples;
             break;
         }
