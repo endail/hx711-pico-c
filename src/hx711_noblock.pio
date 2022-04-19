@@ -87,10 +87,10 @@ bitloop:
                             ; and can be pushed back to the application.
 
 
-    ;push noblock           ; Push data back, but don't wait because there's
-                            ; more to do - setting the gain.
-                            ; This is not used in favour of autopush, which
-                            ; is configured in the init function below.
+    ; push noblock          ; Push data back, but don't wait because there's
+                            ; more to do - setting the gain. This is not used
+                            ; in favour of autopush, which is configured in
+                            ; the init function below.
 
                             ; Defer obtaining the gain from the application
                             ; until the last moment. So...
@@ -100,10 +100,12 @@ bitloop:
                             ; preload from x (this is what noblock does).
 
     out x, 2                ; Get 2 bits from the OSR into x. This is enough
-                            ; to hold the max expected value (2).
+                            ; to hold the max expected value (2). x will also
+                            ; persist after the wrap loop.
 
     mov y, x                ; Copy x into y. y will hold the number of clock
-                            ; pulses minus 1.
+                            ; pulses minus 1 to be used as the following loop
+                            ; counter.
 
 gainloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
@@ -112,7 +114,7 @@ gainloop:
                             ; and the data pin being ready. Given the above
                             ; T3 delay, a second delay should not be needed.
 
-    jmp y-- gainloop        ; Keep pulsing while y > 0.
+    jmp y-- gainloop        ; Keep pulsing clock pin while y > 0.
 
                             ; At this point, the gain has been set for the
                             ; next reading, so go back to the start.
@@ -214,7 +216,25 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         &cfg,
         hx->data_pin);
 
-    //left shit in bits
+    /**
+     * Why enable autopush?
+     *
+     * "The state machine keeps an eye on the total amount of data shifted into the ISR, and on the in which reaches or
+     *  breaches a total shift count of 32 (or whatever number you have configured), the ISR contents, along with the new data
+     *  from the in. goes straight to the RX FIFO. The ISR is cleared to zero in the same operation."
+     *  - Raspberry Pi Pico C/C++ SDK pg. 45
+     *
+     * When manually pushing using noblock, the FIFO contents are NOT changed.
+     * 
+     * "The PIO assembler sets the Block bit by default. If the Block bit is not set, the PUSH does not stall on a full RX FIFO, instead
+     * continuing immediately to the next instruction. The FIFO state and contents are unchanged when this happens. The ISR
+     * is still cleared to all-zeroes, and the FDEBUG_RXSTALL flag is set (the same as a blocking PUSH or autopush to a full RX FIFO)
+     * to indicate data was lost."
+     * - Raspberry Pi Pico C/C++ SDK pg. 64
+     * 
+     * Manually pushing is not ideal. Application code should be able to look at the FIFO and assume
+     * that the value inside is the most up-to-date data available. Autopushing does this.
+     */
     sm_config_set_in_shift(
         &cfg,
         false, //false=shift in left
