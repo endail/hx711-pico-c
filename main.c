@@ -80,7 +80,8 @@ int main() {
 
     //switch to obtaining a specific number of samples
     //in this case, the default amount is used (3 samples)
-    opt.strat = strategy_type_samples;
+    //opt.strat = strategy_type_samples;
+    opt.timeout = 250000;
 
     for(;;) {
 

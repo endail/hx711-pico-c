@@ -19,7 +19,7 @@
 ; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
-; 
+
 ; This program pulls a 32-bit integer from application code and uses
 ; it to set the gain on the HX711. If an integer is not provided, the
 ; previously provided integer is used. A default integer of 0

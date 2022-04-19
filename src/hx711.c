@@ -174,11 +174,14 @@ bool hx711_get_value_timeout(
         assert(val != NULL);
 
         bool success = false;
+        const uint byteThreshold = HX711_READ_BITS / 8;
 
         mutex_enter_blocking(&hx->_mut);
 
         while(!time_reached(*timeout)) {
-            if(!pio_sm_is_rx_fifo_empty(hx->_pio, hx->_state_mach)) {
+            //at least 3 bytes available
+            //24 HX711 bits / 8 = 3 bytes
+            if(pio_sm_get_rx_fifo_level(hx->_pio, hx->_state_mach) >= byteThreshold) {
                 *val = hx711_get_twos_comp(pio_sm_get(hx->_pio, hx->_state_mach));
                 success = true;
                 break;
