@@ -52,7 +52,11 @@ void util_median(
         assert(arr != NULL);
         assert(len > 0);
 
-        qsort(arr, len, sizeof(int32_t), util__median_compare_func);
+        qsort(
+            arr,
+            len,
+            sizeof(int32_t),
+            util__median_compare_func);
 
         if(len % 2 == 0) {
             //even

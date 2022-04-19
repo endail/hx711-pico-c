@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#define NDEBUG
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -54,28 +56,43 @@ int main() {
         &hx711_noblock_program_init);
 
     //set gain and reset
+    //powering down and then powering back up after setting
+    //the gain saves the gain to the HX711
     hx711_set_gain(&hx, hx711_gain_128);
     hx711_set_power(&hx, hx711_pwr_down);
-    sleep_us(HX711_SLEEP_TIMEOUT);
+    sleep_us(HX711_POWER_DOWN_TIMEOUT);
     hx711_set_power(&hx, hx711_pwr_up);
     sleep_ms(hx711_get_settling_time(hx711_rate_80));
 
     scale_init(&sc, &hx, offset, refUnit, unit);
 
-    //spend 5 seconds obtaining samples to zero the scale
+    //spend 5 seconds obtaining as many samples as possible
     opt.strat = strategy_type_time;
-    opt.timeout = 5 * 1000000;
-    scale_zero(&sc, &opt);
+    opt.timeout = 5000000;
 
-    //switch to obtaining 3 samples
+    if(scale_zero(&sc, &opt)) {
+        printf("Scale zeroed successfully\n");
+    }
+    else {
+        printf("Scale failed to zero\n");
+    }
+
+    //switch to obtaining a specific number of samples
+    //in this case, the default amount is used (3 samples)
     opt.strat = strategy_type_samples;
-    opt.samples = 3;
 
-    while(true) {
+    for(;;) {
+
         memset(buff, 0, MASS_TO_STRING_BUFF_SIZE);
-        scale_weight(&sc, &mass, &opt);
-        mass_to_string(&mass, buff);
-        printf("%s\n", buff);
+
+        if(scale_weight(&sc, &mass, &opt)) {
+            mass_to_string(&mass, buff);
+            printf("%s\n", buff);
+        }
+        else {
+            printf("Failed to read weight\n");
+        }
+
     }
 
     return EXIT_SUCCESS;

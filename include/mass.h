@@ -69,8 +69,9 @@ void mass_set_value(
 
 /**
  * buff must be at least MASS_TO_STRING_BUFF_SIZE in length
+ * return result of snprintf
  */
-void mass_to_string(
+int mass_to_string(
     const mass_t* const m,
     char* const buff);
 

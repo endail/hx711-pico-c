@@ -22,6 +22,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include "hardware/timer.h"
 #include "pico/malloc.h"
@@ -43,14 +44,19 @@ void scale_init(
     const int32_t offset,
     const int32_t ref_unit,
     const mass_unit_t unit) {
-        //TODO: init a mutex here?
+
+        assert(sc != NULL);
+        assert(hx != NULL);
+        assert(ref_unit != 0);
+
         sc->_hx = hx;
         sc->offset = offset;
         sc->ref_unit = ref_unit;
         sc->unit = unit;
+
 }
 
-void scale_normalise(
+bool scale_normalise(
     const scale_t* const sc,
     const double* const raw,
     double* const normalised) {
@@ -58,12 +64,19 @@ void scale_normalise(
         assert(sc != NULL);
         assert(raw != NULL);
         assert(normalised != NULL);
+        assert(sc->ref_unit != 0);
+
+        //protect against div / 0
+        if(sc->ref_unit == 0) {
+            return false;
+        }
 
         *normalised = (*raw - sc->offset) / sc->ref_unit;
+        return true;
 
 }
 
-void scale_get_values_samples(
+bool scale_get_values_samples(
     scale_t* const sc,
     int32_t** const arr,
     const size_t len) {
@@ -71,16 +84,22 @@ void scale_get_values_samples(
         assert(sc != NULL);
         assert(arr != NULL);
 
-        //TODO: error checking
         *arr = malloc(__fast_mul(len, sizeof(int32_t)));
+
+        //if the allocation fails, return false
+        if(*arr == NULL) {
+            return false;
+        }
 
         for(size_t i = 0; i < len; ++i) {
             (*arr)[i] = hx711_get_value(sc->_hx);
         }
 
+        return true;
+
 }
 
-void scale_get_values_timeout(
+bool scale_get_values_timeout(
     scale_t* const sc,
     int32_t** const arr,
     size_t* const len,
@@ -92,24 +111,45 @@ void scale_get_values_timeout(
         assert(timeout != NULL);
 
         int32_t val;
+        int32_t* memblock;
 
         while(true) {
-
             if(hx711_get_value_timeout(sc->_hx, timeout, &val)) {
+
+                //new value available, so increase the counter
                 ++(*len);
-                *arr = realloc(*arr, __fast_mul(*len, sizeof(int32_t)));
+
+                //reallocate to increase the block size by 1
+                memblock = realloc(
+                    *arr,
+                    __fast_mul(*len, sizeof(int32_t)));
+
+                //if memory allocation fails, return false
+                //existing *arr will still be allocated
+                //but will be freed in caller function
+                if(memblock == NULL) {
+                    return false;
+                }
+
+                //move pointer of new block to *arr
+                //then assign the value
+                *arr = memblock;
                 (*arr)[(*len) - 1] = val;
+
             }
             else {
-                //timeout reached!
+                //timeout has been reached, so just
+                //break out of the loop
                 break;
             }
-
         }
+
+        //no errors occurred, so return true
+        return true;
 
 }
 
-void scale_read(
+bool scale_read(
     scale_t* const sc,
     double* const val,
     const scale_options_t* const opt) {
@@ -121,11 +161,12 @@ void scale_read(
         int32_t* arr = NULL;
         size_t len = 0;
         absolute_time_t timeout;
+        bool ok = false; //assume error
 
         switch(opt->strat) {
         case strategy_type_time:
             timeout = make_timeout_time_us(opt->timeout);
-            scale_get_values_timeout(
+            ok = scale_get_values_timeout(
                 sc,
                 &arr,
                 &len,
@@ -134,18 +175,19 @@ void scale_read(
 
         case strategy_type_samples:
         default:
-            scale_get_values_samples(
+            len = opt->samples;
+            ok = scale_get_values_samples(
                 sc,
                 &arr,
                 opt->samples);
-            len = opt->samples;
             break;
         }
         
-        if(len == 0) {
-            //TODO: return an error?
+        //if an error occurred or no samples obtained
+        //deallocate any memory and then return false
+        if(!ok || len == 0) {
             free(arr);
-            return;
+            return false;
         }
 
         switch(opt->read) {
@@ -159,11 +201,14 @@ void scale_read(
             break;
         }
 
+        //at this point, statistical func is done
+        //so deallocate and return true
         free(arr);
+        return true;
 
 }
 
-void scale_zero(
+bool scale_zero(
     scale_t* const sc,
     const scale_options_t* const opt) {
 
@@ -172,15 +217,23 @@ void scale_zero(
 
         double val;
         const int32_t refBackup = sc->ref_unit;
+        bool ok = false;
 
         sc->ref_unit = 1;
-        scale_read(sc, &val, opt);
-        sc->offset = (int32_t)round(val);
+        
+        if((ok = scale_read(sc, &val, opt))) {
+            //only change the offset if the read
+            //succeeded
+            sc->offset = (int32_t)round(val);
+        }
+
         sc->ref_unit = refBackup;
+
+        return ok;
 
 }
 
-void scale_weight(
+bool scale_weight(
     scale_t* const sc,
     mass_t* const m,
     const scale_options_t* const opt) {
@@ -191,8 +244,13 @@ void scale_weight(
 
         double val;
 
-        scale_read(sc, &val, opt);
+        if(!scale_read(sc, &val, opt)) {
+            //if the read fails, return false
+            return false;
+        }
+
         scale_normalise(sc, &val, &val);
         mass_set_value(m, sc->unit, &val);
+        return true;
 
 }

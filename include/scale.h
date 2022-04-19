@@ -23,8 +23,11 @@
 #ifndef _SCALE_H_4B64A868_05B1_4F4C_99CF_E75ED9BAED50
 #define _SCALE_H_4B64A868_05B1_4F4C_99CF_E75ED9BAED50
 
-#include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include "pico/time.h"
+#include "pico/types.h"
 #include "hx711.h"
 #include "mass.h"
 
@@ -68,32 +71,32 @@ void scale_init(
     const int32_t ref_unit,
     const mass_unit_t unit);
 
-void scale_normalise(
+bool scale_normalise(
     const scale_t* const sc,
     const double* const raw,
     double* const normalised);
 
-void scale_get_values_samples(
+bool scale_get_values_samples(
     scale_t* const sc,
     int32_t** const arr,
     const size_t len);
 
-void scale_get_values_timeout(
+bool scale_get_values_timeout(
     scale_t* const sc,
     int32_t** const arr,
     size_t* const len,
     const absolute_time_t* const timeout);
 
-void scale_read(
+bool scale_read(
     scale_t* const sc,
     double* const val,
     const scale_options_t* const opt);
 
-void scale_zero(
+bool scale_zero(
     scale_t* const sc,
     const scale_options_t* const opt);
 
-void scale_weight(
+bool scale_weight(
     scale_t* const sc,
     mass_t* const m,
     const scale_options_t* const opt);

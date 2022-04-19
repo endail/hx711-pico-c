@@ -23,6 +23,7 @@
 #ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 #define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "hardware/pio.h"
 #include "pico/mutex.h"
@@ -32,7 +33,7 @@ extern "C" {
 #endif
 
 const uint8_t HX711_READ_BITS;
-const uint8_t HX711_SLEEP_TIMEOUT; //us
+const uint8_t HX711_POWER_DOWN_TIMEOUT; //us
 extern const uint16_t HX711_SETTLING_TIMES[]; //ms
 
 typedef enum {
@@ -99,7 +100,7 @@ int32_t hx711_get_value(hx711_t* const hx);
 bool hx711_get_value_timeout(
     hx711_t* const hx,
     const absolute_time_t* const timeout,
-    int32_t* val);
+    int32_t* const val);
 
 void hx711_set_power(
     hx711_t* const hx,

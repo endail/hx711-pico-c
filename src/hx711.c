@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include "hardware/gpio.h"
 #include "hardware/pio.h"
@@ -29,7 +30,7 @@
 
 const uint8_t HX711_READ_BITS = 24;
 
-const uint8_t HX711_SLEEP_TIMEOUT = 60;
+const uint8_t HX711_POWER_DOWN_TIMEOUT = 60;
 
 const uint16_t HX711_SETTLING_TIMES[] = {
     400,
@@ -167,27 +168,26 @@ int32_t hx711_get_value(hx711_t* const hx) {
 bool hx711_get_value_timeout(
     hx711_t* const hx,
     const absolute_time_t* const timeout,
-    int32_t* val) {
+    int32_t* const val) {
     
         assert(hx != NULL);
         assert(val != NULL);
 
-        bool didTimeout = true;
+        bool success = false;
 
         mutex_enter_blocking(&hx->_mut);
 
         while(!time_reached(*timeout)) {
-            //check if 24 bits available
-            if(pio_sm_get_rx_fifo_level(hx->_pio, hx->_state_mach) >= HX711_READ_BITS) {
-                didTimeout = false;
+            if(!pio_sm_is_rx_fifo_empty(hx->_pio, hx->_state_mach)) {
                 *val = hx711_get_twos_comp(pio_sm_get(hx->_pio, hx->_state_mach));
+                success = true;
                 break;
             }
         }
 
         mutex_exit(&hx->_mut);
 
-        return didTimeout;
+        return success;
 
 }
 

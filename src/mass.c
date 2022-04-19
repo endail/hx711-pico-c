@@ -80,13 +80,13 @@ void mass_set_value(
 
         assert(m != NULL);
         assert(val != NULL);
-        
+
         mass_convert(val, &m->ug, unit, mass_ug);
         m->unit = unit;
 
 }
 
-void mass_to_string(
+int mass_to_string(
     const mass_t* const m,
     char* const buff) {
 
@@ -102,8 +102,8 @@ void mass_to_string(
         if(f != 0) {
             d = (int)fmax(0, (1 - log10(fabs(f))));
         }
-            
-        snprintf(
+
+        return snprintf(
             buff,
             MASS_TO_STRING_BUFF_SIZE,
             "%01.*f %s",
@@ -122,11 +122,6 @@ void mass_convert(
         assert(fromAmount != NULL);
         assert(toAmount != NULL);
 
-        if(fromUnit == toUnit) {
-            *toAmount = *fromAmount;
-            return;
-        }
-
         if(toUnit == mass_ug) {
             *toAmount = *fromAmount * *mass_unit_to_ratio(fromUnit);
             return;
@@ -134,6 +129,11 @@ void mass_convert(
 
         if(fromUnit == mass_ug) {
             *toAmount = *fromAmount / *mass_unit_to_ratio(toUnit);
+            return;
+        }
+
+        if(fromUnit == toUnit) {
+            *toAmount = *fromAmount;
             return;
         }
 
