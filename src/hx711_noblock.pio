@@ -56,7 +56,7 @@
 
 .define READ_BITS 23        ; 24 bits to read from HX711 (this is 0-based)
 .define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64)
-.define T1 1                ; 1us - this value is not used (see below)
+.define T1 1                ; 1us
 ; .define T2 1              ; 1us - this value is not used (see above)
 .define T3 1                ; 1us
 ; .define T4 1              ; 1us - this value is not used (see below)
@@ -86,8 +86,11 @@ bitloop:
                             ; At this point, all 24 bits have been read
                             ; and can be pushed back to the application.
 
-    push noblock            ; Push data back, but don't wait because there's
+
+    ;push noblock           ; Push data back, but don't wait because there's
                             ; more to do - setting the gain.
+                            ; This is not used in favour of autopush, which
+                            ; is configured in the init function below.
 
                             ; Defer obtaining the gain from the application
                             ; until the last moment. So...
@@ -214,9 +217,9 @@ void hx711_noblock_program_init(hx711_t* const hx) {
     //left shit in bits
     sm_config_set_in_shift(
         &cfg,
-        false,  //false=shift in left
-        false,  //false=autopush disabled
-        32);    //32=bit threshold for autopush
+        false, //false=shift in left
+        true, //true=autopush enabled
+        HX711_READ_BITS); //autopush on 24 bits
 
     pio_sm_init(
         hx->_pio,
