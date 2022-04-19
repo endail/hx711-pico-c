@@ -34,7 +34,7 @@ endif()
 pico_sdk_init()
 
 add_executable(main
-        main.c
+        ${CMAKE_CURRENT_LIST_DIR}/main.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
         ${CMAKE_CURRENT_LIST_DIR}/src/mass.c
         ${CMAKE_CURRENT_LIST_DIR}/src/scale.c
