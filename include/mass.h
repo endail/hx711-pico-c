@@ -23,6 +23,7 @@
 #ifndef _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
 #define _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -95,6 +96,132 @@ void mass_set_value(
     const mass_unit_t unit,
     const double* const val);
 
+inline void mass_add(
+    const mass_t* const lhs,
+    const mass_t* const rhs,
+    mass_t* const res) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+        assert(res != NULL);
+
+        res->ug = lhs->ug + rhs->ug;
+        res->unit = lhs->unit;
+
+}
+
+inline void mass_sub(
+    const mass_t* const lhs,
+    const mass_t* const rhs,
+    mass_t* const res) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+        assert(res != NULL);
+
+        res->ug = lhs->ug - rhs->ug;
+        res->unit = lhs->unit;
+
+}
+
+inline void mass_mul(
+    const mass_t* const lhs,
+    const mass_t* const rhs,
+    mass_t* const res) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+        assert(res != NULL);
+
+        res->ug = lhs->ug * rhs->ug;
+        res->unit = lhs->unit;
+
+}
+
+inline bool mass_div(
+    const mass_t* const lhs,
+    const mass_t* const rhs,
+    mass_t* const res) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+        assert(res != NULL);
+
+        if(rhs->ug == 0) {
+            return false;
+        }
+
+        res->ug = lhs->ug / rhs->ug;
+        res->unit = lhs->unit;
+        return true;
+
+}
+
+inline bool mass_eq(
+    const mass_t* const lhs,
+    const mass_t* const rhs) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+
+        return lhs->ug == rhs->ug;
+
+}
+
+inline bool mass_neq(
+    const mass_t* const lhs,
+    const mass_t* const rhs) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+
+        return !mass_eq(lhs, rhs);
+
+}
+
+inline bool mass_lt(
+    const mass_t* const lhs,
+    const mass_t* const rhs) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+
+        return lhs->ug < rhs->ug;
+
+}
+
+inline bool mass_gt(
+    const mass_t* const lhs,
+    const mass_t* const rhs) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+
+        return mass_lt(rhs, lhs);
+
+}
+
+inline bool mass_lteq(
+    const mass_t* const lhs,
+    const mass_t* const rhs) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+
+        return !mass_gt(lhs, rhs);
+
+}
+
+inline bool mass_gteq(
+    const mass_t* const lhs,
+    const mass_t* const rhs) {
+
+        assert(lhs != NULL);
+        assert(rhs != NULL);
+
+        return !mass_lt(lhs, rhs);
+
+}
 
 /**
  * buff must be at least MASS_TO_STRING_BUFF_SIZE in length
