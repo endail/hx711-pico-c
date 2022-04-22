@@ -152,7 +152,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
     mutex_enter_blocking(&hx->_mut);
 
     //block until a value is available
-    uint32_t rawVal = pio_sm_get_blocking(
+    const uint32_t rawVal = pio_sm_get_blocking(
         hx->_pio,
         hx->_state_mach);
 
