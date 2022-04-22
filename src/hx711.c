@@ -192,9 +192,9 @@ bool hx711_get_value_timeout(
 }
 
 void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
-    
+
     assert(hx != NULL);
-    
+
     mutex_enter_blocking(&hx->_mut);
     gpio_put(hx->clock_pin, (bool)pwr);
     mutex_exit(&hx->_mut);
