@@ -44,7 +44,7 @@ static const double MASS_RATIOS[] = {
 };
 
 static const char* const MASS_NAMES[] = {
-    "μg", //utf8 char here
+    "μg", //non-ascii char here
     "mg",
     "g",
     "kg",
