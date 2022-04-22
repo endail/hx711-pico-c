@@ -10,6 +10,6 @@ I have used [this helpful tutorial](https://paulbupejr.com/raspberry-pi-pico-win
 
 ![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
 
-The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second. Each line shows the weight calculated from the median of 3 samples. I applied pressure to the load cell to show the change in weight.
+The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second. Each line shows the current weight calculated from all samples obtained within 250 milliseconds, along with the minimum and maximum weights of the scale since boot. I applied pressure to the load cell to show the change in weight.
 
 You do not need to use or `#include` the scale functionality if you only want to use the HX711 functions.

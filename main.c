@@ -37,7 +37,7 @@ int main() {
     const uint clkPin = 14;
     const uint datPin = 15;
     const int32_t refUnit = -440;
-    const int32_t offset = -369500;
+    const int32_t offset = -365858;
     const mass_unit_t unit = mass_g;
 
     hx711_t hx;
@@ -67,7 +67,7 @@ int main() {
 
     //spend 5 seconds obtaining as many samples as possible
     opt.strat = strategy_type_time;
-    opt.timeout = 5000000;
+    opt.timeout = 10000000;
 
     if(scale_zero(&sc, &opt)) {
         printf("Scale zeroed successfully\n");
