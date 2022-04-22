@@ -244,13 +244,18 @@ bool scale_weight(
 
         double val;
 
+        //if the read fails, return false
         if(!scale_read(sc, &val, opt)) {
-            //if the read fails, return false
             return false;
         }
 
-        scale_normalise(sc, &val, &val);
+        //if normalising the value fails, return false
+        if(!scale_normalise(sc, &val, &val)) {
+            return false;
+        }
+
         mass_set_value(m, sc->unit, &val);
+
         return true;
 
 }
