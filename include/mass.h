@@ -49,8 +49,13 @@ typedef enum {
     mass_oz
 } mass_unit_t;
 
-const char* const mass_unit_to_string(const mass_unit_t u);
-const double* const mass_unit_to_ratio(const mass_unit_t u);
+static inline const char* const mass_unit_to_string(const mass_unit_t u) {
+    return MASS_NAMES[(int)u];
+}
+
+static inline const double* const mass_unit_to_ratio(const mass_unit_t u) {
+    return &MASS_RATIOS[(int)u];
+}
 
 typedef struct {
     double ug;

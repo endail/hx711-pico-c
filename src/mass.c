@@ -54,14 +54,6 @@ const char* const MASS_NAMES[] = {
 
 const uint8_t MASS_TO_STRING_BUFF_SIZE = 64;
 
-const char* const mass_unit_to_string(const mass_unit_t u) {
-    return MASS_NAMES[(int)u];
-}
-
-const double* const mass_unit_to_ratio(const mass_unit_t u) {
-    return &MASS_RATIOS[(int)u];
-}
-
 void mass_get_value(
     const mass_t* const m,
     double* const val) {

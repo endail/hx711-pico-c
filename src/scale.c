@@ -64,7 +64,6 @@ bool scale_normalise(
         assert(sc != NULL);
         assert(raw != NULL);
         assert(normalised != NULL);
-        assert(sc->ref_unit != 0);
 
         //protect against div / 0
         if(sc->ref_unit == 0) {
@@ -82,6 +81,7 @@ bool scale_get_values_samples(
     const size_t len) {
 
         assert(sc != NULL);
+        assert(sc->_hx != NULL);
         assert(arr != NULL);
 
         *arr = malloc(__fast_mul(len, sizeof(int32_t)));
@@ -106,6 +106,7 @@ bool scale_get_values_timeout(
     const absolute_time_t* const timeout) {
 
         assert(sc != NULL);
+        assert(sc->_hx != NULL);
         assert(arr != NULL);
         assert(len != NULL);
         assert(timeout != NULL);

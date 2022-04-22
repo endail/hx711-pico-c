@@ -46,24 +46,26 @@ void hx711_init(
     hx711_program_init_t prog_init_func) {
 
         assert(hx != NULL);
+        assert(pio != NULL);
         assert(prog != NULL);
+        assert(prog_init_func != NULL);
 
         mutex_init(&hx->_mut);
         mutex_enter_blocking(&hx->_mut);
 
         hx->clock_pin = clk;
         hx->data_pin = dat;
-
-        gpio_init(clk);
-        gpio_set_dir(clk, GPIO_OUT);
-        gpio_put(clk, 0);
-        
-        gpio_init(dat);
-        gpio_set_dir(dat, GPIO_IN);
-        gpio_pull_up(dat);
-
         hx->_pio = pio;
         hx->_prog = prog;
+
+        gpio_init(hx->clock_pin);
+        gpio_set_dir(hx->clock_pin, GPIO_OUT);
+        gpio_put(hx->clock_pin, 0);
+        
+        gpio_init(hx->data_pin);
+        gpio_set_dir(hx->data_pin, GPIO_IN);
+        gpio_pull_up(hx->data_pin);
+
         hx->_offset = pio_add_program(hx->_pio, hx->_prog);
         hx->_state_mach = pio_claim_unused_sm(hx->_pio, true);
 
@@ -126,23 +128,6 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     mutex_exit(&hx->_mut);
 
-}
-
-int32_t hx711_get_twos_comp(int32_t val) {
-    val = val & 0xffffff; // only use bottom 24 bits
-    return -(val & 0x800000) + (val & 0x7fffff);
-}
-
-bool hx711_is_min_saturated(const int32_t val) {
-    return val == -0x800000; //−8,388,608
-}
-
-bool hx711_is_max_saturated(const int32_t val) {
-    return val == 0x7fffff; //8,388,607
-}
-
-uint16_t hx711_get_settling_time(const hx711_rate_t rate) {
-    return HX711_SETTLING_TIMES[(int)rate];
 }
 
 int32_t hx711_get_value(hx711_t* const hx) {

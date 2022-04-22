@@ -20,11 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "../include/util.h"
-
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include "../include/util.h"
 
 void util_average(
     const int32_t* const arr,
@@ -66,20 +65,5 @@ void util_median(
             //odd
             *med = (double)arr[(int)ceil(len / 2)];
         }
-
-}
-
-int util__median_compare_func(
-    const void* a,
-    const void* b) {
-
-        assert(a != NULL);
-        assert(b != NULL);
-
-        const int32_t* const pA = (const int32_t* const)a;
-        const int32_t* const pB = (const int32_t* const)b;
-        
-        //https://stackoverflow.com/a/10996555/570787
-        return (*pA < *pB) ? -1 : (*pA > *pB);
 
 }

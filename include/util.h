@@ -23,6 +23,7 @@
 #ifndef _UTIL_H_916DF5EE_2C2B_4D3C_A484_A64B176F8D96
 #define _UTIL_H_916DF5EE_2C2B_4D3C_A484_A64B176F8D96
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -40,9 +41,20 @@ void util_median(
     const size_t len,
     double* const med);
 
-int util__median_compare_func(
+static inline int util__median_compare_func(
     const void* a,
-    const void* b);
+    const void* b) {
+
+        assert(a != NULL);
+        assert(b != NULL);
+
+        const int32_t* const pA = (const int32_t* const)a;
+        const int32_t* const pB = (const int32_t* const)b;
+        
+        //https://stackoverflow.com/a/10996555/570787
+        return (*pA < *pB) ? -1 : (*pA > *pB);
+
+}
 
 #ifdef __cplusplus
 }
