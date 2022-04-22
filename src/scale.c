@@ -160,16 +160,17 @@ bool scale_read(
 
         int32_t* arr = NULL;
         size_t len = 0;
+        absolute_time_t timeout;
         bool ok = false; //assume error
 
         switch(opt->strat) {
         case strategy_type_time:
-            absolute_time_t to = make_timeout_time_us(opt->timeout);
+            timeout = make_timeout_time_us(opt->timeout);
             ok = scale_get_values_timeout(
                 sc,
                 &arr,
                 &len,
-                &to);
+                &timeout);
             break;
 
         case strategy_type_samples:
