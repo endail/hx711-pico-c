@@ -52,7 +52,12 @@ typedef struct {
     uint64_t timeout;
 } scale_options_t;
 
-const scale_options_t SCALE_DEFAULT_OPTIONS;
+static const scale_options_t SCALE_DEFAULT_OPTIONS = {
+    .strat = strategy_type_samples,
+    .read = read_type_median,
+    .samples = 3, //3 samples
+    .timeout = 1000000 //1 second
+};
 
 typedef struct {
 

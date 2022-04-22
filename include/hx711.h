@@ -32,9 +32,14 @@
 extern "C" {
 #endif
 
-const uint8_t HX711_READ_BITS;
-const uint8_t HX711_POWER_DOWN_TIMEOUT; //us
-extern const uint16_t HX711_SETTLING_TIMES[]; //ms
+static const uint8_t HX711_READ_BITS = 24;
+
+static const uint8_t HX711_POWER_DOWN_TIMEOUT = 60;
+
+static const uint16_t HX711_SETTLING_TIMES[] = {
+    400,
+    50
+};
 
 typedef enum {
     hx711_rate_10 = 0,

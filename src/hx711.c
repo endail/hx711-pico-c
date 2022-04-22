@@ -28,15 +28,6 @@
 #include "pico/mutex.h"
 #include "../include/hx711.h"
 
-const uint8_t HX711_READ_BITS = 24;
-
-const uint8_t HX711_POWER_DOWN_TIMEOUT = 60;
-
-const uint16_t HX711_SETTLING_TIMES[] = {
-    400,
-    50
-};
-
 void hx711_init(
     hx711_t* const hx,
     const uint clk,
@@ -158,9 +149,10 @@ bool hx711_get_value_timeout(
         assert(hx != NULL);
         assert(val != NULL);
         assert(mutex_is_initialized(&hx->_mut));
+        assert(!is_nil_time(*timeout));
 
         bool success = false;
-        const uint byteThreshold = HX711_READ_BITS / 8;
+        static const unsigned char byteThreshold = HX711_READ_BITS / 8;
 
         mutex_enter_blocking(&hx->_mut);
 

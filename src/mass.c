@@ -26,34 +26,6 @@
 #include <stdlib.h>
 #include "../include/mass.h"
 
-const double MASS_RATIOS[] = {
-    1.0,
-    1000.0,
-    1000000.0,
-    1000000000.0,
-    1000000000000.0,
-    1016046908800.0,
-    907184740000.0,
-    6350293180.0,
-    453592370.0,
-    28349523.125
-};
-
-const char* const MASS_NAMES[] = {
-    "μg",
-    "mg",
-    "g",
-    "kg",
-    "ton",
-    "ton (IMP)",
-    "ton (US)",
-    "st",
-    "lb",
-    "oz"
-};
-
-const uint8_t MASS_TO_STRING_BUFF_SIZE = 64;
-
 void mass_get_value(
     const mass_t* const m,
     double* const val) {

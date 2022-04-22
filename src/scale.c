@@ -31,13 +31,6 @@
 #include "../include/scale.h"
 #include "../include/util.h"
 
-const scale_options_t SCALE_DEFAULT_OPTIONS = {
-    .strat = strategy_type_samples,
-    .read = read_type_median,
-    .samples = 3, //3 samples
-    .timeout = 1000000 //1 second
-};
-
 void scale_init(
     scale_t* const sc,
     hx711_t* const hx,
@@ -110,11 +103,12 @@ bool scale_get_values_timeout(
         assert(arr != NULL);
         assert(len != NULL);
         assert(timeout != NULL);
+        assert(!is_nil_time(*timeout));
 
         int32_t val;
         int32_t* memblock;
 
-        while(true) {
+        for(;;) {
             if(hx711_get_value_timeout(sc->_hx, timeout, &val)) {
 
                 //new value available, so increase the counter

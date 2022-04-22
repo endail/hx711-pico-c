@@ -53,6 +53,7 @@ target_link_libraries(main
         pico_divider
         pico_double
         pico_float
+        pico_int64_ops
         pico_malloc
         pico_mem_ops
         pico_stdlib

@@ -29,9 +29,33 @@
 extern "C" {
 #endif
 
-extern const double MASS_RATIOS[];
-extern const char* const MASS_NAMES[];
-const uint8_t MASS_TO_STRING_BUFF_SIZE;
+static const double MASS_RATIOS[] = {
+    1.0,
+    1000.0,
+    1000000.0,
+    1000000000.0,
+    1000000000000.0,
+    1016046908800.0,
+    907184740000.0,
+    6350293180.0,
+    453592370.0,
+    28349523.125
+};
+
+static const char* const MASS_NAMES[] = {
+    "μg", //utf8 char here
+    "mg",
+    "g",
+    "kg",
+    "ton",
+    "ton (IMP)",
+    "ton (US)",
+    "st",
+    "lb",
+    "oz"
+};
+
+static const uint8_t MASS_TO_STRING_BUFF_SIZE = 64;
 
 /**
  * Enum values are mapped to MASS_RATIOS and MASS_NAMES
