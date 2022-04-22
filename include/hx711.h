@@ -52,13 +52,9 @@ typedef enum {
     hx711_gain_64 = 27
 } hx711_gain_t;
 
-/**
- * These enum values cast to a bool
- * when setting pin value.
- */
 typedef enum {
-    hx711_pwr_up = 1,
-    hx711_pwr_down = 0
+    hx711_pwr_up,
+    hx711_pwr_down
 } hx711_power_t;
 
 typedef struct {
