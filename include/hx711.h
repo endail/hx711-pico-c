@@ -60,7 +60,6 @@ typedef struct {
 
     uint clock_pin;
     uint data_pin;
-    hx711_gain_t gain;
     
     PIO _pio;
     const pio_program_t* _prog;
