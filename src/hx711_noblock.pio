@@ -70,7 +70,7 @@ set y, READ_BITS            ; Read y number of bits. This is 0-based.
 wait 0 pin 0 [T1 - 1]       ; Wait until data pin goes low and delay for
                             ; T1 - 1 cycles. The delay between going low and
                             ; the first rising clock pulse is min 0.1us. So
-                            ; a 1us delay should be safe.
+                            ; a 1us delay is more than sufficient.
 
 bitloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
@@ -84,13 +84,10 @@ bitloop:
     jmp y-- bitloop         ; Keep jumping back to bitloop while y > 0.
 
                             ; At this point, all 24 bits have been read
-                            ; and can be pushed back to the application.
-
-
-    ; push noblock          ; Push data back, but don't wait because there's
-                            ; more to do - setting the gain. This is not used
-                            ; in favour of autopush, which is configured in
-                            ; the init function below.
+                            ; and can be pushed back to the application. A
+                            ; manual 'push noblock' is not used in favour of
+                            ; autopush, which is configured in the init
+                            ; function below.
 
                             ; Defer obtaining the gain from the application
                             ; until the last moment. So...
@@ -109,10 +106,10 @@ bitloop:
 
 gainloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
-    set pins, 0 ; [T4 - 1]  ; Set clock pin low and delay.  There is only a
-                            ; 0.1us delay between the clock pin going high
-                            ; and the data pin being ready. Given the above
-                            ; T3 delay, a second delay should not be needed.
+    set pins, 0             ; Set clock pin low.
+
+                            ; No need to read from the data pin, so also no
+                            ; need to delay.
 
     jmp y-- gainloop        ; Keep pulsing clock pin while y > 0.
 
@@ -145,12 +142,16 @@ gainloop:
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <assert.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 #include "../include/hx711.h"
 
 void hx711_noblock_program_init(hx711_t* const hx) {
+
+    assert(hx != NULL);
 
     pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_offset);
 
