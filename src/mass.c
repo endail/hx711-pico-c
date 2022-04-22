@@ -26,30 +26,6 @@
 #include <stdlib.h>
 #include "../include/mass.h"
 
-void mass_get_value(
-    const mass_t* const m,
-    double* const val) {
-
-        assert(m != NULL);
-        assert(val != NULL);
-
-        mass_convert(&m->ug, val, mass_ug, m->unit);
-
-}
-
-void mass_set_value(
-    mass_t* const m,
-    const mass_unit_t unit,
-    const double* const val) {
-
-        assert(m != NULL);
-        assert(val != NULL);
-
-        mass_convert(val, &m->ug, unit, mass_ug);
-        m->unit = unit;
-
-}
-
 int mass_to_string(
     const mass_t* const m,
     char* const buff) {
@@ -86,6 +62,11 @@ void mass_convert(
         assert(fromAmount != NULL);
         assert(toAmount != NULL);
 
+        if(fromUnit == toUnit) {
+            *toAmount = *fromAmount;
+            return;
+        }
+
         if(toUnit == mass_ug) {
             *toAmount = *fromAmount * *mass_unit_to_ratio(fromUnit);
             return;
@@ -93,11 +74,6 @@ void mass_convert(
 
         if(fromUnit == mass_ug) {
             *toAmount = *fromAmount / *mass_unit_to_ratio(toUnit);
-            return;
-        }
-
-        if(fromUnit == toUnit) {
-            *toAmount = *fromAmount;
             return;
         }
 

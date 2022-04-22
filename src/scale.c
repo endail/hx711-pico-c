@@ -249,7 +249,7 @@ bool scale_weight(
             return false;
         }
 
-        mass_set_value(m, sc->unit, &val);
+        mass_init(m, sc->unit, val);
 
         return true;
 

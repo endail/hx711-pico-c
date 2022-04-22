@@ -20,8 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define NDEBUG
-
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -78,18 +76,37 @@ int main() {
         printf("Scale failed to zero\n");
     }
 
-    //switch to obtaining a specific number of samples
-    //in this case, the default amount is used (3 samples)
-    //opt.strat = strategy_type_samples;
     opt.timeout = 250000;
+
+    mass_t max;
+    mass_t min;
+
+    mass_init(&max, mass_g, 0);
+    mass_init(&min, mass_g, 0);
 
     for(;;) {
 
         memset(buff, 0, MASS_TO_STRING_BUFF_SIZE);
 
         if(scale_weight(&sc, &mass, &opt)) {
+
+            if(mass_lt(&mass, &min)) {
+                min = mass;
+            }
+
+            if(mass_gt(&mass, &max)) {
+                max = mass;
+            }
+
             mass_to_string(&mass, buff);
-            printf("%s\n", buff);
+            printf("%s", buff);
+
+            mass_to_string(&min, buff);
+            printf(" min: %s", buff);
+
+            mass_to_string(&max, buff);
+            printf(" max: %s\n", buff);
+
         }
         else {
             printf("Failed to read weight\n");

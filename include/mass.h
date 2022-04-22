@@ -87,16 +87,36 @@ typedef struct {
     mass_unit_t unit;
 } mass_t;
 
-void mass_get_value(
-    const mass_t* const m,
-    double* const val);
+void mass_convert(
+    const double* const fromAmount,
+    double* const toAmount,
+    const mass_unit_t fromUnit,
+    const mass_unit_t toUnit);
 
-void mass_set_value(
+static inline void mass_init(
     mass_t* const m,
     const mass_unit_t unit,
-    const double* const val);
+    const double val) {
 
-inline void mass_add(
+        assert(m != NULL);
+
+        mass_convert(&val, &m->ug, unit, mass_ug);
+        m->unit = unit;
+
+}
+
+static inline void mass_get_value(
+    const mass_t* const m,
+    double* const val) {
+
+        assert(m != NULL);
+        assert(val != NULL);
+
+        mass_convert(&m->ug, val, mass_ug, m->unit);
+
+}
+
+static inline void mass_add(
     const mass_t* const lhs,
     const mass_t* const rhs,
     mass_t* const res) {
@@ -110,7 +130,7 @@ inline void mass_add(
 
 }
 
-inline void mass_sub(
+static inline void mass_sub(
     const mass_t* const lhs,
     const mass_t* const rhs,
     mass_t* const res) {
@@ -124,7 +144,7 @@ inline void mass_sub(
 
 }
 
-inline void mass_mul(
+static inline void mass_mul(
     const mass_t* const lhs,
     const mass_t* const rhs,
     mass_t* const res) {
@@ -138,7 +158,7 @@ inline void mass_mul(
 
 }
 
-inline bool mass_div(
+static inline bool mass_div(
     const mass_t* const lhs,
     const mass_t* const rhs,
     mass_t* const res) {
@@ -157,7 +177,31 @@ inline bool mass_div(
 
 }
 
-inline bool mass_eq(
+static inline void mass_addeq(
+    mass_t* const self,
+    const mass_t* const rhs) {
+        mass_add(self, rhs, self);
+}
+
+static inline void mass_subeq(
+    mass_t* const self,
+    const mass_t* const rhs) {
+        mass_sub(self, rhs, self);
+}
+
+static inline void mass_muleq(
+    mass_t* const self,
+    const mass_t* const rhs) {
+        mass_mul(self, rhs, self);
+}
+
+static inline bool mass_diveq(
+    mass_t* const self,
+    const mass_t* const rhs) {
+        return mass_div(self, rhs, self);
+}
+
+static inline bool mass_eq(
     const mass_t* const lhs,
     const mass_t* const rhs) {
 
@@ -168,7 +212,7 @@ inline bool mass_eq(
 
 }
 
-inline bool mass_neq(
+static inline bool mass_neq(
     const mass_t* const lhs,
     const mass_t* const rhs) {
 
@@ -179,7 +223,7 @@ inline bool mass_neq(
 
 }
 
-inline bool mass_lt(
+static inline bool mass_lt(
     const mass_t* const lhs,
     const mass_t* const rhs) {
 
@@ -190,7 +234,7 @@ inline bool mass_lt(
 
 }
 
-inline bool mass_gt(
+static inline bool mass_gt(
     const mass_t* const lhs,
     const mass_t* const rhs) {
 
@@ -201,7 +245,7 @@ inline bool mass_gt(
 
 }
 
-inline bool mass_lteq(
+static inline bool mass_lteq(
     const mass_t* const lhs,
     const mass_t* const rhs) {
 
@@ -212,7 +256,7 @@ inline bool mass_lteq(
 
 }
 
-inline bool mass_gteq(
+static inline bool mass_gteq(
     const mass_t* const lhs,
     const mass_t* const rhs) {
 
@@ -230,12 +274,6 @@ inline bool mass_gteq(
 int mass_to_string(
     const mass_t* const m,
     char* const buff);
-
-void mass_convert(
-    const double* const fromAmount,
-    double* const toAmount,
-    const mass_unit_t fromUnit,
-    const mass_unit_t toUnit);
 
 #ifdef __cplusplus
 }
