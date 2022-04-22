@@ -65,7 +65,7 @@ int main() {
 
     scale_init(&sc, &hx, offset, refUnit, unit);
 
-    //spend 5 seconds obtaining as many samples as possible
+    //spend 10 seconds obtaining as many samples as possible
     opt.strat = strategy_type_time;
     opt.timeout = 10000000;
 
