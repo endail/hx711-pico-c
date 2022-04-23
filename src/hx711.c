@@ -51,7 +51,7 @@ void hx711_init(
 
         gpio_init(hx->clock_pin);
         gpio_set_dir(hx->clock_pin, GPIO_OUT);
-        gpio_put(hx->clock_pin, 0);
+        gpio_put(hx->clock_pin, 0); //power up HX711
 
         gpio_init(hx->data_pin);
         gpio_set_dir(hx->data_pin, GPIO_IN);
