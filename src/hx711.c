@@ -52,7 +52,7 @@ void hx711_init(
         gpio_init(hx->clock_pin);
         gpio_set_dir(hx->clock_pin, GPIO_OUT);
         gpio_put(hx->clock_pin, 0);
-        
+
         gpio_init(hx->data_pin);
         gpio_set_dir(hx->data_pin, GPIO_IN);
         gpio_pull_up(hx->data_pin);
@@ -69,6 +69,7 @@ void hx711_init(
 void hx711_close(hx711_t* const hx) {
 
     assert(hx != NULL);
+    assert(hx->_pio != NULL);
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);
@@ -100,6 +101,7 @@ void hx711_close(hx711_t* const hx) {
 void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     assert(hx != NULL);
+    assert(hx->_pio != NULL);
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);
@@ -126,6 +128,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 int32_t hx711_get_value(hx711_t* const hx) {
 
     assert(hx != NULL);
+    assert(hx->_pio != NULL);
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);
@@ -145,8 +148,9 @@ bool hx711_get_value_timeout(
     hx711_t* const hx,
     const absolute_time_t* const timeout,
     int32_t* const val) {
-    
+
         assert(hx != NULL);
+        assert(hx->_pio != NULL);
         assert(val != NULL);
         assert(mutex_is_initialized(&hx->_mut));
         assert(!is_nil_time(*timeout));
@@ -173,6 +177,7 @@ bool hx711_get_value_timeout(
 void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
 
     assert(hx != NULL);
+    assert(hx->_pio != NULL);
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);

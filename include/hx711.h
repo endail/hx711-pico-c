@@ -34,9 +34,9 @@ extern "C" {
 
 static const uint8_t HX711_READ_BITS = 24;
 
-static const uint8_t HX711_POWER_DOWN_TIMEOUT = 60;
+static const uint8_t HX711_POWER_DOWN_TIMEOUT = 60; //us
 
-static const uint16_t HX711_SETTLING_TIMES[] = {
+static const uint16_t HX711_SETTLING_TIMES[] = { //ms
     400,
     50
 };

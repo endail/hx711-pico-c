@@ -215,7 +215,7 @@ bool scale_zero(
         bool ok = false;
 
         sc->ref_unit = 1;
-        
+
         if((ok = scale_read(sc, &val, opt))) {
             //only change the offset if the read
             //succeeded
