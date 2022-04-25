@@ -162,7 +162,6 @@ bool hx711_get_value_timeout(
         assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
         assert(mutex_is_initialized(&hx->_mut));
 
-
         bool success = false;
         static const unsigned char byteThreshold = HX711_READ_BITS / 8;
 
