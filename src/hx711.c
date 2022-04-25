@@ -41,7 +41,6 @@ void hx711_init(
         assert(prog != NULL);
         assert(prog_init_func != NULL);
         assert(pio_can_add_program(pio, prog));
-        assert(!mutex_is_initialized(&hx->_mut));
 
         mutex_init(&hx->_mut);
         mutex_enter_blocking(&hx->_mut);
@@ -191,9 +190,18 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
     mutex_enter_blocking(&hx->_mut);
 
     if(pwr == hx711_pwr_up) {
+        
         gpio_put(hx->clock_pin, 0);
-        pio_sm_restart(hx->_pio, hx->_state_mach);
+        
+        pio_sm_clear_fifos(hx->_pio, hx->_state_mach);
+        
+        pio_sm_exec(
+            hx->_pio,
+            hx->_state_mach,
+            pio_encode_jmp(hx->_offset));
+
         pio_sm_set_enabled(hx->_pio, hx->_state_mach, true);
+
     }
     else if(pwr == hx711_pwr_down) {
         pio_sm_set_enabled(hx->_pio, hx->_state_mach, false);
