@@ -40,6 +40,8 @@ void hx711_init(
         assert(pio != NULL);
         assert(prog != NULL);
         assert(prog_init_func != NULL);
+        assert(pio_can_add_program(pio, prog));
+        assert(!mutex_is_initialized(&hx->_mut));
 
         mutex_init(&hx->_mut);
         mutex_enter_blocking(&hx->_mut);
@@ -57,6 +59,7 @@ void hx711_init(
         gpio_set_dir(hx->data_pin, GPIO_IN);
         gpio_pull_up(hx->data_pin);
 
+        //both statements below will panic if either fails
         hx->_offset = pio_add_program(hx->_pio, hx->_prog);
         hx->_state_mach = pio_claim_unused_sm(hx->_pio, true);
 
