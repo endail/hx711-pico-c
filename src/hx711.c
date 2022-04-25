@@ -73,6 +73,7 @@ void hx711_close(hx711_t* const hx) {
 
     assert(hx != NULL);
     assert(hx->_pio != NULL);
+    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);
@@ -105,6 +106,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     assert(hx != NULL);
     assert(hx->_pio != NULL);
+    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);
@@ -132,6 +134,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
     assert(hx != NULL);
     assert(hx->_pio != NULL);
+    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);
@@ -155,8 +158,10 @@ bool hx711_get_value_timeout(
         assert(hx != NULL);
         assert(hx->_pio != NULL);
         assert(val != NULL);
-        assert(mutex_is_initialized(&hx->_mut));
         assert(!is_nil_time(*timeout));
+        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
+        assert(mutex_is_initialized(&hx->_mut));
+
 
         bool success = false;
         static const unsigned char byteThreshold = HX711_READ_BITS / 8;
@@ -181,6 +186,7 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
 
     assert(hx != NULL);
     assert(hx->_pio != NULL);
+    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
     assert(mutex_is_initialized(&hx->_mut));
 
     mutex_enter_blocking(&hx->_mut);
