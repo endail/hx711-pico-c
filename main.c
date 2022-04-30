@@ -37,8 +37,8 @@ int main() {
     const uint clkPin = 14;
     const uint datPin = 15;
     const mass_unit_t unit = mass_g;
-    const int32_t refUnit = -440;
-    const int32_t offset = -365858;
+    const int32_t refUnit = -432;
+    const int32_t offset = -367539;
 
     hx711_t hx;
     scale_t sc;

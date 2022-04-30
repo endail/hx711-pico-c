@@ -190,22 +190,54 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
     mutex_enter_blocking(&hx->_mut);
 
     if(pwr == hx711_pwr_up) {
-        
-        gpio_put(hx->clock_pin, 0);
-        
+
+        //1. set the clock pin low to power up the chip
+        gpio_put(hx->clock_pin, false);
+
+        //2. clear the IO buffers
         pio_sm_clear_fifos(hx->_pio, hx->_state_mach);
-        
+
+        //3. start the state machine
+        pio_sm_set_enabled(
+            hx->_pio,
+            hx->_state_mach,
+            true);
+
+        //4. jump back to the first sm instruction
         pio_sm_exec(
             hx->_pio,
             hx->_state_mach,
             pio_encode_jmp(hx->_offset));
 
-        pio_sm_set_enabled(hx->_pio, hx->_state_mach, true);
+        //5. read out and discard a value to ignore any
+        //mid-conversion issues
+        pio_sm_get_blocking(hx->_pio, hx->_state_mach);
 
     }
     else if(pwr == hx711_pwr_down) {
-        pio_sm_set_enabled(hx->_pio, hx->_state_mach, false);
-        gpio_put(hx->clock_pin, 1);
+
+        //1. read out and discard a value to ignore any
+        //mid-conversion issues
+        pio_sm_get_blocking(hx->_pio, hx->_state_mach);
+
+        //2. stop the state machine
+        pio_sm_set_enabled(
+            hx->_pio,
+            hx->_state_mach,
+            false);
+
+        //3. set clock pin high to start the power down
+        //process
+        /**
+         * NOTE: the HX711 chip requires the clock pin to
+         * be held high for 60+ us
+         * calling functions should therefore do:
+         * 
+         * hx711_set_power(hx, hx711_pwr_down);
+         * sleep_us(HX711_POWER_DOWN_TIMEOUT);
+         */
+        gpio_put(hx->clock_pin, true);
+
     }
 
     mutex_exit(&hx->_mut);
