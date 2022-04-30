@@ -97,7 +97,7 @@ int main() {
     hx711_set_power(&hx, hx711_pwr_up);
     sleep_ms(hx711_get_settling_time(hx711_rate_80));
 
-    scale_init(&sc, &hx, 0, 1, mass_ug);
+    scale_init(&sc, &hx, mass_ug, 1, 0);
 
     while(!tud_cdc_connected()) {
         sleep_ms(10);
@@ -166,15 +166,13 @@ Raw value over %u samples: %i\n\
 \n\
 You can provide these values to the scale_init() function. For example: \n\
 \n\
-scale_init(&sc, &hx, %i, %i, /* your chosen mass_unit_t */);\
+scale_init(&sc, &hx, /* your chosen mass_unit_t */, %i, %i);\
 \n",
         knownWeight, unit,
         opt.samples, (int32_t)raw,
         refUnit,
         zeroValue,
-        zeroValue, refUnit,
-        zeroValue,
-        refUnit);
+        refUnit, zeroValue);
 
     getchar();
 

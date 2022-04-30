@@ -36,9 +36,9 @@ int main() {
 
     const uint clkPin = 14;
     const uint datPin = 15;
+    const mass_unit_t unit = mass_g;
     const int32_t refUnit = -440;
     const int32_t offset = -365858;
-    const mass_unit_t unit = mass_g;
 
     hx711_t hx;
     scale_t sc;
@@ -63,7 +63,7 @@ int main() {
     hx711_set_power(&hx, hx711_pwr_up);
     sleep_ms(hx711_get_settling_time(hx711_rate_80));
 
-    scale_init(&sc, &hx, offset, refUnit, unit);
+    scale_init(&sc, &hx, unit, refUnit, offset);
 
     //spend 10 seconds obtaining as many samples as possible
     opt.strat = strategy_type_time;

@@ -61,9 +61,9 @@ static const scale_options_t SCALE_DEFAULT_OPTIONS = {
 
 typedef struct {
 
-    int32_t offset;
-    int32_t ref_unit;
     mass_unit_t unit;
+    int32_t ref_unit;
+    int32_t offset;
 
     hx711_t* _hx;
 
@@ -72,9 +72,9 @@ typedef struct {
 void scale_init(
     scale_t* const sc,
     hx711_t* const hx,
-    const int32_t offset,
+    const mass_unit_t unit,
     const int32_t ref_unit,
-    const mass_unit_t unit);
+    const int32_t offset);
 
 bool scale_normalise(
     const scale_t* const sc,

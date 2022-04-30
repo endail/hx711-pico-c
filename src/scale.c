@@ -34,18 +34,18 @@
 void scale_init(
     scale_t* const sc,
     hx711_t* const hx,
-    const int32_t offset,
+    const mass_unit_t unit,
     const int32_t ref_unit,
-    const mass_unit_t unit) {
+    const int32_t offset) {
 
         assert(sc != NULL);
         assert(hx != NULL);
         assert(ref_unit != 0);
 
         sc->_hx = hx;
-        sc->offset = offset;
-        sc->ref_unit = ref_unit;
         sc->unit = unit;
+        sc->ref_unit = ref_unit;
+        sc->offset = offset;
 
 }
 
