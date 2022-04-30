@@ -7,6 +7,9 @@
         "mutex": "c",
         "sync.h": "c",
         "mutex.h": "c",
-        "cstdio": "c"
+        "cstdio": "c",
+        "ostream": "c",
+        "termios.h": "c",
+        "unistd.h": "c"
     }
 }

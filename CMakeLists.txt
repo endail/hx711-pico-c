@@ -33,6 +33,7 @@ endif()
 
 pico_sdk_init()
 
+# main/example program config
 add_executable(main
         ${CMAKE_CURRENT_LIST_DIR}/main.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
@@ -64,7 +65,41 @@ target_link_libraries(main
 pico_add_extra_outputs(main)
 
 pico_enable_stdio_usb(main 1)
-pico_enable_stdio_uart(main 0)
+pico_enable_stdio_uart(main 1)
+
+# calibration prog config
+add_executable(calibration
+        ${CMAKE_CURRENT_LIST_DIR}/calibration.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/mass.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/scale.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/util.c
+        )
+
+pico_generate_pio_header(calibration
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
+        )
+
+target_link_libraries(calibration
+        hardware_clocks
+        hardware_gpio
+        hardware_pio
+        hardware_timer
+        pico_divider
+        pico_double
+        pico_float
+        pico_int64_ops
+        pico_malloc
+        pico_mem_ops
+        pico_stdlib
+        pico_sync
+        pico_time
+        )
+
+pico_add_extra_outputs(calibration)
+
+pico_enable_stdio_usb(calibration 1)
+pico_enable_stdio_uart(calibration 1)
 
 add_compile_options(-Wall
         -Wno-format
