@@ -64,6 +64,12 @@ void hx711_init(
 
         prog_init_func(hx);
 
+        //get and discard a value to account for any previous
+        //coversion periods
+        pio_sm_get_blocking(
+            hx->_pio,
+            hx->_state_mach);
+
         mutex_exit(&hx->_mut);
 
 }
@@ -122,8 +128,34 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
         hx->_state_mach,
         (((uint32_t)gain) - HX711_READ_BITS) - 1);
 
-    //should not need to obtain a value, as the gain should
-    //now be set for the next value
+    /**
+     * At this point the current value in the RX FIFO will
+     * have been calculated based on whatever the previous
+     * set gain was. So, the RX FIFO needs to be cleared.
+     * 
+     * NOTE: checking for whether the RX FIFO is not empty
+     * won't work. A conversion may have already begun
+     * before any bits have been moved into the ISR.
+     */
+    pio_sm_get_blocking(
+        hx->_pio,
+        hx->_state_mach);
+
+    /**
+     * But a conversion may also be in progress. So, we
+     * need to wait until the value from that conversion
+     * is available to discard it.
+     */
+    pio_sm_get_blocking(
+        hx->_pio,
+        hx->_state_mach);
+
+    /**
+     * At this point the old values from previously set
+     * gains can confidently be said to have been
+     * discarded and only values with the new gain will
+     * be available.
+     */
 
     mutex_exit(&hx->_mut);
 
