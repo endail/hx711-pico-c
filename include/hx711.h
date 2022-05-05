@@ -87,7 +87,7 @@ void hx711_set_gain(
     hx711_t* const hx,
     const hx711_gain_t gain);
 
-static inline int32_t hx711_get_twos_comp(int32_t val) {
+static inline int32_t hx711_get_twos_comp(uint32_t val) {
     val = val & 0xffffff; // only use bottom 24 bits
     return -(val & 0x800000) + (val & 0x7fffff);
 }
