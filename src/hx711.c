@@ -195,18 +195,23 @@ bool hx711_get_value_timeout(
 
         bool success = false;
         static const unsigned char byteThreshold = HX711_READ_BITS / 8;
+        int32_t tempVal;
 
         mutex_enter_blocking(&hx->_mut);
 
         while(!time_reached(*timeout)) {
             if(pio_sm_get_rx_fifo_level(hx->_pio, hx->_state_mach) >= byteThreshold) {
-                *val = hx711_get_twos_comp(pio_sm_get(hx->_pio, hx->_state_mach));
+                tempVal = pio_sm_get(hx->_pio, hx->_state_mach);
                 success = true;
                 break;
             }
         }
 
         mutex_exit(&hx->_mut);
+
+        if(success) {
+            *val = hx711_get_twos_comp(tempVal);
+        }
 
         return success;
 
