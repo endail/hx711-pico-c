@@ -195,7 +195,7 @@ bool hx711_get_value_timeout(
 
         bool success = false;
         static const unsigned char byteThreshold = HX711_READ_BITS / 8;
-        int32_t tempVal;
+        uint32_t tempVal;
 
         mutex_enter_blocking(&hx->_mut);
 
