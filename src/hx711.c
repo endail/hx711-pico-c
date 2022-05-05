@@ -263,16 +263,14 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
 
         /**
          * 1. set the clock pin low to power up the chip
-         */
-        gpio_put(hx->clock_pin, false);
-
-        /**
+         * 
          * There does not appear to be any delay after
          * powering up. Any actual delay would presumably be
          * dealt with by the HX711 prior to the data pin
          * going low. Which, in turn, is handled by the state
          * machine in waiting for the low signal.
          */
+        gpio_put(hx->clock_pin, false);
 
         /**
          * 2. clear the IO buffers
