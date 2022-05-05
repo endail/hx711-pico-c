@@ -65,7 +65,7 @@ void hx711_init(
          * DOUT pin back to high (Fig.2)."
          */
 
-        //both statements below will panic if either fails
+        //either statement below will panic if it fails
         hx->_offset = pio_add_program(hx->_pio, hx->_prog);
         hx->_state_mach = pio_claim_unused_sm(hx->_pio, true);
 
