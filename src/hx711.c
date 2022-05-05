@@ -263,9 +263,6 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
 
         /**
          * 1. set the clock pin low to power up the chip
-         * 
-         * HX711 returns to normal operating mode when clock
-         * pin goes low for at least 60us.
          */
         gpio_put(hx->clock_pin, false);
 
