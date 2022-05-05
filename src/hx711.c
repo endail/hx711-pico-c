@@ -33,7 +33,7 @@ void hx711_init(
     const uint clk,
     const uint dat,
     PIO pio,
-    const pio_program_t* prog,
+    const pio_program_t* const prog,
     hx711_program_init_t prog_init_func) {
 
         assert(hx != NULL);

@@ -61,7 +61,7 @@ typedef struct {
 
     uint clock_pin;
     uint data_pin;
-    
+
     PIO _pio;
     const pio_program_t* _prog;
     uint _state_mach;
@@ -78,7 +78,7 @@ void hx711_init(
     const uint clk,
     const uint dat,
     PIO pio,
-    const pio_program_t* prog,
+    const pio_program_t* const prog,
     hx711_program_init_t prog_init_func);
 
 void hx711_close(hx711_t* const hx);
