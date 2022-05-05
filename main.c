@@ -44,8 +44,11 @@ int main() {
     scale_t sc;
     scale_options_t opt = SCALE_DEFAULT_OPTIONS;
     mass_t mass;
+    mass_t max;
+    mass_t min;
     char buff[MASS_TO_STRING_BUFF_SIZE];
 
+    //1. init the hx711 struct
     hx711_init(
         &hx,
         clkPin,
@@ -54,21 +57,28 @@ int main() {
         &hx711_noblock_program,
         &hx711_noblock_program_init);
 
-    //turn on hx711
+    //2. power up the hx711
     hx711_set_power(&hx, hx711_pwr_up);
 
-    //set gain and reset
-    //powering down and then powering back up after setting
-    //the gain saves the gain to the HX711
+    //3. [OPTIONAL] set gain and save it to the HX711
+    //chip by powering down then back up
     hx711_set_gain(&hx, hx711_gain_128);
     hx711_set_power(&hx, hx711_pwr_down);
     sleep_us(HX711_POWER_DOWN_TIMEOUT);
     hx711_set_power(&hx, hx711_pwr_up);
+
+    //4. pause to allow the readings to settle based on the
+    //sample rate of the chip
     sleep_ms(hx711_get_settling_time(hx711_rate_80));
 
+    //at this point, the hx711 can reliably produce values
+    //with hx711_get_value or hx711_get_value_timeout
+
+    //5. init the scale
     scale_init(&sc, &hx, unit, refUnit, offset);
 
-    //spend 10 seconds obtaining as many samples as possible
+    //6. spend 10 seconds obtaining as many samples as
+    //possible to zero (aka. tare) the scale
     opt.strat = strategy_type_time;
     opt.timeout = 10000000;
 
@@ -79,10 +89,9 @@ int main() {
         printf("Scale failed to zero\n");
     }
 
+    //7. change to spending 250 milliseconds obtaining
+    //as many samples as possible
     opt.timeout = 250000;
-
-    mass_t max;
-    mass_t min;
 
     mass_init(&max, mass_g, 0);
     mass_init(&min, mass_g, 0);
@@ -91,22 +100,30 @@ int main() {
 
         memset(buff, 0, MASS_TO_STRING_BUFF_SIZE);
 
+        //8. obtain a mass from the scale
         if(scale_weight(&sc, &mass, &opt)) {
 
+            //9. check if the newly obtained mass
+            //is less than the existing minimum mass
             if(mass_lt(&mass, &min)) {
                 min = mass;
             }
 
+            //10. check if the newly obtained mass
+            //is greater than the existing maximum mass
             if(mass_gt(&mass, &max)) {
                 max = mass;
             }
 
+            //11. display the newly obtained mass...
             mass_to_string(&mass, buff);
             printf("%s", buff);
 
+            //...the current minimum mass...
             mass_to_string(&min, buff);
             printf(" min: %s", buff);
 
+            //...and the current maximum mass
             mass_to_string(&max, buff);
             printf(" max: %s\n", buff);
 
