@@ -261,10 +261,28 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
 
     if(pwr == hx711_pwr_up) {
 
-        //1. set the clock pin low to power up the chip
+        /**
+         * 1. set the clock pin low to power up the chip
+         * 
+         * HX711 returns to normal operating mode when clock
+         * pin goes low for at least 60us.
+         */
         gpio_put(hx->clock_pin, false);
 
-        //2. clear the IO buffers
+        /**
+         * There does not appear to be any delay after
+         * powering up. Any actual delay would presumably be
+         * dealt with by the HX711 prior to the data pin
+         * going low. Which, in turn, is handled by the state
+         * machine in waiting for the low signal.
+         */
+
+        /**
+         * 2. clear the IO buffers
+         * 
+         * If the state machine had previously been used, any
+         * value in its buffers is not usable.
+         */
         pio_sm_clear_fifos(hx->_pio, hx->_state_mach);
 
         //3. start the state machine
@@ -273,15 +291,22 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
             hx->_state_mach,
             true);
 
-        //4. jump back to the first sm instruction
+        /**
+         * 4. jump back to the first sm instruction
+         * 
+         * It is unclear whether there is a race condition
+         * here. ie. whether the previous PC could be pointing
+         * to an instruction which executes in the state machine
+         * before the following call to jump back to the start.
+         * 
+         * It is also unclear whether a pio_sm_exec (and in
+         * particular a jmp instruction) can execute while the
+         * state machine is not enabled.
+         */
         pio_sm_exec(
             hx->_pio,
             hx->_state_mach,
             pio_encode_jmp(hx->_offset));
-
-        //5. read out and discard a value to ignore any
-        //mid-conversion issues
-        pio_sm_get_blocking(hx->_pio, hx->_state_mach);
 
     }
     else if(pwr == hx711_pwr_down) {
