@@ -52,11 +52,18 @@ void hx711_init(
 
         gpio_init(hx->clock_pin);
         gpio_set_dir(hx->clock_pin, GPIO_OUT);
-        gpio_put(hx->clock_pin, 0); //power up HX711
+        gpio_put(hx->clock_pin, false); //power up HX711
 
         gpio_init(hx->data_pin);
         gpio_set_dir(hx->data_pin, GPIO_IN);
-        gpio_pull_up(hx->data_pin);
+
+        /**
+         * There was originally a call here to gpio_pull_up
+         * on the data pin to prevent erroneous data ready
+         * states. This was incorrect. Page 4 of the datasheet
+         * states: "The 25th pulse at PD_SCK input will pull
+         * DOUT pin back to high (Fig.2)."
+         */
 
         //both statements below will panic if either fails
         hx->_offset = pio_add_program(hx->_pio, hx->_prog);
@@ -90,8 +97,6 @@ void hx711_close(hx711_t* const hx) {
         hx->_pio,
         hx->_prog,
         hx->_offset);
-
-    gpio_disable_pulls(hx->data_pin);
 
     gpio_set_input_enabled(
         hx->data_pin,
