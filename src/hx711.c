@@ -310,7 +310,7 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
          * particular a jmp instruction) can execute while the
          * state machine is not enabled.
          */
-        pio_sm_exec(
+        pio_sm_exec_wait_blocking(
             hx->_pio,
             hx->_state_mach,
             pio_encode_jmp(hx->_offset));
