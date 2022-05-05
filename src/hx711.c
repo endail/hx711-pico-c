@@ -52,7 +52,19 @@ void hx711_init(
 
         gpio_init(hx->clock_pin);
         gpio_set_dir(hx->clock_pin, GPIO_OUT);
-        gpio_put(hx->clock_pin, false); //power up HX711
+
+        /**
+         * There was originally a call here to gpio_put on the
+         * clock pin to power up the HX711. I have decided to
+         * remove this and also remove enabling the state
+         * machine from the pio init function. This does leave
+         * the HX711's power state undefined from the
+         * perspective of the code, but does give a much clearer
+         * separation of duties. This function merely init's the
+         * hardware and state machine, and the hx711_set_power
+         * function sets the power and enables/disables the
+         * state machine.
+         */
 
         gpio_init(hx->data_pin);
         gpio_set_dir(hx->data_pin, GPIO_IN);

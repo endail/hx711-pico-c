@@ -54,6 +54,9 @@ int main() {
         &hx711_noblock_program,
         &hx711_noblock_program_init);
 
+    //turn on hx711
+    hx711_set_power(&hx, hx711_pwr_up);
+
     //set gain and reset
     //powering down and then powering back up after setting
     //the gain saves the gain to the HX711

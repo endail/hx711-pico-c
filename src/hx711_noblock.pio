@@ -249,11 +249,6 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         hx->_offset,
         &cfg);
 
-    pio_sm_set_enabled(
-        hx->_pio,
-        hx->_state_mach,
-        true);
-
 }
 
 %}
