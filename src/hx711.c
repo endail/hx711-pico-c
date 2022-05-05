@@ -286,17 +286,13 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
     }
     else if(pwr == hx711_pwr_down) {
 
-        //1. read out and discard a value to ignore any
-        //mid-conversion issues
-        pio_sm_get_blocking(hx->_pio, hx->_state_mach);
-
-        //2. stop the state machine
+        //1. stop the state machine
         pio_sm_set_enabled(
             hx->_pio,
             hx->_state_mach,
             false);
 
-        //3. set clock pin high to start the power down
+        //2. set clock pin high to start the power down
         //process
         /**
          * NOTE: the HX711 chip requires the clock pin to
