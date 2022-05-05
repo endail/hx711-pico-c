@@ -234,6 +234,7 @@ bool hx711_get_value_timeout(
 
         while(!time_reached(*timeout)) {
             if(pio_sm_get_rx_fifo_level(hx->_pio, hx->_state_mach) >= byteThreshold) {
+                //obtain value and relinquish the mutex ASAP
                 tempVal = pio_sm_get(hx->_pio, hx->_state_mach);
                 success = true;
                 break;
