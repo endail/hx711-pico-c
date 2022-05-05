@@ -64,12 +64,6 @@ void hx711_init(
 
         prog_init_func(hx);
 
-        //get and discard a value to account for any previous
-        //coversion periods
-        pio_sm_get_blocking(
-            hx->_pio,
-            hx->_state_mach);
-
         mutex_exit(&hx->_mut);
 
 }
