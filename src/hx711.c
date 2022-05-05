@@ -274,6 +274,12 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
     if(pwr == hx711_pwr_up) {
 
         /**
+         * NOTE: pio_sm_restart should not be used here.
+         * That function clears the clock divider which is
+         * currently set in the dedicated pio init function.
+         */
+
+        /**
          * 1. set the clock pin low to power up the chip
          * 
          * There does not appear to be any delay after
@@ -324,9 +330,10 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
             hx->_state_mach,
             false);
 
-        //2. set clock pin high to start the power down
-        //process
         /**
+         * 2. set clock pin high to start the power down
+         * process
+         *
          * NOTE: the HX711 chip requires the clock pin to
          * be held high for 60+ us
          * calling functions should therefore do:

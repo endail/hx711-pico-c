@@ -47,7 +47,7 @@ typedef enum {
 } hx711_rate_t;
 
 typedef enum {
-    hx711_gain_128 = 25,
+    hx711_gain_128 = 25, //clock pulse counts
     hx711_gain_32 = 26,
     hx711_gain_64 = 27
 } hx711_gain_t;
