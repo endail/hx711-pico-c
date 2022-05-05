@@ -117,13 +117,25 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
     mutex_enter_blocking(&hx->_mut);
 
     /**
+     * Before putting anything in the TX FIFO buffer,
+     * assume the worst-case scenario which is that
+     * there's something already in there. There ought
+     * not to be, but clearing it ensures the following
+     * pio_sm_put* call does not need to block as this
+     * function to change the gain should take precedence.
+     */
+    pio_sm_drain_tx_fifo(
+        hx->_pio,
+        hx->_state_mach);
+
+    /**
      * gain value is 0-based and calculated by:
      * gain = clock pulses - 24 - 1
      * ie. gain of 128 is 25 clock pulses, so
      * gain = 25 - 24 - 1
      * gain = 0
      */
-    pio_sm_put_blocking(
+    pio_sm_put(
         hx->_pio,
         hx->_state_mach,
         (((uint32_t)gain) - HX711_READ_BITS) - 1);
@@ -136,25 +148,46 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
      * NOTE: checking for whether the RX FIFO is not empty
      * won't work. A conversion may have already begun
      * before any bits have been moved into the ISR.
+     * 
+     * UPDATE: the worst-case scenario here is that the
+     * pio_sm_put call has occurred after the pio "pull",
+     * because we then need to wait until the following
+     * "pull" in the state machine. If this happens:
+     * 
+     * 1. there may already be a value in the RX FIFO; and
+     * 2. another value will need to be read and discarded
+     * following which the new gain will be set.
+     * 
+     * To handle 1.: Clear the RX FIFO with a non-blocking
+     * read. If the TX FIFO is empty, no harm done because
+     * the call won't block.
+     * 
+     * To handle 2.: Read the "next" value with a blocking
+     * read to ensure the "next, next" value will be set
+     * to the desired gain.
      */
+
+    //1. clear the RX FIFO with the non-blocking read
+    pio_sm_get(
+        hx->_pio,
+        hx->_state_mach);
+
+    //2. wait until the value from the currently-set gain
+    //can be safely read and discarded
     pio_sm_get_blocking(
         hx->_pio,
         hx->_state_mach);
 
     /**
-     * But a conversion may also be in progress. So, we
-     * need to wait until the value from that conversion
-     * is available to discard it.
-     */
-    pio_sm_get_blocking(
-        hx->_pio,
-        hx->_state_mach);
-
-    /**
-     * At this point the old values from previously set
-     * gains can confidently be said to have been
-     * discarded and only values with the new gain will
-     * be available.
+     * Immediately following the above blocking call, the
+     * state machine will pull in the data in the
+     * pio_sm_put call above and pulse the HX711 the
+     * correct number of times to set the desired gain.
+     * 
+     * No further communication with the state machine
+     * from this function is required. Any other function(s)
+     * wishing to obtain a value from the HX711 need only
+     * block until one is there (or check the RX FIFO level).
      */
 
     mutex_exit(&hx->_mut);
