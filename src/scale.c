@@ -213,7 +213,7 @@ bool scale_read(
                 opt->samples);
             break;
         }
-        
+
         //if an error occurred or no samples obtained
         //deallocate any memory and then return false
         if(!ok || len == 0) {
@@ -225,7 +225,7 @@ bool scale_read(
         case read_type_average:
             util_average(arr, len, val);
             break;
-        
+
         case read_type_median:
         default:
             util_median(arr, len, val);

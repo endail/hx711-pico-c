@@ -65,8 +65,14 @@ int main() {
 
     stdio_init_all();
 
+    //1. Change these two lines to the pins used to connect to
+    //the HX711's clock pin and data pin, respectively.
     const uint clkPin = 14;
     const uint datPin = 15;
+
+    //2. Change the line below to the rate used by the HX711.
+    //If you're unsure, it's probably 10
+    const hx711_rate_t hxRate = hx711_rate_10;
 
     char buff[32];
     char unit[10];
@@ -88,17 +94,13 @@ int main() {
         &hx711_noblock_program,
         &hx711_noblock_program_init);
 
-    //set gain and reset
-    //powering down and then powering back up after setting
-    //the gain saves the gain to the HX711
-    hx711_set_gain(&hx, hx711_gain_128);
-    hx711_set_power(&hx, hx711_pwr_down);
-    sleep_us(HX711_POWER_DOWN_TIMEOUT);
     hx711_set_power(&hx, hx711_pwr_up);
-    sleep_ms(hx711_get_settling_time(hx711_rate_80));
+    hx711_set_gain(&hx, hx711_gain_128);
+    sleep_ms(hx711_get_settling_time(hxRate));
 
     scale_init(&sc, &hx, mass_ug, 1, 0);
 
+    //wait for serial connection
     while(!tud_cdc_connected()) {
         sleep_ms(10);
     }
