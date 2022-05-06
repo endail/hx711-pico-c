@@ -41,6 +41,11 @@ static const uint16_t HX711_SETTLING_TIMES[] = { //ms
     50
 };
 
+static const uint8_t HX711_RATE_SPS[] = {
+    10,
+    80
+};
+
 typedef enum {
     hx711_rate_10 = 0,
     hx711_rate_80
@@ -102,6 +107,10 @@ static inline bool hx711_is_max_saturated(const int32_t val) {
 
 static inline uint16_t hx711_get_settling_time(const hx711_rate_t rate) {
     return HX711_SETTLING_TIMES[(int)rate];
+}
+
+static inline uint8_t hx711_get_rate_sps(const hx711_rate_t rate) {
+    return HX711_RATE_SPS[(int)rate];
 }
 
 int32_t hx711_get_value(hx711_t* const hx);

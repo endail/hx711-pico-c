@@ -107,7 +107,7 @@ bool scale_get_values_timeout(
 
         int32_t val; //temporary value from the HX711
         int32_t* memblock; //ptr to the memblock
-        size_t elemCount = 80; //number of elements in the block
+        size_t elemCount; //number of elements in the block
 
         /**
          * By default, allocate memory for 80 ints. The reasoning
@@ -129,6 +129,8 @@ bool scale_get_values_timeout(
          * no reallocations should occur. The obvious tradeoff is
          * the excess memory.
          */
+        elemCount = hx711_get_rate_sps(hx711_rate_80);
+
         if((*arr = malloc(elemCount * sizeof(int32_t))) == NULL) {
             return false;
         }
