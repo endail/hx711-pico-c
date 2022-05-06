@@ -105,30 +105,64 @@ bool scale_get_values_timeout(
         assert(timeout != NULL);
         assert(!is_nil_time(*timeout));
 
-        int32_t val;
-        int32_t* memblock;
+        int32_t val; //temporary value from the HX711
+        int32_t* memblock; //ptr to the memblock
+        size_t elemCount = 80; //number of elements in the block
+
+        /**
+         * By default, allocate memory for 80 ints. The reasoning
+         * for this is as follows:
+         * 
+         * A "scale" application is likely to need to update at a
+         * rate of once per second or less. So the size of the
+         * allocation can be the same size as the HX711 samples per
+         * second.
+         * 
+         * The HX711 has two rates (excluding when using an external
+         * crystal): 10 and 80 samples per second. But this function
+         * has no information about the rate in use. If the actual
+         * rate is 10 and the allocated size is for 10, then few if
+         * any reallocations should occur. But if the actual rate is
+         * 80 and the allocated size is for 10, at least 8
+         * reallocations would occur. On the other hand, if the
+         * actual rate is 10 and the allocated size is for 80 ints,
+         * no reallocations should occur. The obvious tradeoff is
+         * the excess memory.
+         */
+        if((*arr = malloc(elemCount * sizeof(int32_t))) == NULL) {
+            return false;
+        }
 
         for(;;) {
             if(hx711_get_value_timeout(sc->_hx, timeout, &val)) {
 
                 //new value available, so increase the counter
+                //this is the actual number of values obtained
                 ++(*len);
 
-                //reallocate to increase the block size by 1
-                memblock = realloc(
-                    *arr,
-                    __fast_mul(*len, sizeof(int32_t)));
+                //check if a reallocation is needed
+                if(*len > elemCount) {
 
-                //if memory allocation fails, return false
-                //existing *arr will still be allocated
-                //but will be freed in caller function
-                if(memblock == NULL) {
-                    return false;
+                    //when a reallocation is needed, double the space
+                    elemCount = elemCount * 2;
+
+                    memblock = realloc(
+                        *arr,
+                        __fast_mul(elemCount, sizeof(int32_t)));
+
+                    //if memory allocation fails, return false
+                    //existing *arr will still be allocated
+                    //but will be freed in caller function
+                    if(memblock == NULL) {
+                        return false;
+                    }
+
+                    //move pointer of new block to *arr
+                    *arr = memblock;
+
                 }
 
-                //move pointer of new block to *arr
-                //then assign the value
-                *arr = memblock;
+                //store the value in the array
                 (*arr)[(*len) - 1] = val;
 
             }
