@@ -11,6 +11,8 @@
         "ostream": "c",
         "termios.h": "c",
         "unistd.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "types.h": "c",
+        "cstdlib": "c"
     }
 }

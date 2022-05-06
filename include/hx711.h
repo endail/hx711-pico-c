@@ -32,16 +32,16 @@
 extern "C" {
 #endif
 
-static const uint8_t HX711_READ_BITS = 24;
+static const uint HX711_READ_BITS = 24;
 
-static const uint8_t HX711_POWER_DOWN_TIMEOUT = 60; //us
+static const uint HX711_POWER_DOWN_TIMEOUT = 60; //us
 
-static const uint16_t HX711_SETTLING_TIMES[] = { //ms
+static const uint HX711_SETTLING_TIMES[] = { //ms
     400,
     50
 };
 
-static const uint8_t HX711_RATE_SPS[] = {
+static const uint HX711_RATE_SPS[] = {
     10,
     80
 };
@@ -105,12 +105,12 @@ static inline bool hx711_is_max_saturated(const int32_t val) {
     return val == 0x7fffff; //8,388,607
 }
 
-static inline uint16_t hx711_get_settling_time(const hx711_rate_t rate) {
-    return HX711_SETTLING_TIMES[(int)rate];
+static inline uint hx711_get_settling_time(const hx711_rate_t rate) {
+    return HX711_SETTLING_TIMES[(uint)rate];
 }
 
-static inline uint8_t hx711_get_rate_sps(const hx711_rate_t rate) {
-    return HX711_RATE_SPS[(int)rate];
+static inline uint hx711_get_rate_sps(const hx711_rate_t rate) {
+    return HX711_RATE_SPS[(uint)rate];
 }
 
 int32_t hx711_get_value(hx711_t* const hx);

@@ -56,7 +56,7 @@ static const char* const MASS_NAMES[] = {
     "oz"
 };
 
-static const uint8_t MASS_TO_STRING_BUFF_SIZE = 64;
+static const size_t MASS_TO_STRING_BUFF_SIZE = 64;
 
 /**
  * Enum values are mapped to MASS_RATIOS and MASS_NAMES
@@ -75,11 +75,11 @@ typedef enum {
 } mass_unit_t;
 
 static inline const char* const mass_unit_to_string(const mass_unit_t u) {
-    return MASS_NAMES[(int)u];
+    return MASS_NAMES[(uint)u];
 }
 
 static inline const double* const mass_unit_to_ratio(const mass_unit_t u) {
-    return &MASS_RATIOS[(int)u];
+    return &MASS_RATIOS[(uint)u];
 }
 
 typedef struct {

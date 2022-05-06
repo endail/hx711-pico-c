@@ -49,7 +49,7 @@ typedef struct {
     strategy_type_t strat;
     read_type_t read;
     size_t samples;
-    uint64_t timeout;
+    uint64_t timeout; //us
 } scale_options_t;
 
 static const scale_options_t SCALE_DEFAULT_OPTIONS = {

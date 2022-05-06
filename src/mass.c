@@ -40,7 +40,7 @@ int mass_to_string(
         int d = 0; //decimal count
 
         if(f != 0) {
-            d = (int)fmax(0, ceil((1 - log10(fabs(f)))));
+            d = (int)fmax(0, ceil(1 - log10(fabs(f))));
         }
 
         return snprintf(

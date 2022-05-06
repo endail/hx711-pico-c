@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include "pico/types.h"
 #include "../include/util.h"
 
 void util_average(
@@ -57,13 +58,19 @@ void util_median(
             sizeof(int32_t),
             util__median_compare_func);
 
+        /**
+         * If the number of elements is even, the median is
+         * the average of the middle two elements. Otherwise
+         * it is the middle element.
+         */
         if(len % 2 == 0) {
-            //even
-            util_average(&arr[(len / 2) - 1], 2, med);
+            util_average(
+                &arr[ (len / 2) - 1 ], //ptr to left-of-middle
+                2, //two elements in length
+                med);
         }
         else {
-            //odd
-            *med = (double)arr[(int)ceil(len / 2)];
+            *med = (double)arr[ (uint)ceil(len / 2) ];
         }
 
 }

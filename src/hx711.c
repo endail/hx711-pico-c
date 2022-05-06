@@ -149,7 +149,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
     pio_sm_put(
         hx->_pio,
         hx->_state_mach,
-        (((uint32_t)gain) - HX711_READ_BITS) - 1);
+        (uint32_t)gain - HX711_READ_BITS - 1);
 
     /**
      * At this point the current value in the RX FIFO will
@@ -214,7 +214,15 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
     mutex_enter_blocking(&hx->_mut);
 
-    //block until a value is available
+    /**
+     * Block until a value is available
+     * 
+     * NOTE: remember that reading from the RX FIFO
+     * simultaneously clears it. That's why we can keep
+     * calling this function hx711_get_value and be
+     * assured we'll be getting a new value each time,
+     * even if the RX FIFO is currently empty.
+     */
     const uint32_t rawVal = pio_sm_get_blocking(
         hx->_pio,
         hx->_state_mach);
@@ -238,7 +246,7 @@ bool hx711_get_value_timeout(
         assert(mutex_is_initialized(&hx->_mut));
 
         bool success = false;
-        static const unsigned char byteThreshold = HX711_READ_BITS / 8;
+        static const uint byteThreshold = HX711_READ_BITS / 8;
         uint32_t tempVal;
 
         mutex_enter_blocking(&hx->_mut);
