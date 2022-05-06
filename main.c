@@ -30,7 +30,7 @@
 #include "../include/scale.h"
 #include "hx711_noblock.pio.h"
 
-int main() {
+int main(void) {
 
     stdio_init_all();
 

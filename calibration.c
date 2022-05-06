@@ -52,7 +52,7 @@ size_t getchars(char* arr, const size_t len) {
 
         putchar(c); //echo
 
-        arr[i] = c;
+        arr[i] = (char)c;
         ++i;
 
     }
@@ -161,14 +161,14 @@ if you chose 'g', enter the weight of the object in grams): ");
     printf("\
 \n\n\
 Known weight (your object): %f %s\n\
-Raw value over %u samples: %i\n\
+Raw value over %u samples: %li\n\
 \n\
--> REFERENCE UNIT: %i\n\
--> ZERO VALUE: %i\n\
+-> REFERENCE UNIT: %li\n\
+-> ZERO VALUE: %li\n\
 \n\
 You can provide these values to the scale_init() function. For example: \n\
 \n\
-scale_init(&sc, &hx, /* your chosen mass_unit_t */, %i, %i);\
+scale_init(&sc, &hx, /* your chosen mass_unit_t */, %li, %li);\
 \n",
         knownWeight, unit,
         opt.samples, (int32_t)raw,

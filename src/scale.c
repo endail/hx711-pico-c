@@ -77,7 +77,7 @@ bool scale_get_values_samples(
         assert(sc->_hx != NULL);
         assert(arr != NULL);
 
-        *arr = malloc(__fast_mul(len, sizeof(int32_t)));
+        *arr = malloc(len * sizeof(int32_t));
 
         //if the allocation fails, return false
         if(*arr == NULL) {
@@ -150,7 +150,7 @@ bool scale_get_values_timeout(
 
                     memblock = realloc(
                         *arr,
-                        __fast_mul(elemCount, sizeof(int32_t)));
+                        elemCount * sizeof(int32_t));
 
                     //if memory allocation fails, return false
                     //existing *arr will still be allocated

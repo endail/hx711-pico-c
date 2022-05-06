@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include <assert.h>
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +40,8 @@ int mass_to_string(
         const double f = modf(n, &i); //frac part
         int d = 0; //decimal count
 
-        if(f != 0) {
+        //if less than the epsilon, then it's ~0
+        if(!(fabs(f) < DBL_EPSILON)) { 
             d = (int)fmax(0, ceil(1 - log10(fabs(f))));
         }
 

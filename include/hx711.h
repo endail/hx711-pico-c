@@ -94,7 +94,7 @@ void hx711_set_gain(
 
 static inline int32_t hx711_get_twos_comp(uint32_t val) {
     val = val & 0xffffff; // only use bottom 24 bits
-    return -(val & 0x800000) + (val & 0x7fffff);
+    return (int32_t)(-(val & 0x800000)) + (int32_t)(val & 0x7fffff);
 }
 
 static inline bool hx711_is_min_saturated(const int32_t val) {

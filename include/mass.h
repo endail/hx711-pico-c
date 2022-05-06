@@ -23,6 +23,8 @@
 #ifndef _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
 #define _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
 
+#include <float.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -167,7 +169,8 @@ static inline bool mass_div(
         assert(rhs != NULL);
         assert(res != NULL);
 
-        if(rhs->ug == 0) {
+        //if ~0; protect against div / 0
+        if(fabs(lhs->ug) < DBL_EPSILON) {
             return false;
         }
 
@@ -208,7 +211,8 @@ static inline bool mass_eq(
         assert(lhs != NULL);
         assert(rhs != NULL);
 
-        return lhs->ug == rhs->ug;
+        //if ~==; if approx ~0
+        return fabs(lhs->ug - rhs->ug) < DBL_EPSILON;
 
 }
 

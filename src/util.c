@@ -40,7 +40,7 @@ void util_average(
             total += arr[i];
         }
 
-        *avg = total / (double)len;
+        *avg = (double)total / len;
 
 }
 

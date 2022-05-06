@@ -33,6 +33,27 @@ endif()
 
 pico_sdk_init()
 
+add_compile_options(
+        -O2
+        -Wall
+        -Wextra
+        -Werror
+        -Wfatal-errors
+        # -Wshadow
+        # -Wpointer-arith
+        # -Wswitch-default
+        # -Wconversion
+        -Wfloat-equal
+        -Wunreachable-code
+        # -Wformat=2
+        -Wno-unused-function
+        -Wno-maybe-uninitialized
+        # -Wstrict-prototypes
+        # -Wmissing-prototypes
+        -Wno-ignored-qualifiers
+        # -Werror-implicit-function-declaration
+        )
+
 # main/example program config
 add_executable(main
         ${CMAKE_CURRENT_LIST_DIR}/main.c
@@ -101,8 +122,3 @@ pico_add_extra_outputs(calibration)
 pico_enable_stdio_usb(calibration 1)
 pico_enable_stdio_uart(calibration 1)
 
-add_compile_options(-Wall
-        -Wno-format
-        -Wno-unused-function
-        -Wno-maybe-uninitialized
-        )
