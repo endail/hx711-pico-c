@@ -20,6 +20,6 @@ You do not need to use or `#include` the scale functionality if you only want to
 
 2. Build.
 
-3. Copy `calibration.uf2` to the Raspberry Pi Pico.
+3. Copy `calibration.uf2` in the build directory to the Raspberry Pi Pico.
 
 4. Open a serial connection to the Pico at a baud rate of 115200 and follow the prompts.
