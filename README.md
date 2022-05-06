@@ -16,7 +16,7 @@ You do not need to use or `#include` the scale functionality if you only want to
 
 ## How to Calibrate
 
-1. Modify [calibration.c](the calibration program) and change the clock and data pins to those connected to the HX711. Also change the rate at which the HX711 operates if needed.
+1. Modify [the calibration program](calibration.c) and change the clock and data pins to those connected to the HX711. Also change the rate at which the HX711 operates if needed.
 
 2. Build.
 
