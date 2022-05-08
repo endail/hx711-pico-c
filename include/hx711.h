@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include "hardware/pio.h"
 #include "pico/mutex.h"
+#include "pico/time.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,6 +70,7 @@ typedef struct {
 
     PIO _pio;
     const pio_program_t* _prog;
+    pio_sm_config _default_config;
     uint _state_mach;
     uint _offset;
 
@@ -122,6 +124,14 @@ bool hx711_get_value_timeout(
 void hx711_set_power(
     hx711_t* const hx,
     const hx711_power_t pwr);
+
+static inline void hx711_wait_settle(const hx711_rate_t rate) {
+    sleep_ms(hx711_get_settling_time(rate));
+}
+
+static inline void hx711_wait_power_down() {
+    sleep_us(HX711_POWER_DOWN_TIMEOUT);
+}
 
 #ifdef __cplusplus
 }

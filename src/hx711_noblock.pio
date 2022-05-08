@@ -158,6 +158,7 @@ void hx711_noblock_program_init(hx711_t* const hx) {
 
     //set state machine to 1MHz clock speed
     const float div = (float)(clock_get_hz(clk_sys)) / 1000000;
+
     sm_config_set_clkdiv(
         &cfg,
         div);
@@ -242,6 +243,9 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         false, //false=shift in left
         true, //true=autopush enabled
         HX711_READ_BITS); //autopush on 24 bits
+
+    //store a copy of the configuration for resetting the sm
+    hx->_default_config = cfg;
 
     pio_sm_init(
         hx->_pio,

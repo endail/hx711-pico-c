@@ -96,7 +96,7 @@ int main() {
 
     hx711_set_power(&hx, hx711_pwr_up);
     hx711_set_gain(&hx, hx711_gain_128);
-    sleep_ms(hx711_get_settling_time(hxRate));
+    hx711_wait_settle(hxRate);
 
     scale_init(&sc, &hx, mass_ug, 1, 0);
 

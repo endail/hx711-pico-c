@@ -298,36 +298,19 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
          */
         gpio_put(hx->clock_pin, false);
 
-        /**
-         * 2. clear the IO buffers
-         * 
-         * If the state machine had previously been used, any
-         * value in its buffers is not usable.
-         */
-        pio_sm_clear_fifos(hx->_pio, hx->_state_mach);
+        //2. Reset the state machine using the default config
+        //obtained when init'ing.
+        pio_sm_init(
+            hx->_pio,
+            hx->_state_mach,
+            hx->_offset,
+            &hx->_default_config);
 
         //3. start the state machine
         pio_sm_set_enabled(
             hx->_pio,
             hx->_state_mach,
             true);
-
-        /**
-         * 4. jump back to the first sm instruction
-         * 
-         * It is unclear whether there is a race condition
-         * here. ie. whether the previous PC could be pointing
-         * to an instruction which executes in the state machine
-         * before the following call to jump back to the start.
-         * 
-         * It is also unclear whether a pio_sm_exec (and in
-         * particular a jmp instruction) can execute while the
-         * state machine is not enabled.
-         */
-        pio_sm_exec_wait_blocking(
-            hx->_pio,
-            hx->_state_mach,
-            pio_encode_jmp(hx->_offset));
 
     }
     else if(pwr == hx711_pwr_down) {

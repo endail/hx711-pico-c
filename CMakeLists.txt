@@ -122,3 +122,34 @@ pico_add_extra_outputs(calibration)
 pico_enable_stdio_usb(calibration 1)
 pico_enable_stdio_uart(calibration 1)
 
+
+# test program config
+add_executable(test
+        ${CMAKE_CURRENT_LIST_DIR}/tests/test.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        )
+
+pico_generate_pio_header(test
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
+        )
+
+target_link_libraries(test
+        hardware_clocks
+        hardware_gpio
+        hardware_pio
+        hardware_timer
+        pico_divider
+        pico_double
+        pico_float
+        pico_int64_ops
+        pico_malloc
+        pico_mem_ops
+        pico_stdlib
+        pico_sync
+        pico_time
+        )
+
+pico_add_extra_outputs(test)
+
+pico_enable_stdio_usb(test 1)
+pico_enable_stdio_uart(test 1)

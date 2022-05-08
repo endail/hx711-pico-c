@@ -64,12 +64,12 @@ int main(void) {
     //chip by powering down then back up
     hx711_set_gain(&hx, hx711_gain_128);
     hx711_set_power(&hx, hx711_pwr_down);
-    sleep_us(HX711_POWER_DOWN_TIMEOUT);
+    hx711_wait_power_down();
     hx711_set_power(&hx, hx711_pwr_up);
 
     //4. pause to allow the readings to settle based on the
     //sample rate of the chip
-    sleep_ms(hx711_get_settling_time(hx711_rate_80));
+    hx711_wait_settle(hx711_rate_80);
 
     //at this point, the hx711 can reliably produce values
     //with hx711_get_value or hx711_get_value_timeout
