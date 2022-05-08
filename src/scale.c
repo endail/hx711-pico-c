@@ -77,13 +77,11 @@ bool scale_get_values_samples(
         assert(sc->_hx != NULL);
         assert(arr != NULL);
 
-        *arr = malloc(len * sizeof(int32_t));
-
         //if the allocation fails, return false
-        if(*arr == NULL) {
+        if((*arr = malloc(len * sizeof(int32_t))) == NULL) {
             return false;
         }
-
+        
         for(size_t i = 0; i < len; ++i) {
             (*arr)[i] = hx711_get_value(sc->_hx);
         }
