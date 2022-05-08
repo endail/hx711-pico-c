@@ -135,44 +135,37 @@ bool scale_get_values_timeout(
             return false;
         }
 
-        for(;;) {
-            if(hx711_get_value_timeout(sc->_hx, timeout, &val)) {
+        while(hx711_get_value_timeout(sc->_hx, timeout, &val)) {
 
-                //new value available, so increase the counter
-                //this is the actual number of values obtained
-                ++(*len);
+            //new value available, so increase the counter
+            //this is the actual number of values obtained
+            ++(*len);
 
-                //check if a reallocation is needed
-                if(*len > elemCount) {
+            //check if a reallocation is needed
+            if(*len > elemCount) {
 
-                    //when a reallocation is needed, double the space
-                    elemCount = elemCount * 2;
+                //when a reallocation is needed, double the space
+                elemCount = elemCount * 2;
 
-                    memblock = realloc(
-                        *arr,
-                        elemCount * sizeof(int32_t));
+                memblock = realloc(
+                    *arr,
+                    elemCount * sizeof(int32_t));
 
-                    //if memory allocation fails, return false
-                    //existing *arr will still be allocated
-                    //but will be freed in caller function
-                    if(memblock == NULL) {
-                        return false;
-                    }
-
-                    //move pointer of new block to *arr
-                    *arr = memblock;
-
+                //if memory allocation fails, return false
+                //existing *arr will still be allocated
+                //but will be freed in caller function
+                if(memblock == NULL) {
+                    return false;
                 }
 
-                //store the value in the array
-                (*arr)[(*len) - 1] = val;
+                //move pointer of new block to *arr
+                *arr = memblock;
 
             }
-            else {
-                //timeout has been reached, so just
-                //break out of the loop
-                break;
-            }
+
+            //store the value in the array
+            (*arr)[(*len) - 1] = val;
+
         }
 
         //no errors occurred, so return true
