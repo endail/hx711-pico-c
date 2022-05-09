@@ -133,6 +133,8 @@ bool scale_get_values_timeout(
             return false;
         }
 
+        *len = 0;
+
         while(hx711_get_value_timeout(sc->_hx, timeout, &val)) {
 
             //new value available, so increase the counter
