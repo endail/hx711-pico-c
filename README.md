@@ -72,6 +72,7 @@ bool ok = hx711_get_value_timeout(
 
 if(ok) {
     // value was obtained within the timeout period
+    printf("%li\n", val);
 }
 ```
 
