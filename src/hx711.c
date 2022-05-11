@@ -243,7 +243,6 @@ bool hx711_get_value_timeout(
         assert(hx->_pio != NULL);
         assert(val != NULL);
         assert(!is_nil_time(*timeout));
-        assert(absolute_time_diff_us(get_absolute_time(), *timeout) > 0);
         assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
         assert(mutex_is_initialized(&hx->_mut));
 

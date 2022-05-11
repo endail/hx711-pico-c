@@ -102,7 +102,6 @@ bool scale_get_values_timeout(
         assert(len != NULL);
         assert(timeout != NULL);
         assert(!is_nil_time(*timeout));
-        assert(absolute_time_diff_us(get_absolute_time(), *timeout) > 0);
 
         int32_t val; //temporary value from the HX711
         int32_t* memblock; //ptr to the memblock
