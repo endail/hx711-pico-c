@@ -22,6 +22,9 @@ You do not need to use or `#include` the scale functionality if you only want to
 1. Initialise the hx711
 
 ```c
+#include "include/hx711.h"
+#include "hx711_noblock.pio.h" // for hx711_noblock_program and hx711_noblock_program_init
+
 hx711_t hx;
 
 hx711_init(
@@ -29,7 +32,7 @@ hx711_init(
     clkPin,
     datPin,
     pio0, // the RP2040 PIO to use
-    &hx711_noblock_program, // the state machine program (see: src/hx711_noblock.pio)
+    &hx711_noblock_program, // the state machine program
     &hx711_noblock_program_init); // the state machine program init function
 ```
 
@@ -60,7 +63,8 @@ int32_t val;
 val = hx711_get_value(&hx);
 
 // or use a timeout
-absolute_time_t timeout = make_timeout_time_ms(250); // #include "pico/time.h"
+// #include "pico/time.h" to use make_timeout_time_ms and make_timeout_time_us functions
+absolute_time_t timeout = make_timeout_time_ms(250);
 bool ok = hx711_get_value_timeout(
     &hx,
     &timeout,
@@ -78,6 +82,8 @@ if(ok) {
 2. Initialise the scale.
 
 ```c
+#include "include/scale.h"
+
 scale_t sc;
 
 // the values obtained when calibrating the scale
