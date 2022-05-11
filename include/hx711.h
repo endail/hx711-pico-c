@@ -78,6 +78,7 @@ typedef struct {
 
 } hx711_t;
 
+// prototype for init function in .pio file
 typedef void (*hx711_program_init_t)(hx711_t* const);
 
 void hx711_init(

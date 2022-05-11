@@ -247,12 +247,6 @@ void hx711_noblock_program_init(hx711_t* const hx) {
     //store a copy of the configuration for resetting the sm
     hx->_default_config = cfg;
 
-    pio_sm_init(
-        hx->_pio,
-        hx->_state_mach,
-        hx->_offset,
-        &cfg);
-
 }
 
 %}
