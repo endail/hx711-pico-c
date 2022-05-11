@@ -1,8 +1,11 @@
 # hx711-pico-c
 
-## General Description
-
 This is my implementation of reading from a HX711 via a Raspberry Pi Pico. It uses the RP2040's PIO feature to be as efficient as possible.
+
+## Use
+```console
+git clone https://github.com/endail/hx711-pico-c
+```
 
 After building, copy `main.uf2` in the build directory to the Raspberry Pi Pico and then open up a serial connection to the Pico at a baud rate of 115200.
 
