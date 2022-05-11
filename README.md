@@ -65,6 +65,7 @@ val = hx711_get_value(&hx);
 // or use a timeout
 // #include "pico/time.h" to use make_timeout_time_ms and make_timeout_time_us functions
 absolute_time_t timeout = make_timeout_time_ms(250);
+
 bool ok = hx711_get_value_timeout(
     &hx,
     &timeout,
