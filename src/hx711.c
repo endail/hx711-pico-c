@@ -332,7 +332,7 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
          * calling functions should therefore do:
          * 
          * hx711_set_power(hx, hx711_pwr_down);
-         * sleep_us(HX711_POWER_DOWN_TIMEOUT);
+         * hx711_wait_power_down();
          */
         gpio_put(hx->clock_pin, true);
 
