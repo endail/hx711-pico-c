@@ -26,8 +26,8 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "pico/time.h"
-#include "../include/hx711.h"
-#include "../include/scale.h"
+#include "include/hx711.h"
+#include "include/scale.h"
 #include "hx711_noblock.pio.h"
 
 int main(void) {

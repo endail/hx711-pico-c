@@ -27,8 +27,8 @@
 #include <tusb.h>
 #include "pico/stdlib.h"
 #include "pico/time.h"
-#include "../include/hx711.h"
-#include "../include/scale.h"
+#include "include/hx711.h"
+#include "include/scale.h"
 #include "hx711_noblock.pio.h"
 
 size_t getchars(char* arr, const size_t len) {
