@@ -28,9 +28,9 @@ hx711_init(
     &hx,
     clkPin,
     datPin,
-    pio0, 
-    &hx711_noblock_program,
-    &hx711_noblock_program_init);
+    pio0, // the RP2040 PIO to use
+    &hx711_noblock_program, // the state machine program (see: src/hx711_noblock.pio)
+    &hx711_noblock_program_init); // the state machine program init function
 ```
 
 2. Power up
@@ -60,7 +60,7 @@ int32_t val;
 val = hx711_get_value(&hx);
 
 // or use a timeout
-absolute_time_t timeout = make_timeout_time_ms(250);
+absolute_time_t timeout = make_timeout_time_ms(250); // #include "pico/time.h"
 bool ok = hx711_get_value_timeout(
     &hx,
     &timeout,
@@ -91,8 +91,7 @@ scale_init(
     &hx,
     scaleUnit,
     refUnit,
-    offset
-);
+    offset);
 ```
 
 3. Set options for how the scale will read and interpret values
