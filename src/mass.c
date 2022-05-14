@@ -66,19 +66,15 @@ void mass_convert(
 
         if(fromUnit == toUnit) {
             *toAmount = *fromAmount;
-            return;
         }
-
-        if(toUnit == mass_ug) {
+        else if(toUnit == mass_ug) {
             *toAmount = *fromAmount * *mass_unit_to_ratio(fromUnit);
-            return;
         }
-
-        if(fromUnit == mass_ug) {
+        else if(fromUnit == mass_ug) {
             *toAmount = *fromAmount / *mass_unit_to_ratio(toUnit);
-            return;
         }
-
-        mass_convert(fromAmount, toAmount, toUnit, mass_ug);
+        else {
+            mass_convert(fromAmount, toAmount, toUnit, mass_ug);
+        }
 
 }
