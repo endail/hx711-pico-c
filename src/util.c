@@ -46,7 +46,7 @@ void util_average(
          * these cases it is much more efficient to unroll.
          */
         #pragma GCC unroll (2)
-        for(size_t i = len; i != 0; --i) {
+        for(size_t i = 0; i < len; ++i) {
             total += arr[i];
         }
 
