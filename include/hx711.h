@@ -59,7 +59,7 @@ typedef enum {
 } hx711_gain_t;
 
 typedef enum {
-    hx711_pwr_up,
+    hx711_pwr_up = 0,
     hx711_pwr_down
 } hx711_power_t;
 

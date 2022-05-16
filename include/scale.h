@@ -36,12 +36,12 @@ extern "C" {
 #endif
 
 typedef enum {
-    strategy_type_samples,
+    strategy_type_samples = 0,
     strategy_type_time
 } strategy_type_t;
 
 typedef enum {
-    read_type_median,
+    read_type_median = 0,
     read_type_average
 } read_type_t;
 

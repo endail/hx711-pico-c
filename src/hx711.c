@@ -171,7 +171,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
      * following which the new gain will be set.
      * 
      * To handle 1.: Clear the RX FIFO with a non-blocking
-     * read. If the TX FIFO is empty, no harm done because
+     * read. If the RX FIFO is empty, no harm done because
      * the call won't block.
      * 
      * To handle 2.: Read the "next" value with a blocking
@@ -299,7 +299,7 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
          */
         gpio_put(hx->clock_pin, false);
 
-        //2. Reset the state machine using the default config
+        //2. reset the state machine using the default config
         //obtained when init'ing.
         pio_sm_init(
             hx->_pio,

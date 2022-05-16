@@ -36,7 +36,17 @@ void util_average(
 
         long long int total = 0;
 
-        for(size_t i = 0; i < len; ++i) {
+        /**
+         * Why set unroll to 2?
+         * 
+         * util_median may call util_average when calculating
+         * the median of the middle two elements. So there is
+         * a good chance util_average(arr, 2, avg) will be
+         * called much more often than with a len > 2. In
+         * these cases it is much more efficient to unroll.
+         */
+        #pragma GCC unroll (2)
+        for(size_t i = len; i != 0; --i) {
             total += arr[i];
         }
 
