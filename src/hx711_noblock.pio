@@ -52,14 +52,24 @@
 ; 4. The 'y' register is used to as the decrement counter for the bit
 ; read counter. This variable is 0-based.
 ; 
+; 5. UPDATE (DELAYS): A closer look at the timing of the pulses shows
+; that T1, T3, and T4 delays are not needed at 1MHz. The T1 delay is
+; only 0.1us and the T3 and T4 delays are both 0.2us. These should only
+; be needed if the frequency is > 1MHz.
+; 
+; 6. UPDATE: there is a small speedup by side-setting on the gain loop
+; jmp instruction.
+; 
 .program hx711_noblock
+
+.side_set 1 opt             ; side set on the clock pin
 
 .define READ_BITS 23        ; 24 bits to read from HX711 (this is 0-based)
 .define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64)
-.define T1 1                ; 1us
-; .define T2 1              ; 1us - this value is not used (see above)
-.define T3 1                ; 1us
-; .define T4 1              ; 1us - this value is not used (see below)
+; .define T1 1              ; 1us - this value is not used (re: delays)
+; .define T2 1              ; 1us - this value is not used (see 2. above)
+; .define T3 1              ; 1us - this value is not used (re: delays)
+; .define T4 1              ; 1us - this value is not used (re: delays)
 
 set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
@@ -67,20 +77,12 @@ set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
 set y, READ_BITS            ; Read y number of bits. This is 0-based.
 
-wait 0 pin 0 [T1 - 1]       ; Wait until data pin goes low and delay for
-                            ; T1 - 1 cycles. The delay between going low and
-                            ; the first rising clock pulse is min 0.1us. So
-                            ; a 1us delay is more than sufficient.
+wait 0 pin 0                ; Wait until data pin falling edge
 
 bitloop:
-    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
-    set pins, 0 ; [T4 - 1]  ; Set clock pin low and delay. There is only a
-                            ; 0.1us delay between the clock pin going high
-                            ; and the data pin being ready. Given the above
-                            ; T3 delay, a second delay should not be needed.
-
+    set pins, 1             ; Set clock pin high.
+    set pins, 0             ; Set clock pin low.
     in pins, 1              ; Read bit from data pin into ISR.
-
     jmp y-- bitloop         ; Keep jumping back to bitloop while y > 0.
 
                             ; At this point, all 24 bits have been read
@@ -104,14 +106,16 @@ bitloop:
                             ; pulses minus 1 to be used as the following loop
                             ; counter.
 
+                            ; gainloop will always execute at least once; the
+                            ; HX711 expects at least one clock pulse when
+                            ; setting the gain, so this works well.
+
 gainloop:
-    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
-    set pins, 0             ; Set clock pin low.
+    set pins, 1             ; Set clock pin high.
+    jmp y-- gainloop side 0 ; Set clock pin low and keep pulsing clock pin
+                            ; while y > 0.
 
-                            ; No need to read from the data pin, so also no
-                            ; need to delay.
-
-    jmp y-- gainloop        ; Keep pulsing clock pin while y > 0.
+                            ; No need to read from the data pin.
 
                             ; At this point, the gain has been set for the
                             ; next reading, so go back to the start.
@@ -197,6 +201,9 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         hx->clock_pin,
         1);
 
+    sm_config_set_sideset_pins(
+        &cfg,
+        hx->clock_pin);
 
     //data pin setup
     pio_sm_set_in_pins(
@@ -240,8 +247,8 @@ void hx711_noblock_program_init(hx711_t* const hx) {
      */
     sm_config_set_in_shift(
         &cfg,
-        false, //false=shift in left
-        true, //true=autopush enabled
+        false,            //false = shift in left
+        true,             //true = autopush enabled
         HX711_READ_BITS); //autopush on 24 bits
 
     //store a copy of the configuration for resetting the sm
