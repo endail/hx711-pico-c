@@ -19,7 +19,9 @@ You do not need to use or `#include` the scale functionality if you only want to
 
 ## How to Use HX711
 
-1. Initialise the hx711
+1. Initialise the HX711
+
+See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose GPIO pins.
 
 ```c
 #include "include/hx711.h"
@@ -29,8 +31,8 @@ hx711_t hx;
 
 hx711_init(
     &hx,
-    clkPin,
-    datPin,
+    clkPin, // GPIO pin
+    datPin, // GPIO pin
     pio0, // the RP2040 PIO to use
     &hx711_noblock_program, // the state machine program
     &hx711_noblock_program_init); // the state machine program init function

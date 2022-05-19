@@ -40,8 +40,9 @@ int main(void) {
         sleep_ms(10);
     }
 
-    const uint clkPin = 14;
-    const uint datPin = 15;
+    // PINOUT REFERENCE: https://learn.adafruit.com/assets/99339
+    const uint clkPin = 14; // GP14, PAD19
+    const uint datPin = 15; // GP15, PAD20
 
     hx711_t hx;
     

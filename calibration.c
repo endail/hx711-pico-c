@@ -67,8 +67,9 @@ int main() {
 
     //1. Change these two lines to the pins used to connect to
     //the HX711's clock pin and data pin, respectively.
-    const uint clkPin = 14;
-    const uint datPin = 15;
+    //pinout reference: https://learn.adafruit.com/assets/99339
+    const uint clkPin = 14; // GP14, PAD19
+    const uint datPin = 15; // GP15, PAD20
 
     //2. Change the line below to the rate used by the HX711.
     //If you're unsure, it's probably 10

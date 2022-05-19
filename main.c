@@ -36,8 +36,9 @@ int main(void) {
 
     // SET THESE TO THE GPIO PINS CONNECTED TO THE
     // HX711's CLOCK AND DATA PINS
-    const uint clkPin = 14;
-    const uint datPin = 15;
+    // PINOUT REFERENCE: https://learn.adafruit.com/assets/99339
+    const uint clkPin = 14; // GP14, PAD19
+    const uint datPin = 15; // GP15, PAD20
 
     // CALIBRATE YOUR SCALE TO OBTAIN THESE VALUES
     // https://github.com/endail/hx711-pico-c#how-to-calibrate
