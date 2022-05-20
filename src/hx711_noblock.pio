@@ -111,7 +111,7 @@ bitloop:
                             ; setting the gain, so this works well.
 
 gainloop:
-    set pins, 1 [T3 - 1]    ; Set clock pin high.
+    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
     jmp y-- gainloop side 0 ; Set clock pin low and keep pulsing clock pin
                             ; while y > 0.
 
