@@ -4,11 +4,13 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/${env:USER}/pico/pico-sdk/**",
-                "/usr/lib/gcc/arm-none-eabi/**"
+                //"/home/${env:USER}/pico/pico-sdk/**",
+                //"/usr/lib/gcc/arm-none-eabi/**",
+                "H:/vsarm/armcc/10 2021.10/lib/gcc/arm-none-eabi/**",
+                "H:/vsarm/sdk/pico/pico-sdk/**"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "compilerPath": "H:\\vsarm\\armcc\\10 2021.10\\bin\\arm-none-eabi-gcc.exe",
             "cStandard": "c11",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-arm",
