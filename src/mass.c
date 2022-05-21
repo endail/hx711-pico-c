@@ -35,23 +35,23 @@ int mass_to_string(
         assert(buff != NULL);
 
         double n; //value
-        mass_convert(&m->ug, &n, mass_ug, m->unit);
-        double i; //int part
-        const double f = modf(n, &i); //frac part
-        int d = 0; //decimal count
+        mass_get_value(m, &n);
+        double i; //int part; discard
+        const double f = fabs(modf(n, &i)); //frac part
+        uint d = 0; //decimal count
 
         //if less than the epsilon, then it's ~0
-        if(!(fabs(f) < DBL_EPSILON)) { 
-            d = (int)fmax(0, ceil(1 - log10(fabs(f))));
+        if(f >= DBL_EPSILON) { 
+            d = (uint)fmax(0, ceil(1 - log10(f)));
         }
 
         return snprintf(
             buff,
             MASS_TO_STRING_BUFF_SIZE,
-            "%01.*f %s",
-            d,
-            n,
-            mass_unit_to_string(m->unit));
+            "%01.*f %s", //format
+            d, //how many decimals
+            n, //the value
+            mass_unit_to_string(m->unit)); //suffix (ie. "kg")
 
 }
 
