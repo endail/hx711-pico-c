@@ -4,8 +4,6 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                //"/home/${env:USER}/pico/pico-sdk/**",
-                //"/usr/lib/gcc/arm-none-eabi/**",
                 "H:/vsarm/armcc/10 2021.10/lib/gcc/arm-none-eabi/**",
                 "H:/vsarm/sdk/pico/pico-sdk/**"
             ],
