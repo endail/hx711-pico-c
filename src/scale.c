@@ -81,7 +81,7 @@ bool scale_get_values_samples(
         if((*arr = malloc(len * sizeof(int32_t))) == NULL) {
             return false;
         }
-        
+
         for(size_t i = 0; i < len; ++i) {
             (*arr)[i] = hx711_get_value(sc->_hx);
         }

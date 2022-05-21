@@ -74,13 +74,10 @@ void util_median(
          * it is the middle element.
          */
         if(len % 2 == 0) {
-            util_average(
-                &arr[ (len / 2) - 1 ], //ptr to left-of-middle
-                2, //two elements in length
-                med);
+            *med = (arr[(len / 2) - 1] + arr[len / 2]) / 2.0;
         }
         else {
-            *med = (double)arr[ (uint)ceil(len / 2) ];
+            *med = (double)arr[(len / 2) + 1];
         }
 
 }
