@@ -120,7 +120,15 @@ void hx711_set_gain(
  * @return int32_t 
  */
 static inline int32_t hx711_get_twos_comp(const uint32_t val) {
-    return (int32_t)(-(val & 0x800000)) + (int32_t)(val & 0x7fffff);
+
+    const int32_t converted = 
+        (int32_t)(-(val & 0x800000)) + (int32_t)(val & 0x7fffff);
+
+    //within 24 bit value
+    assert(converted >= -0x800000 && converted <= 0x7fffff);
+
+    return converted;
+
 }
 
 /**
