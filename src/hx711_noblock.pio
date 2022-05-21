@@ -114,28 +114,33 @@ bitloop:
     pull noblock side 1     ; Pull in any data if it's available, but don't
                             ; wait if there isn't any. If no data is there,
                             ; preload from x (this is what noblock does).
+                            ; Also side-set the clock pin for the rising edge
+                            ; of the 25th pulse.
 
     out x, 2                ; Get 2 bits from the OSR into x. This is enough
                             ; to hold the max expected value (2). x will also
-                            ; persist after the wrap loop.
+                            ; persist after the wrap loop. This instruction
+                            ; doubles as a T3 delay for the 25th clock pulse.
 
     mov y, x side 0         ; Copy x into y. y will hold the number of clock
                             ; pulses minus 1 to be used as the following loop
-                            ; counter.
+                            ; counter. Also side-set the clock pin for the
+                            ; falling edge of the 25th clock pulse.
 
     jmp !y wrap_target      ; At this point, one gain clock pulse has been
                             ; performed. So if y is 0 - which is a gain of
                             ; 128 - no more clock pulses are needed. In which
                             ; case, go back to the start.
 
-
                             ; If the jmp above has fallen through (because y
-                            ; is > 0), and gain loop below will run.
+                            ; is > 0) the gain loop below will run for the
+                            ; 26th or 26th and 27th clock pulses.
 
 gainloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
     jmp y-- gainloop side 0 ; Set clock pin low and keep pulsing clock pin
-                            ; while y > 0.
+                            ; while y > 0. Also use this to side-set the
+                            ; falling edge of the clock pin.
 
                             ; No need to read from the data pin.
 
