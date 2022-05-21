@@ -126,6 +126,8 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
     assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
     assert(mutex_is_initialized(&hx->_mut));
 
+    const uint32_t gainVal = gain - HX711_READ_BITS - 1;
+
     mutex_enter_blocking(&hx->_mut);
 
     /**
@@ -150,7 +152,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
     pio_sm_put(
         hx->_pio,
         hx->_state_mach,
-        (uint32_t)gain - HX711_READ_BITS - 1);
+        gainVal);
 
     /**
      * At this point the current value in the RX FIFO will
