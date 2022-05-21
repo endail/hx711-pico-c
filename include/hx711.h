@@ -116,18 +116,18 @@ void hx711_set_gain(
 /**
  * @brief Convert a raw value from the HX711 to a 32-bit signed int.
  * 
- * @param val 
+ * @param raw 
  * @return int32_t 
  */
-static inline int32_t hx711_get_twos_comp(const uint32_t val) {
+static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
 
-    const int32_t converted = 
-        (int32_t)(-(val & 0x800000)) + (int32_t)(val & 0x7fffff);
+    const int32_t val = 
+        (int32_t)(-(raw & 0x800000)) + (int32_t)(raw & 0x7fffff);
 
     //within 24 bit value
-    assert(converted >= -0x800000 && converted <= 0x7fffff);
+    assert(val >= -0x800000 && val <= 0x7fffff);
 
-    return converted;
+    return val;
 
 }
 
