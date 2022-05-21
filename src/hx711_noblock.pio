@@ -37,39 +37,55 @@
 ; Details are given on page 5 of the HX711's datasheet.
 ; 
 ; NOTES:
-; 1. This program assumes the state machine is running at 1MHz.
 ; 
-; 2. When running in serial, there is an overlap between T2 and T3-T4.
-; That is to say, the data pin can be read from 0.1us after the clock
-; pin has gone high. Given each bit is read in serial, the T2 delay is
-; not needed.
+; 1. This program assumes the state machine is running at 10MHz. Each
+; instruction/cycle is therefore 100ns (0.1us).
 ; 
-; 3. The 'x' register is used to store the last count of bits to read
+; 2. The 'x' register is used to store the last count of bits to read
 ; and to preload the OSR with if the OSR is empty. See pg. 350 of the
 ; RP2040 datasheet for details about this when the 'noblock' option is
 ; given.
-;
-; 4. The 'y' register is used to as the decrement counter for the bit
+; 
+; 3. The 'y' register is used to as the decrement counter for the bit
 ; read counter. This variable is 0-based.
 ; 
-; 5. UPDATE (DELAYS): A closer look at the timing of the pulses shows
-; that T1, T3, and T4 delays are not needed at 1MHz. The T1 delay is
-; only 0.1us and the T3 and T4 delays are both 0.2us. These should only
-; be needed if the frequency is > 1MHz.
+; 4. When running in serial, there is an overlap between T2 and T3-T4.
+; That is to say, the data pin can be read from 100ns after the clock
+; pin has gone high. Given each bit is read in serial, the T2 delay is
+; not needed.
 ; 
-; 6. UPDATE: there is a small speedup by side-setting on the gain loop
-; jmp instruction.
+; 5. With the state machine running at 10MHz:
+; 
+; T1: With no delay following the wait instruction (ie. []), and
+; assuming the the next instruction executes immediately after the wait
+; condition is met, the clock pin will go high following that second
+; instruction (ie. set pins, 1 [T3 - 1]). The set pins, 1 portion of
+; the instruction will take one cycle - 100ns - which is the absolute
+; minimum for T1 according to the HX711 datasheet.
+; 
+; T2: A T2 delay is still unneeded due to the inherent delays in
+; reading the data pin and jmp instruction.
+; 
+; T3: Removing the T3 delay does not seem to have any effect on properly
+; clocking out the 24-bit value or setting the gain. However, I am
+; reluctant to remove the delay because it is the bare minimum high
+; clock time according to the HX711 datasheet.
+; 
+; T4: A T4 delay is also unneeded for the same reason as T2.
+; 
+; 6. There is a small speedup by side-setting on the gain loop jmp
+; instruction.
 ; 
 .program hx711_noblock
 
-.side_set 1 opt             ; side set on the clock pin
+.side_set 1 opt             ; Side set on the clock pin.
 
-.define READ_BITS 23        ; 24 bits to read from HX711 (this is 0-based)
-.define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64)
-; .define T1 1              ; 1us - this value is not used (re: delays)
-; .define T2 1              ; 1us - this value is not used (see 2. above)
-; .define T3 1              ; 1us - this value is not used (re: delays)
-; .define T4 1              ; 1us - this value is not used (re: delays)
+.define READ_BITS 23        ; 24 bits to read from HX711 (this is 0-based).
+.define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64).
+; .define T1 1              ; 100ns - this value is not used (see 5. above).
+; .define T2 1              ; 100ns - this value is not used (see 5. above).
+.define T3 2                ; 200ns
+; .define T4 1              ; 200ns - this value is not used (see 5. above).
 
 set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
@@ -77,10 +93,10 @@ set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
 set y, READ_BITS            ; Read y number of bits. This is 0-based.
 
-wait 0 pin 0                ; Wait until data pin falling edge
+wait 0 pin 0                ; Wait until data pin falling edge.
 
 bitloop:
-    set pins, 1             ; Set clock pin high.
+    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
     set pins, 0             ; Set clock pin low.
     in pins, 1              ; Read bit from data pin into ISR.
     jmp y-- bitloop         ; Keep jumping back to bitloop while y > 0.
@@ -92,7 +108,7 @@ bitloop:
                             ; function below.
 
                             ; Defer obtaining the gain from the application
-                            ; until the last moment. So...
+                            ; until the last moment. So:
 
     pull noblock            ; Pull in any data if it's available, but don't
                             ; wait if there isn't any. If no data is there,
@@ -111,7 +127,7 @@ bitloop:
                             ; setting the gain, so this works well.
 
 gainloop:
-    set pins, 1             ; Set clock pin high.
+    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
     jmp y-- gainloop side 0 ; Set clock pin low and keep pulsing clock pin
                             ; while y > 0.
 
@@ -160,8 +176,8 @@ void hx711_noblock_program_init(hx711_t* const hx) {
 
     pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_offset);
 
-    //set state machine to 1MHz clock speed
-    const float div = (float)(clock_get_hz(clk_sys)) / 1000000;
+    //set state machine to 10MHz clock speed
+    const float div = (float)(clock_get_hz(clk_sys)) / 10000000;
 
     sm_config_set_clkdiv(
         &cfg,
