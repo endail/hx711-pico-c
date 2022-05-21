@@ -39,7 +39,7 @@
 ; NOTES:
 ; 
 ; 1. This program assumes the state machine is running at 10MHz. Each
-; instruction is therefore 100ns (0.1us).
+; instruction/cycle is therefore 100ns (0.1us).
 ; 
 ; 2. The 'x' register is used to store the last count of bits to read
 ; and to preload the OSR with if the OSR is empty. See pg. 350 of the
@@ -78,14 +78,14 @@
 ; 
 .program hx711_noblock
 
-.side_set 1 opt             ; side set on the clock pin
+.side_set 1 opt             ; Side set on the clock pin.
 
-.define READ_BITS 23        ; 24 bits to read from HX711 (this is 0-based)
-.define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64)
-; .define T1 1              ; 100ns
-; .define T2 1              ; 100ns - this value is not used (see 2. above)
+.define READ_BITS 23        ; 24 bits to read from HX711 (this is 0-based).
+.define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64).
+; .define T1 1              ; 100ns - this value is not used (see 5. above).
+; .define T2 1              ; 100ns - this value is not used (see 5. above).
 .define T3 2                ; 200ns
-; .define T4 1              ; 200ns - this value is not used (re: delays)
+; .define T4 1              ; 200ns - this value is not used (see 5. above).
 
 set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
@@ -93,7 +93,7 @@ set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
 set y, READ_BITS            ; Read y number of bits. This is 0-based.
 
-wait 0 pin 0                ; Wait until data pin falling edge
+wait 0 pin 0                ; Wait until data pin falling edge.
 
 bitloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
@@ -108,7 +108,7 @@ bitloop:
                             ; function below.
 
                             ; Defer obtaining the gain from the application
-                            ; until the last moment. So...
+                            ; until the last moment. So:
 
     pull noblock            ; Pull in any data if it's available, but don't
                             ; wait if there isn't any. If no data is there,
