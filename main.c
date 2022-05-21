@@ -20,12 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdio.h"
-#include "pico/time.h"
 #include "include/scale.h"
 #include "hx711_noblock.pio.h"
 
