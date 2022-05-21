@@ -90,6 +90,7 @@
 set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
 .wrap_target
+wrap_target:
 
 set y, READ_BITS            ; Read y number of bits. This is 0-based.
 
@@ -110,7 +111,7 @@ bitloop:
                             ; Defer obtaining the gain from the application
                             ; until the last moment. So:
 
-    pull noblock            ; Pull in any data if it's available, but don't
+    pull noblock side 1     ; Pull in any data if it's available, but don't
                             ; wait if there isn't any. If no data is there,
                             ; preload from x (this is what noblock does).
 
@@ -118,13 +119,18 @@ bitloop:
                             ; to hold the max expected value (2). x will also
                             ; persist after the wrap loop.
 
-    mov y, x                ; Copy x into y. y will hold the number of clock
+    mov y, x side 0         ; Copy x into y. y will hold the number of clock
                             ; pulses minus 1 to be used as the following loop
                             ; counter.
 
-                            ; gainloop will always execute at least once; the
-                            ; HX711 expects at least one clock pulse when
-                            ; setting the gain, so this works well.
+    jmp !y wrap_target      ; At this point, one gain clock pulse has been
+                            ; performed. So if y is 0 - which is a gain of
+                            ; 128 - no more clock pulses are needed. In which
+                            ; case, go back to the start.
+
+
+                            ; If the jmp above has fallen through (because y
+                            ; is > 0), and gain loop below will run.
 
 gainloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
