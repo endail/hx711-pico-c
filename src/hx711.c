@@ -128,6 +128,8 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     const uint32_t gainVal = gain - HX711_READ_BITS - 1;
 
+    assert(gainVal <= 2);
+
     mutex_enter_blocking(&hx->_mut);
 
     /**
