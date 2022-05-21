@@ -13,7 +13,8 @@
         "stdlib.h": "c",
         "types.h": "c",
         "cstdlib": "c",
-        "tusb.h": "c"
+        "tusb.h": "c",
+        "stdio.h": "c"
     },
     "cmake.statusbar.advanced": {
         "debug": {

@@ -34,24 +34,16 @@ endif()
 pico_sdk_init()
 
 add_compile_options(
-        -O2
+        -O3
         -Wall
         -Wextra
         -Werror
         -Wfatal-errors
-        # -Wshadow
-        # -Wpointer-arith
-        # -Wswitch-default
-        # -Wconversion
         -Wfloat-equal
         -Wunreachable-code
-        # -Wformat=2
         -Wno-unused-function
         -Wno-maybe-uninitialized
-        # -Wstrict-prototypes
-        # -Wmissing-prototypes
         -Wno-ignored-qualifiers
-        # -Werror-implicit-function-declaration
         )
 
 # main/example program config
@@ -69,15 +61,10 @@ pico_generate_pio_header(main
 
 target_link_libraries(main
         hardware_clocks
-        hardware_gpio
         hardware_pio
         hardware_timer
         pico_divider
         pico_double
-        pico_float
-        pico_int64_ops
-        pico_malloc
-        pico_mem_ops
         pico_stdlib
         pico_sync
         pico_time
@@ -103,15 +90,10 @@ pico_generate_pio_header(calibration
 
 target_link_libraries(calibration
         hardware_clocks
-        hardware_gpio
         hardware_pio
         hardware_timer
         pico_divider
         pico_double
-        pico_float
-        pico_int64_ops
-        pico_malloc
-        pico_mem_ops
         pico_stdlib
         pico_sync
         pico_time
@@ -135,15 +117,10 @@ pico_generate_pio_header(test
 
 target_link_libraries(test
         hardware_clocks
-        hardware_gpio
         hardware_pio
         hardware_timer
         pico_divider
         pico_double
-        pico_float
-        pico_int64_ops
-        pico_malloc
-        pico_mem_ops
         pico_stdlib
         pico_sync
         pico_time

@@ -25,7 +25,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "hardware/timer.h"
-#include "pico/malloc.h"
 #include "pico/platform.h"
 #include "pico/time.h"
 #include "../include/scale.h"
