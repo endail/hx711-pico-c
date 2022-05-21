@@ -20,14 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <assert.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include "hardware/gpio.h"
-#include "hardware/pio.h"
-#include "pico/mutex.h"
-#include "pico/time.h"
 #include "../include/hx711.h"
+#include "hardware/gpio.h"
 
 void hx711_init(
     hx711_t* const hx,

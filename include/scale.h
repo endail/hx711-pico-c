@@ -27,7 +27,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "pico/time.h"
-#include "pico/types.h"
 #include "hx711.h"
 #include "mass.h"
 

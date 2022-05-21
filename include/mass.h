@@ -23,10 +23,12 @@
 #ifndef _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
 #define _MASS_H_62063E22_421F_4578_BAD8_46AF5C66C4CF
 
+#include <assert.h>
 #include <float.h>
 #include <math.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include <stddef.h>
+#include "pico/types.h"
 
 #ifdef __cplusplus
 extern "C" {

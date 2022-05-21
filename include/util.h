@@ -48,8 +48,8 @@ static inline int util__median_compare_func(
         assert(a != NULL);
         assert(b != NULL);
 
-        const int32_t* const pA = (const int32_t* const)a;
-        const int32_t* const pB = (const int32_t* const)b;
+        const int32_t* restrict const pA = (const int32_t* const)a;
+        const int32_t* restrict const pB = (const int32_t* const)b;
         
         //https://stackoverflow.com/a/10996555/570787
         return (*pA < *pB) ? -1 : (*pA > *pB);

@@ -23,6 +23,7 @@
 #ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 #define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "hardware/pio.h"

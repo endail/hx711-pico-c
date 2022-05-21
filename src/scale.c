@@ -20,15 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <assert.h>
-#include <math.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include "hardware/timer.h"
-#include "pico/platform.h"
-#include "pico/time.h"
 #include "../include/scale.h"
 #include "../include/util.h"
+#include <assert.h>
+#include <stdlib.h>
 
 void scale_init(
     scale_t* const sc,

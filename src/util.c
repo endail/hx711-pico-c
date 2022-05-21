@@ -20,11 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <assert.h>
-#include <math.h>
-#include <stdlib.h>
-#include "pico/types.h"
 #include "../include/util.h"
+#include <stdlib.h>
 
 void util_average(
     const int32_t* const arr,
