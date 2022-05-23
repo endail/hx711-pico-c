@@ -23,7 +23,6 @@
 #ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 #define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
-#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "hardware/pio.h"
@@ -35,6 +34,10 @@ extern "C" {
 #endif
 
 static const uint HX711_READ_BITS = 24;
+
+static const int32_t HX711_MIN_VALUE = -0x800000; //-pow(2, HX711_READ_BITS - 1) == -8388608
+
+static const int32_t HX711_MAX_VALUE = 0x7fffff; //pow(2, HX711_READ_BITS - 1) - 1 == 8388607
 
 static const uint HX711_POWER_DOWN_TIMEOUT = 60; //us
 
@@ -125,8 +128,7 @@ static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
     const int32_t val = 
         (int32_t)(-(raw & 0x800000)) + (int32_t)(raw & 0x7fffff);
 
-    //within 24 bit value
-    assert(val >= -0x800000 && val <= 0x7fffff);
+    assert(val >= HX711_MIN_VALUE && val <= HX711_MAX_VALUE);
 
     return val;
 
@@ -141,7 +143,7 @@ static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
  * @return false 
  */
 static inline bool hx711_is_min_saturated(const int32_t val) {
-    return val == -0x800000; //−8,388,608
+    return val == HX711_MIN_VALUE; //−8,388,608
 }
 
 /**
@@ -153,7 +155,7 @@ static inline bool hx711_is_min_saturated(const int32_t val) {
  * @return false 
  */
 static inline bool hx711_is_max_saturated(const int32_t val) {
-    return val == 0x7fffff; //8,388,607
+    return val == HX711_MAX_VALUE; //8,388,607
 }
 
 /**

@@ -34,7 +34,6 @@ endif()
 pico_sdk_init()
 
 add_compile_options(
-        -O3
         -Wall
         -Wextra
         -Werror
