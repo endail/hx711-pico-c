@@ -66,13 +66,6 @@
 ; T2: A T2 delay is still unneeded due to the inherent delays in
 ; reading the data pin and jmp instruction.
 ; 
-; T3: Removing the T3 delay does not seem to have any effect on properly
-; clocking out the 24-bit value or setting the gain. However, I am
-; reluctant to remove the delay because it is the bare minimum high
-; clock time according to the HX711 datasheet.
-; 
-; T4: A T4 delay is also unneeded for the same reason as T2.
-; 
 ; 6. There is a small speedup by side-setting on the gain loop jmp
 ; instruction.
 ; 
@@ -85,7 +78,7 @@
 ; .define T1 1              ; 100ns - this value is not used (see 5. above).
 ; .define T2 1              ; 100ns - this value is not used (see 5. above).
 .define T3 2                ; 200ns
-; .define T4 1              ; 200ns - this value is not used (see 5. above).
+.define T4 2                ; 200ns
 
 set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
 
@@ -97,10 +90,14 @@ set y, READ_BITS            ; Read y number of bits. This is 0-based.
 wait 0 pin 0                ; Wait until data pin falling edge.
 
 bitloop:
-    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
-    set pins, 0             ; Set clock pin low.
-    in pins, 1              ; Read bit from data pin into ISR.
-    jmp y-- bitloop         ; Keep jumping back to bitloop while y > 0.
+    set pins, 1             ; Set rising edge of clock pin.
+    in pins, 1              ; Read bit from data pin into ISR. This will also
+                            ; act as a 100ns delay for the clock pin high time.
+    jmp y-- bitloop side 0 [T4 - 1] ; Keep jumping back to bitloop while y > 0,
+                            ; also set the clock pin falling edge and delay for
+                            ; 100ns after side-setting the clock pin before
+                            ; looping or falling through to ensure a minimum
+                            ; low clock pin for 200ns.
 
                             ; At this point, all 24 bits have been read
                             ; and can be pushed back to the application. A
@@ -137,10 +134,12 @@ bitloop:
                             ; 26th or 26th and 27th clock pulses.
 
 gainloop:
-    set pins, 1 [T3 - 1]    ; Set clock pin high and delay.
-    jmp y-- gainloop side 0 ; Set clock pin low and keep pulsing clock pin
-                            ; while y > 0. Also use this to side-set the
-                            ; falling edge of the clock pin.
+    set pins, 1 [T3 - 1]    ; Set clock pin high and delay to ensure a minimum
+                            ; high clock pin for 200ns.
+    jmp y-- gainloop side 0 [T4 - 1] ; Keep pulsing clock pin while y > 0.
+                            ; Also use this to side-set the falling edge of
+                            ; the clock pin and delay for the minimum
+                            ; required time.
 
                             ; No need to read from the data pin.
 
