@@ -43,7 +43,8 @@ add_compile_options(
         -Wno-unused-function
         -Wno-maybe-uninitialized
         -Wno-ignored-qualifiers
-        -Wno-stringop-overflow       # rp2040_usb.c:61:3
+        -Wno-stringop-overflow          # rp2040_usb.c:61:3
+        -Wno-array-bounds               # rp2040_usb.c:61:3
         )
 
 # main/example program config
