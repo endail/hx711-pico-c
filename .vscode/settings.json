@@ -15,7 +15,8 @@
         "cstdlib": "c",
         "tusb.h": "c",
         "stdio.h": "c",
-        "assert.h": "c"
+        "assert.h": "c",
+        "stdbool.h": "c"
     },
     "cmake.statusbar.advanced": {
         "debug": {

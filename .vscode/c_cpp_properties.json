@@ -1,14 +1,14 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "ARM",
             "includePath": [
                 "${workspaceFolder}/**",
-                "H:/vsarm/armcc/10 2021.10/lib/gcc/arm-none-eabi/**",
+                "H:/vsarm/armcc/11.2 2022.02/lib/gcc/arm-none-eabi/**",
                 "H:/vsarm/sdk/pico/pico-sdk/**"
             ],
             "defines": [],
-            "compilerPath": "H:\\vsarm\\armcc\\10 2021.10\\bin\\arm-none-eabi-gcc.exe",
+            "compilerPath": "H:\\vsarm\\armcc\\11.2 2022.02\\bin\\arm-none-eabi-gcc.exe",
             "cStandard": "c11",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-arm",
