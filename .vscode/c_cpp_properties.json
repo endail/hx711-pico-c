@@ -4,11 +4,10 @@
             "name": "ARM",
             "includePath": [
                 "${workspaceFolder}/**",
-                "H:/vsarm/armcc/11.2 2022.02/lib/gcc/arm-none-eabi/**",
-                "H:/vsarm/sdk/pico/pico-sdk/**"
+                "${env:ARM_TOOLCHAIN_PATH}/lib/gcc/arm-none-eabi/**",
+                "${env:PICO_SDK_PATH}/**"
             ],
-            "defines": [],
-            "compilerPath": "H:\\vsarm\\armcc\\11.2 2022.02\\bin\\arm-none-eabi-gcc.exe",
+            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc.exe",
             "cStandard": "c11",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-arm",

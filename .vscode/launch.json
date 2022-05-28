@@ -5,22 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Cortex Debug",
+            "name": "Debug file->elf",
             "cwd": "${workspaceFolder}",
-            "executable": "./build/main.elf",
+            "executable": "${workspaceFolder}/build/${fileBasenameNoExtension}.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
             "device": "Pico2040",
             "showDevDebugOutput": "both",
+            "runToEntryPoint": "main",
+            "preLaunchTask": "CMake Build",
             "configFiles": [
                 "interface/picoprobe.cfg",
                 "target/rp2040.cfg"
             ],
             "searchDir": [
-                "H:/Daniel/My Documents/GitHub/openocd/tcl"
+                "${env:OPENOCD_PATH}/tcl"
             ],
-            "svdFile": "H:/vsarm/sdk/pico/pico-sdk/src/rp2040/hardware_regs/rp2040.svd"
+            "svdFile": "${env:PICO_SDK_PATH}/src/rp2040/hardware_regs/rp2040.svd"
         }
     ]
 }
