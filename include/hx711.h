@@ -47,9 +47,14 @@ static const uint HX711_SETTLING_TIMES[] = { //ms
 };
 
 typedef enum {
-    hx711_rate_10 = 10,
-    hx711_rate_80 = 80
+    hx711_rate_10 = 0,
+    hx711_rate_80
 } hx711_rate_t;
+
+static const uint HX711_SAMPLE_RATES[] = {
+    10,
+    80
+};
 
 typedef enum {
     hx711_gain_128 = 25, //clock pulse counts
@@ -185,7 +190,7 @@ static inline uint hx711_get_settling_time(const hx711_rate_t rate) {
  * @return uint 
  */
 static inline uint hx711_get_rate_sps(const hx711_rate_t rate) {
-    return (uint)rate;
+    return HX711_SAMPLE_RATES[(uint)rate];
 }
 
 /**

@@ -40,7 +40,7 @@ int main(void) {
     // CALIBRATE YOUR SCALE TO OBTAIN THESE VALUES
     // https://github.com/endail/hx711-pico-c#how-to-calibrate
     const mass_unit_t unit = mass_g;
-    const int32_t refUnit = -432;
+    const int32_t refUnit = 432;
     const int32_t offset = -367539;
 
     hx711_t hx;
