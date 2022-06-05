@@ -120,7 +120,14 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
     assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
     assert(mutex_is_initialized(&hx->_mut));
 
-    const uint32_t gainVal = gain - HX711_READ_BITS - 1;
+    /**
+     * gain value is 0-based and calculated by:
+     * gain = clock pulses - 24 - 1
+     * ie. gain of 128 is 25 clock pulses, so
+     * gain = 25 - 24 - 1
+     * gain = 0
+     */
+    const uint32_t gainVal = (uint32_t)gain - HX711_READ_BITS - 1;
 
     assert(gainVal <= 2);
 
@@ -138,13 +145,6 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
         hx->_pio,
         hx->_state_mach);
 
-    /**
-     * gain value is 0-based and calculated by:
-     * gain = clock pulses - 24 - 1
-     * ie. gain of 128 is 25 clock pulses, so
-     * gain = 25 - 24 - 1
-     * gain = 0
-     */
     pio_sm_put(
         hx->_pio,
         hx->_state_mach,
