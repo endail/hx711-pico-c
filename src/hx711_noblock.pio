@@ -119,27 +119,33 @@ bitloop:
                             ; persist after the wrap loop. This instruction
                             ; doubles as a T3 delay for the 25th clock pulse.
 
-    mov y, x side 0         ; Copy x into y. y will hold the number of clock
+    jmp !x wrap_target side 0 ; If x is 0 - meaning a gain of 128 - we
+                            ; can immediately jump back to the start. We can
+                            ; also side-set the falling edge of the clock pin
+                            ; for the 25th clock pulse.
+
+                            ; If execution has fallen-through to here, the gain
+                            ; is either 1 (32) or 2 (64). But if execution has
+                            ; jumped back to wrap_target, copying x into y is
+                            ; not needed. So:
+
+    mov y, x                ; Copy x into y. y will hold the number of clock
                             ; pulses minus 1 to be used as the following loop
-                            ; counter. Also side-set the clock pin for the
-                            ; falling edge of the 25th clock pulse.
-
-    jmp !y wrap_target      ; At this point, one gain clock pulse has been
-                            ; performed. So if y is 0 - which is a gain of
-                            ; 128 - no more clock pulses are needed. In which
-                            ; case, go back to the start.
-
-                            ; If the jmp above has fallen through (because y
-                            ; is > 0) the gain loop below will run for the
-                            ; 26th or 26th and 27th clock pulses.
+                            ; counter. This instruction doubles as a T4 delay
+                            ; for the falling edge of the 25th clock pulse (
+                            ; which is only really relevant to 26+ clock
+                            ; pulses).
 
 gainloop:
     set pins, 1 [T3 - 1]    ; Set clock pin high and delay to ensure a minimum
                             ; high clock pin for 200ns.
     jmp y-- gainloop side 0 [T4 - 1] ; Keep pulsing clock pin while y > 0.
                             ; Also use this to side-set the falling edge of
-                            ; the clock pin and delay for the minimum
-                            ; required time.
+                            ; the clock pin and delay for the minimum required
+                            ; time. If this is the final loop, the extra delay
+                            ; is superfluous but ultimately does not matter
+                            ; because of the inherent delay in waiting on the
+                            ; data pin again once the program wraps.
 
                             ; No need to read from the data pin.
 
