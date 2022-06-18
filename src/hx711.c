@@ -105,10 +105,6 @@ void hx711_close(hx711_t* const hx) {
         hx->_prog,
         hx->_offset);
 
-    gpio_set_input_enabled(
-        hx->data_pin,
-        false);
-
     mutex_exit(&hx->_mut);
 
 }
