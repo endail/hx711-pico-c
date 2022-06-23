@@ -77,6 +77,7 @@ bool scale_get_values_samples(
         }
 
         for(size_t i = 0; i < len; ++i) {
+            //cppcheck-suppress objectIndex
             (*arr)[i] = hx711_get_value(sc->_hx);
         }
 
@@ -158,6 +159,7 @@ bool scale_get_values_timeout(
             }
 
             //store the value in the array
+            //cppcheck-suppress objectIndex
             (*arr)[(*len) - 1] = val;
 
         }
