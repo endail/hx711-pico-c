@@ -24,7 +24,7 @@
 #include "hardware/gpio.h"
 
 void hx711_init(
-    hx711_t* const hx,
+    hx711_t* const hx, 
     const uint clk,
     const uint dat,
     PIO const pio,
