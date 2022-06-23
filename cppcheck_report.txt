@@ -1,0 +1,56 @@
+calibration.c:159:5: portability: %u in format string (no. 3) requires 'unsigned int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_uint]
+    printf("\
+    ^
+calibration.c:159:5: warning: %li in format string (no. 4) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+    printf("\
+    ^
+calibration.c:159:5: warning: %li in format string (no. 5) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+    printf("\
+    ^
+calibration.c:159:5: warning: %li in format string (no. 6) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+    printf("\
+    ^
+calibration.c:159:5: warning: %li in format string (no. 7) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+    printf("\
+    ^
+calibration.c:159:5: warning: %li in format string (no. 8) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+    printf("\
+    ^
+calibration.c:35:9: style: The scope of the variable 'c' can be reduced. [variableScope]
+    int c;
+        ^
+src/scale.c:80:19: warning: The address of local variable 'arr' might be accessed at non-zero index. [objectIndex]
+            (*arr)[i] = hx711_get_value(sc->_hx);
+                  ^
+src/scale.c:199:17: note: Address of variable taken here.
+                &arr,
+                ^
+src/scale.c:199:17: note: Calling function 'scale_get_values_samples', 2nd argument '&arr' value is lifetime=arr
+                &arr,
+                ^
+src/scale.c:75:51: note: Assuming condition is Assuming condition is false
+        if((*arr = malloc(len * sizeof(int32_t))) == NULL) {
+                                                  ^
+src/scale.c:80:19: note: The address of local variable 'arr' might be accessed at non-zero index.
+            (*arr)[i] = hx711_get_value(sc->_hx);
+                  ^
+src/scale.c:161:19: warning: The address of local variable 'arr' might be accessed at non-zero index. [objectIndex]
+            (*arr)[(*len) - 1] = val;
+                  ^
+src/scale.c:189:17: note: Address of variable taken here.
+                &arr,
+                ^
+src/scale.c:189:17: note: Calling function 'scale_get_values_timeout', 2nd argument '&arr' value is lifetime=arr
+                &arr,
+                ^
+src/scale.c:126:57: note: Assuming condition is Assuming condition is false
+        if((*arr = malloc(elemCount * sizeof(int32_t))) == NULL) {
+                                                        ^
+src/scale.c:161:19: note: The address of local variable 'arr' might be accessed at non-zero index.
+            (*arr)[(*len) - 1] = val;
+                  ^
+tests/test.c:60:13: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+            printf("%li\n", hx711_get_value(&hx));
+            ^
+nofile:0:0: information: Cppcheck cannot find all the include files (use --check-config for details) [missingInclude]
+
