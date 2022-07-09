@@ -199,7 +199,7 @@ bool scale_read(
             ok = scale_get_values_samples(
                 sc,
                 &arr,
-                opt->samples);
+                len);
             break;
         }
 
