@@ -57,12 +57,6 @@ add_library(hx711-pico-c INTERFACE)
 #        -Wno-array-bounds               # rp2040_usb.c:61:3
 #        )
 
-# main/example program config
-#add_executable(main
-#        ${CMAKE_CURRENT_LIST_DIR}/main.c
-#        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
-#        )
-
 pico_generate_pio_header(hx711-pico-c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
         )
@@ -71,14 +65,23 @@ target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
         hardware_pio
         hardware_timer
-        pico_divider
-        pico_double
-        pico_stdlib
         pico_sync
         pico_time
         )
 
-#pico_add_extra_outputs(main)
+# main/example program config
+add_executable(main
+        ${CMAKE_CURRENT_LIST_DIR}/main.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        )
 
-#pico_enable_stdio_usb(main 1)
-#pico_enable_stdio_uart(main 1)
+target_link_libraries(main
+        hx711-pico-c
+        pico_stdlib
+        pico_stdio
+        )
+
+pico_add_extra_outputs(main)
+
+pico_enable_stdio_usb(main 1)
+pico_enable_stdio_uart(main 1)
