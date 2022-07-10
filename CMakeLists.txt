@@ -74,17 +74,17 @@ target_sources(hx711-pico-c INTERFACE
         )
 
 # main/example program config
-add_executable(main
-        ${CMAKE_CURRENT_LIST_DIR}/main.c
-        )
+#add_executable(main
+#        ${CMAKE_CURRENT_LIST_DIR}/main.c
+#        )
 
-target_link_libraries(main
-        hx711-pico-c
-        pico_stdlib
-        pico_stdio
-        )
+#target_link_libraries(main
+#        hx711-pico-c
+#        pico_stdlib
+#        pico_stdio
+#        )
 
-pico_add_extra_outputs(main)
+#pico_add_extra_outputs(main)
 
-pico_enable_stdio_usb(main 1)
-pico_enable_stdio_uart(main 1)
+#pico_enable_stdio_usb(main 1)
+#pico_enable_stdio_uart(main 1)
