@@ -69,10 +69,13 @@ target_link_libraries(hx711-pico-c INTERFACE
         pico_time
         )
 
+target_sources(hx711-pico-c INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        )
+
 # main/example program config
 add_executable(main
         ${CMAKE_CURRENT_LIST_DIR}/main.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
         )
 
 target_link_libraries(main
