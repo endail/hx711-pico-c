@@ -22,9 +22,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "pico/stdio.h"
-#include "include/scale.h"
 #include "hx711_noblock.pio.h"
 
 int main(void) {
@@ -37,19 +35,7 @@ int main(void) {
     const uint clkPin = 14; // GP14, PAD19
     const uint datPin = 15; // GP15, PAD20
 
-    // CALIBRATE YOUR SCALE TO OBTAIN THESE VALUES
-    // https://github.com/endail/hx711-pico-c#how-to-calibrate
-    const mass_unit_t unit = mass_g;
-    const int32_t refUnit = 432;
-    const int32_t offset = -367539;
-
     hx711_t hx;
-    scale_t sc;
-    scale_options_t opt = SCALE_DEFAULT_OPTIONS;
-    mass_t mass;
-    mass_t max;
-    mass_t min;
-    char buff[MASS_TO_STRING_BUFF_SIZE];
 
     //1. init the hx711 struct
     hx711_init(
@@ -77,64 +63,8 @@ int main(void) {
     //at this point, the hx711 can reliably produce values
     //with hx711_get_value or hx711_get_value_timeout
 
-    //5. init the scale
-    scale_init(&sc, &hx, unit, refUnit, offset);
-
-    //6. spend 10 seconds obtaining as many samples as
-    //possible to zero (aka. tare) the scale
-    opt.strat = strategy_type_time;
-    opt.timeout = 10000000;
-
-    if(scale_zero(&sc, &opt)) {
-        printf("Scale zeroed successfully\n");
-    }
-    else {
-        printf("Scale failed to zero\n");
-    }
-
-    //7. change to spending 250 milliseconds obtaining
-    //as many samples as possible
-    opt.timeout = 250000;
-
-    mass_init(&max, mass_g, 0);
-    mass_init(&min, mass_g, 0);
-
     for(;;) {
-
-        memset(buff, 0, MASS_TO_STRING_BUFF_SIZE);
-
-        //8. obtain a mass from the scale
-        if(scale_weight(&sc, &mass, &opt)) {
-
-            //9. check if the newly obtained mass
-            //is less than the existing minimum mass
-            if(mass_lt(&mass, &min)) {
-                min = mass;
-            }
-
-            //10. check if the newly obtained mass
-            //is greater than the existing maximum mass
-            if(mass_gt(&mass, &max)) {
-                max = mass;
-            }
-
-            //11. display the newly obtained mass...
-            mass_to_string(&mass, buff);
-            printf("%s", buff);
-
-            //...the current minimum mass...
-            mass_to_string(&min, buff);
-            printf(" min: %s", buff);
-
-            //...and the current maximum mass
-            mass_to_string(&max, buff);
-            printf(" max: %s\n", buff);
-
-        }
-        else {
-            printf("Failed to read weight\n");
-        }
-
+        printf("%li\n", hx711_get_value(&hx));
     }
 
     return EXIT_SUCCESS;
