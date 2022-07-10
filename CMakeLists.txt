@@ -22,7 +22,7 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-include(pico_sdk_import.cmake)
+#include(pico_sdk_import.cmake)
 
 project(hx711-pico-c
         VERSION 1.0.0
@@ -39,7 +39,7 @@ if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
     message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-pico_sdk_init()
+#pico_sdk_init()
 
 add_library(hx711-pico-c INTERFACE)
 
