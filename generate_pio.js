@@ -1,6 +1,6 @@
 #!/usr/bin/node
 
-//import { PIOAssembler } from 'pioasm';
+import { PIOAssembler } from 'pioasm';
 
 const source = `
   .program blink
