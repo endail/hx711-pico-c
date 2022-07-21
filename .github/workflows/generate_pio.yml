@@ -14,4 +14,4 @@ jobs:
           node-version: 16
       - run: |
           npm install --save pioasm;
-          node generate_pio.js;
+          node --require pioasm generate_pio.js;
