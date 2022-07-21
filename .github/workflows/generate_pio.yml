@@ -18,11 +18,11 @@ jobs:
           
             import { PIOAssembler } from "pioasm";
 
-            const source = "\n
-              .program blink\n
-              pull block\n
-              out y, 32\n
-            ";
+            const source = `
+              .program blink
+              pull block
+              out y, 32
+            `;
 
             const pioasm = new PIOAssembler();
             pioasm.assemble(source).then(result => {
