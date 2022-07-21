@@ -15,10 +15,10 @@ jobs:
       - run: |
           npm install --save pioasm;
           
-          node
+          node -e '
           
-          import { PIOAssembler } from 'pioasm';
-          var fs = require('fs');
+          import { PIOAssembler } from "pioasm";
+          var fs = require("fs");
 
           const source = fs.readFileSync(
             "src/hx711_noblock.pio",
@@ -28,3 +28,4 @@ jobs:
           pioasm.assemble(source).then(result => {
             console.log(result.output);
           })
+          ';
