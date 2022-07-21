@@ -17,7 +17,7 @@ jobs:
           node --input-type=module -e '
           
             import { PIOAssembler } from "pioasm";
-            import { fs } from "fs";
+            import fs from "fs";
 
             const source = fs.readFileSync(
               "src/hx711_noblock.pio",
