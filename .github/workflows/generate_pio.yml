@@ -11,9 +11,11 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - run: |
+
           npm install --save pioasm;
+
           node --input-type=module -e '
           
             import { PIOAssembler } from "pioasm";
@@ -24,8 +26,20 @@ jobs:
               "utf8");
 
             const pioasm = new PIOAssembler();
+
             pioasm.assemble(source).then(result => {
-              console.log(result.output);
+                fs.writeFileSync(
+                  "include/hx711_noblock.pio.h",
+                  result.output,
+                  null,
+                  "utf8");
             });
 
           ';
+
+          git config --global user.name "github-actions[bot]";
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com";
+
+          git add include/hx711_noblock.pio.h;
+          git commit -am "auto-generate PIO header";
+          git push;
