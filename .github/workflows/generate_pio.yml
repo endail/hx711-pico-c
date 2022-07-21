@@ -28,19 +28,18 @@ jobs:
             const pioasm = new PIOAssembler();
 
             pioasm.assemble(source).then(result => {
-                console.log(result.output);
-                //fs.writeFileSync(
-                //  "include/hx711_noblock.pio.h",
-                //  result.output,
-                //  null,
-                //  "utf8");
+                fs.writeFileSync(
+                  "include/hx711_noblock.pio.h",
+                  result.output,
+                  null,
+                  "utf8");
             });
 
           ';
 
-          //git config --global user.name "github-actions[bot]";
-          //git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com";
+          git config --global user.name "github-actions[bot]";
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com";
 
-          //git add include/hx711_noblock.pio.h;
-          //git commit -am "auto-generate PIO header";
-          //git push;
+          git add include/hx711_noblock.pio.h;
+          git commit -am "auto-generate PIO header";
+          git push;
