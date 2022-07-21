@@ -14,7 +14,7 @@ jobs:
           node-version: 16
       - run: |
 
-          npm install --save pioasm;
+          npm install --save pioasm@2.0.0;
 
           node --input-type=module -e '
           

@@ -22,7 +22,7 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-include(pico_sdk_import.cmake)
+# include(pico_sdk_import.cmake)
 
 project(hx711-pico-c
         VERSION 1.0.0
@@ -31,36 +31,40 @@ project(hx711-pico-c
         LANGUAGES C CXX ASM
         )
 
-configure_file(hx711_pico_c_config.h.in hx711_pico_c_config.h)
+configure_file(hx711_pico_c_config.h.in
+        "${CMAKE_CURRENT_LIST_DIR}/hx711_pico_c_config.h")
 
 set(CMAKE_C_STANDARD 11)
 
-if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
-    message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
-endif()
+#if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
+#    message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+#endif()
 
-pico_sdk_init()
+# pico_sdk_init()
 
 add_library(hx711-pico-c INTERFACE)
 
-add_compile_options(
-        -Wall
-        -Wextra
-        -Werror
-        -Wfatal-errors
+#add_compile_options(
+#        -Wall
+#        -Wextra
+#        -Werror
+#        -Wfatal-errors
 #        -Wunreachable-code
 #        -Wno-unused-function
 #        -Wno-maybe-uninitialized
 #        -Wno-ignored-qualifiers
-        -Wno-stringop-overflow          # rp2040_usb.c:61:3
-        -Wno-array-bounds               # rp2040_usb.c:61:3
-        )
+#        -Wno-stringop-overflow          # rp2040_usb.c:61:3
+#        -Wno-array-bounds               # rp2040_usb.c:61:3
+#        )
 
-# put the pio header in the include directory
-pico_generate_pio_header(hx711-pico-c
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
-        OUTPUT_DIR ${PROJECT_SOURCE_DIR}/include
-        )
+# if, for whatever reason, the pio file does not exist, generate it
+if(NOT "${PROJECT_SOURCE_DIR}/include/hx711_noblock.pio.h")
+        message("PIO files does not exist; generating now...")
+        pico_generate_pio_header(hx711-pico-c
+                "${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio"
+                OUTPUT_DIR "${PROJECT_SOURCE_DIR}/include"
+                )
+endif()
 
 target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
@@ -71,12 +75,16 @@ target_link_libraries(hx711-pico-c INTERFACE
         )
 
 target_sources(hx711-pico-c INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        "${CMAKE_CURRENT_LIST_DIR}/src/hx711.c"
         )
 
-# main/example program config
-add_executable(main
-        ${CMAKE_CURRENT_LIST_DIR}/main.c
+
+# ==================================
+# TEST PROGRAM
+# ==================================
+
+add_executable(main EXCLUDE_FROM_ALL
+        "${CMAKE_CURRENT_LIST_DIR}/tests/main.c"
         )
 
 target_link_libraries(main
@@ -84,8 +92,6 @@ target_link_libraries(main
         pico_stdlib
         pico_stdio
         )
-
-pico_add_extra_outputs(main)
 
 pico_enable_stdio_usb(main 1)
 pico_enable_stdio_uart(main 1)
