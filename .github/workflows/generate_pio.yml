@@ -18,7 +18,7 @@ jobs:
           node -e '
           
           //import { PIOAssembler } from "pioasm";
-          var PIOAssembler = import("pioasm").PIOAssembler;
+          var PIOAssembler = import("pioasm");
           var fs = require("fs");
 
           const source = fs.readFileSync(
