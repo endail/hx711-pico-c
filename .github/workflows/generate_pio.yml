@@ -21,6 +21,8 @@ jobs:
           var PIOAssembler = import("pioasm");
           var fs = require("fs");
 
+          console.log(PIOAssembler);
+
           const source = fs.readFileSync(
             "src/hx711_noblock.pio",
             "utf8");
