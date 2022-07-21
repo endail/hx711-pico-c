@@ -25,6 +25,7 @@
 #include <tusb.h>
 #include "pico/stdio.h"
 #include "../include/hx711.h"
+#include "../include/hx711_noblock.h"
 #include "hx711_noblock.pio.h"
 
 int main(void) {

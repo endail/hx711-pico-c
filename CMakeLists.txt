@@ -22,7 +22,7 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-#include(pico_sdk_import.cmake)
+include(pico_sdk_import.cmake)
 
 project(hx711-pico-c
         VERSION 1.0.0
@@ -39,26 +39,27 @@ if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
     message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-#pico_sdk_init()
+pico_sdk_init()
 
 add_library(hx711-pico-c INTERFACE)
 
-#add_compile_options(
-#        -Wall
-#        -Wextra
-#        -Werror
-#        -Wfatal-errors
-#        -Wfloat-equal
+add_compile_options(
+        -Wall
+        -Wextra
+        -Werror
+        -Wfatal-errors
 #        -Wunreachable-code
 #        -Wno-unused-function
 #        -Wno-maybe-uninitialized
 #        -Wno-ignored-qualifiers
-#        -Wno-stringop-overflow          # rp2040_usb.c:61:3
-#        -Wno-array-bounds               # rp2040_usb.c:61:3
-#        )
+        -Wno-stringop-overflow          # rp2040_usb.c:61:3
+        -Wno-array-bounds               # rp2040_usb.c:61:3
+        )
 
+# put the pio header in the include directory
 pico_generate_pio_header(hx711-pico-c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
+        OUTPUT_DIR ${PROJECT_SOURCE_DIR}/include
         )
 
 target_link_libraries(hx711-pico-c INTERFACE
@@ -74,17 +75,17 @@ target_sources(hx711-pico-c INTERFACE
         )
 
 # main/example program config
-#add_executable(main
-#        ${CMAKE_CURRENT_LIST_DIR}/main.c
-#        )
+add_executable(main
+        ${CMAKE_CURRENT_LIST_DIR}/main.c
+        )
 
-#target_link_libraries(main
-#        hx711-pico-c
-#        pico_stdlib
-#        pico_stdio
-#        )
+target_link_libraries(main
+        hx711-pico-c
+        pico_stdlib
+        pico_stdio
+        )
 
-#pico_add_extra_outputs(main)
+pico_add_extra_outputs(main)
 
-#pico_enable_stdio_usb(main 1)
-#pico_enable_stdio_uart(main 1)
+pico_enable_stdio_usb(main 1)
+pico_enable_stdio_uart(main 1)

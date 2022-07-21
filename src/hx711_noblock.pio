@@ -183,7 +183,7 @@ gainloop:
 #include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
-#include "../include/hx711.h"
+#include "hx711.h"
 
 void hx711_noblock_program_init(hx711_t* const hx) {
 
