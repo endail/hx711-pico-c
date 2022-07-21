@@ -37,9 +37,7 @@ jobs:
 
           ';
 
-          git add include/hx711_noblock.pio.h;
-
-          if git status --porcelain | grep .; then
+          if git status --porcelain | grep include/hx711_noblock.pio.h; then
             git config --global user.name "github-actions[bot]";
             git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com";
             git commit -am "auto-generate PIO header";
