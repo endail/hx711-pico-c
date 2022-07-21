@@ -14,4 +14,4 @@ jobs:
           node-version: 16
       - run: |
           npm install --save pioasm;
-          node --imput-type=module generate_pio.js;
+          node --input-type=module generate_pio.js;
