@@ -17,12 +17,11 @@ jobs:
           node --input-type=module -e '
           
             import { PIOAssembler } from "pioasm";
+            var fs = require("fs");
 
-            const source = `
-              .program blink
-              pull block
-              out y, 32
-            `;
+            const source = fs.readFileSync(
+              "src/hx711_noblock.pio",
+              "utf8");
 
             const pioasm = new PIOAssembler();
             pioasm.assemble(source).then(result => {
