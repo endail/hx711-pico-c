@@ -31,8 +31,8 @@ project(hx711-pico-c
         LANGUAGES C CXX ASM
         )
 
-configure_file(hx711_pico_c_config.h.in
-        "${CMAKE_CURRENT_LIST_DIR}/hx711_pico_c_config.h")
+#configure_file(hx711_pico_c_config.h.in
+#        "${CMAKE_CURRENT_LIST_DIR}/hx711_pico_c_config.h")
 
 set(CMAKE_C_STANDARD 11)
 
