@@ -1,5 +1,5 @@
 
-var PIOAssembler = require("pioasm");
+var PIOAssembler = import("pioasm");
 var fs = require("fs");
 
 console.log(PIOAssembler);
