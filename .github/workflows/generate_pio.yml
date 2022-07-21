@@ -14,4 +14,19 @@ jobs:
           node-version: 16
       - run: |
           npm install --save pioasm;
-          node --input-type=module generate_pio.js;
+          node --input-type=module -e '
+          
+            import { PIOAssembler } from "pioasm";
+
+            const source = "
+              .program blink
+              pull block
+              out y, 32
+            "";
+
+            const pioasm = new PIOAssembler();
+            pioasm.assemble(source).then(result => {
+              console.log(result.output);
+            });
+
+          ';
