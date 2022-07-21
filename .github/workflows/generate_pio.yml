@@ -1,4 +1,4 @@
-name: Python package
+name: Generate PIO header
 
 on: [push]
 
@@ -17,7 +17,8 @@ jobs:
           
           node -e '
           
-          import { PIOAssembler } from "pioasm";
+          //import { PIOAssembler } from "pioasm";
+          var PIOAssembler = require("pioasm").PIOAssembler;
           var fs = require("fs");
 
           const source = fs.readFileSync(
