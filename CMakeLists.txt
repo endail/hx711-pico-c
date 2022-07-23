@@ -31,8 +31,6 @@ project(hx711-pico-c
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
-        message("=================================================")
-
         set(CMAKE_C_STANDARD 11)
         set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
