@@ -54,9 +54,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 endif()
 
-add_library(hx711-pico-c INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
-        )
+add_library(hx711-pico-c INTERFACE)
 
 #add_compile_options(
 #        -Wall
@@ -79,9 +77,9 @@ target_link_libraries(hx711-pico-c INTERFACE
         pico_time
         )
 
-#target_sources(hx711-pico-c INTERFACE
-#        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
-#        )
+target_sources(hx711-pico-c INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        )
 
 #if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
         #enable_testing()
