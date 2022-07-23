@@ -22,7 +22,9 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-# include(pico_sdk_import.cmake)
+#set(CMAKE_SYSTEM_NAME Generic)
+#set(CMAKE_SYSTEM_PROCESSOR arm)
+#set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
 
 project(hx711-pico-c
         VERSION 1.0.0
@@ -31,18 +33,30 @@ project(hx711-pico-c
         LANGUAGES C CXX ASM
         )
 
-#configure_file(hx711_pico_c_config.h.in
-#        "${CMAKE_CURRENT_LIST_DIR}/hx711_pico_c_config.h")
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
-set(CMAKE_C_STANDARD 11)
+        message("=================================================")
 
-#if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
-#    message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
-#endif()
+        set(CMAKE_C_STANDARD 11)
+        set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# pico_sdk_init()
+        #configure_file(hx711_pico_c_config.h.in
+        #        "${CMAKE_CURRENT_LIST_DIR}/hx711_pico_c_config.h")
 
-add_library(hx711-pico-c INTERFACE)
+        include(CTest)
+
+        find_package(Doxygen)
+        if(Doxygen_FOUND)
+                add_subdirectory(docs)
+        else()
+                message(STATUS "Doxygen not found, not building docs")
+        endif()
+
+endif()
+
+add_library(hx711-pico-c INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+        )
 
 #add_compile_options(
 #        -Wall
@@ -57,15 +71,6 @@ add_library(hx711-pico-c INTERFACE)
 #        -Wno-array-bounds               # rp2040_usb.c:61:3
 #        )
 
-# if, for whatever reason, the pio file does not exist, generate it
-#if(NOT "${PROJECT_SOURCE_DIR}/include/hx711_noblock.pio.h")
-#        message("PIO files does not exist; generating now...")
-#        pico_generate_pio_header(hx711-pico-c
-#                "${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio"
-#                OUTPUT_DIR "${PROJECT_SOURCE_DIR}/include"
-#                )
-#endif()
-
 target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
         hardware_pio
@@ -74,24 +79,11 @@ target_link_libraries(hx711-pico-c INTERFACE
         pico_time
         )
 
-target_sources(hx711-pico-c INTERFACE
-        "${CMAKE_CURRENT_LIST_DIR}/src/hx711.c"
-        )
+#target_sources(hx711-pico-c INTERFACE
+#        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
+#        )
 
-
-# ==================================
-# TEST PROGRAM
-# ==================================
-
-add_executable(main EXCLUDE_FROM_ALL
-        "${CMAKE_CURRENT_LIST_DIR}/tests/main.c"
-        )
-
-target_link_libraries(main
-        hx711-pico-c
-        pico_stdlib
-        pico_stdio
-        )
-
-pico_enable_stdio_usb(main 1)
-pico_enable_stdio_uart(main 1)
+#if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
+        #enable_testing()
+        #add_subdirectory(tests)
+#endif()

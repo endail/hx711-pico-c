@@ -20,14 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <stdlib.h>
-#include <stdio.h>
-#include "pico/stdio.h"
-#include "../include/hx711_noblock.pio.h"
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include "pico/stdio.h"
+//#include "../include/hx711.h"
+//#include "../include/hx711_noblock.pio.h"
 
 int main(void) {
 
-    stdio_init_all();
+//    stdio_init_all();
+
+/*
 
     // SET THESE TO THE GPIO PINS CONNECTED TO THE
     // HX711's CLOCK AND DATA PINS
@@ -68,5 +71,10 @@ int main(void) {
     }
 
     return EXIT_SUCCESS;
+
+*/
+
+return 0;
+
 
 }
