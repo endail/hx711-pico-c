@@ -58,13 +58,13 @@ add_library(hx711-pico-c INTERFACE)
 #        )
 
 # if, for whatever reason, the pio file does not exist, generate it
-if(NOT "${PROJECT_SOURCE_DIR}/include/hx711_noblock.pio.h")
-        message("PIO files does not exist; generating now...")
-        pico_generate_pio_header(hx711-pico-c
-                "${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio"
-                OUTPUT_DIR "${PROJECT_SOURCE_DIR}/include"
-                )
-endif()
+#if(NOT "${PROJECT_SOURCE_DIR}/include/hx711_noblock.pio.h")
+#        message("PIO files does not exist; generating now...")
+#        pico_generate_pio_header(hx711-pico-c
+#                "${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio"
+#                OUTPUT_DIR "${PROJECT_SOURCE_DIR}/include"
+#                )
+#endif()
 
 target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
