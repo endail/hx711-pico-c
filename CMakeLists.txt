@@ -22,10 +22,6 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-#set(CMAKE_SYSTEM_NAME Generic)
-#set(CMAKE_SYSTEM_PROCESSOR arm)
-#set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
-
 project(hx711-pico-c
         VERSION 1.0.0
         DESCRIPTION "Implementation of HX711 use via RP2040's state machine"
@@ -55,19 +51,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 add_library(hx711-pico-c INTERFACE)
-
-#add_compile_options(
-#        -Wall
-#        -Wextra
-#        -Werror
-#        -Wfatal-errors
-#        -Wunreachable-code
-#        -Wno-unused-function
-#        -Wno-maybe-uninitialized
-#        -Wno-ignored-qualifiers
-#        -Wno-stringop-overflow          # rp2040_usb.c:61:3
-#        -Wno-array-bounds               # rp2040_usb.c:61:3
-#        )
 
 target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
