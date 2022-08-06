@@ -22,35 +22,18 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR arm)
-set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
-
-set(CMAKE_C_STANDARD 11)
-
-include(../pico_sdk_import.cmake)
-
-if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
-    message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
-endif()
-
-pico_sdk_init()
-
-include_directories(..)
-
 add_executable(main
         ${CMAKE_CURRENT_LIST_DIR}/main.c
         )
 
 target_link_libraries(main
-        hx711-pico-c INTERFACE
+        hx711-pico-c
         pico_stdlib
         pico_stdio
         )
 
+# this isn't needed as pio header already generated
+# pico_add_extra_outputs(main)
+
 pico_enable_stdio_usb(main 1)
 pico_enable_stdio_uart(main 1)
-
-#add_test(
-#    NAME hx711-pico-c_test
-#    COMMAND main)
