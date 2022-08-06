@@ -86,15 +86,18 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>This is my implementation of reading from a HX711 via a Raspberry Pi Pico. It uses the RP2040's PIO feature to be as efficient as possible.</p>
-<p>NOTE: if you are looking for a method to weigh objects (ie. to use the HX711 as a scale), see <a href="https://github.com/endail/pico-scale">pico-scale</a>.</p>
+<p><b>NOTE</b>: if you are looking for a method to weigh objects (ie. by using the HX711 as a scale), see <a href="https://github.com/endail/pico-scale">pico-scale</a>.</p>
+<p><img src="resources/hx711_serialout.gif" alt="resources/hx711_serialout.gif" class="inline"/></p>
+<p>The .gif above illustrates the <a href="main.c">current example code</a> obtaining data from a HX711 operating at 80 samples per second.</p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Clone Repository</h1>
 <div class="fragment"><div class="line">git clone https://github.com/endail/hx711-pico-c</div>
-</div><!-- fragment --><p><img src="resources/hx711_serialout.gif" alt="resources/hx711_serialout.gif" class="inline"/></p>
-<p>The .gif above illustrates the <a href="main.c">current example code</a> obtaining data from a HX711 operating at 80 samples per second.</p>
-<h1><a class="anchor" id="autotoc_md2"></a>
+</div><!-- fragment --><p>Alternatively, include it as a submodule in your project and then <code>#include "extern/hx711-pico-c/include/hx711.h"</code>.</p>
+<div class="fragment"><div class="line">git submodule add https://github.com/endail/hx711-pico-c extern/</div>
+<div class="line">git submodle update --init</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md2"></a>
 How to Use</h1>
-<p>See <a href="https://learn.adafruit.com/assets/99339">here</a> for a pinout to choose GPIO pins. You can choose any two pins for the data and clock pins, as long as they are capable of digital input and output respectively.</p>
+<p>See <a href="https://learn.adafruit.com/assets/99339">here</a> for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins clock and data pins, as long as they are capable of digital output and input respectively.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hx711_8h.html">include/hx711.h</a>&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hx711__noblock_8pio_8h.html">include/hx711_noblock.pio.h</a>&quot;</span> <span class="comment">// for hx711_noblock_program and hx711_noblock_program_init</span></div>
 <div class="line"> </div>
@@ -103,9 +106,9 @@ How to Use</h1>
 <div class="line"><span class="comment">// 1. Initialise the HX711</span></div>
 <div class="line"><a class="code" href="hx711_8h.html#a20c562c58345b4cb4c8922925ec0a877">hx711_init</a>(</div>
 <div class="line">    &amp;hx,</div>
-<div class="line">    clkPin, <span class="comment">// GPIO pin</span></div>
-<div class="line">    datPin, <span class="comment">// GPIO pin</span></div>
-<div class="line">    pio0, <span class="comment">// the RP2040 PIO to use</span></div>
+<div class="line">    clkPin, <span class="comment">// Pico GPIO pin connected to HX711&#39;s clock pin</span></div>
+<div class="line">    datPin, <span class="comment">// Pico GPIO pin connected to HX711&#39;s data pin</span></div>
+<div class="line">    pio0, <span class="comment">// the RP2040 PIO to use (either pio0 or pio1)</span></div>
 <div class="line">    &amp;<a class="code" href="hx711__noblock_8pio_8h.html#a116dfe25b456231a2eada965de465101">hx711_noblock_program</a>, <span class="comment">// the state machine program</span></div>
 <div class="line">    &amp;<a class="code" href="hx711__noblock_8pio_8h.html#a2a7669554165d3956d65c5f643c022c1">hx711_noblock_program_init</a>); <span class="comment">// the state machine program init function</span></div>
 <div class="line"> </div>
@@ -125,26 +128,21 @@ How to Use</h1>
 <div class="line"><span class="comment">// 5. Read values</span></div>
 <div class="line">int32_t val;</div>
 <div class="line"> </div>
-<div class="line"><span class="comment">// block until a value is read</span></div>
+<div class="line"><span class="comment">// wait (block) until a value is read</span></div>
 <div class="line">val = <a class="code" href="hx711_8h.html#a2a490345d56d3d9f06f809c07446a6e5">hx711_get_value</a>(&amp;hx);</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// or use a timeout</span></div>
 <div class="line"><span class="comment">// #include &quot;pico/time.h&quot; to use make_timeout_time_ms and make_timeout_time_us functions</span></div>
 <div class="line">absolute_time_t timeout = make_timeout_time_ms(250);</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">bool</span> ok = <a class="code" href="hx711_8h.html#a883615f6bc134c760b61e5eefa0443f4">hx711_get_value_timeout</a>(</div>
-<div class="line">    &amp;hx,</div>
-<div class="line">    &amp;timeout,</div>
-<div class="line">    &amp;val);</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordflow">if</span>(ok) {</div>
+<div class="line"><span class="keywordflow">if</span>(<a class="code" href="hx711_8h.html#a883615f6bc134c760b61e5eefa0443f4">hx711_get_value_timeout</a>(&amp;hx, &amp;timeout, &amp;val)) {</div>
 <div class="line">    <span class="comment">// value was obtained within the timeout period</span></div>
+<div class="line">    <span class="comment">// in this example, within 250ms</span></div>
 <div class="line">    printf(<span class="stringliteral">&quot;%li\n&quot;</span>, val);</div>
 <div class="line">}</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md3"></a>
 Custom PIO Programs</h1>
-<p>You will notice in the code example above that you need to manually include the <code><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></code> PIO header file. This is because it is not included by default in the <code>hx711-pico-c</code> library. It is offered as <em>a method</em> for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the <code><a class="el" href="structhx711__t.html">hx711_t</a></code>.</p>
-<p>In fact, if you do want to make your own HX711 PIO program, you only need to do the following:</p>
+<p>You will notice in the code example above that you need to manually include the <code><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></code> PIO header file. This is because it is not included by default in the <code>hx711-pico-c</code> library. It is offered as <em>a method</em> for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the <code><a class="el" href="structhx711__t.html">hx711_t</a></code>. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:</p>
 <h2><a class="anchor" id="autotoc_md4"></a>
 hx711_init</h2>
 <ol type="1">
@@ -161,7 +159,7 @@ hx711_init</h2>
 <div class="line">    your_pio_initialisation_function);</div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md5"></a>
 Passing HX711 Values From PIO to Code</h2>
-<p>The two functions for obtaining values, <code>hx711_get_value</code> and <code>hx711_get_value_timeout</code>, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first. There does not need to be any padding to the first 8 bits to "stretch" it to 32 bits.</p>
+<p>The two functions for obtaining values, <code>hx711_get_value</code> and <code>hx711_get_value_timeout</code>, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first.</p>
 <p><code>hx711_get_value</code> is a blocking function. It will wait until the RX FIFO is not empty.</p>
 <p><code>hx711_get_value_timeout</code> is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.</p>
 <p>Both functions will subsequently read from and clear the RX FIFO.</p>
@@ -194,7 +192,7 @@ Setting HX711 Power</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Aug 6 2022 14:10:19 for hx711-pico-c by
+    <li class="footer">Generated on Sat Aug 6 2022 14:26:46 for hx711-pico-c by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.17 </li>
   </ul>
