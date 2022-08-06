@@ -21,6 +21,10 @@ git submodule add https://github.com/endail/hx711-pico-c extern/
 git submodle update --init
 ```
 
+## Documentation
+
+[https://endail.github.io/hx711-pico-c/hx711_8h.html]
+
 ## How to Use
 
 See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins clock and data pins, as long as they are capable of digital output and input respectively.
