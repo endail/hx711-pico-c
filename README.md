@@ -70,3 +70,41 @@ if(ok) {
     printf("%li\n", val);
 }
 ```
+
+## Custom PIO Programs
+
+You will notice in the code example above that you need to manually include the `hx711_noblock.pio.h` PIO header file. This is because it is not included by default in the `hx711-pico-c` library. It is offered as _a method_ for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the `hx711_t`.
+
+In fact, if you do want to make your own HX711 PIO program, you only need to do the following:
+
+### hx711_init
+
+1. Pass the `pio_program_t*` pointer created by `pioasm` in the Pico SDK (automatically done for you when calling `pico_generate_pio_header()` in your `CMakeLists.txt` file).
+
+2. Pass a function pointer to an initialisation function which sets up the PIO program (but does _not_ start it) which takes a pointer to the `hx711_t` struct as its only argument. ie. `void (*hx711_program_init_t)(hx711_t* const)`.
+
+So, `hx711_init` should look like this:
+
+```c
+hx711_init(
+    &hx,
+    clkPin,
+    datPin,
+    pio0,
+    your_pio_program_created_by_pioasm,
+    your_pio_initialisation_function);
+```
+
+### Passing HX711 Values From PIO to Code
+
+The two functions for obtaining values, `hx711_get_value` and `hx711_get_value_timeout`, both expect the raw value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first. There should be no zero-padding to the first 8 bits to "stretch" it to 32 bits.
+
+`hx711_get_value` is a blocking function, waiting while the RX FIFO is empty.
+
+`hx711_get_value_timeout` is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.
+
+### Setting HX711 Gain
+
+`hx711_set_gain` will transmit an unsigned 32 bit integer to the PIO program which represents the gain to set. This integer will be in the range 0 to 2 inclusive, corresponding to a HX711 gain of 128, 32, and 64 respectively.
+
+The function will then perform two sequential PIO reads. The first is a non-blocking read to clear whatever is in the RX FIFO, followed by a blocking read to give the PIO program as long as it needs to finish reading the previously set gain.
