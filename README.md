@@ -2,7 +2,11 @@
 
 This is my implementation of reading from a HX711 via a Raspberry Pi Pico. It uses the RP2040's PIO feature to be as efficient as possible.
 
-NOTE: if you are looking for a method to weigh objects (ie. to use the HX711 as a scale), see [pico-scale](https://github.com/endail/pico-scale).
+__NOTE__: if you are looking for a method to weigh objects (ie. by using the HX711 as a scale), see [pico-scale](https://github.com/endail/pico-scale).
+
+![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
+
+The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second.
 
 ## Clone Repository
 
@@ -10,13 +14,16 @@ NOTE: if you are looking for a method to weigh objects (ie. to use the HX711 as 
 git clone https://github.com/endail/hx711-pico-c
 ```
 
-![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
+Alternatively, include it as a submodule in your project and then `#include "extern/hx711-pico-c/include/hx711.h"`.
 
-The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second.
+```console
+git submodule add https://github.com/endail/hx711-pico-c extern/
+git submodle update --init
+```
 
 ## How to Use
 
-See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose GPIO pins. You can choose any two pins for the data and clock pins, as long as they are capable of digital input and output respectively.
+See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins clock and data pins, as long as they are capable of digital output and input respectively.
 
 ```c
 #include "include/hx711.h"
@@ -27,9 +34,9 @@ hx711_t hx;
 // 1. Initialise the HX711
 hx711_init(
     &hx,
-    clkPin, // GPIO pin
-    datPin, // GPIO pin
-    pio0, // the RP2040 PIO to use
+    clkPin, // Pico GPIO pin connected to HX711's clock pin
+    datPin, // Pico GPIO pin connected to HX711's data pin
+    pio0, // the RP2040 PIO to use (either pio0 or pio1)
     &hx711_noblock_program, // the state machine program
     &hx711_noblock_program_init); // the state machine program init function
 
@@ -49,29 +56,23 @@ hx711_wait_settle(hx711_rate_10); // or hx711_rate_80 depending on your chip's c
 // 5. Read values
 int32_t val;
 
-// block until a value is read
+// wait (block) until a value is read
 val = hx711_get_value(&hx);
 
 // or use a timeout
 // #include "pico/time.h" to use make_timeout_time_ms and make_timeout_time_us functions
 absolute_time_t timeout = make_timeout_time_ms(250);
 
-bool ok = hx711_get_value_timeout(
-    &hx,
-    &timeout,
-    &val);
-
-if(ok) {
+if(hx711_get_value_timeout(&hx, &timeout, &val)) {
     // value was obtained within the timeout period
+    // in this example, within 250ms
     printf("%li\n", val);
 }
 ```
 
 ## Custom PIO Programs
 
-You will notice in the code example above that you need to manually include the `hx711_noblock.pio.h` PIO header file. This is because it is not included by default in the `hx711-pico-c` library. It is offered as _a method_ for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the `hx711_t`.
-
-In fact, if you do want to make your own HX711 PIO program, you only need to do the following:
+You will notice in the code example above that you need to manually include the `hx711_noblock.pio.h` PIO header file. This is because it is not included by default in the `hx711-pico-c` library. It is offered as _a method_ for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the `hx711_t`. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:
 
 ### hx711_init
 
@@ -93,7 +94,7 @@ hx711_init(
 
 ### Passing HX711 Values From PIO to Code
 
-The two functions for obtaining values, `hx711_get_value` and `hx711_get_value_timeout`, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first. There does not need to be any padding to the first 8 bits to "stretch" it to 32 bits.
+The two functions for obtaining values, `hx711_get_value` and `hx711_get_value_timeout`, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first.
 
 `hx711_get_value` is a blocking function. It will wait until the RX FIFO is not empty.
 
