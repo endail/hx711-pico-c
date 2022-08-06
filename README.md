@@ -23,7 +23,7 @@ git submodle update --init
 
 ## Documentation
 
-[https://endail.github.io/hx711-pico-c/hx711_8h.html]
+[https://endail.github.io/hx711-pico-c](https://endail.github.io/hx711-pico-c/hx711_8h.html)
 
 ## How to Use
 
