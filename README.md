@@ -83,7 +83,7 @@ In fact, if you do want to make your own HX711 PIO program, you only need to do 
 
 2. Pass a function pointer to an initialisation function which sets up the PIO program (but does _not_ start it) which takes a pointer to the `hx711_t` struct as its only argument. ie. `void (*hx711_program_init_t)(hx711_t* const)`.
 
-So, `hx711_init` should look like this:
+The call to `hx711_init` should look like this:
 
 ```c
 hx711_init(
@@ -97,14 +97,20 @@ hx711_init(
 
 ### Passing HX711 Values From PIO to Code
 
-The two functions for obtaining values, `hx711_get_value` and `hx711_get_value_timeout`, both expect the raw value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first. There should be no zero-padding to the first 8 bits to "stretch" it to 32 bits.
+The two functions for obtaining values, `hx711_get_value` and `hx711_get_value_timeout`, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first. There does not need to be any padding to the first 8 bits to "stretch" it to 32 bits.
 
-`hx711_get_value` is a blocking function, waiting while the RX FIFO is empty.
+`hx711_get_value` is a blocking function. It will wait until the RX FIFO is not empty.
 
 `hx711_get_value_timeout` is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.
+
+Both functions will subsequently read from and clear the RX FIFO.
 
 ### Setting HX711 Gain
 
 `hx711_set_gain` will transmit an unsigned 32 bit integer to the PIO program which represents the gain to set. This integer will be in the range 0 to 2 inclusive, corresponding to a HX711 gain of 128, 32, and 64 respectively.
 
 The function will then perform two sequential PIO reads. The first is a non-blocking read to clear whatever is in the RX FIFO, followed by a blocking read to give the PIO program as long as it needs to finish reading the previously set gain.
+
+### Setting HX711 Power
+
+The PIO program should _not_ attempt to change the HX711's power state.
