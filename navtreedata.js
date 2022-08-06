@@ -23,6 +23,8 @@ for the JavaScript code in this file
 var NAVTREE =
 [
   [ "hx711-pico-c", "index.html", [
+    [ "Clone Repository", "index.html#autotoc_md1", null ],
+    [ "How to Use", "index.html#autotoc_md2", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],

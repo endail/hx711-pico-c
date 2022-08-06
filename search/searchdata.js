@@ -1,14 +1,15 @@
 var indexSectionsWithContent =
 {
-  0: "_cdh",
+  0: "_cdhr",
   1: "h",
-  2: "h",
+  2: "hr",
   3: "h",
   4: "_cdh",
   5: "h",
   6: "h",
   7: "h",
-  8: "h"
+  8: "h",
+  9: "h"
 };
 
 var indexSectionNames =
@@ -21,7 +22,8 @@ var indexSectionNames =
   5: "typedefs",
   6: "enums",
   7: "enumvalues",
-  8: "defines"
+  8: "defines",
+  9: "pages"
 };
 
 var indexSectionLabels =
@@ -34,6 +36,7 @@ var indexSectionLabels =
   5: "Typedefs",
   6: "Enumerations",
   7: "Enumerator",
-  8: "Macros"
+  8: "Macros",
+  9: "Pages"
 };
 

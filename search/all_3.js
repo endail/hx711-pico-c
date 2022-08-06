@@ -39,5 +39,6 @@ var searchData=
   ['hx711_5fsettling_5ftimes_44',['HX711_SETTLING_TIMES',['../hx711_8h.html#ae2b69357701a4fa5d1fe63b92bfe18c7',1,'hx711.h']]],
   ['hx711_5ft_45',['hx711_t',['../structhx711__t.html',1,'']]],
   ['hx711_5fwait_5fpower_5fdown_46',['hx711_wait_power_down',['../hx711_8h.html#af76e111ac6776cb7c4321dab53bf8036',1,'hx711.h']]],
-  ['hx711_5fwait_5fsettle_47',['hx711_wait_settle',['../hx711_8h.html#a5495b51ec048d8363783a572fb577ecc',1,'hx711.h']]]
+  ['hx711_5fwait_5fsettle_47',['hx711_wait_settle',['../hx711_8h.html#a5495b51ec048d8363783a572fb577ecc',1,'hx711.h']]],
+  ['hx711_2dpico_2dc_48',['hx711-pico-c',['../index.html',1,'']]]
 ];
