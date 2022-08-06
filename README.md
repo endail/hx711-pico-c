@@ -10,17 +10,13 @@ NOTE: if you are looking for a method to weigh objects (ie. to use the HX711 as 
 git clone https://github.com/endail/hx711-pico-c
 ```
 
-After building, copy `main.uf2` in the build directory to the Raspberry Pi Pico and then open up a serial connection to the Pico at a baud rate of 115200.
-
-I have used [this helpful tutorial](https://paulbupejr.com/raspberry-pi-pico-windows-development/) to setup my Windows environment in order to program the Pico via Visual Studio Code.
-
 ![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
 
 The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second.
 
 ## How to Use
 
-See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose GPIO pins.
+See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose GPIO pins. You can choose any two pins for the data and clock pins, as long as they are capable of digital input and output respectively.
 
 ```c
 #include "include/hx711.h"
