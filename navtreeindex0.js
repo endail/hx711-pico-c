@@ -69,6 +69,7 @@ var NAVTREEINDEX0 =
 "index.html#autotoc_md4":[2,0],
 "index.html#autotoc_md5":[2,1],
 "index.html#autotoc_md6":[2,2],
+"index.html#autotoc_md7":[2,3],
 "pages.html":[],
 "structhx711__t.html":[3,0,0],
 "structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d":[3,0,0,6],

@@ -28,7 +28,8 @@ var NAVTREE =
     [ "Custom PIO Programs", "index.html#autotoc_md3", [
       [ "hx711_init", "index.html#autotoc_md4", null ],
       [ "Passing HX711 Values From PIO to Code", "index.html#autotoc_md5", null ],
-      [ "Setting HX711 Gain", "index.html#autotoc_md6", null ]
+      [ "Setting HX711 Gain", "index.html#autotoc_md6", null ],
+      [ "Setting HX711 Power", "index.html#autotoc_md7", null ]
     ] ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
