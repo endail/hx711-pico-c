@@ -10,6 +10,6 @@ jobs:
         uses: mattnotmitt/doxygen-action@1.9.4
         with:
           working-directory: "."
-          doxyfile-path: "./Doxyfile"
+          doxyfile-path: "Doxyfile"
           enable-latex: true
-          additional-packages: 
+          additional-packages: ""
