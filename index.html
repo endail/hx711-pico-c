@@ -90,13 +90,11 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <h1><a class="anchor" id="autotoc_md1"></a>
 Clone Repository</h1>
 <div class="fragment"><div class="line">git clone https://github.com/endail/hx711-pico-c</div>
-</div><!-- fragment --><p>After building, copy <code>main.uf2</code> in the build directory to the Raspberry Pi Pico and then open up a serial connection to the Pico at a baud rate of 115200.</p>
-<p>I have used <a href="https://paulbupejr.com/raspberry-pi-pico-windows-development/">this helpful tutorial</a> to setup my Windows environment in order to program the Pico via Visual Studio Code.</p>
-<p><img src="resources/hx711_serialout.gif" alt="resources/hx711_serialout.gif" class="inline"/></p>
+</div><!-- fragment --><p><img src="resources/hx711_serialout.gif" alt="resources/hx711_serialout.gif" class="inline"/></p>
 <p>The .gif above illustrates the <a href="main.c">current example code</a> obtaining data from a HX711 operating at 80 samples per second.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
 How to Use</h1>
-<p>See <a href="https://learn.adafruit.com/assets/99339">here</a> for a pinout to choose GPIO pins.</p>
+<p>See <a href="https://learn.adafruit.com/assets/99339">here</a> for a pinout to choose GPIO pins. You can choose any two pins for the data and clock pins, as long as they are capable of digital input and output respectively.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hx711_8h.html">include/hx711.h</a>&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hx711__noblock_8pio_8h.html">include/hx711_noblock.pio.h</a>&quot;</span> <span class="comment">// for hx711_noblock_program and hx711_noblock_program_init</span></div>
 <div class="line"> </div>
@@ -196,7 +194,7 @@ Setting HX711 Power</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Aug 6 2022 14:07:56 for hx711-pico-c by
+    <li class="footer">Generated on Sat Aug 6 2022 14:10:19 for hx711-pico-c by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.17 </li>
   </ul>
