@@ -1,0 +1,13 @@
+name: builddoxy-action
+on: [push]
+
+jobs:
+  build:
+    name: build docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Doxygen Action
+        uses: mattnotmitt/doxygen-action@1.9.4
+        with:
+          doxyfile-path: "docs/Doxygen"
+          enable-latex: true
