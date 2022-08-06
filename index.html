@@ -96,6 +96,9 @@ Clone Repository</h1>
 <div class="fragment"><div class="line">git submodule add https://github.com/endail/hx711-pico-c extern/</div>
 <div class="line">git submodle update --init</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md2"></a>
+Documentation</h1>
+<p>[<a href="https://endail.github.io/hx711-pico-c/hx711_8h.html">https://endail.github.io/hx711-pico-c/hx711_8h.html</a>]</p>
+<h1><a class="anchor" id="autotoc_md3"></a>
 How to Use</h1>
 <p>See <a href="https://learn.adafruit.com/assets/99339">here</a> for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins clock and data pins, as long as they are capable of digital output and input respectively.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hx711_8h.html">include/hx711.h</a>&quot;</span></div>
@@ -140,10 +143,10 @@ How to Use</h1>
 <div class="line">    <span class="comment">// in this example, within 250ms</span></div>
 <div class="line">    printf(<span class="stringliteral">&quot;%li\n&quot;</span>, val);</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md3"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md4"></a>
 Custom PIO Programs</h1>
 <p>You will notice in the code example above that you need to manually include the <code><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></code> PIO header file. This is because it is not included by default in the <code>hx711-pico-c</code> library. It is offered as <em>a method</em> for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the <code><a class="el" href="structhx711__t.html">hx711_t</a></code>. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:</p>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h2><a class="anchor" id="autotoc_md5"></a>
 hx711_init</h2>
 <ol type="1">
 <li>Pass the <code>pio_program_t*</code> pointer created by <code>pioasm</code> in the Pico SDK (automatically done for you when calling <code>pico_generate_pio_header()</code> in your <code>CMakeLists.txt</code> file).</li>
@@ -157,17 +160,17 @@ hx711_init</h2>
 <div class="line">    pio0,</div>
 <div class="line">    your_pio_program_created_by_pioasm,</div>
 <div class="line">    your_pio_initialisation_function);</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md5"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md6"></a>
 Passing HX711 Values From PIO to Code</h2>
 <p>The two functions for obtaining values, <code>hx711_get_value</code> and <code>hx711_get_value_timeout</code>, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first.</p>
 <p><code>hx711_get_value</code> is a blocking function. It will wait until the RX FIFO is not empty.</p>
 <p><code>hx711_get_value_timeout</code> is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.</p>
 <p>Both functions will subsequently read from and clear the RX FIFO.</p>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md7"></a>
 Setting HX711 Gain</h2>
 <p><code>hx711_set_gain</code> will transmit an unsigned 32 bit integer to the PIO program which represents the gain to set. This integer will be in the range 0 to 2 inclusive, corresponding to a HX711 gain of 128, 32, and 64 respectively.</p>
 <p>The function will then perform two sequential PIO reads. The first is a non-blocking read to clear whatever is in the RX FIFO, followed by a blocking read to give the PIO program as long as it needs to finish reading the previously set gain.</p>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
 Setting HX711 Power</h2>
 <p>The PIO program should <em>not</em> attempt to change the HX711's power state. </p>
 </div></div><!-- PageDoc -->
@@ -192,7 +195,7 @@ Setting HX711 Power</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Aug 6 2022 14:31:23 for hx711-pico-c by
+    <li class="footer">Generated on Sat Aug 6 2022 14:37:17 for hx711-pico-c by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.17 </li>
   </ul>

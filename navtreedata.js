@@ -24,12 +24,13 @@ var NAVTREE =
 [
   [ "hx711-pico-c", "index.html", [
     [ "Clone Repository", "index.html#autotoc_md1", null ],
-    [ "How to Use", "index.html#autotoc_md2", null ],
-    [ "Custom PIO Programs", "index.html#autotoc_md3", [
-      [ "hx711_init", "index.html#autotoc_md4", null ],
-      [ "Passing HX711 Values From PIO to Code", "index.html#autotoc_md5", null ],
-      [ "Setting HX711 Gain", "index.html#autotoc_md6", null ],
-      [ "Setting HX711 Power", "index.html#autotoc_md7", null ]
+    [ "Documentation", "index.html#autotoc_md2", null ],
+    [ "How to Use", "index.html#autotoc_md3", null ],
+    [ "Custom PIO Programs", "index.html#autotoc_md4", [
+      [ "hx711_init", "index.html#autotoc_md5", null ],
+      [ "Passing HX711 Values From PIO to Code", "index.html#autotoc_md6", null ],
+      [ "Setting HX711 Gain", "index.html#autotoc_md7", null ],
+      [ "Setting HX711 Power", "index.html#autotoc_md8", null ]
     ] ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
