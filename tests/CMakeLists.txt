@@ -22,6 +22,20 @@
 
 cmake_minimum_required(VERSION 3.12)
 
+add_compile_options(
+        -Wall
+        -Wextra
+        -Werror
+        -Wfatal-errors
+        -Wfloat-equal
+        -Wunreachable-code
+        -Wno-unused-function
+        -Wno-maybe-uninitialized
+        -Wno-ignored-qualifiers
+        -Wno-stringop-overflow          # rp2040_usb.c:61:3
+        -Wno-array-bounds               # rp2040_usb.c:61:3
+        )
+
 add_executable(main
         ${CMAKE_CURRENT_LIST_DIR}/main.c
         )
