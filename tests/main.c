@@ -65,7 +65,7 @@ int main(void) {
     //with hx711_get_value or hx711_get_value_timeout
 
     for(;;) {
-        printf("%li\n", hx711_get_value(&hx));
+        printf("%i\n", hx711_get_value(&hx));
     }
 
     return EXIT_SUCCESS;
