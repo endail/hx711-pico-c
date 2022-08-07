@@ -19,7 +19,7 @@ Run CTest to build the example program. The `.uf2` file you upload to your Pico 
 Alternatively, include it as a submodule in your project and then `#include "extern/hx711-pico-c/include/hx711.h"` and `#include "extern/hx711-pico-c/include/hx711_noblock.pio.h"`.
 
 ```console
-git submodule add https://github.com/endail/hx711-pico-c extern/
+git submodule add https://github.com/endail/hx711-pico-c extern/hx711-pico-c
 git submodle update --init
 ```
 
