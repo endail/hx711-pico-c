@@ -14,6 +14,8 @@ The .gif above illustrates the [current example code](main.c) obtaining data fro
 git clone https://github.com/endail/hx711-pico-c
 ```
 
+Run CTest to build the example program. The file you upload to your Pico will be found under `build/tests/`.
+
 Alternatively, include it as a submodule in your project and then `#include "extern/hx711-pico-c/include/hx711.h"` and `#include "extern/hx711-pico-c/include/hx711_noblock.pio.h"`.
 
 ```console
