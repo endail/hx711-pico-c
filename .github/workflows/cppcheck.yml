@@ -14,7 +14,7 @@ jobs:
           enable: all
           inline_suppression: enable
           force_language: c
-          other_options: --suppress=unusedFunction
+          other_options: --suppress=unusedFunction --suppress=missingInclude
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: publish report
