@@ -90,7 +90,7 @@ typedef void (*hx711_program_init_t)(hx711_t* const);
 /**
  * @brief Initialise HX711.
  * 
- * @param hx
+ * @param hx Pointer to hx711_t
  * @param clk GPIO pin connected to HX711 CLK pin
  * @param dat GPIO pin connected to HX711 DAT pin
  * @param pio RP2040 PIO pio0 or pio1
