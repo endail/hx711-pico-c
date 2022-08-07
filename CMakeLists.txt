@@ -22,112 +22,67 @@
 
 cmake_minimum_required(VERSION 3.12)
 
+#set(CMAKE_SYSTEM_NAME Generic)
+#set(CMAKE_SYSTEM_PROCESSOR arm)
+#set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
+
+# does the import file have include guard? assuming no
+# this must go above project()
 include(pico_sdk_import.cmake)
 
-project(hx711test C CXX ASM)
-set(CMAKE_C_STANDARD 11)
+project(hx711-pico-c
+        VERSION 1.0.0
+        DESCRIPTION "Implementation of HX711 use via RP2040's state machine"
+        HOMEPAGE_URL "https://github.com/endail/hx711-pico-c"
+        LANGUAGES C CXX ASM
+        )
 
-if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
-    message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+# only do this when this project is the one being built
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+
+        set(CMAKE_C_STANDARD 11)
+        set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+        include(CTest)
+
+        find_package(Doxygen)
+
+        if(Doxygen_FOUND)
+                add_subdirectory(docs)
+        else()
+                message(STATUS "Doxygen not found, not building docs")
+        endif()
+
+        # init the pico sdk only when testing
+        if(BUILD_TESTING)
+                # this must go below project()
+                pico_sdk_init()
+        endif()
+
 endif()
 
-pico_sdk_init()
+# check for minimum pico sdk version
+if(PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
+        message(FATAL_ERROR "hx711-pico-c requires Raspberry Pi Pico SDK version 1.3.0 (or later). Your version is ${PICO_SDK_VERSION_STRING}")
+endif()
 
-add_compile_options(
-        -Wall
-        -Wextra
-        -Werror
-        -Wfatal-errors
-        -Wfloat-equal
-        -Wunreachable-code
-        -Wno-unused-function
-        -Wno-maybe-uninitialized
-        -Wno-ignored-qualifiers
-        -Wno-stringop-overflow          # rp2040_usb.c:61:3
-        -Wno-array-bounds               # rp2040_usb.c:61:3
-        )
+add_library(hx711-pico-c INTERFACE)
 
-# main/example program config
-add_executable(main
-        ${CMAKE_CURRENT_LIST_DIR}/main.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/mass.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/scale.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/util.c
-        )
-
-pico_generate_pio_header(main
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
-        )
-
-target_link_libraries(main
+target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
         hardware_pio
         hardware_timer
-        pico_divider
-        pico_double
-        pico_stdlib
         pico_sync
         pico_time
         )
 
-pico_add_extra_outputs(main)
-
-pico_enable_stdio_usb(main 1)
-pico_enable_stdio_uart(main 1)
-
-# calibration prog config
-add_executable(calibration
-        ${CMAKE_CURRENT_LIST_DIR}/calibration.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/mass.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/scale.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/util.c
-        )
-
-pico_generate_pio_header(calibration
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
-        )
-
-target_link_libraries(calibration
-        hardware_clocks
-        hardware_pio
-        hardware_timer
-        pico_divider
-        pico_double
-        pico_stdlib
-        pico_sync
-        pico_time
-        )
-
-pico_add_extra_outputs(calibration)
-
-pico_enable_stdio_usb(calibration 1)
-pico_enable_stdio_uart(calibration 1)
-
-
-# test program config
-add_executable(test
-        ${CMAKE_CURRENT_LIST_DIR}/tests/test.c
+target_sources(hx711-pico-c INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
         )
 
-pico_generate_pio_header(test
-        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_noblock.pio
-        )
-
-target_link_libraries(test
-        hardware_clocks
-        hardware_pio
-        hardware_timer
-        pico_divider
-        pico_double
-        pico_stdlib
-        pico_sync
-        pico_time
-        )
-
-pico_add_extra_outputs(test)
-
-pico_enable_stdio_usb(test 1)
-pico_enable_stdio_uart(test 1)
+# when running the tests in this project, build the main test exe
+# side effect is that no tests are run, but we don't care; just
+# want to build the test program
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+        add_subdirectory(tests)
+endif()

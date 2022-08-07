@@ -90,7 +90,7 @@ typedef void (*hx711_program_init_t)(hx711_t* const);
 /**
  * @brief Initialise HX711.
  * 
- * @param hx
+ * @param hx Pointer to hx711_t
  * @param clk GPIO pin connected to HX711 CLK pin
  * @param dat GPIO pin connected to HX711 DAT pin
  * @param pio RP2040 PIO pio0 or pio1
@@ -129,9 +129,6 @@ void hx711_set_gain(
  * @return int32_t 
  */
 static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
-
-    //const int32_t val = 
-    //    (int32_t)(-(raw & 0x800000)) + (int32_t)(raw & 0x7fffff);
 
     int32_t val;
 

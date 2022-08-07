@@ -1,0 +1,47 @@
+name: Generate PIO header
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: |
+
+          npm install --save pioasm@2.0.0;
+
+          node --input-type=module -e '
+          
+            import { PIOAssembler } from "pioasm";
+            import fs from "fs";
+
+            const source = fs.readFileSync(
+              "src/hx711_noblock.pio",
+              "utf8");
+
+            const pioasm = new PIOAssembler();
+
+            pioasm.assemble(source).then(result => {
+                fs.writeFileSync(
+                  "include/hx711_noblock.pio.h",
+                  result.output,
+                  null,
+                  "utf8");
+            });
+
+          ';
+
+          if git status --porcelain | grep include/hx711_noblock.pio.h; then
+            git config --global user.name "github-actions[bot]";
+            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com";
+            git commit -am "auto-generate PIO header";
+            git push;
+          else
+            echo no changes
+          fi

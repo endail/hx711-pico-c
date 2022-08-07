@@ -3,11 +3,11 @@
         {
             "name": "ARM",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${env:ARM_TOOLCHAIN_PATH}/lib/gcc/arm-none-eabi/**",
-                "${env:PICO_SDK_PATH}/**"
+                "${workspaceFolder}${pathSeparator}**",
+                "${env:ARM_TOOLCHAIN_PATH}${pathSeparator}lib${pathSeparator}gcc${pathSeparator}arm-none-eabi${pathSeparator}**",
+                "${env:PICO_SDK_PATH}${pathSeparator}**"
             ],
-            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc.exe",
+            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}${pathSeparator}bin${pathSeparator}arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-arm",

@@ -2,187 +2,118 @@
 
 This is my implementation of reading from a HX711 via a Raspberry Pi Pico. It uses the RP2040's PIO feature to be as efficient as possible.
 
+__NOTE__: if you are looking for a method to weigh objects (ie. by using the HX711 as a scale), see [pico-scale](https://github.com/endail/pico-scale).
+
+![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
+
+The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second.
+
 ## Clone Repository
+
 ```console
 git clone https://github.com/endail/hx711-pico-c
 ```
 
-After building, copy `main.uf2` in the build directory to the Raspberry Pi Pico and then open up a serial connection to the Pico at a baud rate of 115200.
+Run CTest to build the example program. The `.uf2` file you upload to your Pico will be found under `build/tests/`.
 
-I have used [this helpful tutorial](https://paulbupejr.com/raspberry-pi-pico-windows-development/) to setup my Windows environment in order to program the Pico via Visual Studio Code.
+Alternatively, include it as a submodule in your project and then `#include "extern/hx711-pico-c/include/hx711.h"` and `#include "extern/hx711-pico-c/include/hx711_noblock.pio.h"`.
 
-![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
+```console
+git submodule add https://github.com/endail/hx711-pico-c extern/
+git submodle update --init
+```
 
-The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second. Each line shows the current weight calculated from all samples obtained within 250 milliseconds, along with the minimum and maximum weights of the scale since boot. I applied pressure to the load cell to show the change in weight.
+## Documentation
 
-You do not need to use or `#include` the scale functionality if you only want to use the HX711 functions.
+[https://endail.github.io/hx711-pico-c](https://endail.github.io/hx711-pico-c/hx711_8h.html)
 
-## How to Use HX711
+## How to Use
 
-1. Initialise the HX711
-
-See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose GPIO pins.
+See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins as the clock and data pins, as long as they are capable of digital output and input respectively.
 
 ```c
 #include "include/hx711.h"
-#include "hx711_noblock.pio.h" // for hx711_noblock_program and hx711_noblock_program_init
+#include "include/hx711_noblock.pio.h" // for hx711_noblock_program and hx711_noblock_program_init
 
 hx711_t hx;
 
+// 1. Initialise the HX711
 hx711_init(
     &hx,
-    clkPin, // GPIO pin
-    datPin, // GPIO pin
-    pio0, // the RP2040 PIO to use
+    clkPin, // Pico GPIO pin connected to HX711's clock pin
+    datPin, // Pico GPIO pin connected to HX711's data pin
+    pio0, // the RP2040 PIO to use (either pio0 or pio1)
     &hx711_noblock_program, // the state machine program
     &hx711_noblock_program_init); // the state machine program init function
-```
 
-2. Power up
-
-```c
+// 2. Power up
 hx711_set_power(&hx, hx711_pwr_up);
-```
 
-3. Set gain
-
-```c
+// 3. [OPTIONAL] set gain and save it to the HX711
+// chip by powering down then back up
 hx711_set_gain(&hx, hx711_gain_128);
-```
+hx711_set_power(&hx, hx711_pwr_down);
+hx711_wait_power_down();
+hx711_set_power(&hx, hx711_pwr_up);
 
-4. Wait for readings to settle
-
-```c
+// 4. Wait for readings to settle
 hx711_wait_settle(hx711_rate_10); // or hx711_rate_80 depending on your chip's config
-```
 
-5. Read values
-
-```c
+// 5. Read values
 int32_t val;
 
-// block until a value is read
+// wait (block) until a value is read
 val = hx711_get_value(&hx);
 
 // or use a timeout
 // #include "pico/time.h" to use make_timeout_time_ms and make_timeout_time_us functions
 absolute_time_t timeout = make_timeout_time_ms(250);
 
-bool ok = hx711_get_value_timeout(
-    &hx,
-    &timeout,
-    &val);
-
-if(ok) {
+if(hx711_get_value_timeout(&hx, &timeout, &val)) {
     // value was obtained within the timeout period
+    // in this example, within 250ms
     printf("%li\n", val);
 }
 ```
 
-## How to Use Scale
+## Custom PIO Programs
 
-1. Initialise the HX711 as described above from steps 1 - 4
+You will notice in the code example above that you need to manually include the `hx711_noblock.pio.h` PIO header file. This is because it is not included by default in the `hx711-pico-c` library. It is offered as _a method_ for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the `hx711_t`. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:
 
-2. Initialise the scale.
+### hx711_init
+
+1. Pass the `pio_program_t*` pointer created by `pioasm` in the Pico SDK (automatically done for you when calling `pico_generate_pio_header()` in your `CMakeLists.txt` file).
+
+2. Pass a function pointer to an initialisation function which sets up the PIO program (but does _not_ start it) which takes a pointer to the `hx711_t` struct as its only argument. ie. `void (*hx711_program_init_t)(hx711_t* const)`.
+
+The call to `hx711_init` should look like this:
 
 ```c
-#include "include/scale.h"
-
-scale_t sc;
-
-// the values obtained when calibrating the scale
-// if you don't know them, read the following section How to Calibrate
-mass_unit_t scaleUnit = mass_g;
-int32_t refUnit = -432;
-int32_t offset = -367539;
-
-scale_init(
-    &sc,
+hx711_init(
     &hx,
-    scaleUnit,
-    refUnit,
-    offset);
+    clkPin,
+    datPin,
+    pio0,
+    your_pio_program_created_by_pioasm,
+    your_pio_initialisation_function);
 ```
 
-3. Set options for how the scale will read and interpret values
+### Passing HX711 Values From PIO to Code
 
-```c
-// SCALE_DEFAULT_OPTIONS will give some default settings which you
-// do not have to use
-scale_options_t opt = SCALE_DEFAULT_OPTIONS;
+The two functions for obtaining values, `hx711_get_value` and `hx711_get_value_timeout`, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first.
 
-// scale_options_t has the following options
-//
-// opt.strat, which defines how the scale will collect data. By default,
-// data is collected according to the number of samples. So opt.strat
-// is set to strategy_type_samples. opt.samples defines how many samples
-// to obtain. You can also set opt.strat to read_type_time which will
-// collect as many samples as possible within the timeout period. The
-// timeout period is defined by opt.timeout and is given in microseconds
-// (us). For example, 1 second is equal to 1,000,000 us.
-//
-// opt.read, which defines how the scale will interpret data. By default,
-// data is interpreted according to the median value. So opt.read is set
-// to read_type_median. You can also set opt.read to read_type_average
-// which will calculate the average value.
-//
-// Example:
-//
-// opt.strat = strategy_type_time;
-// opt.read = read_type_average;
-// opt.timeout = 250000;
-//
-// These options mean... collect as many samples as possible within 250ms
-// and then use the average of all those samples.
-```
+`hx711_get_value` is a blocking function. It will wait until the RX FIFO is not empty.
 
-4. Zero the scale (OPTIONAL) (aka. tare)
+`hx711_get_value_timeout` is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.
 
-```c
-if(scale_zero(&sc, &opt)) {
-    printf("Scale zeroed successfully\n");
-}
-else {
-    printf("Scale failed to zero\n");
-}
-```
+Both functions will subsequently read from and clear the RX FIFO.
 
-5. Obtain the weight
+### Setting HX711 Gain
 
-```c
-mass_t mass;
+`hx711_set_gain` will transmit an unsigned 32 bit integer to the PIO program which represents the gain to set. This integer will be in the range 0 to 2 inclusive, corresponding to a HX711 gain of 128, 32, and 64 respectively.
 
-if(scale_weight(&sc, &mass, &opt)) {
+The function will then perform two sequential PIO reads. The first is a non-blocking read to clear whatever is in the RX FIFO, followed by a blocking read to give the PIO program as long as it needs to finish reading the previously set gain.
 
-    // mass will contain the weight on the scale obtanined and interpreted
-    // according to the given options and be in the unit defined by the
-    // mass_unit_t 'scaleUnit' variable above
-    //
-    // you can now:
+### Setting HX711 Power
 
-    // get the weight as a numeric value according to the mass_unit_t
-    double val;
-    mass_get_value(&mass, &val);
-
-    // convert the mass to a string
-    char buff[MASS_TO_STRING_BUFF_SIZE];
-    mass_to_string(&mass, buff);
-    printf("%s\n", buff);
-
-    // or do other operations (see: mass.h file)
-
-}
-else {
-    printf("Failed to read weight\n");
-}
-```
-
-## How to Calibrate
-
-1. Modify [the calibration program](calibration.c#L68-L75) and change the clock and data pins to those connected to the HX711. Also change the rate at which the HX711 operates if needed.
-
-2. Build.
-
-3. Copy `calibration.uf2` in the build directory to the Raspberry Pi Pico.
-
-4. Open a serial connection to the Pico at a baud rate of 115200 and follow the prompts.
+The PIO program should _not_ attempt to change the HX711's power state.
