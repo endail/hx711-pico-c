@@ -20,7 +20,7 @@ Alternatively, include it as a submodule in your project and then `#include "ext
 
 ```console
 git submodule add https://github.com/endail/hx711-pico-c extern/hx711-pico-c
-git submodule update --init --recursive
+git submodule update --init
 ```
 
 ## Documentation
