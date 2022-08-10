@@ -1,0 +1,3 @@
+tests/main.c:68:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+        printf("%li\n", hx711_get_value(&hx));
+        ^
