@@ -66,12 +66,10 @@ int32_t val;
 val = hx711_get_value(&hx);
 
 // or use a timeout
-// #include "pico/time.h" to use make_timeout_time_ms and make_timeout_time_us functions
-absolute_time_t timeout = make_timeout_time_ms(250);
+const uint64_t timeout = 250000; // 250 milliseconds
 
 if(hx711_get_value_timeout(&hx, &timeout, &val)) {
     // value was obtained within the timeout period
-    // in this example, within 250ms
     printf("%li\n", val);
 }
 ```

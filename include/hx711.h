@@ -198,14 +198,14 @@ int32_t hx711_get_value(hx711_t* const hx);
  * is available or the timeout is reached.
  * 
  * @param hx 
- * @param timeout maximum time to wait for a value
+ * @param timeout maximum time to wait for a value in microseconds
  * @param val pointer to the value
  * @return true if a value was obtained within the timeout
  * @return false if a timeout was reached
  */
 bool hx711_get_value_timeout(
     hx711_t* const hx,
-    const absolute_time_t* const timeout,
+    const uint64_t* const timeout,
     int32_t* const val);
 
 /**

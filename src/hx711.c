@@ -230,23 +230,26 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
 bool hx711_get_value_timeout(
     hx711_t* const hx,
-    const absolute_time_t* const timeout,
+    const uint64_t* const timeout,
     int32_t* const val) {
 
         assert(hx != NULL);
         assert(hx->_pio != NULL);
         assert(val != NULL);
-        assert(!is_nil_time(*timeout));
+        assert(timeout != NULL);
         assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
         assert(mutex_is_initialized(&hx->_mut));
 
         bool success = false;
         static const uint byteThreshold = HX711_READ_BITS / 8;
         uint32_t tempVal;
+        const absolute_time_t endTime = make_timeout_time_us(*timeout);
+
+        assert(!is_nil_time(endTime));
 
         mutex_enter_blocking(&hx->_mut);
 
-        while(!time_reached(*timeout)) {
+        while(!time_reached(endTime)) {
             if(pio_sm_get_rx_fifo_level(hx->_pio, hx->_state_mach) >= byteThreshold) {
                 //obtain value and relinquish the mutex ASAP
                 tempVal = pio_sm_get(hx->_pio, hx->_state_mach);
