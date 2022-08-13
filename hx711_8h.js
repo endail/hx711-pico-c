@@ -20,7 +20,7 @@ var hx711_8h =
     [ "hx711_get_settling_time", "hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd", null ],
     [ "hx711_get_twos_comp", "hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5", null ],
     [ "hx711_get_value", "hx711_8h.html#a2a490345d56d3d9f06f809c07446a6e5", null ],
-    [ "hx711_get_value_timeout", "hx711_8h.html#af65c2fd8ea8914dd0d4fbe92e1ab1493", null ],
+    [ "hx711_get_value_timeout", "hx711_8h.html#a0ab1a8852812daf235cf743f530cf037", null ],
     [ "hx711_init", "hx711_8h.html#a20c562c58345b4cb4c8922925ec0a877", null ],
     [ "hx711_is_max_saturated", "hx711_8h.html#ac1c1306ac2128dbffa5513f9cad5ce22", null ],
     [ "hx711_is_min_saturated", "hx711_8h.html#a08391c1035b1c05b6b5264de70aa45d1", null ],
