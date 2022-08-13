@@ -3,15 +3,19 @@
         {
             "name": "ARM",
             "includePath": [
-                "${workspaceFolder}${pathSeparator}**",
-                "${env:ARM_TOOLCHAIN_PATH}${pathSeparator}lib${pathSeparator}gcc${pathSeparator}arm-none-eabi${pathSeparator}**",
-                "${env:PICO_SDK_PATH}${pathSeparator}**"
+                "${workspaceFolder}/include/**",
+                "${env:ARM_TOOLCHAIN_PATH}/lib/gcc/arm-none-eabi/**",
+                "${env:PICO_SDK_PATH}/**"
             ],
-            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}${pathSeparator}bin${pathSeparator}arm-none-eabi-gcc",
+            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-arm",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "forcedInclude": [],
+            "browse": {
+                "path": []
+            }
         }
     ],
     "version": 4
