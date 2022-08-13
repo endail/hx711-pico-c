@@ -205,7 +205,7 @@ int32_t hx711_get_value(hx711_t* const hx);
  */
 bool hx711_get_value_timeout(
     hx711_t* const hx,
-    const uint64_t* const timeout,
+    const uint timeout,
     int32_t* const val);
 
 /**

@@ -230,20 +230,19 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
 bool hx711_get_value_timeout(
     hx711_t* const hx,
-    const uint64_t* const timeout,
+    const uint timeout,
     int32_t* const val) {
 
         assert(hx != NULL);
         assert(hx->_pio != NULL);
         assert(val != NULL);
-        assert(timeout != NULL);
         assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
         assert(mutex_is_initialized(&hx->_mut));
 
         bool success = false;
         static const uint byteThreshold = HX711_READ_BITS / 8;
+        const absolute_time_t endTime = make_timeout_time_us(timeout);
         uint32_t tempVal;
-        const absolute_time_t endTime = make_timeout_time_us(*timeout);
 
         assert(!is_nil_time(endTime));
 

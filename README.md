@@ -66,10 +66,9 @@ int32_t val;
 val = hx711_get_value(&hx);
 
 // or use a timeout
-const uint64_t timeout = 250000; // 250 milliseconds
-
-if(hx711_get_value_timeout(&hx, &timeout, &val)) {
+if(hx711_get_value_timeout(&hx, 250000, &val)) {
     // value was obtained within the timeout period
+    // in this case, within 250 milliseconds
     printf("%li\n", val);
 }
 ```
