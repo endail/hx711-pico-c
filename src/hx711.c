@@ -84,10 +84,7 @@ void hx711_init(
 
 void hx711_close(hx711_t* const hx) {
 
-    assert(hx != NULL);
-    assert(hx->_pio != NULL);
-    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
-    assert(mutex_is_initialized(&hx->_mut));
+    hx711__assert_hx_initd(hx);
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -111,10 +108,7 @@ void hx711_close(hx711_t* const hx) {
 
 void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
-    assert(hx != NULL);
-    assert(hx->_pio != NULL);
-    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
-    assert(mutex_is_initialized(&hx->_mut));
+    hx711__assert_hx_initd(hx);
 
     /**
      * gain value is 0-based and calculated by:
@@ -202,10 +196,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
 int32_t hx711_get_value(hx711_t* const hx) {
 
-    assert(hx != NULL);
-    assert(hx->_pio != NULL);
-    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
-    assert(mutex_is_initialized(&hx->_mut));
+    hx711__assert_hx_initd(hx);
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -233,14 +224,10 @@ bool hx711_get_value_timeout(
     const uint timeout,
     int32_t* const val) {
 
-        assert(hx != NULL);
-        assert(hx->_pio != NULL);
+        hx711__assert_hx_initd(hx);
         assert(val != NULL);
-        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
-        assert(mutex_is_initialized(&hx->_mut));
 
         bool success = false;
-        static const uint byteThreshold = HX711_READ_BITS / 8;
         const absolute_time_t endTime = make_timeout_time_us(timeout);
         uint32_t tempVal;
 
@@ -249,10 +236,7 @@ bool hx711_get_value_timeout(
         mutex_enter_blocking(&hx->_mut);
 
         while(!time_reached(endTime)) {
-            if(pio_sm_get_rx_fifo_level(hx->_pio, hx->_state_mach) >= byteThreshold) {
-                //obtain value and relinquish the mutex ASAP
-                tempVal = pio_sm_get(hx->_pio, hx->_state_mach);
-                success = true;
+            if((success = hx711__try_get_value(hx->_pio, hx->_state_mach, &tempVal))) {
                 break;
             }
         }
@@ -267,12 +251,33 @@ bool hx711_get_value_timeout(
 
 }
 
+bool hx711_get_value_noblock(
+    hx711_t* const hx,
+    int32_t* const val) {
+
+        hx711__assert_hx_initd(hx);
+        assert(val != NULL);
+
+        bool success = false;
+        uint32_t tempVal;
+
+        mutex_enter_blocking(&hx->_mut);
+
+        success = hx711__try_get_value(hx->_pio, hx->_state_mach, &tempVal);
+
+        mutex_exit(&hx->_mut);
+
+        if(success) {
+            *val = hx711_get_twos_comp(tempVal);
+        }
+
+        return success;
+
+}
+
 void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
 
-    assert(hx != NULL);
-    assert(hx->_pio != NULL);
-    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
-    assert(mutex_is_initialized(&hx->_mut));
+    hx711__assert_hx_initd(hx);
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -334,5 +339,21 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
     }
 
     mutex_exit(&hx->_mut);
+
+}
+
+static inline bool hx711__try_get_value(PIO const pio, const uint sm, uint32_t* const val) {
+
+    assert(pio != NULL);
+    assert(val != NULL);
+
+    static const uint byteThreshold = HX711_READ_BITS / 8;
+
+    if(pio_sm_get_rx_fifo_level(pio, sm) >= byteThreshold) {
+        *val = pio_sm_get(pio, sm);
+        return true;
+    }
+
+    return false;
 
 }
