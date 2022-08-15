@@ -10,7 +10,7 @@
             "servertype": "openocd",
             "device": "Pico2040",
             "showDevDebugOutput": "both",
-            "runToEntryPoint": "main",
+            // "runToEntryPoint": "main",
             "preLaunchTask": "CMake Build",
             "configFiles": [
                 "interface${pathSeparator}picoprobe.cfg",

@@ -23,6 +23,7 @@
 #ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 #define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "hardware/pio.h"
@@ -185,7 +186,7 @@ static inline uint hx711_get_rate_sps(const hx711_rate_t rate) {
 }
 
 /**
- * @brief Returns a value from the HX711. Blocks until a value
+ * @brief Obtains a value from the HX711. Blocks until a value
  * is available.
  * 
  * @param hx 
@@ -194,7 +195,7 @@ static inline uint hx711_get_rate_sps(const hx711_rate_t rate) {
 int32_t hx711_get_value(hx711_t* const hx);
 
 /**
- * @brief Returns a value from the HX711. Blocks until a value
+ * @brief Obtains a value from the HX711. Blocks until a value
  * is available or the timeout is reached.
  * 
  * @param hx 
@@ -206,6 +207,19 @@ int32_t hx711_get_value(hx711_t* const hx);
 bool hx711_get_value_timeout(
     hx711_t* const hx,
     const uint timeout,
+    int32_t* const val);
+
+/**
+ * @brief Obtains a value from the HX711. Returns immediately if
+ * no value is available.
+ * 
+ * @param hx 
+ * @param val pointer to the value
+ * @return true if a value was available and val is set
+ * @return false if a value was not available
+ */
+bool hx711_get_value_noblock(
+    hx711_t* const hx,
     int32_t* const val);
 
 /**
@@ -236,6 +250,34 @@ static inline void hx711_wait_settle(const hx711_rate_t rate) {
  */
 static inline void hx711_wait_power_down() {
     sleep_us(HX711_POWER_DOWN_TIMEOUT);
+}
+
+/**
+ * @brief Attempts to obtain a value from the PIO RX FIFO if one is available.
+ * 
+ * @param pio pointer to PIO
+ * @param sm state machine
+ * @param val pointer to raw value from HX711 to set
+ * @return true if value was obtained
+ * @return false if value was not obtained
+ */
+static inline bool hx711__try_get_value(
+    PIO const pio,
+    const uint sm,
+    uint32_t* const val);
+
+/**
+ * @brief Asserts that the hx has been properly initialised. Only calls assert().
+ * 
+ * @param hx pointer to hx711_t
+ */
+static inline void hx711__assert_hx_initd(hx711_t* const hx) {
+
+    assert(hx != NULL);
+    assert(hx->_pio != NULL);
+    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
+    assert(mutex_is_initialized(&hx->_mut));
+
 }
 
 #ifdef __cplusplus
