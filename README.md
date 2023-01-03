@@ -2,6 +2,8 @@
 
 This is my implementation of reading from a HX711 via a Raspberry Pi Pico. It uses the RP2040's PIO feature to be as efficient as possible.
 
+A MicroPython port is available [here](https://github.com/endail/hx711-pico-mpy).
+
 __NOTE__: if you are looking for a method to weigh objects (ie. by using the HX711 as a scale), see [pico-scale](https://github.com/endail/pico-scale).
 
 ![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
