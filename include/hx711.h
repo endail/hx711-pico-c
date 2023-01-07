@@ -33,7 +33,6 @@
     #define CHECK_HX711_INITD(hx)
 #endif
 
-
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
