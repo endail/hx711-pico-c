@@ -132,7 +132,7 @@ void hx711_set_gain(
 static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
 
     const int32_t val = 
-        (int32_t)(-(raw & 0x800000)) + (int32_t)(raw & 0x7fffff);
+        (int32_t)(-(raw & +HX711_MIN_VALUE)) + (int32_t)(raw & HX711_MAX_VALUE);
 
     assert(val >= HX711_MIN_VALUE && val <= HX711_MAX_VALUE);
 
