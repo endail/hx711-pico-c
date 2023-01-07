@@ -142,11 +142,17 @@ How to Use</h1>
 <div class="line">    <span class="comment">// in this case, within 250 milliseconds</span></div>
 <div class="line">    printf(<span class="stringliteral">&quot;%li\n&quot;</span>, val);</div>
 <div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// or see if there&#39;s a value, but don&#39;t block if not</span></div>
+<div class="line"><span class="keywordflow">if</span>(<a class="code" href="hx711_8h.html#a0c8ff19b682c8518252a5d6ed67d6598">hx711_get_value_noblock</a>(&amp;hx, &amp;val)) {</div>
+<div class="line">    printf(<span class="stringliteral">&quot;%li\n&quot;</span>, val);</div>
+<div class="line">}</div>
 <div class="ttc" id="ahx711_8c_html_a8e5d2a3487304a50a4bcf85ecb82ad79"><div class="ttname"><a href="hx711_8c.html#a8e5d2a3487304a50a4bcf85ecb82ad79">hx711_power_down</a></div><div class="ttdeci">void hx711_power_down(hx711_t *const hx)</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00319">hx711.c:319</a></div></div>
 <div class="ttc" id="ahx711_8c_html_a9ab601c3d46d6f3deb1b8f1e5c5f9879"><div class="ttname"><a href="hx711_8c.html#a9ab601c3d46d6f3deb1b8f1e5c5f9879">hx711_power_up</a></div><div class="ttdeci">void hx711_power_up(hx711_t *const hx)</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00278">hx711.c:278</a></div></div>
 <div class="ttc" id="ahx711_8h_html"><div class="ttname"><a href="hx711_8h.html">hx711.h</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a02e3733a8c520e26cb44caac32945c63"><div class="ttname"><a href="hx711_8h.html#a02e3733a8c520e26cb44caac32945c63">hx711_set_gain</a></div><div class="ttdeci">void hx711_set_gain(hx711_t *const hx, const hx711_gain_t gain)</div><div class="ttdoc">Sets HX711 gain.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00109">hx711.c:109</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a0ab1a8852812daf235cf743f530cf037"><div class="ttname"><a href="hx711_8h.html#a0ab1a8852812daf235cf743f530cf037">hx711_get_value_timeout</a></div><div class="ttdeci">bool hx711_get_value_timeout(hx711_t *const hx, const uint timeout, int32_t *const val)</div><div class="ttdoc">Obtains a value from the HX711. Blocks until a value is available or the timeout is reached.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00222">hx711.c:222</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a0c8ff19b682c8518252a5d6ed67d6598"><div class="ttname"><a href="hx711_8h.html#a0c8ff19b682c8518252a5d6ed67d6598">hx711_get_value_noblock</a></div><div class="ttdeci">bool hx711_get_value_noblock(hx711_t *const hx, int32_t *const val)</div><div class="ttdoc">Obtains a value from the HX711. Returns immediately if no value is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00254">hx711.c:254</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a20c562c58345b4cb4c8922925ec0a877"><div class="ttname"><a href="hx711_8h.html#a20c562c58345b4cb4c8922925ec0a877">hx711_init</a></div><div class="ttdeci">void hx711_init(hx711_t *const hx, const uint clk, const uint dat, PIO const pio, const pio_program_t *const prog, hx711_program_init_t prog_init_func)</div><div class="ttdoc">Initialise HX711.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00026">hx711.c:26</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a2a490345d56d3d9f06f809c07446a6e5"><div class="ttname"><a href="hx711_8h.html#a2a490345d56d3d9f06f809c07446a6e5">hx711_get_value</a></div><div class="ttdeci">int32_t hx711_get_value(hx711_t *const hx)</div><div class="ttdoc">Obtains a value from the HX711. Blocks until a value is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00197">hx711.c:197</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a5495b51ec048d8363783a572fb577ecc"><div class="ttname"><a href="hx711_8h.html#a5495b51ec048d8363783a572fb577ecc">hx711_wait_settle</a></div><div class="ttdeci">static void hx711_wait_settle(const hx711_rate_t rate)</div><div class="ttdoc">Convenience function for sleeping for the appropriate amount of time according to the given sample ra...</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00253">hx711.h:253</a></div></div>
@@ -193,7 +199,7 @@ Setting HX711 Power</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Jan 7 2023 12:47:29 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 12:51:24 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
