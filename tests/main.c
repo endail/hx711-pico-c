@@ -48,14 +48,14 @@ int main(void) {
         &hx711_noblock_program_init);
 
     //2. power up the hx711
-    hx711_set_power(&hx, hx711_pwr_up);
+    hx711_power_up(&hx);
 
     //3. [OPTIONAL] set gain and save it to the HX711
     //chip by powering down then back up
     hx711_set_gain(&hx, hx711_gain_128);
-    hx711_set_power(&hx, hx711_pwr_down);
+    hx711_power_down(&hx);
     hx711_wait_power_down();
-    hx711_set_power(&hx, hx711_pwr_up);
+    hx711_power_up(&hx);
 
     //4. pause to allow the readings to settle based on the
     //sample rate of the chip

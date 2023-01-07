@@ -233,16 +233,6 @@ bool hx711_get_value_noblock(
     int32_t* const val);
 
 /**
- * @brief Changes the power state of the HX711
- * 
- * @param hx 
- * @param pwr 
- */
-void hx711_set_power(
-    hx711_t* const hx,
-    const hx711_power_t pwr);
-
-/**
  * @brief Power up the HX711 module and start the state machine
  * 
  * @related hx711_wait_settle
