@@ -110,25 +110,25 @@ $(document).ready(function(){initNavTree('hx711_8h_source.html',''); initResizab
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#ifdef DEBUG</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">    #define CHECK_HX711_INITD(hx) \</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">        assert(hx != NULL); \</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">        assert(hx-&gt;_pio != NULL); \</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">        assert(pio_sm_is_claimed(hx-&gt;_pio, hx-&gt;_state_mach)); \</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">        assert(mutex_is_initialized(&amp;hx-&gt;_mut));</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">   33</a></span>&#160;<span class="preprocessor">    #define CHECK_HX711_INITD(hx)</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &lt;assert.h&gt;</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#include &quot;hardware/pio.h&quot;</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#include &quot;pico/mutex.h&quot;</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#include &quot;pico/time.h&quot;</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#include &lt;assert.h&gt;</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#include &quot;hardware/pio.h&quot;</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#include &quot;pico/mutex.h&quot;</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;pico/time.h&quot;</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#ifdef DEBUG</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">    #define CHECK_HX711_INITD(hx) \</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">        assert(hx != NULL); \</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">        assert(hx-&gt;_pio != NULL); \</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">        assert(pio_sm_is_claimed(hx-&gt;_pio, hx-&gt;_state_mach)); \</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">        assert(mutex_is_initialized(&amp;hx-&gt;_mut));</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">   44</a></span>&#160;<span class="preprocessor">    #define CHECK_HX711_INITD(hx)</span></div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
 <div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">   47</a></span>&#160;<span class="keyword">static</span> <span class="keyword">const</span> uint <a class="code" href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a> = 24;</div>
@@ -310,7 +310,7 @@ $(document).ready(function(){initNavTree('hx711_8h_source.html',''); initResizab
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="hx711_8h.html">hx711.h</a></li>
-    <li class="footer">Generated on Sat Jan 7 2023 11:58:29 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 12:47:29 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
