@@ -112,9 +112,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a0c8ff19b682c8518252a5d6ed67d6598"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8c.html#a0c8ff19b682c8518252a5d6ed67d6598">hx711_get_value_noblock</a> (<a class="el" href="structhx711__t.html">hx711_t</a> *const hx, int32_t *const val)</td></tr>
 <tr class="memdesc:a0c8ff19b682c8518252a5d6ed67d6598"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtains a value from the HX711. Returns immediately if no value is available.  <a href="hx711_8c.html#a0c8ff19b682c8518252a5d6ed67d6598">More...</a><br /></td></tr>
 <tr class="separator:a0c8ff19b682c8518252a5d6ed67d6598"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa47929fdc96d757b9306dd57ef752a20"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8c.html#aa47929fdc96d757b9306dd57ef752a20">hx711_set_power</a> (<a class="el" href="structhx711__t.html">hx711_t</a> *const hx, const <a class="el" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657">hx711_power_t</a> pwr)</td></tr>
-<tr class="memdesc:aa47929fdc96d757b9306dd57ef752a20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes the power state of the HX711.  <a href="hx711_8c.html#aa47929fdc96d757b9306dd57ef752a20">More...</a><br /></td></tr>
-<tr class="separator:aa47929fdc96d757b9306dd57ef752a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ab601c3d46d6f3deb1b8f1e5c5f9879"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8c.html#a9ab601c3d46d6f3deb1b8f1e5c5f9879">hx711_power_up</a> (<a class="el" href="structhx711__t.html">hx711_t</a> *const hx)</td></tr>
+<tr class="separator:a9ab601c3d46d6f3deb1b8f1e5c5f9879"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e5d2a3487304a50a4bcf85ecb82ad79"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8c.html#a8e5d2a3487304a50a4bcf85ecb82ad79">hx711_power_down</a> (<a class="el" href="structhx711__t.html">hx711_t</a> *const hx)</td></tr>
+<tr class="separator:a8e5d2a3487304a50a4bcf85ecb82ad79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a430408c58853bd2ec9b4e2bacb36f055"></a>
@@ -166,13 +167,13 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;}</div>
 <div class="ttc" id="ahx711_8h_html_a3448dba4fc5df23dc3b4f2b16615d35e"><div class="ttname"><a href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a></div><div class="ttdeci">#define CHECK_HX711_INITD(hx)</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00033">hx711.h:33</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a0c14f4e62aa6ee1f56b941a87e214ce4"><div class="ttname"><a href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">hx711_t::_offset</a></div><div class="ttdeci">uint _offset</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00090">hx711.h:90</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a6582187b36ed9f636945d2af35232dbc"><div class="ttname"><a href="structhx711__t.html#a6582187b36ed9f636945d2af35232dbc">hx711_t::_prog</a></div><div class="ttdeci">const pio_program_t * _prog</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00087">hx711.h:87</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a77b81a68b9304dc653e393215beacd77"><div class="ttname"><a href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">hx711_t::_pio</a></div><div class="ttdeci">PIO _pio</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00086">hx711.h:86</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a8574e280638286c0d1b89a483e7eebd2"><div class="ttname"><a href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">hx711_t::_state_mach</a></div><div class="ttdeci">uint _state_mach</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00089">hx711.h:89</a></div></div>
-<div class="ttc" id="astructhx711__t_html_af407d4b03897c4dd73f6285059d99005"><div class="ttname"><a href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">hx711_t::_mut</a></div><div class="ttdeci">mutex_t _mut</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00092">hx711.h:92</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a0c14f4e62aa6ee1f56b941a87e214ce4"><div class="ttname"><a href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">hx711_t::_offset</a></div><div class="ttdeci">uint _offset</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00085">hx711.h:85</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a6582187b36ed9f636945d2af35232dbc"><div class="ttname"><a href="structhx711__t.html#a6582187b36ed9f636945d2af35232dbc">hx711_t::_prog</a></div><div class="ttdeci">const pio_program_t * _prog</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00082">hx711.h:82</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a77b81a68b9304dc653e393215beacd77"><div class="ttname"><a href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">hx711_t::_pio</a></div><div class="ttdeci">PIO _pio</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00081">hx711.h:81</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a8574e280638286c0d1b89a483e7eebd2"><div class="ttname"><a href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">hx711_t::_state_mach</a></div><div class="ttdeci">uint _state_mach</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00084">hx711.h:84</a></div></div>
+<div class="ttc" id="astructhx711__t_html_af407d4b03897c4dd73f6285059d99005"><div class="ttname"><a href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">hx711_t::_mut</a></div><div class="ttdeci">mutex_t _mut</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00087">hx711.h:87</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00092">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00086">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_state_mach</a>, and <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00085">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, and <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>.</p>
 
 </div>
 </div>
@@ -219,9 +220,9 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">hx711_get_twos_comp</a>(rawVal);</div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160; </div>
 <div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a356fb6b43100e2ff2d80a83c6e40b6a5"><div class="ttname"><a href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">hx711_get_twos_comp</a></div><div class="ttdeci">static int32_t hx711_get_twos_comp(const uint32_t raw)</div><div class="ttdoc">Convert a raw value from the HX711 to a 32-bit signed int.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00142">hx711.h:142</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a356fb6b43100e2ff2d80a83c6e40b6a5"><div class="ttname"><a href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">hx711_get_twos_comp</a></div><div class="ttdeci">static int32_t hx711_get_twos_comp(const uint32_t raw)</div><div class="ttdoc">Convert a raw value from the HX711 to a 32-bit signed int.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00137">hx711.h:137</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00092">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00086">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00142">hx711_get_twos_comp()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00137">hx711_get_twos_comp()</a>.</p>
 
 </div>
 </div>
@@ -285,9 +286,9 @@ false if a value was not available </dd></dl>
 <div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;        <span class="keywordflow">return</span> success;</div>
 <div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160; </div>
 <div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a95a39180249d252d709cd465d1eaeaa2"><div class="ttname"><a href="hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2">hx711__try_get_value</a></div><div class="ttdeci">static bool hx711__try_get_value(PIO const pio, const uint sm, uint32_t *const val)</div><div class="ttdoc">Attempts to obtain a value from the PIO RX FIFO if one is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00274">hx711.h:274</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a95a39180249d252d709cd465d1eaeaa2"><div class="ttname"><a href="hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2">hx711__try_get_value</a></div><div class="ttdeci">static bool hx711__try_get_value(PIO const pio, const uint sm, uint32_t *const val)</div><div class="ttdoc">Attempts to obtain a value from the PIO RX FIFO if one is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00275">hx711.h:275</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00092">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00086">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00274">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00142">hx711_get_twos_comp()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00275">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00137">hx711_get_twos_comp()</a>.</p>
 
 </div>
 </div>
@@ -366,7 +367,7 @@ false if a timeout was reached </dd></dl>
 <div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160; </div>
 <div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00092">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00086">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00274">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00142">hx711_get_twos_comp()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00275">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00137">hx711_get_twos_comp()</a>.</p>
 
 </div>
 </div>
@@ -468,10 +469,107 @@ DOUT pin back to high (Fig.2)."</p>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        mutex_exit(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;}</div>
-<div class="ttc" id="astructhx711__t_html_a00860359bbb10538dfe45ffc0f2a2a0d"><div class="ttname"><a href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">hx711_t::clock_pin</a></div><div class="ttdeci">uint clock_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00083">hx711.h:83</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a312ea334754714f8f7865608e40b7654"><div class="ttname"><a href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">hx711_t::data_pin</a></div><div class="ttdeci">uint data_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00084">hx711.h:84</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a00860359bbb10538dfe45ffc0f2a2a0d"><div class="ttname"><a href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">hx711_t::clock_pin</a></div><div class="ttdeci">uint clock_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00078">hx711.h:78</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a312ea334754714f8f7865608e40b7654"><div class="ttname"><a href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">hx711_t::data_pin</a></div><div class="ttdeci">uint data_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00079">hx711.h:79</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00092">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00086">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00083">hx711_t::clock_pin</a>, and <a class="el" href="hx711_8h_source.html#l00084">hx711_t::data_pin</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00085">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00078">hx711_t::clock_pin</a>, and <a class="el" href="hx711_8h_source.html#l00079">hx711_t::data_pin</a>.</p>
+
+</div>
+</div>
+<a id="a8e5d2a3487304a50a4bcf85ecb82ad79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e5d2a3487304a50a4bcf85ecb82ad79">&#9670;&nbsp;</a></span>hx711_power_down()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void hx711_power_down </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structhx711__t.html">hx711_t</a> *const&#160;</td>
+          <td class="paramname"><em>hx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<ol type="1">
+<li>set clock pin high to start the power down process</li>
+</ol>
+<p>NOTE: the HX711 chip requires the clock pin to be held high for 60+ us calling functions should therefore do:</p>
+<p>hx711_power_down(&amp;hx); <a class="el" href="hx711_8h.html#af76e111ac6776cb7c4321dab53bf8036" title="Convenience function for sleeping for the appropriate amount of time to allow the HX711 to power down...">hx711_wait_power_down()</a>;</p>
+
+<p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00319">319</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;                                         {</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160; </div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;    <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160; </div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;    mutex_enter_blocking(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160; </div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;    <span class="comment">//1. stop the state machine</span></div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;    pio_sm_set_enabled(</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160; </div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    gpio_put(hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>, <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160; </div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    mutex_exit(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160; </div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;}</div>
+</div><!-- fragment -->
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00078">hx711_t::clock_pin</a>.</p>
+
+</div>
+</div>
+<a id="a9ab601c3d46d6f3deb1b8f1e5c5f9879"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ab601c3d46d6f3deb1b8f1e5c5f9879">&#9670;&nbsp;</a></span>hx711_power_up()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void hx711_power_up </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structhx711__t.html">hx711_t</a> *const&#160;</td>
+          <td class="paramname"><em>hx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>NOTE: pio_sm_restart should not be used here. That function clears the clock divider which is currently set in the dedicated pio init function.</p>
+<ol type="1">
+<li>set the clock pin low to power up the chip</li>
+</ol>
+<p>There does not appear to be any delay after powering up. Any actual delay would presumably be dealt with by the HX711 prior to the data pin going low. Which, in turn, is handled by the state machine in waiting for the low signal.</p>
+
+<p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00278">278</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;                                       {</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160; </div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    mutex_enter_blocking(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160; </div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    gpio_put(hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>, <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160; </div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="comment">//2. reset the state machine using the default config</span></div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="comment">//obtained when init&#39;ing.</span></div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    pio_sm_init(</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">_offset</a>,</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;        &amp;hx-&gt;<a class="code" href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">_default_config</a>);</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160; </div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="comment">//3. start the state machine</span></div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    pio_sm_set_enabled(</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;        <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160; </div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    mutex_exit(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160; </div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;}</div>
+<div class="ttc" id="astructhx711__t_html_a8f0e2e7b6f3ea65f449d59ba30f474c2"><div class="ttname"><a href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">hx711_t::_default_config</a></div><div class="ttdeci">pio_sm_config _default_config</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00083">hx711.h:83</a></div></div>
+</div><!-- fragment -->
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00083">hx711_t::_default_config</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00085">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00078">hx711_t::clock_pin</a>.</p>
 
 </div>
 </div>
@@ -560,101 +658,7 @@ DOUT pin back to high (Fig.2)."</p>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;}</div>
 <div class="ttc" id="ahx711_8h_html_ab9b9f8da4c67723ef2bf5e632aee5a80"><div class="ttname"><a href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a></div><div class="ttdeci">static const uint HX711_READ_BITS</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00047">hx711.h:47</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00092">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00086">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00047">HX711_READ_BITS</a>.</p>
-
-</div>
-</div>
-<a id="aa47929fdc96d757b9306dd57ef752a20"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa47929fdc96d757b9306dd57ef752a20">&#9670;&nbsp;</a></span>hx711_set_power()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void hx711_set_power </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structhx711__t.html">hx711_t</a> *const&#160;</td>
-          <td class="paramname"><em>hx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657">hx711_power_t</a>&#160;</td>
-          <td class="paramname"><em>pwr</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Changes the power state of the HX711. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">hx</td><td></td></tr>
-    <tr><td class="paramname">pwr</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<p>NOTE: pio_sm_restart should not be used here. That function clears the clock divider which is currently set in the dedicated pio init function.</p>
-<ol type="1">
-<li>set the clock pin low to power up the chip</li>
-</ol>
-<p>There does not appear to be any delay after powering up. Any actual delay would presumably be dealt with by the HX711 prior to the data pin going low. Which, in turn, is handled by the state machine in waiting for the low signal.</p>
-<ol type="1">
-<li>set clock pin high to start the power down process</li>
-</ol>
-<p>NOTE: the HX711 chip requires the clock pin to be held high for 60+ us calling functions should therefore do:</p>
-<p>hx711_set_power(hx, hx711_pwr_down); <a class="el" href="hx711_8h.html#af76e111ac6776cb7c4321dab53bf8036" title="Convenience function for sleeping for the appropriate amount of time to allow the HX711 to power down...">hx711_wait_power_down()</a>;</p>
-
-<p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00278">278</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;                                                                 {</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160; </div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    mutex_enter_blocking(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160; </div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keywordflow">if</span>(pwr == <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098">hx711_pwr_up</a>) {</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160; </div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;        gpio_put(hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>, <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160; </div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;        <span class="comment">//2. reset the state machine using the default config</span></div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;        <span class="comment">//obtained when init&#39;ing.</span></div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;        pio_sm_init(</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;            hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;            hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;            hx-&gt;<a class="code" href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">_offset</a>,</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;            &amp;hx-&gt;<a class="code" href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">_default_config</a>);</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160; </div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;        <span class="comment">//3. start the state machine</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;        pio_sm_set_enabled(</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;            hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;            hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;            <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160; </div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    }</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span>(pwr == <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1">hx711_pwr_down</a>) {</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160; </div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;        <span class="comment">//1. stop the state machine</span></div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;        pio_sm_set_enabled(</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;            hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;            hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;            <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160; </div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        gpio_put(hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>, <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160; </div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    }</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160; </div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    mutex_exit(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160; </div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1">hx711_pwr_down</a></div><div class="ttdeci">@ hx711_pwr_down</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00079">hx711.h:78</a></div></div>
-<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098">hx711_pwr_up</a></div><div class="ttdeci">@ hx711_pwr_up</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00077">hx711.h:77</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a8f0e2e7b6f3ea65f449d59ba30f474c2"><div class="ttname"><a href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">hx711_t::_default_config</a></div><div class="ttdeci">pio_sm_config _default_config</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00088">hx711.h:88</a></div></div>
-</div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00088">hx711_t::_default_config</a>, <a class="el" href="hx711_8h_source.html#l00092">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00086">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00083">hx711_t::clock_pin</a>, <a class="el" href="hx711_8h_source.html#l00078">hx711_pwr_down</a>, and <a class="el" href="hx711_8h_source.html#l00077">hx711_pwr_up</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00081">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00047">HX711_READ_BITS</a>.</p>
 
 </div>
 </div>
@@ -664,7 +668,7 @@ DOUT pin back to high (Fig.2)."</p>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="hx711_8c.html">hx711.c</a></li>
-    <li class="footer">Generated on Sat Jan 7 2023 11:41:50 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 11:58:29 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

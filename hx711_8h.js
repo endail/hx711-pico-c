@@ -8,10 +8,6 @@ var hx711_8h =
       [ "hx711_gain_32", "hx711_8h.html#acadec7365abc52889994131164536304a95f56383645c776bbe284085019da24f", null ],
       [ "hx711_gain_64", "hx711_8h.html#acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693", null ]
     ] ],
-    [ "hx711_power_t", "hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657", [
-      [ "hx711_pwr_up", "hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098", null ],
-      [ "hx711_pwr_down", "hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1", null ]
-    ] ],
     [ "hx711_rate_t", "hx711_8h.html#aa32021164bb71485f28db91a7c5c776f", [
       [ "hx711_rate_10", "hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33", null ],
       [ "hx711_rate_80", "hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c", null ]
@@ -28,7 +24,6 @@ var hx711_8h =
     [ "hx711_is_max_saturated", "hx711_8h.html#ac1c1306ac2128dbffa5513f9cad5ce22", null ],
     [ "hx711_is_min_saturated", "hx711_8h.html#a08391c1035b1c05b6b5264de70aa45d1", null ],
     [ "hx711_set_gain", "hx711_8h.html#a02e3733a8c520e26cb44caac32945c63", null ],
-    [ "hx711_set_power", "hx711_8h.html#aa47929fdc96d757b9306dd57ef752a20", null ],
     [ "hx711_wait_power_down", "hx711_8h.html#af76e111ac6776cb7c4321dab53bf8036", null ],
     [ "hx711_wait_settle", "hx711_8h.html#a5495b51ec048d8363783a572fb577ecc", null ],
     [ "HX711_MAX_VALUE", "hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c", null ],
