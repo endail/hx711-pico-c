@@ -93,7 +93,7 @@ The HX711 has no option for Channel A at a gain of 32, nor is there an option fo
 
 ### What is hx711_wait_settle?
 
-After powering up, the HX711 requires a small "settling time" before it can produce "valid stable output data" (see: HX711 datasheet pg. 3). By calling `hx711_wait_settle()` and passing in the correct data rate, you can ensure your program is paused for correct settling time. Alternatively, you can call `hx711_get_settling_time()` and pass in a `hx711_rate_t` which will return the number of milliseconds of settling time for the given data rate.
+After powering up, the HX711 requires a small "settling time" before it can produce "valid stable output data" (see: HX711 datasheet pg. 3). By calling `hx711_wait_settle()` and passing in the correct data rate, you can ensure your program is paused for the correct settling time. Alternatively, you can call `hx711_get_settling_time()` and pass in a `hx711_rate_t` which will return the number of milliseconds of settling time for the given data rate.
 
 ### Save HX711 Gain to Chip
 
@@ -105,7 +105,7 @@ The HX711 requires the clock pin to be held high for at least 60us (60 microseco
 
 ### hx711_close vs hx711_power_down
 
-In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. The difference is that `hx711_close` stops the internal state machine whereas `hx711_power_down` also begins the power down process on the HX711 chip by setting the clock pin high.
+In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. `hx711_close` stops the internal state machine, whereas `hx711_power_down` also begins the power down process on the HX711 chip by setting the clock pin high.
 
 ## Custom PIO Programs
 
