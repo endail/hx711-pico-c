@@ -23,16 +23,6 @@
 #ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 #define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
-#ifdef DEBUG
-    #define CHECK_HX711_INITD(hx) \
-        assert(hx != NULL); \
-        assert(hx->_pio != NULL); \
-        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
-        assert(mutex_is_initialized(&hx->_mut));
-#else
-    #define CHECK_HX711_INITD(hx)
-#endif
-
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -42,6 +32,16 @@
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef DEBUG
+    #define CHECK_HX711_INITD(hx) \
+        assert(hx != NULL); \
+        assert(hx->_pio != NULL); \
+        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
+        assert(mutex_is_initialized(&hx->_mut));
+#else
+    #define CHECK_HX711_INITD(hx)
 #endif
 
 static const uint HX711_READ_BITS = 24;
