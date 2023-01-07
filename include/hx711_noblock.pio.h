@@ -74,11 +74,12 @@ static inline pio_sm_config hx711_noblock_program_get_default_config(uint offset
 #include "hardware/pio.h"
 #include "hx711.h"
 void hx711_noblock_program_init(hx711_t* const hx) {
+    //set state machine to 10MHz clock speed
+    static const uint SM_HZ = 10000000;
     assert(hx != NULL);
     assert(hx->_pio != NULL);
     pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_offset);
-    //set state machine to 10MHz clock speed
-    const float div = (float)(clock_get_hz(clk_sys)) / 10000000;
+    const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
     sm_config_set_clkdiv(
         &cfg,
         div);
