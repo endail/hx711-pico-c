@@ -243,6 +243,22 @@ void hx711_set_power(
     const hx711_power_t pwr);
 
 /**
+ * @brief Power up the HX711 module and start the state machine
+ * 
+ * @related hx711_wait_settle
+ * @param hx 
+ */
+void hx711_power_up(hx711_t* const hx);
+
+/**
+ * @brief Power down the HX711 module and stop the state machine
+ * 
+ * @related hx711_wait_power_down()
+ * @param hx 
+ */
+void hx711_power_down(hx711_t* const hx);
+
+/**
  * @brief Convenience function for sleeping for the
  * appropriate amount of time according to the given sample
  * rate to allow readings to settle.
