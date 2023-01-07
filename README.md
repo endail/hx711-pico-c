@@ -109,7 +109,7 @@ In the example code above, the final statement closes communication with the HX7
 
 ## Custom PIO Programs
 
-You will notice in the code example above that you need to manually include the `hx711_noblock.pio.h` PIO header file. This is because it is not included by default in the `hx711-pico-c` library. It is offered as _a method_ for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the `hx711_t`. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:
+You will notice in the code example above that you need to manually include the `hx711_noblock.pio.h` PIO header file. This is because it is not included by default in the `hx711-pico-c` library. It is offered as a method for reading from the HX711 that I have optimised to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the `hx711_t`. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:
 
 ### hx711_init
 
@@ -135,7 +135,7 @@ The two functions for obtaining values, `hx711_get_value` and `hx711_get_value_t
 
 `hx711_get_value` is a blocking function. It will wait until the RX FIFO is not empty.
 
-`hx711_get_value_timeout` is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.
+`hx711_get_value_timeout` is also a blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.
 
 Both functions will subsequently read from and clear the RX FIFO.
 
