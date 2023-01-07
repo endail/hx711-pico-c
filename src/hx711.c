@@ -336,7 +336,7 @@ void hx711_power_down(hx711_t* const hx) {
      * be held high for 60+ us
      * calling functions should therefore do:
      * 
-     * hx711_set_power(hx, hx711_pwr_down);
+     * hx711_power_down(&hx);
      * hx711_wait_power_down();
      */
     gpio_put(hx->clock_pin, true);

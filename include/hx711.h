@@ -73,11 +73,6 @@ typedef enum {
     hx711_gain_64 = 27
 } hx711_gain_t;
 
-typedef enum {
-    hx711_pwr_up = 0,
-    hx711_pwr_down
-} hx711_power_t;
-
 typedef struct {
 
     uint clock_pin;
