@@ -84,7 +84,7 @@ void hx711_init(
 
 void hx711_close(hx711_t* const hx) {
 
-    hx711__assert_hx_initd(hx);
+    CHECK_HX711_INITD(hx)
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -108,7 +108,7 @@ void hx711_close(hx711_t* const hx) {
 
 void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
-    hx711__assert_hx_initd(hx);
+    CHECK_HX711_INITD(hx)
 
     /**
      * gain value is 0-based and calculated by:
@@ -196,7 +196,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
 int32_t hx711_get_value(hx711_t* const hx) {
 
-    hx711__assert_hx_initd(hx);
+    CHECK_HX711_INITD(hx)
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -224,7 +224,7 @@ bool hx711_get_value_timeout(
     const uint timeout,
     int32_t* const val) {
 
-        hx711__assert_hx_initd(hx);
+        CHECK_HX711_INITD(hx)
         assert(val != NULL);
 
         bool success = false;
@@ -255,7 +255,7 @@ bool hx711_get_value_noblock(
     hx711_t* const hx,
     int32_t* const val) {
 
-        hx711__assert_hx_initd(hx);
+        CHECK_HX711_INITD(hx)
         assert(val != NULL);
 
         bool success;
@@ -277,7 +277,7 @@ bool hx711_get_value_noblock(
 
 void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
 
-    hx711__assert_hx_initd(hx);
+    CHECK_HX711_INITD(hx)
 
     mutex_enter_blocking(&hx->_mut);
 

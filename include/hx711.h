@@ -23,6 +23,17 @@
 #ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 #define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
+#ifdef DEBUG
+    #define CHECK_HX711_INITD(hx) \
+        assert(hx != NULL); \
+        assert(hx->_pio != NULL); \
+        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
+        assert(mutex_is_initialized(&hx->_mut));
+#else
+    #define CHECK_HX711_INITD(hx)
+#endif
+
+
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -277,20 +288,6 @@ static inline bool hx711__try_get_value(
         }
 
         return false;
-
-}
-
-/**
- * @brief Asserts that the hx has been properly initialised. Only calls assert().
- * 
- * @param hx pointer to hx711_t
- */
-static inline void hx711__assert_hx_initd(hx711_t* const hx) {
-
-    assert(hx != NULL);
-    assert(hx->_pio != NULL);
-    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach));
-    assert(mutex_is_initialized(&hx->_mut));
 
 }
 
