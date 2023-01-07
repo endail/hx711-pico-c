@@ -175,7 +175,7 @@ Where is Channel A and Channel B?</h2>
 <p>The HX711 has no option for Channel A at a gain of 32, nor is there an option for Channel B at a gain of 128 or 64. Similarly, the HX711 is not capable of simultaenously reading from Channel A and Channel B. The gain must first be changed.</p>
 <h2><a class="anchor" id="autotoc_md6"></a>
 What is hx711_wait_settle?</h2>
-<p>After powering up, the HX711 requires a small "settling time" before it can produce "valid stable output data" (see: HX711 datasheet pg. 3). By calling <code><a class="el" href="hx711_8h.html#a5495b51ec048d8363783a572fb577ecc" title="Convenience function for sleeping for the appropriate amount of time according to the given sample ra...">hx711_wait_settle()</a></code> and passing in the correct data rate, you can ensure your program is paused for correct settling time. Alternatively, you can call <code><a class="el" href="hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd" title="Returns the number of milliseconds to wait according to the given HX711 sample rate to allow readings...">hx711_get_settling_time()</a></code> and pass in a <code>hx711_rate_t</code> which will return the number of milliseconds of settling time for the given data rate.</p>
+<p>After powering up, the HX711 requires a small "settling time" before it can produce "valid stable output data" (see: HX711 datasheet pg. 3). By calling <code><a class="el" href="hx711_8h.html#a5495b51ec048d8363783a572fb577ecc" title="Convenience function for sleeping for the appropriate amount of time according to the given sample ra...">hx711_wait_settle()</a></code> and passing in the correct data rate, you can ensure your program is paused for the correct settling time. Alternatively, you can call <code><a class="el" href="hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd" title="Returns the number of milliseconds to wait according to the given HX711 sample rate to allow readings...">hx711_get_settling_time()</a></code> and pass in a <code>hx711_rate_t</code> which will return the number of milliseconds of settling time for the given data rate.</p>
 <h2><a class="anchor" id="autotoc_md7"></a>
 Save HX711 Gain to Chip</h2>
 <p>By setting the HX711 gain with <code>hx711_set_gain</code> and then powering down, the chip saves the gain for when it is powered back up.</p>
@@ -184,7 +184,7 @@ What is hx711_wait_power_down?</h2>
 <p>The HX711 requires the clock pin to be held high for at least 60us (60 microseconds) before it powers down. By calling <code><a class="el" href="hx711_8h.html#af76e111ac6776cb7c4321dab53bf8036" title="Convenience function for sleeping for the appropriate amount of time to allow the HX711 to power down...">hx711_wait_power_down()</a></code> after <code><a class="el" href="hx711_8c.html#a8e5d2a3487304a50a4bcf85ecb82ad79">hx711_power_down()</a></code> you can ensure the chip is properly powered-down.</p>
 <h2><a class="anchor" id="autotoc_md9"></a>
 hx711_close vs hx711_power_down</h2>
-<p>In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. The difference is that <code>hx711_close</code> stops the internal state machine whereas <code>hx711_power_down</code> also begins the power down process on the HX711 chip by setting the clock pin high.</p>
+<p>In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. <code>hx711_close</code> stops the internal state machine, whereas <code>hx711_power_down</code> also begins the power down process on the HX711 chip by setting the clock pin high.</p>
 <h1><a class="anchor" id="autotoc_md10"></a>
 Custom PIO Programs</h1>
 <p>You will notice in the code example above that you need to manually include the <code><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></code> PIO header file. This is because it is not included by default in the <code>hx711-pico-c</code> library. It is offered as <em>a method</em> for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the <code><a class="el" href="structhx711__t.html">hx711_t</a></code>. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:</p>
@@ -221,7 +221,7 @@ Setting HX711 Power</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Jan 7 2023 13:22:44 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 13:29:59 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
