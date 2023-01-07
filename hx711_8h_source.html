@@ -189,7 +189,7 @@ $(document).ready(function(){initNavTree('hx711_8h_source.html',''); initResizab
 <div class="line"><a name="l00132"></a><span class="lineno"><a class="line" href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">  132</a></span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> int32_t <a class="code" href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">hx711_get_twos_comp</a>(<span class="keyword">const</span> uint32_t raw) {</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <span class="keyword">const</span> int32_t val = </div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        (int32_t)(-(raw &amp; 0x800000)) + (int32_t)(raw &amp; 0x7fffff);</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        (int32_t)(-(raw &amp; +<a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a>)) + (int32_t)(raw &amp; <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>);</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160; </div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    assert(val &gt;= <a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a> &amp;&amp; val &lt;= <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>);</div>
 <div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; </div>
@@ -317,7 +317,7 @@ $(document).ready(function(){initNavTree('hx711_8h_source.html',''); initResizab
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="hx711_8h.html">hx711.h</a></li>
-    <li class="footer">Generated on Sat Jan 7 2023 10:02:39 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 10:03:02 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
