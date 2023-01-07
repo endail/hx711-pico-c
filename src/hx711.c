@@ -341,19 +341,3 @@ void hx711_set_power(hx711_t* const hx, const hx711_power_t pwr) {
     mutex_exit(&hx->_mut);
 
 }
-
-static inline bool hx711__try_get_value(PIO const pio, const uint sm, uint32_t* const val) {
-
-    assert(pio != NULL);
-    assert(val != NULL);
-
-    static const uint byteThreshold = HX711_READ_BITS / 8;
-
-    if(pio_sm_get_rx_fifo_level(pio, sm) >= byteThreshold) {
-        *val = pio_sm_get(pio, sm);
-        return true;
-    }
-
-    return false;
-
-}

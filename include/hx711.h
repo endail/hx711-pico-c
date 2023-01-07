@@ -264,7 +264,21 @@ static inline void hx711_wait_power_down() {
 static inline bool hx711__try_get_value(
     PIO const pio,
     const uint sm,
-    uint32_t* const val);
+    uint32_t* const val) {
+
+        assert(pio != NULL);
+        assert(val != NULL);
+
+        static const uint byteThreshold = HX711_READ_BITS / 8;
+
+        if(pio_sm_get_rx_fifo_level(pio, sm) >= byteThreshold) {
+            *val = pio_sm_get(pio, sm);
+            return true;
+        }
+
+        return false;
+
+}
 
 /**
  * @brief Asserts that the hx has been properly initialised. Only calls assert().
