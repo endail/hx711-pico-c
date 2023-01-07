@@ -258,7 +258,7 @@ bool hx711_get_value_noblock(
         hx711__assert_hx_initd(hx);
         assert(val != NULL);
 
-        bool success = false;
+        bool success;
         uint32_t tempVal;
 
         mutex_enter_blocking(&hx->_mut);
