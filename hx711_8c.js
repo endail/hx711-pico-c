@@ -1,6 +1,5 @@
 var hx711_8c =
 [
-    [ "hx711__try_get_value", "hx711_8c.html#a95a39180249d252d709cd465d1eaeaa2", null ],
     [ "hx711_close", "hx711_8c.html#a430408c58853bd2ec9b4e2bacb36f055", null ],
     [ "hx711_get_value", "hx711_8c.html#a2a490345d56d3d9f06f809c07446a6e5", null ],
     [ "hx711_get_value_noblock", "hx711_8c.html#a0c8ff19b682c8518252a5d6ed67d6598", null ],

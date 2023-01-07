@@ -1,7 +1,7 @@
 var searchData=
 [
   ['hx711_5f_5fassert_5fhx_5finitd_58',['hx711__assert_hx_initd',['../hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07',1,'hx711.h']]],
-  ['hx711_5f_5ftry_5fget_5fvalue_59',['hx711__try_get_value',['../hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2',1,'hx711__try_get_value(PIO const pio, const uint sm, uint32_t *const val):&#160;hx711.h'],['../hx711_8c.html#a95a39180249d252d709cd465d1eaeaa2',1,'hx711__try_get_value(PIO const pio, const uint sm, uint32_t *const val):&#160;hx711.c']]],
+  ['hx711_5f_5ftry_5fget_5fvalue_59',['hx711__try_get_value',['../hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2',1,'hx711.h']]],
   ['hx711_5fclose_60',['hx711_close',['../hx711_8h.html#a430408c58853bd2ec9b4e2bacb36f055',1,'hx711_close(hx711_t *const hx):&#160;hx711.c'],['../hx711_8c.html#a430408c58853bd2ec9b4e2bacb36f055',1,'hx711_close(hx711_t *const hx):&#160;hx711.c']]],
   ['hx711_5fget_5frate_5fsps_61',['hx711_get_rate_sps',['../hx711_8h.html#a0020cc75575857b3b68df55609f9327c',1,'hx711.h']]],
   ['hx711_5fget_5fsettling_5ftime_62',['hx711_get_settling_time',['../hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd',1,'hx711.h']]],

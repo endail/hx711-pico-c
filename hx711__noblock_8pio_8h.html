@@ -220,70 +220,71 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="hx711__noblock_8pio_8h_source.html#l00076">76</a> of file <a class="el" href="hx711__noblock_8pio_8h_source.html">hx711_noblock.pio.h</a>.</p>
 <div class="fragment"><div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;                                                   {</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    assert(hx != NULL);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    assert(hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a> != NULL);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    pio_sm_config cfg = <a class="code" href="hx711__noblock_8pio_8h.html#ad18f2044e55d47c2bc74e7f116101a14">hx711_noblock_program_get_default_config</a>(hx-&gt;<a class="code" href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">_offset</a>);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="comment">//set state machine to 10MHz clock speed</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> div = (float)(clock_get_hz(clk_sys)) / 10000000;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    sm_config_set_clkdiv(</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        &amp;cfg,</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        div);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="comment">//clock pin setup</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    pio_sm_set_out_pins(</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        1);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    pio_sm_set_set_pins(</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        1);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    pio_gpio_init(</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    pio_sm_set_consecutive_pindirs(</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        1,</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    sm_config_set_set_pins(</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        &amp;cfg,</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;        1);</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    sm_config_set_out_pins(</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;        &amp;cfg,</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;        1);</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    sm_config_set_sideset_pins(</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        &amp;cfg,</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>);</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="comment">//data pin setup</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    pio_sm_set_in_pins(</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>);</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    pio_sm_set_consecutive_pindirs(</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>,</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        1,</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    pio_gpio_init(</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>);</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    sm_config_set_in_pins(</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        &amp;cfg,</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>);</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    sm_config_set_in_shift(</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;        &amp;cfg,</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        <span class="keyword">false</span>,            <span class="comment">//false = shift in left</span></div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        <span class="keyword">true</span>,             <span class="comment">//true = autopush enabled</span></div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        <a class="code" href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a>); <span class="comment">//autopush on 24 bits</span></div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="comment">//store a copy of the configuration for resetting the sm</span></div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    hx-&gt;<a class="code" href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">_default_config</a> = cfg;</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;}</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="comment">//set state machine to 10MHz clock speed</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keyword">static</span> <span class="keyword">const</span> uint SM_HZ = 10000000;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    assert(hx != NULL);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    assert(hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a> != NULL);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    pio_sm_config cfg = <a class="code" href="hx711__noblock_8pio_8h.html#ad18f2044e55d47c2bc74e7f116101a14">hx711_noblock_program_get_default_config</a>(hx-&gt;<a class="code" href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">_offset</a>);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> div = (float)(clock_get_hz(clk_sys)) / SM_HZ;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    sm_config_set_clkdiv(</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        &amp;cfg,</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        div);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="comment">//clock pin setup</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    pio_sm_set_out_pins(</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        1);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    pio_sm_set_set_pins(</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;        1);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    pio_gpio_init(</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>);</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    pio_sm_set_consecutive_pindirs(</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        1,</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;        <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    sm_config_set_set_pins(</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        &amp;cfg,</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        1);</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    sm_config_set_out_pins(</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        &amp;cfg,</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>,</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        1);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    sm_config_set_sideset_pins(</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        &amp;cfg,</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">clock_pin</a>);</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="comment">//data pin setup</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    pio_sm_set_in_pins(</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>);</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    pio_sm_set_consecutive_pindirs(</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>,</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>,</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        1,</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    pio_gpio_init(</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>,</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>);</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    sm_config_set_in_pins(</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        &amp;cfg,</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        hx-&gt;<a class="code" href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">data_pin</a>);</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    sm_config_set_in_shift(</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        &amp;cfg,</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        <span class="keyword">false</span>,            <span class="comment">//false = shift in left</span></div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        <span class="keyword">true</span>,             <span class="comment">//true = autopush enabled</span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;        <a class="code" href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a>); <span class="comment">//autopush on 24 bits</span></div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="comment">//store a copy of the configuration for resetting the sm</span></div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    hx-&gt;<a class="code" href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">_default_config</a> = cfg;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;}</div>
 <div class="ttc" id="ahx711_8h_html_ab9b9f8da4c67723ef2bf5e632aee5a80"><div class="ttname"><a href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a></div><div class="ttdeci">static const uint HX711_READ_BITS</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00037">hx711.h:37</a></div></div>
 <div class="ttc" id="ahx711__noblock_8pio_8h_html_ad18f2044e55d47c2bc74e7f116101a14"><div class="ttname"><a href="hx711__noblock_8pio_8h.html#ad18f2044e55d47c2bc74e7f116101a14">hx711_noblock_program_get_default_config</a></div><div class="ttdeci">static pio_sm_config hx711_noblock_program_get_default_config(uint offset)</div><div class="ttdef"><b>Definition:</b> <a href="hx711__noblock_8pio_8h_source.html#l00042">hx711_noblock.pio.h:42</a></div></div>
 <div class="ttc" id="astructhx711__t_html_a00860359bbb10538dfe45ffc0f2a2a0d"><div class="ttname"><a href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">hx711_t::clock_pin</a></div><div class="ttdeci">uint clock_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00073">hx711.h:73</a></div></div>
@@ -374,7 +375,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></li>
-    <li class="footer">Generated on Sat Jan 7 2023 09:45:29 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 09:55:22 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
