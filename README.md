@@ -73,6 +73,11 @@ if(hx711_get_value_timeout(&hx, 250000, &val)) {
     // in this case, within 250 milliseconds
     printf("%li\n", val);
 }
+
+// or see if there's a value, but don't block if not
+if(hx711_get_value_noblock(&hx, &val)) {
+    printf("%li\n", val);
+}
 ```
 
 ## Custom PIO Programs
