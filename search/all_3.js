@@ -1,9 +1,8 @@
 var searchData=
 [
-  ['hx711_2dpico_2dc_8',['hx711-pico-c',['../index.html',1,'']]],
-  ['hx711_2ec_9',['hx711.c',['../hx711_8c.html',1,'']]],
-  ['hx711_2eh_10',['hx711.h',['../hx711_8h.html',1,'']]],
-  ['hx711_5f_5fassert_5fhx_5finitd_11',['hx711__assert_hx_initd',['../hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07',1,'hx711.h']]],
+  ['hx711_2dpico_2dc_9',['hx711-pico-c',['../index.html',1,'']]],
+  ['hx711_2ec_10',['hx711.c',['../hx711_8c.html',1,'']]],
+  ['hx711_2eh_11',['hx711.h',['../hx711_8h.html',1,'']]],
   ['hx711_5f_5ftry_5fget_5fvalue_12',['hx711__try_get_value',['../hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2',1,'hx711.h']]],
   ['hx711_5fclose_13',['hx711_close',['../hx711_8h.html#a430408c58853bd2ec9b4e2bacb36f055',1,'hx711_close(hx711_t *const hx):&#160;hx711.c'],['../hx711_8c.html#a430408c58853bd2ec9b4e2bacb36f055',1,'hx711_close(hx711_t *const hx):&#160;hx711.c']]],
   ['hx711_5fgain_5f128_14',['hx711_gain_128',['../hx711_8h.html#acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1',1,'hx711.h']]],
@@ -13,7 +12,7 @@ var searchData=
   ['hx711_5fget_5frate_5fsps_18',['hx711_get_rate_sps',['../hx711_8h.html#a0020cc75575857b3b68df55609f9327c',1,'hx711.h']]],
   ['hx711_5fget_5fsettling_5ftime_19',['hx711_get_settling_time',['../hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd',1,'hx711.h']]],
   ['hx711_5fget_5ftwos_5fcomp_20',['hx711_get_twos_comp',['../hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5',1,'hx711.h']]],
-  ['hx711_5fget_5fvalue_21',['hx711_get_value',['../hx711_8h.html#a2a490345d56d3d9f06f809c07446a6e5',1,'hx711_get_value(hx711_t *const hx):&#160;hx711.c'],['../hx711_8c.html#a2a490345d56d3d9f06f809c07446a6e5',1,'hx711_get_value(hx711_t *const hx):&#160;hx711.c']]],
+  ['hx711_5fget_5fvalue_21',['hx711_get_value',['../hx711_8c.html#a2a490345d56d3d9f06f809c07446a6e5',1,'hx711_get_value(hx711_t *const hx):&#160;hx711.c'],['../hx711_8h.html#a2a490345d56d3d9f06f809c07446a6e5',1,'hx711_get_value(hx711_t *const hx):&#160;hx711.c']]],
   ['hx711_5fget_5fvalue_5fnoblock_22',['hx711_get_value_noblock',['../hx711_8h.html#a0c8ff19b682c8518252a5d6ed67d6598',1,'hx711_get_value_noblock(hx711_t *const hx, int32_t *const val):&#160;hx711.c'],['../hx711_8c.html#a0c8ff19b682c8518252a5d6ed67d6598',1,'hx711_get_value_noblock(hx711_t *const hx, int32_t *const val):&#160;hx711.c']]],
   ['hx711_5fget_5fvalue_5ftimeout_23',['hx711_get_value_timeout',['../hx711_8h.html#a0ab1a8852812daf235cf743f530cf037',1,'hx711_get_value_timeout(hx711_t *const hx, const uint timeout, int32_t *const val):&#160;hx711.c'],['../hx711_8c.html#a0ab1a8852812daf235cf743f530cf037',1,'hx711_get_value_timeout(hx711_t *const hx, const uint timeout, int32_t *const val):&#160;hx711.c']]],
   ['hx711_5finit_24',['hx711_init',['../hx711_8h.html#a20c562c58345b4cb4c8922925ec0a877',1,'hx711_init(hx711_t *const hx, const uint clk, const uint dat, PIO const pio, const pio_program_t *const prog, hx711_program_init_t prog_init_func):&#160;hx711.c'],['../hx711_8c.html#a20c562c58345b4cb4c8922925ec0a877',1,'hx711_init(hx711_t *const hx, const uint clk, const uint dat, PIO const pio, const pio_program_t *const prog, hx711_program_init_t prog_init_func):&#160;hx711.c']]],

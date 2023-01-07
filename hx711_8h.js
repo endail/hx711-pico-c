@@ -1,6 +1,7 @@
 var hx711_8h =
 [
     [ "hx711_t", "structhx711__t.html", "structhx711__t" ],
+    [ "CHECK_HX711_INITD", "hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e", null ],
     [ "hx711_program_init_t", "hx711_8h.html#a90174ad7869dcc222ee9d6aef3e3b097", null ],
     [ "hx711_gain_t", "hx711_8h.html#acadec7365abc52889994131164536304", [
       [ "hx711_gain_128", "hx711_8h.html#acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1", null ],
@@ -15,7 +16,6 @@ var hx711_8h =
       [ "hx711_rate_10", "hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33", null ],
       [ "hx711_rate_80", "hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c", null ]
     ] ],
-    [ "hx711__assert_hx_initd", "hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07", null ],
     [ "hx711__try_get_value", "hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2", null ],
     [ "hx711_close", "hx711_8h.html#a430408c58853bd2ec9b4e2bacb36f055", null ],
     [ "hx711_get_rate_sps", "hx711_8h.html#a0020cc75575857b3b68df55609f9327c", null ],

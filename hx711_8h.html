@@ -83,6 +83,7 @@ $(document).ready(function(){initNavTree('hx711_8h.html',''); initResizable(); }
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a> &#124;
@@ -104,6 +105,11 @@ $(document).ready(function(){initNavTree('hx711_8h.html',''); initResizable(); }
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhx711__t.html">hx711_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a3448dba4fc5df23dc3b4f2b16615d35e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</td></tr>
+<tr class="separator:a3448dba4fc5df23dc3b4f2b16615d35e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -174,9 +180,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a95a39180249d252d709cd465d1eaeaa2"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2">hx711__try_get_value</a> (PIO const pio, const uint sm, uint32_t *const val)</td></tr>
 <tr class="memdesc:a95a39180249d252d709cd465d1eaeaa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to obtain a value from the PIO RX FIFO if one is available.  <a href="hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2">More...</a><br /></td></tr>
 <tr class="separator:a95a39180249d252d709cd465d1eaeaa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2674564ac2b0b3f0cfda56e0a970f07"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a> (<a class="el" href="structhx711__t.html">hx711_t</a> *const hx)</td></tr>
-<tr class="memdesc:ae2674564ac2b0b3f0cfda56e0a970f07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Asserts that the hx has been properly initialised. Only calls assert().  <a href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">More...</a><br /></td></tr>
-<tr class="separator:ae2674564ac2b0b3f0cfda56e0a970f07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -193,6 +196,27 @@ Variables</h2></td></tr>
 <tr class="memitem:a936269dfc58c9bf889404c7cf27c46a4"><td class="memItemLeft" align="right" valign="top">static const uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hx711_8h.html#a936269dfc58c9bf889404c7cf27c46a4">HX711_SAMPLE_RATES</a> []</td></tr>
 <tr class="separator:a936269dfc58c9bf889404c7cf27c46a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a3448dba4fc5df23dc3b4f2b16615d35e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3448dba4fc5df23dc3b4f2b16615d35e">&#9670;&nbsp;</a></span>CHECK_HX711_INITD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CHECK_HX711_INITD</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">hx</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00033">33</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="a90174ad7869dcc222ee9d6aef3e3b097"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a90174ad7869dcc222ee9d6aef3e3b097">&#9670;&nbsp;</a></span>hx711_program_init_t</h2>
@@ -208,7 +232,7 @@ Variables</h2></td></tr>
 
 <p>Prototype for init function in .pio file. </p>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00089">89</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00100">100</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
 
 </div>
 </div>
@@ -230,16 +254,16 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693"></a>hx711_gain_64&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00060">60</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;             {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1">hx711_gain_128</a> = 25, <span class="comment">//clock pulse counts</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304a95f56383645c776bbe284085019da24f">hx711_gain_32</a> = 26,</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693">hx711_gain_64</a> = 27</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;} <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304">hx711_gain_t</a>;</div>
-<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304">hx711_gain_t</a></div><div class="ttdeci">hx711_gain_t</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00060">hx711.h:60</a></div></div>
-<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693">hx711_gain_64</a></div><div class="ttdeci">@ hx711_gain_64</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00064">hx711.h:63</a></div></div>
-<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304a95f56383645c776bbe284085019da24f"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304a95f56383645c776bbe284085019da24f">hx711_gain_32</a></div><div class="ttdeci">@ hx711_gain_32</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00062">hx711.h:62</a></div></div>
-<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1">hx711_gain_128</a></div><div class="ttdeci">@ hx711_gain_128</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00061">hx711.h:61</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00071">71</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;             {</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1">hx711_gain_128</a> = 25, <span class="comment">//clock pulse counts</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304a95f56383645c776bbe284085019da24f">hx711_gain_32</a> = 26,</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693">hx711_gain_64</a> = 27</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;} <a class="code" href="hx711_8h.html#acadec7365abc52889994131164536304">hx711_gain_t</a>;</div>
+<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304">hx711_gain_t</a></div><div class="ttdeci">hx711_gain_t</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00071">hx711.h:71</a></div></div>
+<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304a9298966d33fa7a3ea0caddd3f13bf693">hx711_gain_64</a></div><div class="ttdeci">@ hx711_gain_64</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00075">hx711.h:74</a></div></div>
+<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304a95f56383645c776bbe284085019da24f"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304a95f56383645c776bbe284085019da24f">hx711_gain_32</a></div><div class="ttdeci">@ hx711_gain_32</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00073">hx711.h:73</a></div></div>
+<div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1">hx711_gain_128</a></div><div class="ttdeci">@ hx711_gain_128</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00072">hx711.h:72</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -259,14 +283,14 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1"></a>hx711_pwr_down&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00066">66</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;             {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098">hx711_pwr_up</a> = 0,</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1">hx711_pwr_down</a></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;} <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657">hx711_power_t</a>;</div>
-<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657">hx711_power_t</a></div><div class="ttdeci">hx711_power_t</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00066">hx711.h:66</a></div></div>
-<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1">hx711_pwr_down</a></div><div class="ttdeci">@ hx711_pwr_down</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00069">hx711.h:68</a></div></div>
-<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098">hx711_pwr_up</a></div><div class="ttdeci">@ hx711_pwr_up</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00067">hx711.h:67</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00077">77</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;             {</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098">hx711_pwr_up</a> = 0,</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1">hx711_pwr_down</a></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;} <a class="code" href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657">hx711_power_t</a>;</div>
+<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657">hx711_power_t</a></div><div class="ttdeci">hx711_power_t</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00077">hx711.h:77</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a5238e62eed59a89c8817f06dc65b85a1">hx711_pwr_down</a></div><div class="ttdeci">@ hx711_pwr_down</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00080">hx711.h:79</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098"><div class="ttname"><a href="hx711_8h.html#a69bd1e90c3893a185a5e615db96ef657a82eebd84cc006a432437b2798644d098">hx711_pwr_up</a></div><div class="ttdeci">@ hx711_pwr_up</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00078">hx711.h:78</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -286,69 +310,18 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c"></a>hx711_rate_80&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00050">50</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;             {</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <a class="code" href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33">hx711_rate_10</a> = 0,</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <a class="code" href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c">hx711_rate_80</a></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;} <a class="code" href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776f">hx711_rate_t</a>;</div>
-<div class="ttc" id="ahx711_8h_html_aa32021164bb71485f28db91a7c5c776f"><div class="ttname"><a href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776f">hx711_rate_t</a></div><div class="ttdeci">hx711_rate_t</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00050">hx711.h:50</a></div></div>
-<div class="ttc" id="ahx711_8h_html_aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33"><div class="ttname"><a href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33">hx711_rate_10</a></div><div class="ttdeci">@ hx711_rate_10</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00051">hx711.h:51</a></div></div>
-<div class="ttc" id="ahx711_8h_html_aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c"><div class="ttname"><a href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c">hx711_rate_80</a></div><div class="ttdeci">@ hx711_rate_80</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00053">hx711.h:52</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00061">61</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;             {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33">hx711_rate_10</a> = 0,</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c">hx711_rate_80</a></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;} <a class="code" href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776f">hx711_rate_t</a>;</div>
+<div class="ttc" id="ahx711_8h_html_aa32021164bb71485f28db91a7c5c776f"><div class="ttname"><a href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776f">hx711_rate_t</a></div><div class="ttdeci">hx711_rate_t</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00061">hx711.h:61</a></div></div>
+<div class="ttc" id="ahx711_8h_html_aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33"><div class="ttname"><a href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33">hx711_rate_10</a></div><div class="ttdeci">@ hx711_rate_10</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00062">hx711.h:62</a></div></div>
+<div class="ttc" id="ahx711_8h_html_aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c"><div class="ttname"><a href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c">hx711_rate_80</a></div><div class="ttdeci">@ hx711_rate_80</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00064">hx711.h:63</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ae2674564ac2b0b3f0cfda56e0a970f07"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae2674564ac2b0b3f0cfda56e0a970f07">&#9670;&nbsp;</a></span>hx711__assert_hx_initd()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void hx711__assert_hx_initd </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structhx711__t.html">hx711_t</a> *const&#160;</td>
-          <td class="paramname"><em>hx</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Asserts that the hx has been properly initialised. Only calls assert(). </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">hx</td><td>pointer to <a class="el" href="structhx711__t.html">hx711_t</a> </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00288">288</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;                                                             {</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160; </div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    assert(hx != NULL);</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    assert(hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a> != NULL);</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    assert(pio_sm_is_claimed(hx-&gt;<a class="code" href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">_pio</a>, hx-&gt;<a class="code" href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">_state_mach</a>));</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    assert(mutex_is_initialized(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>));</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160; </div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;}</div>
-<div class="ttc" id="astructhx711__t_html_a77b81a68b9304dc653e393215beacd77"><div class="ttname"><a href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">hx711_t::_pio</a></div><div class="ttdeci">PIO _pio</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00076">hx711.h:76</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a8574e280638286c0d1b89a483e7eebd2"><div class="ttname"><a href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">hx711_t::_state_mach</a></div><div class="ttdeci">uint _state_mach</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00079">hx711.h:79</a></div></div>
-<div class="ttc" id="astructhx711__t_html_af407d4b03897c4dd73f6285059d99005"><div class="ttname"><a href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">hx711_t::_mut</a></div><div class="ttdeci">mutex_t _mut</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00082">hx711.h:82</a></div></div>
-</div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, and <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>.</p>
-
-<p class="reference">Referenced by <a class="el" href="hx711_8c_source.html#l00085">hx711_close()</a>, <a class="el" href="hx711_8c_source.html#l00197">hx711_get_value()</a>, <a class="el" href="hx711_8c_source.html#l00254">hx711_get_value_noblock()</a>, <a class="el" href="hx711_8c_source.html#l00222">hx711_get_value_timeout()</a>, <a class="el" href="hx711_8c_source.html#l00109">hx711_set_gain()</a>, and <a class="el" href="hx711_8c_source.html#l00278">hx711_set_power()</a>.</p>
-
-</div>
-</div>
 <a id="a95a39180249d252d709cd465d1eaeaa2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a95a39180249d252d709cd465d1eaeaa2">&#9670;&nbsp;</a></span>hx711__try_get_value()</h2>
 
@@ -402,25 +375,25 @@ Variables</h2></td></tr>
 <dd>
 false if value was not obtained </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00264">264</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;                         {</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160; </div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;        assert(pio != NULL);</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;        assert(val != NULL);</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160; </div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;        <span class="keyword">static</span> <span class="keyword">const</span> uint byteThreshold = <a class="code" href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a> / 8;</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160; </div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;        <span class="keywordflow">if</span>(pio_sm_get_rx_fifo_level(pio, sm) &gt;= byteThreshold) {</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;            *val = pio_sm_get(pio, sm);</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;        }</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160; </div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160; </div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_ab9b9f8da4c67723ef2bf5e632aee5a80"><div class="ttname"><a href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a></div><div class="ttdeci">static const uint HX711_READ_BITS</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00037">hx711.h:37</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00275">275</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;                         {</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;        assert(pio != NULL);</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;        assert(val != NULL);</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160; </div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;        <span class="keyword">static</span> <span class="keyword">const</span> uint byteThreshold = <a class="code" href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a> / 8;</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160; </div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;        <span class="keywordflow">if</span>(pio_sm_get_rx_fifo_level(pio, sm) &gt;= byteThreshold) {</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;            *val = pio_sm_get(pio, sm);</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;        }</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160; </div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;}</div>
+<div class="ttc" id="ahx711_8h_html_ab9b9f8da4c67723ef2bf5e632aee5a80"><div class="ttname"><a href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a></div><div class="ttdeci">static const uint HX711_READ_BITS</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00048">hx711.h:48</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00037">HX711_READ_BITS</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00048">HX711_READ_BITS</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="hx711_8c_source.html#l00254">hx711_get_value_noblock()</a>, and <a class="el" href="hx711_8c_source.html#l00222">hx711_get_value_timeout()</a>.</p>
 
@@ -453,7 +426,7 @@ false if value was not obtained </dd></dl>
 <p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00085">85</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                                    {</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <a class="code" href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a>(hx);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    mutex_enter_blocking(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
@@ -474,11 +447,14 @@ false if value was not obtained </dd></dl>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    mutex_exit(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_ae2674564ac2b0b3f0cfda56e0a970f07"><div class="ttname"><a href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a></div><div class="ttdeci">static void hx711__assert_hx_initd(hx711_t *const hx)</div><div class="ttdoc">Asserts that the hx has been properly initialised. Only calls assert().</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00288">hx711.h:288</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a0c14f4e62aa6ee1f56b941a87e214ce4"><div class="ttname"><a href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">hx711_t::_offset</a></div><div class="ttdeci">uint _offset</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00080">hx711.h:80</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a6582187b36ed9f636945d2af35232dbc"><div class="ttname"><a href="structhx711__t.html#a6582187b36ed9f636945d2af35232dbc">hx711_t::_prog</a></div><div class="ttdeci">const pio_program_t * _prog</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00077">hx711.h:77</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a3448dba4fc5df23dc3b4f2b16615d35e"><div class="ttname"><a href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a></div><div class="ttdeci">#define CHECK_HX711_INITD(hx)</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00033">hx711.h:33</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a0c14f4e62aa6ee1f56b941a87e214ce4"><div class="ttname"><a href="structhx711__t.html#a0c14f4e62aa6ee1f56b941a87e214ce4">hx711_t::_offset</a></div><div class="ttdeci">uint _offset</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00091">hx711.h:91</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a6582187b36ed9f636945d2af35232dbc"><div class="ttname"><a href="structhx711__t.html#a6582187b36ed9f636945d2af35232dbc">hx711_t::_prog</a></div><div class="ttdeci">const pio_program_t * _prog</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00088">hx711.h:88</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a77b81a68b9304dc653e393215beacd77"><div class="ttname"><a href="structhx711__t.html#a77b81a68b9304dc653e393215beacd77">hx711_t::_pio</a></div><div class="ttdeci">PIO _pio</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00087">hx711.h:87</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a8574e280638286c0d1b89a483e7eebd2"><div class="ttname"><a href="structhx711__t.html#a8574e280638286c0d1b89a483e7eebd2">hx711_t::_state_mach</a></div><div class="ttdeci">uint _state_mach</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00090">hx711.h:90</a></div></div>
+<div class="ttc" id="astructhx711__t_html_af407d4b03897c4dd73f6285059d99005"><div class="ttname"><a href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">hx711_t::_mut</a></div><div class="ttdeci">mutex_t _mut</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00093">hx711.h:93</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00080">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00077">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>, and <a class="el" href="hx711_8h_source.html#l00288">hx711__assert_hx_initd()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00093">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00091">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00088">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_state_mach</a>, and <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>.</p>
 
 </div>
 </div>
@@ -515,13 +491,13 @@ false if value was not obtained </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>uint </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00184">184</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;                                                               {</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="hx711_8h.html#a936269dfc58c9bf889404c7cf27c46a4">HX711_SAMPLE_RATES</a>[(uint)rate];</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a936269dfc58c9bf889404c7cf27c46a4"><div class="ttname"><a href="hx711_8h.html#a936269dfc58c9bf889404c7cf27c46a4">HX711_SAMPLE_RATES</a></div><div class="ttdeci">static const uint HX711_SAMPLE_RATES[]</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00055">hx711.h:55</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00195">195</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;                                                               {</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="hx711_8h.html#a936269dfc58c9bf889404c7cf27c46a4">HX711_SAMPLE_RATES</a>[(uint)rate];</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;}</div>
+<div class="ttc" id="ahx711_8h_html_a936269dfc58c9bf889404c7cf27c46a4"><div class="ttname"><a href="hx711_8h.html#a936269dfc58c9bf889404c7cf27c46a4">HX711_SAMPLE_RATES</a></div><div class="ttdeci">static const uint HX711_SAMPLE_RATES[]</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00066">hx711.h:66</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00055">HX711_SAMPLE_RATES</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00066">HX711_SAMPLE_RATES</a>.</p>
 
 </div>
 </div>
@@ -558,15 +534,15 @@ false if value was not obtained </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>uint </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00174">174</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;                                                                    {</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="hx711_8h.html#ae2b69357701a4fa5d1fe63b92bfe18c7">HX711_SETTLING_TIMES</a>[(uint)rate];</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_ae2b69357701a4fa5d1fe63b92bfe18c7"><div class="ttname"><a href="hx711_8h.html#ae2b69357701a4fa5d1fe63b92bfe18c7">HX711_SETTLING_TIMES</a></div><div class="ttdeci">static const uint HX711_SETTLING_TIMES[]</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00045">hx711.h:45</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00185">185</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;                                                                    {</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="hx711_8h.html#ae2b69357701a4fa5d1fe63b92bfe18c7">HX711_SETTLING_TIMES</a>[(uint)rate];</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;}</div>
+<div class="ttc" id="ahx711_8h_html_ae2b69357701a4fa5d1fe63b92bfe18c7"><div class="ttname"><a href="hx711_8h.html#ae2b69357701a4fa5d1fe63b92bfe18c7">HX711_SETTLING_TIMES</a></div><div class="ttdeci">static const uint HX711_SETTLING_TIMES[]</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00056">hx711.h:56</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00045">HX711_SETTLING_TIMES</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00056">HX711_SETTLING_TIMES</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00242">hx711_wait_settle()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00253">hx711_wait_settle()</a>.</p>
 
 </div>
 </div>
@@ -603,21 +579,21 @@ false if value was not obtained </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>int32_t </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00132">132</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;                                                              {</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <span class="keyword">const</span> int32_t val = </div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        (int32_t)(-(raw &amp; +<a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a>)) + (int32_t)(raw &amp; <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>);</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160; </div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    assert(val &gt;= <a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a> &amp;&amp; val &lt;= <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>);</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; </div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <span class="keywordflow">return</span> val;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160; </div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a542a46f6a507127f49262b3ed40c31ab"><div class="ttname"><a href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a></div><div class="ttdeci">static const int32_t HX711_MIN_VALUE</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00039">hx711.h:39</a></div></div>
-<div class="ttc" id="ahx711_8h_html_ab6cdad963c318bb22a6e99519d1eaf4c"><div class="ttname"><a href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a></div><div class="ttdeci">static const int32_t HX711_MAX_VALUE</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00041">hx711.h:41</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00143">143</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;                                                              {</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160; </div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keyword">const</span> int32_t val = </div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;        (int32_t)(-(raw &amp; +<a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a>)) + (int32_t)(raw &amp; <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>);</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    assert(val &gt;= <a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a> &amp;&amp; val &lt;= <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>);</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160; </div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordflow">return</span> val;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160; </div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;}</div>
+<div class="ttc" id="ahx711_8h_html_a542a46f6a507127f49262b3ed40c31ab"><div class="ttname"><a href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a></div><div class="ttdeci">static const int32_t HX711_MIN_VALUE</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00050">hx711.h:50</a></div></div>
+<div class="ttc" id="ahx711_8h_html_ab6cdad963c318bb22a6e99519d1eaf4c"><div class="ttname"><a href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a></div><div class="ttdeci">static const int32_t HX711_MAX_VALUE</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00052">hx711.h:52</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00041">HX711_MAX_VALUE</a>, and <a class="el" href="hx711_8h_source.html#l00039">HX711_MIN_VALUE</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00052">HX711_MAX_VALUE</a>, and <a class="el" href="hx711_8h_source.html#l00050">HX711_MIN_VALUE</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="hx711_8c_source.html#l00197">hx711_get_value()</a>, <a class="el" href="hx711_8c_source.html#l00254">hx711_get_value_noblock()</a>, and <a class="el" href="hx711_8c_source.html#l00222">hx711_get_value_timeout()</a>.</p>
 
@@ -653,7 +629,7 @@ false if value was not obtained </dd></dl>
 <p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00197">197</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;                                           {</div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160; </div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <a class="code" href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a>(hx);</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    mutex_enter_blocking(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160; </div>
@@ -666,9 +642,9 @@ false if value was not obtained </dd></dl>
 <div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">hx711_get_twos_comp</a>(rawVal);</div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160; </div>
 <div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a356fb6b43100e2ff2d80a83c6e40b6a5"><div class="ttname"><a href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">hx711_get_twos_comp</a></div><div class="ttdeci">static int32_t hx711_get_twos_comp(const uint32_t raw)</div><div class="ttdoc">Convert a raw value from the HX711 to a 32-bit signed int.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00132">hx711.h:132</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a356fb6b43100e2ff2d80a83c6e40b6a5"><div class="ttname"><a href="hx711_8h.html#a356fb6b43100e2ff2d80a83c6e40b6a5">hx711_get_twos_comp</a></div><div class="ttdeci">static int32_t hx711_get_twos_comp(const uint32_t raw)</div><div class="ttdoc">Convert a raw value from the HX711 to a 32-bit signed int.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00143">hx711.h:143</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00288">hx711__assert_hx_initd()</a>, and <a class="el" href="hx711_8h_source.html#l00132">hx711_get_twos_comp()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00093">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00143">hx711_get_twos_comp()</a>.</p>
 
 </div>
 </div>
@@ -713,7 +689,7 @@ false if a value was not available </dd></dl>
 <p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00254">254</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;                        {</div>
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;        <a class="code" href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a>(hx);</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;        <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;        assert(val != NULL);</div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;        <span class="keywordtype">bool</span> success;</div>
@@ -732,9 +708,9 @@ false if a value was not available </dd></dl>
 <div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;        <span class="keywordflow">return</span> success;</div>
 <div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160; </div>
 <div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a95a39180249d252d709cd465d1eaeaa2"><div class="ttname"><a href="hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2">hx711__try_get_value</a></div><div class="ttdeci">static bool hx711__try_get_value(PIO const pio, const uint sm, uint32_t *const val)</div><div class="ttdoc">Attempts to obtain a value from the PIO RX FIFO if one is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00264">hx711.h:264</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a95a39180249d252d709cd465d1eaeaa2"><div class="ttname"><a href="hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2">hx711__try_get_value</a></div><div class="ttdeci">static bool hx711__try_get_value(PIO const pio, const uint sm, uint32_t *const val)</div><div class="ttdoc">Attempts to obtain a value from the PIO RX FIFO if one is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00275">hx711.h:275</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00288">hx711__assert_hx_initd()</a>, <a class="el" href="hx711_8h_source.html#l00264">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00132">hx711_get_twos_comp()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00093">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00275">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00143">hx711_get_twos_comp()</a>.</p>
 
 </div>
 </div>
@@ -786,7 +762,7 @@ false if a timeout was reached </dd></dl>
 <p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00222">222</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;                        {</div>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160; </div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        <a class="code" href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a>(hx);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;        <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;        assert(val != NULL);</div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160; </div>
 <div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;        <span class="keywordtype">bool</span> success = <span class="keyword">false</span>;</div>
@@ -813,7 +789,7 @@ false if a timeout was reached </dd></dl>
 <div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160; </div>
 <div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00288">hx711__assert_hx_initd()</a>, <a class="el" href="hx711_8h_source.html#l00264">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00132">hx711_get_twos_comp()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00093">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00275">hx711__try_get_value()</a>, and <a class="el" href="hx711_8h_source.html#l00143">hx711_get_twos_comp()</a>.</p>
 
 </div>
 </div>
@@ -915,10 +891,10 @@ DOUT pin back to high (Fig.2)."</p>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        mutex_exit(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;}</div>
-<div class="ttc" id="astructhx711__t_html_a00860359bbb10538dfe45ffc0f2a2a0d"><div class="ttname"><a href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">hx711_t::clock_pin</a></div><div class="ttdeci">uint clock_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00073">hx711.h:73</a></div></div>
-<div class="ttc" id="astructhx711__t_html_a312ea334754714f8f7865608e40b7654"><div class="ttname"><a href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">hx711_t::data_pin</a></div><div class="ttdeci">uint data_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00074">hx711.h:74</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a00860359bbb10538dfe45ffc0f2a2a0d"><div class="ttname"><a href="structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d">hx711_t::clock_pin</a></div><div class="ttdeci">uint clock_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00084">hx711.h:84</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a312ea334754714f8f7865608e40b7654"><div class="ttname"><a href="structhx711__t.html#a312ea334754714f8f7865608e40b7654">hx711_t::data_pin</a></div><div class="ttdeci">uint data_pin</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00085">hx711.h:85</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00080">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00077">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00073">hx711_t::clock_pin</a>, and <a class="el" href="hx711_8h_source.html#l00074">hx711_t::data_pin</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00093">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00091">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00088">hx711_t::_prog</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::clock_pin</a>, and <a class="el" href="hx711_8h_source.html#l00085">hx711_t::data_pin</a>.</p>
 
 </div>
 </div>
@@ -957,12 +933,12 @@ DOUT pin back to high (Fig.2)."</p>
 <dd>
 false </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00163">163</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;                                                             {</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordflow">return</span> val == <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>; <span class="comment">//8,388,607</span></div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00174">174</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;                                                             {</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordflow">return</span> val == <a class="code" href="hx711_8h.html#ab6cdad963c318bb22a6e99519d1eaf4c">HX711_MAX_VALUE</a>; <span class="comment">//8,388,607</span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00041">HX711_MAX_VALUE</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00052">HX711_MAX_VALUE</a>.</p>
 
 </div>
 </div>
@@ -1001,12 +977,12 @@ false </dd></dl>
 <dd>
 false </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00151">151</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;                                                             {</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keywordflow">return</span> val == <a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a>; <span class="comment">//−8,388,608</span></div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00162">162</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;                                                             {</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <span class="keywordflow">return</span> val == <a class="code" href="hx711_8h.html#a542a46f6a507127f49262b3ed40c31ab">HX711_MIN_VALUE</a>; <span class="comment">//−8,388,608</span></div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00039">HX711_MIN_VALUE</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00050">HX711_MIN_VALUE</a>.</p>
 
 </div>
 </div>
@@ -1061,8 +1037,9 @@ false </dd></dl>
 <p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00109">109</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                                                                {</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <a class="code" href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a>(hx);</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    </div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keyword">const</span> uint32_t gainVal = (uint32_t)gain - <a class="code" href="hx711_8h.html#ab9b9f8da4c67723ef2bf5e632aee5a80">HX711_READ_BITS</a> - 1;</div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    assert(gainVal &lt;= 2);</div>
@@ -1093,7 +1070,7 @@ false </dd></dl>
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160; </div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;}</div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00288">hx711__assert_hx_initd()</a>, and <a class="el" href="hx711_8h_source.html#l00037">HX711_READ_BITS</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00093">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, and <a class="el" href="hx711_8h_source.html#l00048">HX711_READ_BITS</a>.</p>
 
 </div>
 </div>
@@ -1145,7 +1122,7 @@ false </dd></dl>
 <p class="definition">Definition at line <a class="el" href="hx711_8c_source.html#l00278">278</a> of file <a class="el" href="hx711_8c_source.html">hx711.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;                                                                 {</div>
 <div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <a class="code" href="hx711_8h.html#ae2674564ac2b0b3f0cfda56e0a970f07">hx711__assert_hx_initd</a>(hx);</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <a class="code" href="hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e">CHECK_HX711_INITD</a>(hx)</div>
 <div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160; </div>
 <div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    mutex_enter_blocking(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
 <div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160; </div>
@@ -1183,9 +1160,9 @@ false </dd></dl>
 <div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    mutex_exit(&amp;hx-&gt;<a class="code" href="structhx711__t.html#af407d4b03897c4dd73f6285059d99005">_mut</a>);</div>
 <div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160; </div>
 <div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;}</div>
-<div class="ttc" id="astructhx711__t_html_a8f0e2e7b6f3ea65f449d59ba30f474c2"><div class="ttname"><a href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">hx711_t::_default_config</a></div><div class="ttdeci">pio_sm_config _default_config</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00078">hx711.h:78</a></div></div>
+<div class="ttc" id="astructhx711__t_html_a8f0e2e7b6f3ea65f449d59ba30f474c2"><div class="ttname"><a href="structhx711__t.html#a8f0e2e7b6f3ea65f449d59ba30f474c2">hx711_t::_default_config</a></div><div class="ttdeci">pio_sm_config _default_config</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00089">hx711.h:89</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00078">hx711_t::_default_config</a>, <a class="el" href="hx711_8h_source.html#l00082">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00080">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00076">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00073">hx711_t::clock_pin</a>, <a class="el" href="hx711_8h_source.html#l00288">hx711__assert_hx_initd()</a>, <a class="el" href="hx711_8h_source.html#l00068">hx711_pwr_down</a>, and <a class="el" href="hx711_8h_source.html#l00067">hx711_pwr_up</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00089">hx711_t::_default_config</a>, <a class="el" href="hx711_8h_source.html#l00093">hx711_t::_mut</a>, <a class="el" href="hx711_8h_source.html#l00091">hx711_t::_offset</a>, <a class="el" href="hx711_8h_source.html#l00087">hx711_t::_pio</a>, <a class="el" href="hx711_8h_source.html#l00090">hx711_t::_state_mach</a>, <a class="el" href="hx711_8h_source.html#l00033">CHECK_HX711_INITD</a>, <a class="el" href="hx711_8h_source.html#l00084">hx711_t::clock_pin</a>, <a class="el" href="hx711_8h_source.html#l00079">hx711_pwr_down</a>, and <a class="el" href="hx711_8h_source.html#l00078">hx711_pwr_up</a>.</p>
 
 </div>
 </div>
@@ -1214,13 +1191,13 @@ false </dd></dl>
 
 <p>Convenience function for sleeping for the appropriate amount of time to allow the HX711 to power down. </p>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00251">251</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;                                           {</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    sleep_us(<a class="code" href="hx711_8h.html#ae30beb1e78fbf488027a37caefc5f00a">HX711_POWER_DOWN_TIMEOUT</a>);</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_ae30beb1e78fbf488027a37caefc5f00a"><div class="ttname"><a href="hx711_8h.html#ae30beb1e78fbf488027a37caefc5f00a">HX711_POWER_DOWN_TIMEOUT</a></div><div class="ttdeci">static const uint HX711_POWER_DOWN_TIMEOUT</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00043">hx711.h:43</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00262">262</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;                                           {</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    sleep_us(<a class="code" href="hx711_8h.html#ae30beb1e78fbf488027a37caefc5f00a">HX711_POWER_DOWN_TIMEOUT</a>);</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;}</div>
+<div class="ttc" id="ahx711_8h_html_ae30beb1e78fbf488027a37caefc5f00a"><div class="ttname"><a href="hx711_8h.html#ae30beb1e78fbf488027a37caefc5f00a">HX711_POWER_DOWN_TIMEOUT</a></div><div class="ttdeci">static const uint HX711_POWER_DOWN_TIMEOUT</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00054">hx711.h:54</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00043">HX711_POWER_DOWN_TIMEOUT</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00054">HX711_POWER_DOWN_TIMEOUT</a>.</p>
 
 </div>
 </div>
@@ -1256,13 +1233,13 @@ false </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00242">242</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;                                                              {</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    sleep_ms(<a class="code" href="hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd">hx711_get_settling_time</a>(rate));</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;}</div>
-<div class="ttc" id="ahx711_8h_html_a1bedf171c9de0a547b7fb507227c7cfd"><div class="ttname"><a href="hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd">hx711_get_settling_time</a></div><div class="ttdeci">static uint hx711_get_settling_time(const hx711_rate_t rate)</div><div class="ttdoc">Returns the number of milliseconds to wait according to the given HX711 sample rate to allow readings...</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00174">hx711.h:174</a></div></div>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00253">253</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;                                                              {</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    sleep_ms(<a class="code" href="hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd">hx711_get_settling_time</a>(rate));</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;}</div>
+<div class="ttc" id="ahx711_8h_html_a1bedf171c9de0a547b7fb507227c7cfd"><div class="ttname"><a href="hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd">hx711_get_settling_time</a></div><div class="ttdeci">static uint hx711_get_settling_time(const hx711_rate_t rate)</div><div class="ttdoc">Returns the number of milliseconds to wait according to the given HX711 sample rate to allow readings...</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00185">hx711.h:185</a></div></div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="hx711_8h_source.html#l00174">hx711_get_settling_time()</a>.</p>
+<p class="reference">References <a class="el" href="hx711_8h_source.html#l00185">hx711_get_settling_time()</a>.</p>
 
 </div>
 </div>
@@ -1287,9 +1264,9 @@ false </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00041">41</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00052">52</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00132">hx711_get_twos_comp()</a>, and <a class="el" href="hx711_8h_source.html#l00163">hx711_is_max_saturated()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00143">hx711_get_twos_comp()</a>, and <a class="el" href="hx711_8h_source.html#l00174">hx711_is_max_saturated()</a>.</p>
 
 </div>
 </div>
@@ -1313,9 +1290,9 @@ false </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00039">39</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00050">50</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00132">hx711_get_twos_comp()</a>, and <a class="el" href="hx711_8h_source.html#l00151">hx711_is_min_saturated()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00143">hx711_get_twos_comp()</a>, and <a class="el" href="hx711_8h_source.html#l00162">hx711_is_min_saturated()</a>.</p>
 
 </div>
 </div>
@@ -1339,9 +1316,9 @@ false </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00043">43</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00054">54</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00251">hx711_wait_power_down()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00262">hx711_wait_power_down()</a>.</p>
 
 </div>
 </div>
@@ -1365,9 +1342,9 @@ false </dd></dl>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00037">37</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00048">48</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00264">hx711__try_get_value()</a>, <a class="el" href="hx711__noblock_8pio_8h_source.html#l00076">hx711_noblock_program_init()</a>, and <a class="el" href="hx711_8c_source.html#l00109">hx711_set_gain()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00275">hx711__try_get_value()</a>, <a class="el" href="hx711__noblock_8pio_8h_source.html#l00082">hx711_noblock_program_init()</a>, and <a class="el" href="hx711_8c_source.html#l00109">hx711_set_gain()</a>.</p>
 
 </div>
 </div>
@@ -1395,9 +1372,9 @@ false </dd></dl>
 <div class="line">    80</div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00055">55</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00066">66</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00184">hx711_get_rate_sps()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00195">hx711_get_rate_sps()</a>.</p>
 
 </div>
 </div>
@@ -1425,9 +1402,9 @@ false </dd></dl>
 <div class="line">    50</div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00045">45</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hx711_8h_source.html#l00056">56</a> of file <a class="el" href="hx711_8h_source.html">hx711.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00174">hx711_get_settling_time()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="hx711_8h_source.html#l00185">hx711_get_settling_time()</a>.</p>
 
 </div>
 </div>
@@ -1437,7 +1414,7 @@ false </dd></dl>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="hx711_8h.html">hx711.h</a></li>
-    <li class="footer">Generated on Sat Jan 7 2023 11:23:14 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 11:39:11 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
