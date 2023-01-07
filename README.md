@@ -31,7 +31,7 @@ git submodule update --init
 
 ## How to Use
 
-See [here](https://learn.adafruit.com/assets/99339) for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins as the clock and data pins, as long as they are capable of digital output and input respectively.
+See [here](https://pico.pinout.xyz/) for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins as the clock and data pins, as long as they are capable of digital output and input respectively.
 
 ```c
 #include "include/hx711.h"
@@ -78,7 +78,34 @@ if(hx711_get_value_timeout(&hx, 250000, &val)) {
 if(hx711_get_value_noblock(&hx, &val)) {
     printf("%li\n", val);
 }
+
+//6. Stop communication with HX711
+hx711_close(&hx);
 ```
+
+## Notes
+
+### Where is Channel A and Channel B?
+
+Channel A is selectable by setting the gain to 128 or 64. Channel B is selectable by setting the gain to 32.
+
+The HX711 has no option for Channel A at a gain of 32, nor is there an option for Channel B at a gain of 128 or 64. Similarly, the HX711 is not capable of simultaenously reading from Channel A and Channel B. The gain must first be changed.
+
+### What is hx711_wait_settle?
+
+After powering up, the HX711 requires a small "settling time" before it can produce "valid stable output data" (see: HX711 datasheet pg. 3). By calling `hx711_wait_settle()` and passing in the correct data rate, you can ensure your program is paused for correct settling time. Alternatively, you can call `hx711_get_settling_time()` and pass in a `hx711_rate_t` which will return the number of milliseconds of settling time for the given data rate.
+
+### Save HX711 Gain to Chip
+
+By setting the HX711 gain with `hx711_set_gain` and then powering down, the chip saves the gain for when it is powered back up.
+
+### What is hx711_wait_power_down?
+
+The HX711 requires the clock pin to be held high for at least 60us (60 microseconds) before it powers down. By calling `hx711_wait_power_down()` after `hx711_power_down()` you can ensure the chip is properly powered-down.
+
+### hx711_close vs hx711_power_down
+
+In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. The difference is that `hx711_close` stops the internal state machine whereas `hx711_power_down` also begins the power down process on the HX711 chip by setting the clock pin high.
 
 ## Custom PIO Programs
 
