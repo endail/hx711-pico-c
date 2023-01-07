@@ -187,7 +187,7 @@ hx711_close vs hx711_power_down</h2>
 <p>In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. <code>hx711_close</code> stops the internal state machine, whereas <code>hx711_power_down</code> also begins the power down process on the HX711 chip by setting the clock pin high.</p>
 <h1><a class="anchor" id="autotoc_md10"></a>
 Custom PIO Programs</h1>
-<p>You will notice in the code example above that you need to manually include the <code><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></code> PIO header file. This is because it is not included by default in the <code>hx711-pico-c</code> library. It is offered as <em>a method</em> for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the <code><a class="el" href="structhx711__t.html">hx711_t</a></code>. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:</p>
+<p>You will notice in the code example above that you need to manually include the <code><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></code> PIO header file. This is because it is not included by default in the <code>hx711-pico-c</code> library. It is offered as a method for reading from the HX711 that I have optimised to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the <code><a class="el" href="structhx711__t.html">hx711_t</a></code>. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:</p>
 <h2><a class="anchor" id="autotoc_md11"></a>
 hx711_init</h2>
 <ol type="1">
@@ -206,7 +206,7 @@ hx711_init</h2>
 Passing HX711 Values From PIO to Code</h2>
 <p>The two functions for obtaining values, <code>hx711_get_value</code> and <code>hx711_get_value_timeout</code>, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first.</p>
 <p><code>hx711_get_value</code> is a blocking function. It will wait until the RX FIFO is not empty.</p>
-<p><code>hx711_get_value_timeout</code> is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.</p>
+<p><code>hx711_get_value_timeout</code> is also a blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.</p>
 <p>Both functions will subsequently read from and clear the RX FIFO.</p>
 <h2><a class="anchor" id="autotoc_md13"></a>
 Setting HX711 Gain</h2>
@@ -221,7 +221,7 @@ Setting HX711 Power</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Jan 7 2023 13:35:18 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 15:09:52 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
