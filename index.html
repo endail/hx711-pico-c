@@ -102,7 +102,7 @@ Documentation</h1>
 <p><a href="https://endail.github.io/hx711-pico-c/hx711_8h.html">https://endail.github.io/hx711-pico-c</a></p>
 <h1><a class="anchor" id="autotoc_md3"></a>
 How to Use</h1>
-<p>See <a href="https://learn.adafruit.com/assets/99339">here</a> for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins as the clock and data pins, as long as they are capable of digital output and input respectively.</p>
+<p>See <a href="https://pico.pinout.xyz/">here</a> for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins as the clock and data pins, as long as they are capable of digital output and input respectively.</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hx711_8h.html">include/hx711.h</a>&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;<a class="code" href="hx711__noblock_8pio_8h.html">include/hx711_noblock.pio.h</a>&quot;</span> <span class="comment">// for hx711_noblock_program and hx711_noblock_program_init</span></div>
 <div class="line"> </div>
@@ -147,6 +147,9 @@ How to Use</h1>
 <div class="line"><span class="keywordflow">if</span>(<a class="code" href="hx711_8h.html#a0c8ff19b682c8518252a5d6ed67d6598">hx711_get_value_noblock</a>(&amp;hx, &amp;val)) {</div>
 <div class="line">    printf(<span class="stringliteral">&quot;%li\n&quot;</span>, val);</div>
 <div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">//6. Stop communication with HX711</span></div>
+<div class="line"><a class="code" href="hx711_8h.html#a430408c58853bd2ec9b4e2bacb36f055">hx711_close</a>(&amp;hx);</div>
 <div class="ttc" id="ahx711_8c_html_a8e5d2a3487304a50a4bcf85ecb82ad79"><div class="ttname"><a href="hx711_8c.html#a8e5d2a3487304a50a4bcf85ecb82ad79">hx711_power_down</a></div><div class="ttdeci">void hx711_power_down(hx711_t *const hx)</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00319">hx711.c:319</a></div></div>
 <div class="ttc" id="ahx711_8c_html_a9ab601c3d46d6f3deb1b8f1e5c5f9879"><div class="ttname"><a href="hx711_8c.html#a9ab601c3d46d6f3deb1b8f1e5c5f9879">hx711_power_up</a></div><div class="ttdeci">void hx711_power_up(hx711_t *const hx)</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00278">hx711.c:278</a></div></div>
 <div class="ttc" id="ahx711_8h_html"><div class="ttname"><a href="hx711_8h.html">hx711.h</a></div></div>
@@ -155,6 +158,7 @@ How to Use</h1>
 <div class="ttc" id="ahx711_8h_html_a0c8ff19b682c8518252a5d6ed67d6598"><div class="ttname"><a href="hx711_8h.html#a0c8ff19b682c8518252a5d6ed67d6598">hx711_get_value_noblock</a></div><div class="ttdeci">bool hx711_get_value_noblock(hx711_t *const hx, int32_t *const val)</div><div class="ttdoc">Obtains a value from the HX711. Returns immediately if no value is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00254">hx711.c:254</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a20c562c58345b4cb4c8922925ec0a877"><div class="ttname"><a href="hx711_8h.html#a20c562c58345b4cb4c8922925ec0a877">hx711_init</a></div><div class="ttdeci">void hx711_init(hx711_t *const hx, const uint clk, const uint dat, PIO const pio, const pio_program_t *const prog, hx711_program_init_t prog_init_func)</div><div class="ttdoc">Initialise HX711.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00026">hx711.c:26</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a2a490345d56d3d9f06f809c07446a6e5"><div class="ttname"><a href="hx711_8h.html#a2a490345d56d3d9f06f809c07446a6e5">hx711_get_value</a></div><div class="ttdeci">int32_t hx711_get_value(hx711_t *const hx)</div><div class="ttdoc">Obtains a value from the HX711. Blocks until a value is available.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00197">hx711.c:197</a></div></div>
+<div class="ttc" id="ahx711_8h_html_a430408c58853bd2ec9b4e2bacb36f055"><div class="ttname"><a href="hx711_8h.html#a430408c58853bd2ec9b4e2bacb36f055">hx711_close</a></div><div class="ttdeci">void hx711_close(hx711_t *const hx)</div><div class="ttdoc">Stop communication with HX711.</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8c_source.html#l00085">hx711.c:85</a></div></div>
 <div class="ttc" id="ahx711_8h_html_a5495b51ec048d8363783a572fb577ecc"><div class="ttname"><a href="hx711_8h.html#a5495b51ec048d8363783a572fb577ecc">hx711_wait_settle</a></div><div class="ttdeci">static void hx711_wait_settle(const hx711_rate_t rate)</div><div class="ttdoc">Convenience function for sleeping for the appropriate amount of time according to the given sample ra...</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00253">hx711.h:253</a></div></div>
 <div class="ttc" id="ahx711_8h_html_aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33"><div class="ttname"><a href="hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33">hx711_rate_10</a></div><div class="ttdeci">@ hx711_rate_10</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00061">hx711.h:61</a></div></div>
 <div class="ttc" id="ahx711_8h_html_acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1"><div class="ttname"><a href="hx711_8h.html#acadec7365abc52889994131164536304aa9da6f32e4c6b52bf5c07d6670f942e1">hx711_gain_128</a></div><div class="ttdeci">@ hx711_gain_128</div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00071">hx711.h:71</a></div></div>
@@ -164,9 +168,27 @@ How to Use</h1>
 <div class="ttc" id="ahx711__noblock_8pio_8h_html_a2a7669554165d3956d65c5f643c022c1"><div class="ttname"><a href="hx711__noblock_8pio_8h.html#a2a7669554165d3956d65c5f643c022c1">hx711_noblock_program_init</a></div><div class="ttdeci">void hx711_noblock_program_init(hx711_t *const hx)</div><div class="ttdef"><b>Definition:</b> <a href="hx711__noblock_8pio_8h_source.html#l00082">hx711_noblock.pio.h:82</a></div></div>
 <div class="ttc" id="astructhx711__t_html"><div class="ttname"><a href="structhx711__t.html">hx711_t</a></div><div class="ttdef"><b>Definition:</b> <a href="hx711_8h_source.html#l00076">hx711.h:76</a></div></div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md4"></a>
+Notes</h1>
+<h2><a class="anchor" id="autotoc_md5"></a>
+Where is Channel A and Channel B?</h2>
+<p>Channel A is selectable by setting the gain to 128 or 64. Channel B is selectable by setting the gain to 32.</p>
+<p>The HX711 has no option for Channel A at a gain of 32, nor is there an option for Channel B at a gain of 128 or 64. Similarly, the HX711 is not capable of simultaenously reading from Channel A and Channel B. The gain must first be changed.</p>
+<h2><a class="anchor" id="autotoc_md6"></a>
+What is hx711_wait_settle?</h2>
+<p>After powering up, the HX711 requires a small "settling time" before it can produce "valid stable output data" (see: HX711 datasheet pg. 3). By calling <code><a class="el" href="hx711_8h.html#a5495b51ec048d8363783a572fb577ecc" title="Convenience function for sleeping for the appropriate amount of time according to the given sample ra...">hx711_wait_settle()</a></code> and passing in the correct data rate, you can ensure your program is paused for correct settling time. Alternatively, you can call <code><a class="el" href="hx711_8h.html#a1bedf171c9de0a547b7fb507227c7cfd" title="Returns the number of milliseconds to wait according to the given HX711 sample rate to allow readings...">hx711_get_settling_time()</a></code> and pass in a <code>hx711_rate_t</code> which will return the number of milliseconds of settling time for the given data rate.</p>
+<h2><a class="anchor" id="autotoc_md7"></a>
+Save HX711 Gain to Chip</h2>
+<p>By setting the HX711 gain with <code>hx711_set_gain</code> and then powering down, the chip saves the gain for when it is powered back up.</p>
+<h2><a class="anchor" id="autotoc_md8"></a>
+What is hx711_wait_power_down?</h2>
+<p>The HX711 requires the clock pin to be held high for at least 60us (60 microseconds) before it powers down. By calling <code><a class="el" href="hx711_8h.html#af76e111ac6776cb7c4321dab53bf8036" title="Convenience function for sleeping for the appropriate amount of time to allow the HX711 to power down...">hx711_wait_power_down()</a></code> after <code><a class="el" href="hx711_8c.html#a8e5d2a3487304a50a4bcf85ecb82ad79">hx711_power_down()</a></code> you can ensure the chip is properly powered-down.</p>
+<h2><a class="anchor" id="autotoc_md9"></a>
+hx711_close vs hx711_power_down</h2>
+<p>In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. The difference is that <code>hx711_close</code> stops the internal state machine whereas <code>hx711_power_down</code> also begins the power down process on the HX711 chip by setting the clock pin high.</p>
+<h1><a class="anchor" id="autotoc_md10"></a>
 Custom PIO Programs</h1>
 <p>You will notice in the code example above that you need to manually include the <code><a class="el" href="hx711__noblock_8pio_8h.html">hx711_noblock.pio.h</a></code> PIO header file. This is because it is not included by default in the <code>hx711-pico-c</code> library. It is offered as <em>a method</em> for reading from the HX711 that I have optimised as much as possible to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the <code><a class="el" href="structhx711__t.html">hx711_t</a></code>. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:</p>
-<h2><a class="anchor" id="autotoc_md5"></a>
+<h2><a class="anchor" id="autotoc_md11"></a>
 hx711_init</h2>
 <ol type="1">
 <li>Pass the <code>pio_program_t*</code> pointer created by <code>pioasm</code> in the Pico SDK (automatically done for you when calling <code>pico_generate_pio_header()</code> in your <code>CMakeLists.txt</code> file).</li>
@@ -180,17 +202,17 @@ hx711_init</h2>
 <div class="line">    pio0,</div>
 <div class="line">    your_pio_program_created_by_pioasm,</div>
 <div class="line">    your_pio_initialisation_function);</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md6"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md12"></a>
 Passing HX711 Values From PIO to Code</h2>
 <p>The two functions for obtaining values, <code>hx711_get_value</code> and <code>hx711_get_value_timeout</code>, both expect the raw, unsigned value from the HX711 according to the datasheet. There should be 24 bits (ie. 3 bytes) with the most significant bit first.</p>
 <p><code>hx711_get_value</code> is a blocking function. It will wait until the RX FIFO is not empty.</p>
 <p><code>hx711_get_value_timeout</code> is also blocking function with a timeout. It will watch the RX FIFO until there are at least 3 bytes.</p>
 <p>Both functions will subsequently read from and clear the RX FIFO.</p>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Setting HX711 Gain</h2>
 <p><code>hx711_set_gain</code> will transmit an unsigned 32 bit integer to the PIO program which represents the gain to set. This integer will be in the range 0 to 2 inclusive, corresponding to a HX711 gain of 128, 32, and 64 respectively.</p>
 <p>The function will then perform two sequential PIO reads. The first is a non-blocking read to clear whatever is in the RX FIFO, followed by a blocking read to give the PIO program as long as it needs to finish reading the previously set gain.</p>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 Setting HX711 Power</h2>
 <p>The PIO program should <em>not</em> attempt to change the HX711's power state. </p>
 </div></div><!-- PageDoc -->
@@ -199,7 +221,7 @@ Setting HX711 Power</h2>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat Jan 7 2023 12:51:24 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jan 7 2023 13:22:44 for hx711-pico-c by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

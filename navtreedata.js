@@ -28,11 +28,18 @@ var NAVTREE =
     [ "Clone Repository", "index.html#autotoc_md1", null ],
     [ "Documentation", "index.html#autotoc_md2", null ],
     [ "How to Use", "index.html#autotoc_md3", null ],
-    [ "Custom PIO Programs", "index.html#autotoc_md4", [
-      [ "hx711_init", "index.html#autotoc_md5", null ],
-      [ "Passing HX711 Values From PIO to Code", "index.html#autotoc_md6", null ],
-      [ "Setting HX711 Gain", "index.html#autotoc_md7", null ],
-      [ "Setting HX711 Power", "index.html#autotoc_md8", null ]
+    [ "Notes", "index.html#autotoc_md4", [
+      [ "Where is Channel A and Channel B?", "index.html#autotoc_md5", null ],
+      [ "What is hx711_wait_settle?", "index.html#autotoc_md6", null ],
+      [ "Save HX711 Gain to Chip", "index.html#autotoc_md7", null ],
+      [ "What is hx711_wait_power_down?", "index.html#autotoc_md8", null ],
+      [ "hx711_close vs hx711_power_down", "index.html#autotoc_md9", null ]
+    ] ],
+    [ "Custom PIO Programs", "index.html#autotoc_md10", [
+      [ "hx711_init", "index.html#autotoc_md11", null ],
+      [ "Passing HX711 Values From PIO to Code", "index.html#autotoc_md12", null ],
+      [ "Setting HX711 Gain", "index.html#autotoc_md13", null ],
+      [ "Setting HX711 Power", "index.html#autotoc_md14", null ]
     ] ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
