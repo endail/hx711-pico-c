@@ -6,6 +6,6 @@ var hx711_8c =
     [ "hx711_get_value_timeout", "hx711_8c.html#a0ab1a8852812daf235cf743f530cf037", null ],
     [ "hx711_init", "hx711_8c.html#a20c562c58345b4cb4c8922925ec0a877", null ],
     [ "hx711_power_down", "hx711_8c.html#a8e5d2a3487304a50a4bcf85ecb82ad79", null ],
-    [ "hx711_power_up", "hx711_8c.html#a9ab601c3d46d6f3deb1b8f1e5c5f9879", null ],
+    [ "hx711_power_up", "hx711_8c.html#af7b303fec0e81c0fbef875216d9f6ea6", null ],
     [ "hx711_set_gain", "hx711_8c.html#a02e3733a8c520e26cb44caac32945c63", null ]
 ];

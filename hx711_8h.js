@@ -12,6 +12,7 @@ var hx711_8h =
       [ "hx711_rate_10", "hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa40b58161d4eeb9860f339f0309fafa33", null ],
       [ "hx711_rate_80", "hx711_8h.html#aa32021164bb71485f28db91a7c5c776fa72f58b83014003f4bf7bea15ee51915c", null ]
     ] ],
+    [ "hx711__gain_to_sm_gain", "hx711_8h.html#af5da8beeab8f043d7f8f13b8506c469e", null ],
     [ "hx711__try_get_value", "hx711_8h.html#a95a39180249d252d709cd465d1eaeaa2", null ],
     [ "hx711_close", "hx711_8h.html#a430408c58853bd2ec9b4e2bacb36f055", null ],
     [ "hx711_get_rate_sps", "hx711_8h.html#a0020cc75575857b3b68df55609f9327c", null ],
