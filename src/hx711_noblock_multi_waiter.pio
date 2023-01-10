@@ -1,0 +1,216 @@
+; MIT License
+; 
+; Copyright (c) 2023 Daniel Robertson
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+
+.program hx711_noblock_multi_waiter
+
+.wrap_target
+wrap_target:
+
+pull noblock                ; pull in count of HX711 modules
+mov x, osr                  ; 
+jmp !x wrap_target          ; if x == 0, keep pulling
+
+                            ; x is at least 1
+
+mov y, x                    ; copy x into y
+
+jmp y-- start_waiting       ; just decrement x
+start_waiting:
+
+wait 0 pin 0
+jmp y-- signal
+
+wait 0 pin 1
+jmp y-- signal
+
+wait 0 pin 2
+jmp y-- signal
+
+wait 0 pin 3
+jmp y-- signal
+
+wait 0 pin 4
+jmp y-- signal
+
+wait 0 pin 5
+jmp y-- signal
+
+wait 0 pin 6
+jmp y-- signal
+
+wait 0 pin 7
+jmp y-- signal
+
+wait 0 pin 8
+jmp y-- signal
+
+wait 0 pin 9
+jmp y-- signal
+
+wait 0 pin 10
+jmp y-- signal
+
+wait 0 pin 11
+jmp y-- signal
+
+wait 0 pin 12
+jmp y-- signal
+
+wait 0 pin 13
+                            ; no need to jmp on last wait
+                            ; cannot add any more
+
+signal:
+irq wait 0 rel
+
+.wrap
+
+% c-sdk {
+// MIT License
+// 
+// Copyright (c) 2023 Daniel Robertson
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#include <assert.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "hardware/clocks.h"
+#include "hardware/pio.h"
+#include "hx711.h"
+
+void hx711_noblock_multi_waiter_program_init(hx711_t* const hx) {
+
+    assert(hx != NULL);
+    assert(hx->_pio != NULL);
+
+    //the state machine doesn't need to change the clock
+    //fastest would be best
+
+    pio_sm_config cfg = hx711_noblock_multi_waiter_program_get_default_config(hx->_offset);
+
+    //clock pin setup
+    pio_sm_set_out_pins(
+        hx->_pio,
+        hx->_state_mach,
+        hx->clock_pin,
+        1);
+
+    pio_sm_set_set_pins(
+        hx->_pio,
+        hx->_state_mach,
+        hx->clock_pin,
+        1);
+
+    pio_gpio_init(
+        hx->_pio,
+        hx->clock_pin);
+
+    pio_sm_set_consecutive_pindirs(
+        hx->_pio,
+        hx->_state_mach,
+        hx->clock_pin,
+        1,
+        true);
+
+    sm_config_set_set_pins(
+        &cfg,
+        hx->clock_pin,
+        1);
+
+    sm_config_set_out_pins(
+        &cfg,
+        hx->clock_pin,
+        1);
+
+    sm_config_set_sideset_pins(
+        &cfg,
+        hx->clock_pin);
+
+    //data pin setup
+    pio_sm_set_in_pins(
+        hx->_pio,
+        hx->_state_mach,
+        hx->data_pin);
+
+    pio_sm_set_consecutive_pindirs(
+        hx->_pio,
+        hx->_state_mach,
+        hx->data_pin,
+        1,
+        false);
+    
+    pio_gpio_init(
+        hx->_pio,
+        hx->data_pin);
+
+    sm_config_set_in_pins(
+        &cfg,
+        hx->data_pin);
+
+    /**
+     * Why enable autopush?
+     *
+     * "The state machine keeps an eye on the total amount of data shifted into the ISR, and on the in which reaches or
+     *  breaches a total shift count of 32 (or whatever number you have configured), the ISR contents, along with the new data
+     *  from the in. goes straight to the RX FIFO. The ISR is cleared to zero in the same operation."
+     *  - Raspberry Pi Pico C/C++ SDK pg. 45
+     *
+     * When manually pushing using noblock, the FIFO contents are NOT changed.
+     * 
+     * "The PIO assembler sets the Block bit by default. If the Block bit is not set, the PUSH does not stall on a full RX FIFO, instead
+     * continuing immediately to the next instruction. The FIFO state and contents are unchanged when this happens. The ISR
+     * is still cleared to all-zeroes, and the FDEBUG_RXSTALL flag is set (the same as a blocking PUSH or autopush to a full RX FIFO)
+     * to indicate data was lost."
+     * - Raspberry Pi Pico C/C++ SDK pg. 64
+     * 
+     * Manually pushing is not ideal. Application code should be able to look at the FIFO and assume
+     * that the value inside is the most up-to-date data available. Autopushing does this.
+     */
+    sm_config_set_in_shift(
+        &cfg,
+        false,            //false = shift in left
+        true,             //true = autopush enabled
+        HX711_READ_BITS); //autopush on 24 bits
+
+    //store a copy of the configuration for resetting the sm
+    hx->_default_config = cfg;
+
+}
+
+%}
