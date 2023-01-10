@@ -48,15 +48,16 @@ hx711_init(
     &hx711_noblock_program, // the state machine program
     &hx711_noblock_program_init); // the state machine program init function
 
-// 2. Power up
-hx711_power_up(&hx);
+//2. power up the hx711 and use a gain of 128
+hx711_power_up(&hx, hx711_gain_128);
 
-// 3. [OPTIONAL] set gain and save it to the HX711
-// chip by powering down then back up
-hx711_set_gain(&hx, hx711_gain_128);
-hx711_power_down(&hx);
-hx711_wait_power_down();
-hx711_power_up(&hx);
+//3. This step is optional. Only do this if you want to
+//change the gain AND save it to the HX711 chip
+//
+//hx711_set_gain(&hx, hx711_gain_64);
+//hx711_power_down(&hx);
+//hx711_wait_power_down();
+//hx711_power_up(&hx, hx711_gain_64);
 
 // 4. Wait for readings to settle
 hx711_wait_settle(hx711_rate_10); // or hx711_rate_80 depending on your chip's config

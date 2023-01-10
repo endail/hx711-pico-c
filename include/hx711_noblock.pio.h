@@ -18,30 +18,32 @@
 // hx711_noblock //
 // ------------- //
 
-#define hx711_noblock_wrap_target 1
-#define hx711_noblock_wrap 11
+#define hx711_noblock_wrap_target 3
+#define hx711_noblock_wrap 13
 
 static const uint16_t hx711_noblock_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
+    0x8080, //  1: pull   noblock                    
+    0xa027, //  2: mov    x, osr                     
             //     .wrap_target
-    0xe057, //  1: set    y, 23                      
-    0x2020, //  2: wait   0 pin, 0                   
-    0xe001, //  3: set    pins, 1                    
-    0x4001, //  4: in     pins, 1                    
-    0x1183, //  5: jmp    y--, 3          side 0 [1] 
-    0x9880, //  6: pull   noblock         side 1     
-    0x6022, //  7: out    x, 2                       
-    0x1021, //  8: jmp    !x, 1           side 0     
-    0xa041, //  9: mov    y, x                       
-    0xe101, // 10: set    pins, 1                [1] 
-    0x118a, // 11: jmp    y--, 10         side 0 [1] 
+    0xe057, //  3: set    y, 23                      
+    0x2020, //  4: wait   0 pin, 0                   
+    0xe001, //  5: set    pins, 1                    
+    0x4001, //  6: in     pins, 1                    
+    0x1185, //  7: jmp    y--, 5          side 0 [1] 
+    0x9880, //  8: pull   noblock         side 1     
+    0x6022, //  9: out    x, 2                       
+    0x1023, // 10: jmp    !x, 3           side 0     
+    0xa041, // 11: mov    y, x                       
+    0xe101, // 12: set    pins, 1                [1] 
+    0x118c, // 13: jmp    y--, 12         side 0 [1] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_noblock_program = {
     .instructions = hx711_noblock_program_instructions,
-    .length = 12,
+    .length = 14,
     .origin = -1,
 };
 

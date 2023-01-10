@@ -110,16 +110,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     CHECK_HX711_INITD(hx)
 
-    /**
-     * gain value is 0-based and calculated by:
-     * gain = clock pulses - 24 - 1
-     * ie. gain of 128 is 25 clock pulses, so
-     * gain = 25 - 24 - 1
-     * gain = 0
-     */
-    const uint32_t gainVal = (uint32_t)gain - HX711_READ_BITS - 1;
-
-    assert(gainVal <= 2);
+    const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
 
     mutex_enter_blocking(&hx->_mut);
 
@@ -275,44 +266,54 @@ bool hx711_get_value_noblock(
 
 }
 
-void hx711_power_up(hx711_t* const hx) {
+void hx711_power_up(
+    hx711_t* const hx,
+    const hx711_gain_t gain) {
 
-    CHECK_HX711_INITD(hx)
+        CHECK_HX711_INITD(hx)
 
-    mutex_enter_blocking(&hx->_mut);
+        const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
 
-    /**
-     * NOTE: pio_sm_restart should not be used here.
-     * That function clears the clock divider which is
-     * currently set in the dedicated pio init function.
-     */
+        mutex_enter_blocking(&hx->_mut);
 
-    /**
-     * 1. set the clock pin low to power up the chip
-     * 
-     * There does not appear to be any delay after
-     * powering up. Any actual delay would presumably be
-     * dealt with by the HX711 prior to the data pin
-     * going low. Which, in turn, is handled by the state
-     * machine in waiting for the low signal.
-     */
-    gpio_put(hx->clock_pin, false);
+        /**
+         * NOTE: pio_sm_restart should not be used here.
+         * That function clears the clock divider which is
+         * currently set in the dedicated pio init function.
+         */
 
-    //2. reset the state machine using the default config
-    //obtained when init'ing.
-    pio_sm_init(
-        hx->_pio,
-        hx->_state_mach,
-        hx->_offset,
-        &hx->_default_config);
+        /**
+         * 1. set the clock pin low to power up the chip
+         * 
+         * There does not appear to be any delay after
+         * powering up. Any actual delay would presumably be
+         * dealt with by the HX711 prior to the data pin
+         * going low. Which, in turn, is handled by the state
+         * machine in waiting for the low signal.
+         */
+        gpio_put(hx->clock_pin, false);
 
-    //3. start the state machine
-    pio_sm_set_enabled(
-        hx->_pio,
-        hx->_state_mach,
-        true);
+        //2. reset the state machine using the default config
+        //obtained when init'ing.
+        pio_sm_init(
+            hx->_pio,
+            hx->_state_mach,
+            hx->_offset,
+            &hx->_default_config);
 
-    mutex_exit(&hx->_mut);
+        //3. Push the initial gain into the TX FIFO
+        pio_sm_put(
+            hx->_pio,
+            hx->_state_mach,
+            gainVal);
+
+        //4. start the state machine
+        pio_sm_set_enabled(
+            hx->_pio,
+            hx->_state_mach,
+            true);
+
+        mutex_exit(&hx->_mut);
 
 }
 

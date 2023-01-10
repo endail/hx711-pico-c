@@ -232,8 +232,11 @@ bool hx711_get_value_noblock(
  * 
  * @related hx711_wait_settle
  * @param hx 
+ * @param g hx711_gain_t initial gain
  */
-void hx711_power_up(hx711_t* const hx);
+void hx711_power_up(
+    hx711_t* const hx,
+    const hx711_gain_t gain);
 
 /**
  * @brief Power down the HX711 module and stop the state machine
@@ -261,6 +264,30 @@ static inline void hx711_wait_settle(const hx711_rate_t rate) {
  */
 static inline void hx711_wait_power_down() {
     sleep_us(HX711_POWER_DOWN_TIMEOUT);
+}
+
+/**
+ * @brief Convert a hx711_gain_t to a numeric value appropriate
+ * for a PIO State Machine.
+ * 
+ * @param gain 
+ * @return uint32_t 
+ */
+static uint32_t hx711__gain_to_sm_gain(const hx711_gain_t gain) {
+
+    /**
+     * gain value is 0-based and calculated by:
+     * gain = clock pulses - 24 - 1
+     * ie. gain of 128 is 25 clock pulses, so
+     * gain = 25 - 24 - 1
+     * gain = 0
+     */
+    const uint32_t gainVal = (uint32_t)gain - HX711_READ_BITS - 1;
+
+    assert(gainVal <= 2);
+
+    return gainVal;
+
 }
 
 /**
