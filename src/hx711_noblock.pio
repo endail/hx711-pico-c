@@ -94,7 +94,7 @@ wrap_target:                ; This label exists because there is no way to
 set y, READ_BITS            ; Read y number of bits. This is 0-based.
 
 wait 0 pin 0                ; Wait until data pin falling edge.
- 
+
 bitloop:
     set pins, 1             ; Set rising edge of clock pin.
     in pins, 1              ; Read bit from data pin into ISR. This will also

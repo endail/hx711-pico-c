@@ -1,6 +1,6 @@
 name: Generate PIO header
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
@@ -9,6 +9,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: {{ github.ref }}
       - uses: actions/setup-node@v3
         with:
           node-version: 16
