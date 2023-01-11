@@ -22,69 +22,40 @@
 
 .program hx711_noblock_multi_waiter
 
-.define CHIPS_READY_IRQ_NUM 0
-.define READER_READY_IRQ_NUM 1
-.define MAX_CHIPS 13
+.define APP_WAIT_IRQ_NUM 0
+.define READ_BITS 24
 
 .wrap_target
 wrap_target:
 
-pull noblock                ; pull in count of HX711 modules
-mov x, osr                  ; 
-jmp !x wrap_target          ; if x == 0, keep pulling
+irq wait APP_WAIT_IRQ_NUM rel
 
-                            ; x is at least 1
+wait_chips_ready:
+PUBLIC wait_in_pins_bit_count:
+    in pins, 0              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    mov isr, y              ; move pin bits to y
+    jmp !y begin_read       ; all data pins are low (possibly replace with y--???)
+    jmp wait_chips_ready    ; if not all pins low, go back and try again
 
-mov y, x                    ; copy x into y
+begin_read:
+    set y, READ_BITS        ; Read y number of bits. This is 0-based.
 
-jmp y-- start_waiting       ; just decrement x
-start_waiting:
+bitloop:
+    set pins, 1             ; Set rising edge of clock pin.
+PUBLIC bitloop_in_pins_bit_count:
+    in pins, 0              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    set pins, 0             ; clock low
+    push block              ; push to TX FIFO
+    jmp y-- bitloop         ; next read
 
-wait 0 pin 0
-jmp y-- signal
+pull noblock                ; pull in gain val if present
+out x, 2
+jmp !x wrap_target side 0
+mov y, x
 
-wait 0 pin 1
-jmp y-- signal
-
-wait 0 pin 2
-jmp y-- signal
-
-wait 0 pin 3
-jmp y-- signal
-
-wait 0 pin 4
-jmp y-- signal
-
-wait 0 pin 5
-jmp y-- signal
-
-wait 0 pin 6
-jmp y-- signal
-
-wait 0 pin 7
-jmp y-- signal
-
-wait 0 pin 8
-jmp y-- signal
-
-wait 0 pin 9
-jmp y-- signal
-
-wait 0 pin 10
-jmp y-- signal
-
-wait 0 pin 11
-jmp y-- signal
-
-wait 0 pin 12
-jmp y-- signal
-
-wait 0 pin 13
-                            ; no need to jmp on last wait
-                            ; cannot add any more
-
-signal:
-irq wait CHIPS_READY_IRQ_NUM rel
+gainloop:
+    set pins, 1
+    jmp y-- gainloop side 0
 
 .wrap
 

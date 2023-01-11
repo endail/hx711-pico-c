@@ -35,8 +35,7 @@
 extern "C" {
 #endif
 
-static const uint _HX711_MULTI_CHIPS_READY_IRQ_NUM = 0;
-static const uint _HX711_MULTI_READER_READY_IRQ_NUM = 1;
+static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
 static const uint _HX711_MULTI_MAX_CHIPS = 13;
 static uint16_t _HX711_MULTI_TX_FIFO_MUX_BUFFER[_HX711_MULTI_MAX_CHIPS]{0};
 static uint32_t _HX711_MULTI_VALUE_BUFFER[_HX711_MULTI_MAX_CHIPS]{0};
@@ -50,47 +49,51 @@ typedef struct {
 
     PIO _pio;
 
-    const pio_program_t* _waiter_prog;
-    pio_sm_config _waiter_default_config;
-    uint _waiter_sm;
-    uint _waiter_offset;
-
-    const pio_program_t* _reader_prog;
-    pio_sm_config _reader_default_config;
-    uint _reader_sm;
-    uint _reader_offset;
+    const pio_program_t* _prog;
+    pio_sm_config _default_config;
+    uint _sm;
+    uint _offset;
 
     mutex_t _mut;
 
-} hx711_multi_collection_t;
+} hx711_multi_t;
 
 void hx711_multi_init(
-    hx711_multi_collection_t* const coll,
+    hx711_multi_t* const hxm,
     const size_t chipsLen,
-    PIO pio);
+    PIO pio) {
 
-void hx711_multi_close(hx711_multi_collection_t* const coll) {
-    pio_remove_program(coll->_waiter_prog);
-    pio_remove_program(coll->_reader_prog);
+        // #define <program_name>_<symbol>
+        *(uint32_t*)hx711_noblock_multi_waiter_wait_in_pins_bit_count* = 
+        *(uint32_t*)hx711_noblock_multi_waiter_bitloop_in_pins_bit_count = 
+
 }
 
-void hx711_multi_sync(hx711_multi_collection_t* const coll);
+void hx711_multi_close(hx711_multi_t* const hxm) {
+    pio_remove_program(hxm->_waiter_prog);
+}
+
+void hx711_multi_sync(hx711_multi_t* const hxm);
 
 void hx711_multi_read(
-    hx711_multi_collection_t* const coll,
+    hx711_multi_t* const hxm,
     int32_t* values) {
 
         uint32_t pinBits;
         uint bit;
 
-        //wait for chips to become ready
-        while(!pio_interrupt_get(coll->_pio, _HX711_MULTI_CHIPS_READY_IRQ_NUM));
+        //wait for pio to begin to wait for chips ready
+        while(!pio_interrupt_get(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
+            //spin
+        }
+
+        pio_interrupt_clear(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
 
         //read 24 times
         for(uint i = 0; i < 24; ++i) {
             //read 13 bits of pin values
             //each bit is one pin's value
-            pinBits = pio_sm_get_blocking(coll->_pio, coll->_reader_sm);
+            pinBits = pio_sm_get_blocking(hxm->_pio, hxm->_sm);
             //iterate over the 13 bits
             for(uint j = 0; i < _HX711_MULTI_MAX_CHIPS; ++j) {
                 //iterate over all chips
@@ -99,8 +102,6 @@ void hx711_multi_read(
                 _HX711_MULTI_VALUE_BUFFER[j] = _HX711_MULTI_VALUE_BUFFER[j] & ~(1 << i) | (bit << j);
             }
         }
-
-        pio_interrupt_clear(coll->_pio, _HX711_MULTI_READER_READY_IRQ_NUM);
 
         //now convert all the raw vals to real vals
         for(uint i = 0; i < coll->_chips_len; ++i) {
