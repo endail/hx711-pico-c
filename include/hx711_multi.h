@@ -29,31 +29,22 @@
 #include "hardware/pio.h"
 #include "pico/mutex.h"
 #include "pico/time.h"
+#include "hx711.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef DEBUG
-    #define CHECK_HX711_INITD(hx) \
-        assert(hx != NULL); \
-        assert(hx->_pio != NULL); \
-        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
-        assert(mutex_is_initialized(&hx->_mut));
-#else
-    #define CHECK_HX711_INITD(hx)
-#endif
-
-static const uint _HX711_MULTI_DATAS_LOW_IRQ_NUM = 0;
+static const uint _HX711_MULTI_CHIPS_READY_IRQ_NUM = 0;
 static const uint _HX711_MULTI_READER_READY_IRQ_NUM = 1;
-
-typedef struct {
-    uint data_pin;
-} hx711_multi_t;
+static const uint _HX711_MULTI_MAX_CHIPS = 13;
+static uint16_t _HX711_MULTI_TX_FIFO_MUX_BUFFER[_HX711_MULTI_MAX_CHIPS]{0};
+static uint32_t _HX711_MULTI_VALUE_BUFFER[_HX711_MULTI_MAX_CHIPS]{0};
 
 typedef struct {
 
     uint clock_pin;
+    uint data_pin_base;
 
     size_t _chips_len;
 
@@ -74,8 +65,14 @@ typedef struct {
 } hx711_multi_collection_t;
 
 void hx711_multi_init(
-    const uint clockPin,
+    hx711_multi_collection_t* const coll,
+    const size_t chipsLen,
     PIO pio);
+
+void hx711_multi_close(hx711_multi_collection_t* const coll) {
+    pio_remove_program(coll->_waiter_prog);
+    pio_remove_program(coll->_reader_prog);
+}
 
 void hx711_multi_sync(hx711_multi_collection_t* const coll);
 
@@ -83,14 +80,32 @@ void hx711_multi_read(
     hx711_multi_collection_t* const coll,
     int32_t* values) {
 
-        // wait for reader 
-        while(!pio_interrupt_get(coll->_pio, _HX711_MULTI_READER_READY_IRQ_NUM));
+        uint32_t pinBits;
+        uint bit;
 
-        for(uint i = 0; i < coll->_chips_len; ++i) {
-            values[i] = pio_sm_get_blocking(coll->_pio, coll->_reader_sm);
+        //wait for chips to become ready
+        while(!pio_interrupt_get(coll->_pio, _HX711_MULTI_CHIPS_READY_IRQ_NUM));
+
+        //read 24 times
+        for(uint i = 0; i < 24; ++i) {
+            //read 13 bits of pin values
+            //each bit is one pin's value
+            pinBits = pio_sm_get_blocking(coll->_pio, coll->_reader_sm);
+            //iterate over the 13 bits
+            for(uint j = 0; i < _HX711_MULTI_MAX_CHIPS; ++j) {
+                //iterate over all chips
+                //set the i-th bit of the j-th chip
+                bit = (pinBits >> j) & 1;
+                _HX711_MULTI_VALUE_BUFFER[j] = _HX711_MULTI_VALUE_BUFFER[j] & ~(1 << i) | (bit << j);
+            }
         }
 
         pio_interrupt_clear(coll->_pio, _HX711_MULTI_READER_READY_IRQ_NUM);
+
+        //now convert all the raw vals to real vals
+        for(uint i = 0; i < coll->_chips_len; ++i) {
+            values[i] = hx711_get_twos_comp(_HX711_MULTI_VALUE_BUFFER[i]);
+        }
 
 }
 

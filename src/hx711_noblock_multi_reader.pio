@@ -20,7 +20,7 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
-.program hx711_noblock_multi_waiter
+.program hx711_noblock_multi_reader
 
 .define CHIPS_READY_IRQ_NUM 0
 .define READER_READY_IRQ_NUM 1
@@ -35,56 +35,19 @@ jmp !x wrap_target          ; if x == 0, keep pulling
 
                             ; x is at least 1
 
-mov y, x                    ; copy x into y
+wait_for_ready_state:
+wait 0 irq CHIPS_READY_IRQ_NUM rel
 
-jmp y-- start_waiting       ; just decrement x
-start_waiting:
+set y, READ_BITS            ; Read y number of bits. This is 0-based.
 
-wait 0 pin 0
-jmp y-- signal
+bitloop:
+    set pins, 1                 ; Set rising edge of clock pin.
+    in pins, MAX_CHIPS          ; read in the values of all pins
+    set pins, 0                 ; clock low
+    push block                  ; push to TX FIFO
+    jmp y-- bitloop             ; next read
 
-wait 0 pin 1
-jmp y-- signal
 
-wait 0 pin 2
-jmp y-- signal
-
-wait 0 pin 3
-jmp y-- signal
-
-wait 0 pin 4
-jmp y-- signal
-
-wait 0 pin 5
-jmp y-- signal
-
-wait 0 pin 6
-jmp y-- signal
-
-wait 0 pin 7
-jmp y-- signal
-
-wait 0 pin 8
-jmp y-- signal
-
-wait 0 pin 9
-jmp y-- signal
-
-wait 0 pin 10
-jmp y-- signal
-
-wait 0 pin 11
-jmp y-- signal
-
-wait 0 pin 12
-jmp y-- signal
-
-wait 0 pin 13
-                            ; no need to jmp on last wait
-                            ; cannot add any more
-
-signal:
-irq wait CHIPS_READY_IRQ_NUM rel
 
 .wrap
 
@@ -117,7 +80,7 @@ irq wait CHIPS_READY_IRQ_NUM rel
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 
-void hx711_noblock_multi_waiter_program_init() {
+void hx711_noblock_multi_reader_program_init() {
 
 }
 
