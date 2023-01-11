@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['data_5fpin_19',['data_pin',['../structhx711__t.html#a312ea334754714f8f7865608e40b7654',1,'hx711_t::data_pin()'],['../structhx711__multi__t.html#af3c874fa8bd7cd625772dafe0f738f40',1,'hx711_multi_t::data_pin()']]]
+  ['data_5fpin_22',['data_pin',['../structhx711__t.html#a312ea334754714f8f7865608e40b7654',1,'hx711_t']]],
+  ['data_5fpin_5fbase_23',['data_pin_base',['../structhx711__multi__collection__t.html#a16e1c31435b51195d69e3c9202957480',1,'hx711_multi_collection_t']]]
 ];

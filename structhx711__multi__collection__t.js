@@ -11,5 +11,6 @@ var structhx711__multi__collection__t =
     [ "_waiter_offset", "structhx711__multi__collection__t.html#ae1e7172749bc72b7835fddf419674392", null ],
     [ "_waiter_prog", "structhx711__multi__collection__t.html#acd487a259f759d9cd44ccfeefeed3363", null ],
     [ "_waiter_sm", "structhx711__multi__collection__t.html#a0f8e2eb467b2f6de6f07f1652775ee0f", null ],
-    [ "clock_pin", "structhx711__multi__collection__t.html#a2ffbf9cec1ed8c03e33ab1806958b09c", null ]
+    [ "clock_pin", "structhx711__multi__collection__t.html#a2ffbf9cec1ed8c03e33ab1806958b09c", null ],
+    [ "data_pin_base", "structhx711__multi__collection__t.html#a16e1c31435b51195d69e3c9202957480", null ]
 ];
