@@ -83,8 +83,6 @@ gainloop:
 // SOFTWARE.
 
 #include <assert.h>
-#include <stdbool.h>
-#include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 
