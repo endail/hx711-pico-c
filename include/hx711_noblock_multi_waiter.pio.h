@@ -81,8 +81,6 @@ static inline pio_sm_config hx711_noblock_multi_waiter_program_get_default_confi
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <assert.h>
-#include <stdbool.h>
-#include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 void hx711_noblock_multi_waiter_program_init() {
