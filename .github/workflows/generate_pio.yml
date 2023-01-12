@@ -44,6 +44,8 @@ jobs:
                 pioasm.assemble(source).then(result => {
                   const writePath = "include/" + path.basename(f) + ".h";
                   const writeText = header + "\n\n" + result.output;
+                  console.log(writePath);
+                  console.log(writeText);
                   fs.writeFileSync(writePath, writeText, null, "utf8");
                 });
 
