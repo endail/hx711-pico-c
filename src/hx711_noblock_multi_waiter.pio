@@ -32,7 +32,7 @@ irq wait APP_WAIT_IRQ_NUM rel
 
 wait_chips_ready:
 PUBLIC wait_in_pins_bit_count:
-    in pins, 0              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    in pins, 1              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
     mov isr, y              ; move pin bits to y
     jmp !y begin_read       ; all data pins are low (possibly replace with y--???)
     jmp wait_chips_ready    ; if not all pins low, go back and try again
@@ -43,7 +43,7 @@ begin_read:
 bitloop:
     set pins, 1             ; Set rising edge of clock pin.
 PUBLIC bitloop_in_pins_bit_count:
-    in pins, 0              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    in pins, 1              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
     set pins, 0             ; clock low
     push block              ; push to TX FIFO
     jmp y-- bitloop         ; next read
