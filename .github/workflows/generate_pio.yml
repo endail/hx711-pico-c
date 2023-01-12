@@ -17,7 +17,7 @@ jobs:
       - run: |
 
           npm install --save pioasm@2.0.0;
-          npm install --save glob;
+          npm install --save glob@8.0.3;
 
           node --input-type=module -e '
           
@@ -25,9 +25,13 @@ jobs:
             import fs from "fs";
             import glob from "glob";
 
-            glob("src/*.pio", {}, function(err, files) {
-              files.forEach(function(f) {
+            console.log("getting files");
 
+            glob("src/*.pio", {}, function(err, files) {
+              console.log(err);
+              console.log(files);
+              files.forEach(function(f) {
+                console.log(f);
                 const source = fs.readFileSync(f, "utf8");
                 const pioasm = new PIOAssembler();
 
