@@ -30,6 +30,7 @@
 #include "pico/mutex.h"
 #include "pico/time.h"
 #include "hx711.h"
+#include "hx711_noblock_multi_waiter.pio.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,9 +64,17 @@ void hx711_multi_init(
     const size_t chipsLen,
     PIO pio) {
 
-        // #define <program_name>_<symbol>
-        *(uint32_t*)hx711_noblock_multi_waiter_wait_in_pins_bit_count* = 
-        *(uint32_t*)hx711_noblock_multi_waiter_bitloop_in_pins_bit_count = 
+        hxm->_pio = pio;
+
+        hxm->_offset = pio_add_program(hxm->_pio, hx711_noblock_multi_waiter_program);
+        hxm->_state_mach = (uint)pio_claim_unused_sm(hxm->_pio, true);
+
+        //replace placeholder IN instructions
+        hxm->_pio->instr_mem[hx711_noblock_multi_waiter_offset_wait_in_pins_bit_count] = 
+            pio_encode_in(pio_pins, chipsLen);
+
+        hxm->_pio->instr_mem[hx711_noblock_multi_waiter_offset_bitloop_in_pins_bit_count] = 
+            pio_encode_in(pio_pins, chipsLen);
 
 }
 
