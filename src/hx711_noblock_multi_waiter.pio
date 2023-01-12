@@ -20,7 +20,7 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
-.program hx711_noblock_multi_waiter
+.program hx711_noblock_multi_waiter 
 
 .define APP_WAIT_IRQ_NUM 0
 .define READ_BITS 24
