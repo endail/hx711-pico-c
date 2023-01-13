@@ -89,6 +89,84 @@ gainloop:
 
 void hx711_noblock_multi_waiter_program_init(hx711_multi_t* const hxm) {
 
+    //set state machine to 10MHz clock speed
+    static const uint SM_HZ = 10000000;
+
+    pio_sm_config cfg = hx711_noblock_program_get_default_config(hxm->_offset);
+
+    const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
+
+    sm_config_set_clkdiv(
+        &cfg,
+        div);
+
+    //clock pin setup
+    pio_sm_set_out_pins(
+        hx->_pio,
+        hx->_state_mach,
+        hx->clock_pin,
+        1);
+
+    pio_sm_set_set_pins(
+        hx->_pio,
+        hx->_state_mach,
+        hx->clock_pin,
+        1);
+
+    pio_gpio_init(
+        hx->_pio,
+        hx->clock_pin);
+
+    pio_sm_set_consecutive_pindirs(
+        hx->_pio,
+        hx->_state_mach,
+        hx->clock_pin,
+        1,
+        true);
+
+    sm_config_set_set_pins(
+        &cfg,
+        hx->clock_pin,
+        1);
+
+    sm_config_set_out_pins(
+        &cfg,
+        hx->clock_pin,
+        1);
+
+    sm_config_set_sideset_pins(
+        &cfg,
+        hx->clock_pin);
+
+    //data pins
+    pio_sm_set_in_pins(
+        hxm->_pio,
+        hxm->_state_mach,
+        hxm->data_pin_base);
+
+    pio_sm_set_consecutive_pindirs(
+        hxm->_pio,
+        hxm->_state_mach,
+        hxm->data_pin_base,
+        hxm->_chips_len,
+        true);
+
+    for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
+        pio_gpio_init(hxm->_pio, i);
+    }
+
+    sm_config_set_in_pins(
+        &cfg,
+        hxm->data_pin_base);
+
+    //sm_config_set_in_shift(
+    //    &cfg,
+    //    false,
+    //    false,
+    //    32);
+
+    hxm->_default_config = cfg;
+
 }
 
 %}
