@@ -23,39 +23,61 @@
 .program hx711_noblock_multi_waiter
 
 .define APP_WAIT_IRQ_NUM 0
-.define READ_BITS 24
+.define READ_BITS 23
 
 .wrap_target
 wrap_target:
 
-irq wait APP_WAIT_IRQ_NUM rel
+irq wait APP_WAIT_IRQ_NUM rel   ; Wait until application code is ready to obtain
+                                ; values.
 
+                                ; Repeatedly get the values of all pins, then move
+                                ; that value into the y register. If y is 0, then
+                                ; each data pin is low, indicating all HX711 chips
+                                ; are ready.
 wait_chips_ready:
-PUBLIC wait_in_pins_bit_count:
-    in pins, 1              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
-    mov isr, y              ; move pin bits to y
-    jmp !y begin_read       ; all data pins are low (possibly replace with y--???)
-    jmp wait_chips_ready    ; if not all pins low, go back and try again
+PUBLIC wait_in_pins_bit_count:  ; Set a public label to modify the following
+                                ; instruction.
+    in pins, 1                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    mov isr, y                  ; Copy the ISR contents into the y register.
+    jmp !y begin_read           ; If y is 0 - all chips ready - start reading bits...
+    jmp wait_chips_ready        ; ...otherwise, go back and try again.
 
 begin_read:
-    set y, READ_BITS        ; Read y number of bits. This is 0-based.
+    set y, READ_BITS            ; Read y number of bits. This is 0-based.
+
+                                ; At this point it is assumed all HX711 chips are
+                                ; synchronised.
+
+                                ; The procedure for reading bits is as follows:
+                                ; 1. Set the clock pin high for all chips.
+                                ; 2. Read in a single value comprising the bit state
+                                ; of each pin.
+                                ; 3. Set the clock pin low.
+                                ; 4. Push the value back to the application.
+                                ; 5. Repeat to obtain all 24 bits for each chip.
 
 bitloop:
-    set pins, 1             ; Set rising edge of clock pin.
-PUBLIC bitloop_in_pins_bit_count:
-    in pins, 1              ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
-    set pins, 0             ; clock low
-    push block              ; push to TX FIFO
-    jmp y-- bitloop         ; next read
+    set pins, 1                 ; Set rising edge of clock pin.
+PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
+                                ; instruction.
+    in pins, 1                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    set pins, 0                 ; Set clock low.
+    push block                  ; Push the pin bits to the RX FIFO and wait if
+                                ; application has not yet consumed the previous contents.
+    jmp y-- bitloop             ; Jump back and keep reading.
 
-pull noblock                ; pull in gain val if present
+                                ; Now set the gain in the same manner as the single
+                                ; HX711 PIO program.
+
+pull noblock side 1
 out x, 2
 jmp !x wrap_target side 0
 mov y, x
 
 gainloop:
-    set pins, 1
-    jmp y-- gainloop side 0
+    set pins, 1 [T3 - 1]
+    jmp y-- gainloop side 0 [T4 - 1]
 
 .wrap
 
@@ -159,11 +181,11 @@ void hx711_noblock_multi_waiter_program_init(hx711_multi_t* const hxm) {
         &cfg,
         hxm->data_pin_base);
 
-    //sm_config_set_in_shift(
-    //    &cfg,
-    //    false,
-    //    false,
-    //    32);
+    sm_config_set_in_shift(
+        &cfg,
+        false,
+        false,
+        HX711_MULTI_MAX_CHIPS); //"full"
 
     hxm->_default_config = cfg;
 
