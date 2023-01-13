@@ -85,8 +85,9 @@ gainloop:
 #include <assert.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
+#include "hx711_multi.h"
 
-void hx711_noblock_multi_waiter_program_init() {
+void hx711_noblock_multi_waiter_program_init(hx711_multi_t* const hxm) {
 
 }
 

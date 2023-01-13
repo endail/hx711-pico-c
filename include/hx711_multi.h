@@ -37,16 +37,14 @@ extern "C" {
 #endif
 
 static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
-static const uint _HX711_MULTI_MAX_CHIPS = 13;
-static uint16_t _HX711_MULTI_TX_FIFO_MUX_BUFFER[_HX711_MULTI_MAX_CHIPS]{0};
-static uint32_t _HX711_MULTI_VALUE_BUFFER[_HX711_MULTI_MAX_CHIPS]{0};
+static const uint HX711_MULTI_MAX_CHIPS = 13;
 
 typedef struct {
 
     uint clock_pin;
     uint data_pin_base;
 
-    size_t _chips_len;
+    uint _chips_len;
 
     PIO _pio;
 
@@ -61,60 +59,208 @@ typedef struct {
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
-    const size_t chipsLen,
-    PIO pio) {
+    const uint clk,
+    const uint datPinBase,
+    const uint chips,
+    PIO const pio
+    ) {
 
+        mutex_init(&hxm->_mut);
+        mutex_enter_blocking(&hxm->_mut);
+
+        hxm->clock_pin = clk;
+        hxm->data_pin_base = datPinBase;
+        hxm->_chips_len = chips;
         hxm->_pio = pio;
 
-        hxm->_offset = pio_add_program(hxm->_pio, hx711_noblock_multi_waiter_program);
-        hxm->_state_mach = (uint)pio_claim_unused_sm(hxm->_pio, true);
+        hxm->_offset = pio_add_program(
+            hxm->_pio,
+            hx711_noblock_multi_waiter_program);
+
+        hxm->_state_mach = (uint)pio_claim_unused_sm(
+            hxm->_pio,
+            true);
 
         //replace placeholder IN instructions
         hxm->_pio->instr_mem[hx711_noblock_multi_waiter_offset_wait_in_pins_bit_count] = 
-            pio_encode_in(pio_pins, chipsLen);
+            pio_encode_in(pio_pins, hxm->_chips_len);
 
         hxm->_pio->instr_mem[hx711_noblock_multi_waiter_offset_bitloop_in_pins_bit_count] = 
-            pio_encode_in(pio_pins, chipsLen);
+            pio_encode_in(pio_pins, hxm->_chips_len);
+
+        gpio_init(hxm->clock_pin);
+        gpio_set_dir(hxm->clock_pin, GPIO_OUT);
+
+        for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
+            gpio_init(i);
+            gpio_set_dir(i, GPIO_IN);
+        }
+
+        hxm->_offset = pio_add_program(
+            hxm->_pio,
+            hx711_noblock_multi_waiter_program);
+
+        hxm->_state_mach = (uint)pio_claim_unused_sm(
+            hxm->_pio,
+            true);
+
+        hx711_noblock_multi_waiter_program_init(hxm);
+
+        mutex_exit(&hxm->_mut);
 
 }
 
 void hx711_multi_close(hx711_multi_t* const hxm) {
+
+    mutex_enter_blocking(&hxm->_mut);
+
+    pio_sm_set_enabled(
+        hxm->_pio,
+        hxm->_state_mach,
+        false);
+
+    pio_sm_unclaim(
+        hxm->_pio,
+        hxm->_state_mach);
+
     pio_remove_program(hxm->_waiter_prog);
+
+    mutex_exit(&hxm->_mut);
+
 }
 
-void hx711_multi_sync(hx711_multi_t* const hxm);
+void hx711_multi_set_gain(
+    hx711_multi_t* const hxm,
+    const hx711_gain_t gain) {
 
-void hx711_multi_read(
+        const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
+        uint32_t dummy[HX711_MULTI_MAX_CHIPS];
+
+        mutex_enter_blocking(&hxm->_mut);
+
+        pio_sm_drain_tx_fifo(
+            hxm->_pio,
+            hxm->_state_mach);
+
+        pio_sm_put(
+            hxm->_pio,
+            hxm->_state_mach,
+            gainVal);
+
+        hx711_multi__get_values_raw(
+            hxm->_pio,
+            hxm->_state_mach,
+            dummy);
+
+        mutex_exit(&hxm->_mut);
+
+}
+
+void hx711_multi_get_values(
     hx711_multi_t* const hxm,
     int32_t* values) {
+
+        uint32_t rawVals[HX711_MULTI_MAX_CHIPS] = {0};
+
+        mutex_enter_blocking(&hxm->_mut);
+
+        //get the raw values
+        hx711_multi__get_values_raw(
+            hxm->_pio,
+            hxm->_sm,
+            rawVals);
+
+        //now convert all the raw vals to real vals
+        for(uint i = 0; i < coll->_chips_len; ++i) {
+            values[i] = hx711_get_twos_comp(rawVals[i]);
+        }
+
+        mutex_exit(&hxm->_mut);
+
+}
+
+void hx711_multi_power_up(
+    hx711_multi_t* const hxm,
+    const hx711_gain_t gain) {
+
+        const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
+
+        mutex_enter_blocking(&hxm->_mut);
+
+        gpio_put(
+            hxm->clock_pin,
+            false);
+
+        pio_sm_init(
+            hxm->_pio,
+            hxm->_state_mach,
+            hxm->_offset,
+            &hxm->_default_config);
+
+        pio_sm_put(
+            hxm->_pio,
+            hxm->_state_mach,
+            gainVal);
+
+        pio_sm_set_enabled(
+            hxm->_pio,
+            hxm->_state_mach,
+            true);
+
+        mutex_exit(&hxm->_mut);
+
+}
+
+void hx711_multi_power_down(hx711_multi_t* const hxm) {
+
+    mutex_enter_blocking(&hxm->_mut);
+
+    pio_sm_set_enabled(
+        hxm->_pio,
+        hxm->_state_mach,
+        false);
+
+    gpio_put(
+        hxm->clock_pin,
+        true);
+
+    mutex_exit(&hxm->_mut);
+
+}
+
+static void hx711_multi__get_values_raw(
+    PIO const pio,
+    const uint sm,
+    uint32_t* values) {
 
         uint32_t pinBits;
         uint bit;
 
         //wait for pio to begin to wait for chips ready
-        while(!pio_interrupt_get(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
+        while(!pio_interrupt_get(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
             //spin
         }
 
-        pio_interrupt_clear(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
+        pio_interrupt_clear(
+            pio,
+            _HX711_MULTI_APP_WAIT_IRQ_NUM);
 
         //read 24 times
-        for(uint i = 0; i < 24; ++i) {
+        for(uint i = 0; i < HX711_READ_BITS; ++i) {
+
             //read 13 bits of pin values
             //each bit is one pin's value
-            pinBits = pio_sm_get_blocking(hxm->_pio, hxm->_sm);
+            pinBits = pio_sm_get_blocking(
+                pio,
+                sm);
+            
             //iterate over the 13 bits
-            for(uint j = 0; i < _HX711_MULTI_MAX_CHIPS; ++j) {
+            for(uint j = 0; i < HX711_MULTI_MAX_CHIPS; ++j) {
                 //iterate over all chips
                 //set the i-th bit of the j-th chip
                 bit = (pinBits >> j) & 1;
-                _HX711_MULTI_VALUE_BUFFER[j] = _HX711_MULTI_VALUE_BUFFER[j] & ~(1 << i) | (bit << j);
+                values[j] = values[j] & ~(1 << i) | (bit << j);
             }
-        }
-
-        //now convert all the raw vals to real vals
-        for(uint i = 0; i < coll->_chips_len; ++i) {
-            values[i] = hx711_get_twos_comp(_HX711_MULTI_VALUE_BUFFER[i]);
         }
 
 }
