@@ -22,6 +22,8 @@
 
 .program hx711_noblock_multi_waiter
 
+.side_set 1 opt                 ; Side set on the clock pin.
+
 .define APP_WAIT_IRQ_NUM 0
 .define READ_BITS 23
 
