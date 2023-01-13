@@ -83,7 +83,8 @@ static inline pio_sm_config hx711_noblock_multi_waiter_program_get_default_confi
 #include <assert.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
-void hx711_noblock_multi_waiter_program_init() {
+#include "hx711_multi.h"
+void hx711_noblock_multi_waiter_program_init(hx711_multi_t* const hxm) {
 }
 
 #endif
