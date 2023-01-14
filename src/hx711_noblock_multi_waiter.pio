@@ -26,6 +26,15 @@
 
 .define APP_WAIT_IRQ_NUM 0
 .define READ_BITS 23
+.define DEFAULT_GAIN 0      ; Default gain (0=128, 1=32, 2=64).
+; .define T1 1              ; 100ns
+; .define T2 1              ; 100ns
+.define T3 2                ; 200ns
+.define T4 2                ; 200ns
+
+set x, DEFAULT_GAIN         ; Set an initial default gain (this is 0-based).
+pull noblock
+mov x, osr
 
 .wrap_target
 wrap_target:
