@@ -4,6 +4,6 @@
 // YOU CONVERT IT USING pioasm
 // SEE: /.github/workflows/generate_pio.yml
 
-input.pio:73.19: the maximum side set value is 0 based on the configuration specified at 1.1
-   73 | pull noblock side 1
-      |                   ^
+input.pio:81.18-19: undefined symbol 'T3'
+   81 |     set pins, 1 [T3 - 1]
+      |                  ^~
