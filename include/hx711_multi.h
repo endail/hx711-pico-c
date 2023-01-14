@@ -43,7 +43,7 @@ extern "C" {
         assert(pio_sm_is_claimed(hxm->_pio, hxm->_state_mach)); \
         assert(mutex_is_initialized(&hxm->_mut));
 #else
-    #define CHECK_HX711_MULTI_INITD(hx)
+    #define CHECK_HX711_MULTI_INITD(hxm)
 #endif
 
 static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
@@ -121,6 +121,8 @@ void hx711_multi_init(
 
 void hx711_multi_close(hx711_multi_t* const hxm) {
 
+    CHECK_HX711_MULTI_INITD(hxm);
+
     mutex_enter_blocking(&hxm->_mut);
 
     pio_sm_set_enabled(
@@ -141,6 +143,8 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
 void hx711_multi_set_gain(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
+
+        CHECK_HX711_MULTI_INITD(hxm);
 
         const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
         uint32_t dummy[HX711_MULTI_MAX_CHIPS];
@@ -169,6 +173,8 @@ bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
     const uint timeout,
     int32_t* values) {
+
+        CHECK_HX711_MULTI_INITD(hxm);
 
         bool success;
         uint32_t rawVals[HX711_MULTI_MAX_CHIPS] = {0};
@@ -202,6 +208,8 @@ void hx711_multi_get_values(
     hx711_multi_t* const hxm,
     int32_t* values) {
 
+        CHECK_HX711_MULTI_INITD(hxm);
+
         uint32_t rawVals[HX711_MULTI_MAX_CHIPS] = {0};
 
         mutex_enter_blocking(&hxm->_mut);
@@ -223,6 +231,8 @@ void hx711_multi_get_values(
 void hx711_multi_power_up(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
+
+        CHECK_HX711_MULTI_INITD(hxm);
 
         const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
 
@@ -253,6 +263,8 @@ void hx711_multi_power_up(
 }
 
 void hx711_multi_power_down(hx711_multi_t* const hxm) {
+
+    CHECK_HX711_MULTI_INITD(hxm);
 
     mutex_enter_blocking(&hxm->_mut);
 

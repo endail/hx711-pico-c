@@ -25,14 +25,16 @@
 .side_set 1 opt                 ; Side set on the clock pin.
 
 .define APP_WAIT_IRQ_NUM 0
-.define READ_BITS 23
+.define READ_BITS 23            ; 24 bits to read from HX711 (this is 0-based).
 .define DEFAULT_GAIN 0          ; Default gain (0=128, 1=32, 2=64).
 ; .define T1 1                  ; 100ns
 ; .define T2 1                  ; 100ns
 .define T3 2                    ; 200ns
 .define T4 2                    ; 200ns
 
-set x, DEFAULT_GAIN             ; Set an initial default gain (this is 0-based).
+                                ; See hx711_noblock.pio for information about this
+                                ; block.
+set x, DEFAULT_GAIN
 pull noblock
 mov x, osr
 
@@ -50,9 +52,11 @@ wait_chips_ready:
 PUBLIC wait_in_pins_bit_count:  ; Set a public label to modify the following
                                 ; instruction.
     in pins, 1                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+                                ; IMPORTANT NOTE: This CANNOT be defaulted to 32 bits!
     mov isr, y                  ; Copy the ISR contents into the y register.
     jmp !y begin_read           ; If y is 0 - all chips ready - start reading bits...
     jmp wait_chips_ready        ; ...otherwise, go back and try again.
+                                ; could the above be replaced with a --y condition???
 
 begin_read:
     set y, READ_BITS            ; Read y number of bits. This is 0-based.
@@ -67,6 +71,18 @@ begin_read:
                                 ; 3. Set the clock pin low.
                                 ; 4. Push the value back to the application.
                                 ; 5. Repeat to obtain all 24 bits for each chip.
+
+                                ; After pushing all 24 bits, the result is a matrix
+                                ; of two's complement values:
+                                ;
+                                ; 0th chip, 1st chip, ... n-1 chip
+                                ; ________________________________
+                                ; [ 0, 1, ... n-1 ] 24th HX711 bit
+                                ; [ 0, 0, ... n-1 ] 23rd HX711 bit
+                                ; ...
+                                ; [ 1, 1, ... n-1 ] 0th HX711 bit
+                                ;
+                                ; where n is the number of chips
 
 bitloop:
     set pins, 1                 ; Set rising edge of clock pin.
