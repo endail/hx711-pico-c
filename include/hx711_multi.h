@@ -47,7 +47,9 @@ extern "C" {
 #endif
 
 static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
-static const uint HX711_MULTI_MAX_CHIPS = 13;
+static const uint HX711_MULTI_MAX_CHIPS = 32;
+
+typedef void (*hx711_multi_program_init_t)(hx711_multi_t* const);
 
 typedef struct {
 
@@ -71,8 +73,9 @@ void hx711_multi_init(
     const uint clk,
     const uint datPinBase,
     const uint chips,
-    PIO const pio
-    ) {
+    PIO const pio,
+    const pio_program_t* const prog,
+    hx711_multi_program_init_t prog_init_func) {
 
         mutex_init(&hxm->_mut);
         mutex_enter_blocking(&hxm->_mut);
@@ -84,18 +87,11 @@ void hx711_multi_init(
 
         hxm->_offset = pio_add_program(
             hxm->_pio,
-            hx711_multi_reader_program);
+            prog);
 
         hxm->_state_mach = (uint)pio_claim_unused_sm(
             hxm->_pio,
             true);
-
-        //replace placeholder IN instructions
-        hxm->_pio->instr_mem[hx711_multi_reader_offset_wait_in_pins_bit_count] = 
-            pio_encode_in(pio_pins, hxm->_chips_len);
-
-        hxm->_pio->instr_mem[hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
-            pio_encode_in(pio_pins, hxm->_chips_len);
 
         gpio_init(hxm->clock_pin);
         gpio_set_dir(hxm->clock_pin, GPIO_OUT);
@@ -105,15 +101,7 @@ void hx711_multi_init(
             gpio_set_dir(i, GPIO_IN);
         }
 
-        hxm->_offset = pio_add_program(
-            hxm->_pio,
-            hx711_multi_reader_program);
-
-        hxm->_state_mach = (uint)pio_claim_unused_sm(
-            hxm->_pio,
-            true);
-
-        hx711_multi_reader_program_init(hxm);
+        prog_init_func(hxm);
 
         mutex_exit(&hxm->_mut);
 
@@ -134,7 +122,7 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hxm->_pio,
         hxm->_state_mach);
 
-    pio_remove_program(hx711_multi_reader_program);
+    pio_remove_program(hxm->_prog);
 
     mutex_exit(&hxm->_mut);
 
