@@ -30,7 +30,6 @@
 #include "pico/mutex.h"
 #include "pico/time.h"
 #include "hx711.h"
-#include "hx711_multi_reader.pio.h" //remove this at some point?
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,9 +49,6 @@ extern "C" {
 static const uint _HX711_MULTI_DATA_READY_IRQ_NUM = 0;
 static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 1;
 static const uint HX711_MULTI_MAX_CHIPS = 32;
-
-typedef void (*hx711_multi_pio_init_t)(hx711_multi_t* const);
-typedef void (*hx711_multi_program_init_t)(hx711_multi_t* const);
 
 typedef struct {
 
@@ -76,6 +72,9 @@ typedef struct {
     mutex_t _mut;
 
 } hx711_multi_t;
+
+typedef void (*hx711_multi_pio_init_t)(hx711_multi_t* const);
+typedef void (*hx711_multi_program_init_t)(hx711_multi_t* const);
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
