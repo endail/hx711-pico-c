@@ -82,9 +82,9 @@ int main(void) {
         chips,
         pio0,
         hx711_multi_pio_init,
-        hx711_multi_awaiter_program,
+        &hx711_multi_awaiter_program,
         hx711_multi_awaiter_program_init,
-        hx711_multi_reader_program,
+        &hx711_multi_reader_program,
         hx711_multi_reader_program_init);
 
     hx711_multi_power_up(&hxm, hx711_gain_128);
@@ -94,7 +94,7 @@ int main(void) {
     hx711_multi_get_values(&hxm, arr);
 
     for(uint i = 0; i < chips; ++i) {
-        printf("hx711_multi_t chip %li: %li\n", i, arr[i]);
+        printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
     }
 
     return EXIT_SUCCESS;

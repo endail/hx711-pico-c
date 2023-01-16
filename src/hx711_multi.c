@@ -22,6 +22,7 @@
 
 #include "../include/hx711_multi.h"
 #include "hardware/gpio.h"
+#include <string.h>
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
@@ -80,8 +81,14 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
     pio_sm_unclaim(hxm->_pio, hxm->_awaiter_sm);
     pio_sm_unclaim(hxm->_pio, hxm->_reader_sm);
 
-    pio_remove_program(hxm->_awaiter_prog);
-    pio_remove_program(hxm->_reader_prog);
+    pio_remove_program(
+        hxm->_pio,
+        hxm->_awaiter_prog,
+        hxm->_awaiter_offset);
+
+    pio_remove_program(hxm->_pio,
+        hxm->_reader_prog,
+        hxm->_reader_offset);
 
     mutex_exit(&hxm->_mut);
 
@@ -124,12 +131,17 @@ bool hx711_multi_get_values_timeout(
         CHECK_HX711_MULTI_INITD(hxm);
 
         bool success;
-        uint32_t rawVals[HX711_MULTI_MAX_CHIPS] = {0};
+        uint32_t rawVals[HX711_MULTI_MAX_CHIPS];
+
+        memset(
+            rawVals,
+            0,
+            sizeof(rawVals[0]) * HX711_MULTI_MAX_CHIPS);
 
         mutex_enter_blocking(&hxm->_mut);
 
         if((success = hx711_multi__wait_app_ready_timeout(hxm->_pio, timeout))) {
-            hx711_multi__read_into_array(hxm->_pio, rawVals);
+            hx711_multi__read_into_array(hxm->_pio, hxm->_reader_sm, rawVals);
         }
 
         mutex_exit(&hxm->_mut);
@@ -157,7 +169,12 @@ void hx711_multi_get_values(
 
         CHECK_HX711_MULTI_INITD(hxm);
 
-        uint32_t rawVals[HX711_MULTI_MAX_CHIPS] = {0};
+        uint32_t rawVals[HX711_MULTI_MAX_CHIPS];
+
+        memset(
+            rawVals,
+            0,
+            sizeof(rawVals[0]) * HX711_MULTI_MAX_CHIPS);
 
         mutex_enter_blocking(&hxm->_mut);
 
@@ -246,7 +263,7 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
 
 }
 
-static bool hx711_multi__wait_app_ready_timeout(
+bool hx711_multi__wait_app_ready_timeout(
     PIO const pio,
     const uint timeout) {
 
@@ -270,7 +287,7 @@ static bool hx711_multi__wait_app_ready_timeout(
 
 }
 
-static void hx711_multi__read_into_array(
+void hx711_multi__read_into_array(
     PIO const pio,
     const uint sm,
     uint32_t* values) {
@@ -290,7 +307,7 @@ static void hx711_multi__read_into_array(
                 //iterate over all chips
                 //set the i-th bit of the j-th chip
                 bit = (pinBits >> j) & 1;
-                values[j] = values[j] & ~(1 << i) | (bit << j);
+                values[j] = values[j] & (~(1 << i) | (bit << j));
             }
         }
 

@@ -109,6 +109,10 @@ void hx711_multi_get_values(
     hx711_multi_t* const hxm,
     int32_t* values);
 
+void hx711_multi_power_up(
+    hx711_multi_t* const hxm,
+    const hx711_gain_t gain);
+
 void hx711_multi_power_down(hx711_multi_t* const hxm);
 
 static inline void hx711_multi__convert_raw_vals(
@@ -134,11 +138,11 @@ static inline void hx711_multi__wait_app_ready(PIO const pio) {
 
 }
 
-static bool hx711_multi__wait_app_ready_timeout(
+bool hx711_multi__wait_app_ready_timeout(
     PIO const pio,
     const uint timeout);
 
-static void hx711_multi__read_into_array(
+void hx711_multi__read_into_array(
     PIO const pio,
     const uint sm,
     uint32_t* values);
