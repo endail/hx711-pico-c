@@ -100,3 +100,5 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     hxm->_awaiter_default_config = cfg;
 
 }
+
+%}
