@@ -91,9 +91,12 @@ See [here](https://pico.pinout.xyz/) for a pinout to choose at least two GPIO pi
 * One GPIO pin to connect to __every__ HX711's clock pin.
 * One or more __contiguous__ GPIO pins to separately connect to each HX711's data pin.
 
-For example, if you want to connect four HX711 chips, you could use GPIO pin 9 as the clock pin, and GPIO pins 12, 13, 14, and 15. See the code example below for how you would set this up.
+For example, if you want to connect four HX711 chips, you could:
 
-You can choose any pins as the clock and data pins, as long as they are capable of digital output and input respectively.
+* Connect GPIO pin 9 to each HX711's clock pin; and
+* Connect GPIO pins 12, 13, 14, and 15 to each separate HX711's data pin.
+
+See the code example below for how you would set this up. You can choose any pins as the clock and data pins, as long as they are capable of digital output and input respectively.
 
 ```c
 #include "../include/hx711_multi.h"
