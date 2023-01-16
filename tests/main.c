@@ -25,6 +25,8 @@
 #include "pico/stdio.h"
 #include "../include/hx711.h"
 #include "../include/hx711_noblock.pio.h"
+#include "../include/hx711_multi.h"
+#include "../include/hx711_multi_reader.pio.h"
 
 int main(void) {
 
@@ -64,9 +66,34 @@ int main(void) {
 
     //at this point, the hx711 can reliably produce values
     //with hx711_get_value or hx711_get_value_timeout
+    printf("%li\n", hx711_get_value(&hx));
 
-    for(;;) {
-        printf("%li\n", hx711_get_value(&hx));
+    hx711_close(&hx);
+
+
+    hx711_multi_t hxm;
+    const uint chips = 1;
+
+    hx711_multi_init(
+        &hxm,
+        clkPin,
+        datPin,
+        chips,
+        pio0,
+        hx711_multi_pio_init,
+        hx711_multi_awaiter_program,
+        hx711_multi_awaiter_program_init,
+        hx711_multi_reader_program,
+        hx711_multi_reader_program_init);
+
+    hx711_multi_power_up(&hxm, hx711_gain_128);
+
+    int32_t arr[chips];
+
+    hx711_multi_get_values(&hxm, arr);
+
+    for(uint i = 0; i < chips; ++i) {
+        printf("hx711_multi_t chip %li: %li\n", i, arr[i]);
     }
 
     return EXIT_SUCCESS;

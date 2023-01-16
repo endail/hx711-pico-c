@@ -40,15 +40,18 @@ extern "C" {
     #define CHECK_HX711_MULTI_INITD(hxm) \
         assert(hxm != NULL); \
         assert(hxm->_pio != NULL); \
-        assert(pio_sm_is_claimed(hxm->_pio, hxm->_state_mach)); \
+        assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
+        assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
         assert(mutex_is_initialized(&hxm->_mut));
 #else
     #define CHECK_HX711_MULTI_INITD(hxm)
 #endif
 
-static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
+static const uint _HX711_MULTI_DATA_READY_IRQ_NUM = 0;
+static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 1;
 static const uint HX711_MULTI_MAX_CHIPS = 32;
 
+typedef void (*hx711_multi_pio_init_t)(hx711_multi_t* const);
 typedef void (*hx711_multi_program_init_t)(hx711_multi_t* const);
 
 typedef struct {
@@ -59,10 +62,16 @@ typedef struct {
     uint _chips_len;
 
     PIO _pio;
-    const pio_program_t* _prog;
-    pio_sm_config _default_config;
-    uint _sm;
-    uint _offset;
+
+    const pio_program_t* _awaiter_prog;
+    pio_sm_config _awaiter_default_config;
+    uint _awaiter_sm;
+    uint _awaiter_offset;
+
+    const pio_program_t* _reader_prog;
+    pio_sm_config _reader_default_config;
+    uint _reader_sm;
+    uint _reader_offset;
 
     mutex_t _mut;
 
@@ -74,117 +83,22 @@ void hx711_multi_init(
     const uint datPinBase,
     const uint chips,
     PIO const pio,
-    const pio_program_t* const prog,
-    hx711_multi_program_init_t prog_init_func) {
+    hx711_multi_pio_init_t pioInitFunc,
+    const pio_program_t* const awaiterProg,
+    hx711_multi_program_init_t awaiterProgInitFunc,
+    const pio_program_t* const readerProg,
+    hx711_multi_program_init_t readerProgInitFunc);
 
-        mutex_init(&hxm->_mut);
-        mutex_enter_blocking(&hxm->_mut);
-
-        hxm->clock_pin = clk;
-        hxm->data_pin_base = datPinBase;
-        hxm->_chips_len = chips;
-        hxm->_pio = pio;
-
-        hxm->_offset = pio_add_program(
-            hxm->_pio,
-            prog);
-
-        hxm->_state_mach = (uint)pio_claim_unused_sm(
-            hxm->_pio,
-            true);
-
-        gpio_init(hxm->clock_pin);
-        gpio_set_dir(hxm->clock_pin, GPIO_OUT);
-
-        for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
-            gpio_init(i);
-            gpio_set_dir(i, GPIO_IN);
-        }
-
-        prog_init_func(hxm);
-
-        mutex_exit(&hxm->_mut);
-
-}
-
-void hx711_multi_close(hx711_multi_t* const hxm) {
-
-    CHECK_HX711_MULTI_INITD(hxm);
-
-    mutex_enter_blocking(&hxm->_mut);
-
-    pio_sm_set_enabled(
-        hxm->_pio,
-        hxm->_state_mach,
-        false);
-
-    pio_sm_unclaim(
-        hxm->_pio,
-        hxm->_state_mach);
-
-    pio_remove_program(hxm->_prog);
-
-    mutex_exit(&hxm->_mut);
-
-}
+void hx711_multi_close(hx711_multi_t* const hxm);
 
 void hx711_multi_set_gain(
     hx711_multi_t* const hxm,
-    const hx711_gain_t gain) {
-
-        CHECK_HX711_MULTI_INITD(hxm);
-
-        const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
-        uint32_t dummy[HX711_MULTI_MAX_CHIPS];
-
-        mutex_enter_blocking(&hxm->_mut);
-
-        pio_sm_drain_tx_fifo(
-            hxm->_pio,
-            hxm->_state_mach);
-
-        pio_sm_put(
-            hxm->_pio,
-            hxm->_state_mach,
-            gainVal);
-
-        hx711_multi__get_values_raw(
-            hxm->_pio,
-            hxm->_state_mach,
-            dummy);
-
-        mutex_exit(&hxm->_mut);
-
-}
+    const hx711_gain_t gain);
 
 bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
     const uint timeout,
-    int32_t* values) {
-
-        CHECK_HX711_MULTI_INITD(hxm);
-
-        bool success;
-        uint32_t rawVals[HX711_MULTI_MAX_CHIPS] = {0};
-
-        mutex_enter_blocking(&hxm->_mut);
-
-        if((success = hx711_multi__wait_app_ready_timeout(hxm->_pio, timeout))) {
-            hx711_multi__read_into_array(hxm->_pio, rawVals);
-        }
-
-        mutex_exit(&hxm->_mut);
-
-        if(success) {
-            hx711_multi__convert_raw_vals(
-                rawVals,
-                values,
-                hxm->_chips_len);
-        }
-
-        return success;
-
-}
+    int32_t* values);
 
 /**
  * @brief Fill an array with one value from each chip
@@ -194,80 +108,9 @@ bool hx711_multi_get_values_timeout(
  */
 void hx711_multi_get_values(
     hx711_multi_t* const hxm,
-    int32_t* values) {
+    int32_t* values);
 
-        CHECK_HX711_MULTI_INITD(hxm);
-
-        uint32_t rawVals[HX711_MULTI_MAX_CHIPS] = {0};
-
-        mutex_enter_blocking(&hxm->_mut);
-
-        hx711_multi__get_values_raw(
-            hxm->_pio,
-            hxm->_sm,
-            rawVals);
-
-        hx711_multi__convert_raw_vals(
-            rawVals,
-            values,
-            hxm->_chips_len);
-
-        mutex_exit(&hxm->_mut);
-
-}
-
-void hx711_multi_power_up(
-    hx711_multi_t* const hxm,
-    const hx711_gain_t gain) {
-
-        CHECK_HX711_MULTI_INITD(hxm);
-
-        const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
-
-        mutex_enter_blocking(&hxm->_mut);
-
-        gpio_put(
-            hxm->clock_pin,
-            false);
-
-        pio_sm_init(
-            hxm->_pio,
-            hxm->_state_mach,
-            hxm->_offset,
-            &hxm->_default_config);
-
-        pio_sm_put(
-            hxm->_pio,
-            hxm->_state_mach,
-            gainVal);
-
-        pio_sm_set_enabled(
-            hxm->_pio,
-            hxm->_state_mach,
-            true);
-
-        mutex_exit(&hxm->_mut);
-
-}
-
-void hx711_multi_power_down(hx711_multi_t* const hxm) {
-
-    CHECK_HX711_MULTI_INITD(hxm);
-
-    mutex_enter_blocking(&hxm->_mut);
-
-    pio_sm_set_enabled(
-        hxm->_pio,
-        hxm->_state_mach,
-        false);
-
-    gpio_put(
-        hxm->clock_pin,
-        true);
-
-    mutex_exit(&hxm->_mut);
-
-}
+void hx711_multi_power_down(hx711_multi_t* const hxm);
 
 static inline void hx711_multi__convert_raw_vals(
     uint32_t* const rawVals,
@@ -281,7 +124,7 @@ static inline void hx711_multi__convert_raw_vals(
 
 }
 
-static void hx711_multi__wait_app_ready(PIO const pio) {
+static inline void hx711_multi__wait_app_ready(PIO const pio) {
 
     //wait for pio to begin to wait for chips ready
     while(!pio_interrupt_get(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
@@ -294,55 +137,14 @@ static void hx711_multi__wait_app_ready(PIO const pio) {
 
 static bool hx711_multi__wait_app_ready_timeout(
     PIO const pio,
-    const uint timeout) {
-
-        bool success = false;
-        const absolute_time_t endTime = make_timeout_time_us(timeout);
-
-        assert(!is_nil_time(endTime));
-
-        while(!time_reached(endTime)) {
-            if(pio_interrupt_get(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
-                success = true;
-                break;
-            }
-        }
-
-        if(success) {
-            pio_interrupt_clear(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
-        }
-
-        return success;
-
-}
+    const uint timeout);
 
 static void hx711_multi__read_into_array(
     PIO const pio,
     const uint sm,
-    uint32_t* values) {
+    uint32_t* values);
 
-        uint32_t pinBits;
-        bool bit;
-
-        //read 24 times
-        for(uint i = 0; i < HX711_READ_BITS; ++i) {
-
-            //read 13 bits of pin values
-            //each bit is one pin's value
-            pinBits = pio_sm_get_blocking(pio, sm);
-            
-            //iterate over the 13 bits
-            for(uint j = 0; i < HX711_MULTI_MAX_CHIPS; ++j) {
-                //iterate over all chips
-                //set the i-th bit of the j-th chip
-                bit = (pinBits >> j) & 1;
-                values[j] = values[j] & ~(1 << i) | (bit << j);
-            }
-        }
-
-}
-
-static void hx711_multi__get_values_raw(
+static inline void hx711_multi__get_values_raw(
     PIO const pio,
     const uint sm,
     uint32_t* values) {
@@ -350,7 +152,7 @@ static void hx711_multi__get_values_raw(
         hx711_multi__read_into_array(pio, sm, values);
 }
 
-static bool hx711_multi__get_values_timeout_raw(
+static inline bool hx711_multi__get_values_timeout_raw(
     PIO const pio,
     const uint sm,
     uint32_t* values,
