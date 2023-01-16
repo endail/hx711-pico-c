@@ -26,8 +26,8 @@
 #include "../include/hx711.h"
 #include "../include/hx711_noblock.pio.h"
 #include "../include/hx711_multi.h"
-#include "../include/hx711_multi_reader.pio.h"
 #include "../include/hx711_multi_awaiter.pio.h"
+#include "../include/hx711_multi_reader.pio.h"
 
 int main(void) {
 

@@ -1,6 +1,6 @@
 # hx711-pico-c
 
-This is my implementation of reading from a HX711 via a Raspberry Pi Pico. It uses the RP2040's PIO feature to be as efficient as possible.
+This is my implementation of reading from a HX711 via a Raspberry Pi Pico. It uses the RP2040's PIO feature to be as efficient as possible. It has two major functions: reading from a [single HX711](#how-to-use-hx711_t) and reading from [multiple HX711 chips](#how-to-use-hx711_multi_t).
 
 A MicroPython port is available [here](https://github.com/endail/hx711-pico-mpy).
 
@@ -86,19 +86,30 @@ hx711_close(&hx);
 
 ## How to Use hx711_multi_t
 
+See [here](https://pico.pinout.xyz/) for a pinout to choose at least two GPIO pins on the Pico (RP2040).
+
+* One GPIO pin to connect to __every__ HX711's clock pin.
+* One or more __contiguous__ GPIO pins to separately connect to each HX711's data pin.
+
+For example, if you want to connect four HX711 chips, you could use GPIO pin 9 as the clock pin, and GPIO pins 12, 13, 14, and 15. See the code example below for how you would set this up.
+
+You can choose any pins as the clock and data pins, as long as they are capable of digital output and input respectively.
+
 ```c
 #include "../include/hx711_multi.h"
-#include "../include/hx711_multi_reader.pio.h"
 #include "../include/hx711_multi_awaiter.pio.h"
+#include "../include/hx711_multi_reader.pio.h"
 
 hx711_multi_t hxm;
-const uint chips = 1;
+const uint clkPin = 9;
+const uint baseDatPin = 12;
+const uint chips = 4;
 
 // 1. initialise
 hx711_multi_init(
     &hxm,
     clkPin, // Pico GPIO pin connected to all HX711 chips
-    baseDatPin, // the first data pin connected to a HX711 chip
+    baseDatPin, // the FIRST data pin connected to a HX711 chip
     chips, // the number of HX711 chips connected
     pio0, // the RP2040 PIO to use (either pio0 or pio1)
     hx711_multi_pio_init, // pio init function
@@ -156,19 +167,19 @@ The HX711 has no option for Channel A at a gain of 32, nor is there an option fo
 
 After powering up, the HX711 requires a small "settling time" before it can produce "valid stable output data" (see: HX711 datasheet pg. 3). By calling `hx711_wait_settle()` and passing in the correct data rate, you can ensure your program is paused for the correct settling time. Alternatively, you can call `hx711_get_settling_time()` and pass in a `hx711_rate_t` which will return the number of milliseconds of settling time for the given data rate.
 
-### Save HX711 Gain to Chip
-
-By setting the HX711 gain with `hx711_set_gain` and then powering down, the chip saves the gain for when it is powered back up.
-
 ### What is hx711_wait_power_down?
 
 The HX711 requires the clock pin to be held high for at least 60us (60 microseconds) before it powers down. By calling `hx711_wait_power_down()` after `hx711_power_down()` you can ensure the chip is properly powered-down.
 
-### hx711_close vs hx711_power_down
+### hx711_close/hx711_multi_close vs hx711_power_down/hx711_multi_power_down
 
-In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. `hx711_close` stops the internal state machine, whereas `hx711_power_down` also begins the power down process on the HX711 chip by setting the clock pin high.
+In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. `hx711_close` and `hx711_multi_close` stops the internal state machines from reading data from the HX711. Whereas `hx711_power_down` and `hx711_multi_power_down` also begins the power down process on a HX711 chip by setting the clock pin high.
 
-## Custom PIO Programs
+### Save HX711 Gain to Chip
+
+By setting the HX711 gain with `hx711_set_gain` and then powering down, the chip saves the gain for when it is powered back up. This is a feature built-in to the HX711.
+
+## hx711_t Custom PIO Programs
 
 You will notice in the code example above that you need to manually include the `hx711_noblock.pio.h` PIO header file. This is because it is not included by default in the `hx711-pico-c` library. It is offered as a method for reading from the HX711 that I have optimised to run as efficiently as possible. But there is nothing stopping you from creating your own PIO program and using it with the `hx711_t`. In fact, if you do want to make your own HX711 PIO program, you only need to do the following:
 
