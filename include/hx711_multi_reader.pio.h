@@ -122,8 +122,8 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
     pio_gpio_init(
-        hx->_pio,
-        hx->clock_pin);
+        hxm->_pio,
+        hxm->clock_pin);
     for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
         pio_gpio_init(hxm->_pio, i);
     }
@@ -167,32 +167,32 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
         div);
     //clock pin setup
     pio_sm_set_out_pins(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->clock_pin,
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->clock_pin,
         1);
     pio_sm_set_set_pins(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->clock_pin,
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->clock_pin,
         1);
     pio_sm_set_consecutive_pindirs(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->clock_pin,
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->clock_pin,
         1,
         true);
     sm_config_set_set_pins(
         &cfg,
-        hx->clock_pin,
+        hxm->clock_pin,
         1);
     sm_config_set_out_pins(
         &cfg,
-        hx->clock_pin,
+        hxm->clock_pin,
         1);
     sm_config_set_sideset_pins(
         &cfg,
-        hx->clock_pin);
+        hxm->clock_pin);
     //data pins
     pio_sm_set_in_pins(
         hxm->_pio,
