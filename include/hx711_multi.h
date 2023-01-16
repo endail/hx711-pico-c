@@ -120,7 +120,10 @@ static inline void hx711_multi__convert_raw_vals(
     int32_t* const values,
     const uint len) {
 
-        //now convert all the raw vals to real vals
+        assert(rawVals != NULL);
+        assert(values != NULL);
+        assert(len > 0);
+
         for(uint i = 0; i < len; ++i) {
             values[i] = hx711_get_twos_comp(rawVals[i]);
         }
@@ -128,6 +131,8 @@ static inline void hx711_multi__convert_raw_vals(
 }
 
 static inline void hx711_multi__wait_app_ready(PIO const pio) {
+
+    assert(pio != NULL);
 
     //wait for pio to begin to wait for chips ready
     while(!pio_interrupt_get(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
@@ -151,8 +156,13 @@ static inline void hx711_multi__get_values_raw(
     PIO const pio,
     const uint sm,
     uint32_t* values) {
+
+        assert(pio != NULL);
+        assert(values != NULL);
+
         hx711_multi__wait_app_ready(pio);
         hx711_multi__read_into_array(pio, sm, values);
+
 }
 
 static inline bool hx711_multi__get_values_timeout_raw(
@@ -160,6 +170,9 @@ static inline bool hx711_multi__get_values_timeout_raw(
     const uint sm,
     uint32_t* values,
     const uint timeout) {
+
+        assert(pio != NULL);
+        assert(values != NULL);
 
         if(hx711_multi__wait_app_ready_timeout(pio, timeout)) {
             hx711_multi__read_into_array(pio, sm, values);

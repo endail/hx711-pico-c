@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2022 Daniel Robertson
+// Copyright (c) 2023 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,15 @@ void hx711_multi_init(
     hx711_multi_program_init_t awaiterProgInitFunc,
     const pio_program_t* const readerProg,
     hx711_multi_program_init_t readerProgInitFunc) {
+
+        assert(hxm != NULL);
+        assert(chips <= HX711_MULTI_MAX_CHIPS);
+        assert(pio != NULL);
+        assert(pioInitFunc != NULL);
+        assert(awaiterProg != NULL);
+        assert(awaiterProgInitFunc != NULL);
+        assert(readerProg != NULL);
+        assert(readerProgInitFunc != NULL);
 
         mutex_init(&hxm->_mut);
         mutex_enter_blocking(&hxm->_mut);
@@ -129,6 +138,7 @@ bool hx711_multi_get_values_timeout(
     int32_t* values) {
 
         CHECK_HX711_MULTI_INITD(hxm);
+        assert(values != NULL);
 
         bool success;
         uint32_t rawVals[HX711_MULTI_MAX_CHIPS];
@@ -168,6 +178,7 @@ void hx711_multi_get_values(
     int32_t* values) {
 
         CHECK_HX711_MULTI_INITD(hxm);
+        assert(values != NULL);
 
         uint32_t rawVals[HX711_MULTI_MAX_CHIPS];
 
@@ -267,6 +278,8 @@ bool hx711_multi__wait_app_ready_timeout(
     PIO const pio,
     const uint timeout) {
 
+        assert(pio != NULL);
+
         bool success = false;
         const absolute_time_t endTime = make_timeout_time_us(timeout);
 
@@ -292,8 +305,11 @@ void hx711_multi__read_into_array(
     const uint sm,
     uint32_t* values) {
 
+        assert(pio != NULL);
+        assert(values != NULL);
+
         uint32_t pinBits;
-        bool bit;
+        uint32_t bit;
 
         //read 24 times
         for(uint i = 0; i < HX711_READ_BITS; ++i) {

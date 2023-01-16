@@ -29,7 +29,7 @@ git submodule update --init
 
 [https://endail.github.io/hx711-pico-c](https://endail.github.io/hx711-pico-c/hx711_8h.html)
 
-## How to Use
+## How to Use hx711_t
 
 See [here](https://pico.pinout.xyz/) for a pinout to choose two GPIO pins on the Pico (RP2040). One GPIO pin to connect to the HX711's clock pin and a second GPIO pin to connect to the HX711's data pin. You can choose any two pins as the clock and data pins, as long as they are capable of digital output and input respectively.
 
@@ -39,16 +39,16 @@ See [here](https://pico.pinout.xyz/) for a pinout to choose two GPIO pins on the
 
 hx711_t hx;
 
-// 1. Initialise the HX711
+// 1. Initialise
 hx711_init(
     &hx,
     clkPin, // Pico GPIO pin connected to HX711's clock pin
     datPin, // Pico GPIO pin connected to HX711's data pin
     pio0, // the RP2040 PIO to use (either pio0 or pio1)
-    &hx711_noblock_program, // the state machine program
-    &hx711_noblock_program_init); // the state machine program init function
+    &hx711_noblock_program, // the PIO program which reads data from the HX711
+    &hx711_noblock_program_init); // the PIO program's init function
 
-//2. power up the hx711 and use a gain of 128
+//2. Power up the hx711 and use a gain of 128
 hx711_power_up(&hx, hx711_gain_128);
 
 //3. This step is optional. Only do this if you want to
@@ -82,6 +82,66 @@ if(hx711_get_value_noblock(&hx, &val)) {
 
 //6. Stop communication with HX711
 hx711_close(&hx);
+```
+
+## How to Use hx711_multi_t
+
+```c
+#include "../include/hx711_multi.h"
+#include "../include/hx711_multi_reader.pio.h"
+#include "../include/hx711_multi_awaiter.pio.h"
+
+hx711_multi_t hxm;
+const uint chips = 1;
+
+// 1. initialise
+hx711_multi_init(
+    &hxm,
+    clkPin, // Pico GPIO pin connected to all HX711 chips
+    baseDatPin, // the first data pin connected to a HX711 chip
+    chips, // the number of HX711 chips connected
+    pio0, // the RP2040 PIO to use (either pio0 or pio1)
+    hx711_multi_pio_init, // pio init function
+    &hx711_multi_awaiter_program, // pio program which waits for HX711 data readiness
+    hx711_multi_awaiter_program_init, // data readiness program init function
+    &hx711_multi_reader_program, // pio program which reads bits from HX711 chips
+    hx711_multi_reader_program_init); // bit reading program init function
+
+// 2. Power up the HX711 chips and use a gain of 128
+hx711_multi_power_up(&hxm, hx711_gain_128);
+
+//3. This step is optional. Only do this if you want to
+//change the gain AND save it to each HX711 chip
+//
+//hx711_multi_set_gain(&hxm, hx711_gain_64);
+//hx711_multi_power_down(&hxm);
+//hx711_wait_power_down();
+//hx711_multi_power_up(&hxm, hx711_gain_64);
+
+// 4. Wait for readings to settle
+hx711_wait_settle(hx711_rate_10); // or hx711_rate_80 depending on each chip's config
+
+// 5. Read values
+int32_t arr[chips];
+
+// wait (block) until a value is read from each chip
+hx711_multi_get_values(&hxm, arr);
+
+for(uint i = 0; i < chips; ++i) {
+    printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
+}
+
+// or use a timeout
+if(hx711_multi_get_values_timeout(&hxm, 250000, arr)) {
+    // value was obtained within the timeout period
+    // in this case, within 250 milliseconds
+    for(uint i = 0; i < chips; ++i) {
+        printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
+    }
+}
+
+// 6. Stop communication with all HX711 chips
+hx711_multi_close(&hxm);
 ```
 
 ## Notes
