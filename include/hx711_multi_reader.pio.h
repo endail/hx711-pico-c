@@ -14,45 +14,75 @@
 #include "hardware/pio.h"
 #endif
 
+// ------------------- //
+// hx711_multi_awaiter //
+// ------------------- //
+
+#define hx711_multi_awaiter_wrap_target 0
+#define hx711_multi_awaiter_wrap 5
+
+#define hx711_multi_awaiter_offset_wait_in_pins_bit_count 0u
+
+static const uint16_t hx711_multi_awaiter_program_instructions[] = {
+            //     .wrap_target
+    0x4001, //  0: in     pins, 1                    
+    0xa0c2, //  1: mov    isr, y                     
+    0x0065, //  2: jmp    !y, 5                      
+    0xc040, //  3: irq    clear 0                    
+    0x0000, //  4: jmp    0                          
+    0xc010, //  5: irq    nowait 0 rel               
+            //     .wrap
+};
+
+#if !PICO_NO_HARDWARE
+static const struct pio_program hx711_multi_awaiter_program = {
+    .instructions = hx711_multi_awaiter_program_instructions,
+    .length = 6,
+    .origin = -1,
+};
+
+static inline pio_sm_config hx711_multi_awaiter_program_get_default_config(uint offset) {
+    pio_sm_config c = pio_get_default_sm_config();
+    sm_config_set_wrap(&c, offset + hx711_multi_awaiter_wrap_target, offset + hx711_multi_awaiter_wrap);
+    return c;
+}
+#endif
+
 // ------------------ //
 // hx711_multi_reader //
 // ------------------ //
 
 #define hx711_multi_reader_wrap_target 3
-#define hx711_multi_reader_wrap 19
+#define hx711_multi_reader_wrap 16
 
-#define hx711_multi_reader_offset_wait_in_pins_bit_count 4u
-#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 10u
+#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 7u
 
 static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
     0x8080, //  1: pull   noblock                    
     0xa027, //  2: mov    x, osr                     
             //     .wrap_target
-    0xc030, //  3: irq    wait 0 rel                 
-    0x4001, //  4: in     pins, 1                    
-    0xa0c2, //  5: mov    isr, y                     
-    0x0068, //  6: jmp    !y, 8                      
-    0x0004, //  7: jmp    4                          
-    0xe057, //  8: set    y, 23                      
-    0xe001, //  9: set    pins, 1                    
-    0x4001, // 10: in     pins, 1                    
-    0xe000, // 11: set    pins, 0                    
-    0x8020, // 12: push   block                      
-    0x0089, // 13: jmp    y--, 9                     
-    0x9880, // 14: pull   noblock         side 1     
-    0x6022, // 15: out    x, 2                       
-    0x1023, // 16: jmp    !x, 3           side 0     
-    0xa041, // 17: mov    y, x                       
-    0xe101, // 18: set    pins, 1                [1] 
-    0x1192, // 19: jmp    y--, 18         side 0 [1] 
+    0xe057, //  3: set    y, 23                      
+    0xc021, //  4: irq    wait 1                     
+    0xc020, //  5: irq    wait 0                     
+    0xe001, //  6: set    pins, 1                    
+    0x4001, //  7: in     pins, 1                    
+    0xe000, //  8: set    pins, 0                    
+    0x8020, //  9: push   block                      
+    0x0086, // 10: jmp    y--, 6                     
+    0x9880, // 11: pull   noblock         side 1     
+    0x6022, // 12: out    x, 2                       
+    0x1023, // 13: jmp    !x, 3           side 0     
+    0xa041, // 14: mov    y, x                       
+    0xe101, // 15: set    pins, 1                [1] 
+    0x118f, // 16: jmp    y--, 15         side 0 [1] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_reader_program = {
     .instructions = hx711_multi_reader_program_instructions,
-    .length = 20,
+    .length = 17,
     .origin = -1,
 };
 
@@ -88,17 +118,49 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 #include "hx711_multi.h"
-void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
+void hx711_multi_pio_init(hx711_multi_t* const hxm) {
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
+    pio_gpio_init(
+        hx->_pio,
+        hx->clock_pin);
+    for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
+        pio_gpio_init(hxm->_pio, i);
+    }
+}
+void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
+    pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
+        hxm->_awaiter_sm_offset);
     //replace placeholder IN instructions
-    hxm->_pio->instr_mem[hx711_multi_reader_offset_wait_in_pins_bit_count] = 
+    hxm->_pio->instr_mem[hx711_multi_awaiter_offset_wait_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
-    hxm->_pio->instr_mem[hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
-        pio_encode_in(pio_pins, hxm->_chips_len);
+    //data pins
+    pio_sm_set_in_pins(
+        hxm->_pio,
+        hxm->_awaiter_sm,
+        hxm->data_pin_base);
+    pio_sm_set_consecutive_pindirs(
+        hxm->_pio,
+        hxm->_awaiter_sm,
+        hxm->data_pin_base,
+        hxm->_chips_len,
+        true);
+    sm_config_set_in_pins(
+        &cfg,
+        hxm->data_pin_base);
+    hxm->_awaiter_default_config = cfg;
+}
+void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //set state machine to 10MHz clock speed
     static const uint SM_HZ = 10000000;
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
-    pio_sm_config cfg = hx711_multi_reader_program_get_default_config(hxm->_offset);
+    hxm->_pio->instr_mem[hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
+        pio_encode_in(pio_pins, hxm->_chips_len);
+    pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
+        hxm->_reader_offset);
     const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
     sm_config_set_clkdiv(
         &cfg,
@@ -106,20 +168,17 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //clock pin setup
     pio_sm_set_out_pins(
         hx->_pio,
-        hx->_state_mach,
+        hx->_reader_sm,
         hx->clock_pin,
         1);
     pio_sm_set_set_pins(
         hx->_pio,
-        hx->_state_mach,
+        hx->_reader_sm,
         hx->clock_pin,
         1);
-    pio_gpio_init(
-        hx->_pio,
-        hx->clock_pin);
     pio_sm_set_consecutive_pindirs(
         hx->_pio,
-        hx->_state_mach,
+        hx->_reader_sm,
         hx->clock_pin,
         1,
         true);
@@ -137,17 +196,14 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //data pins
     pio_sm_set_in_pins(
         hxm->_pio,
-        hxm->_state_mach,
+        hxm->_reader_sm,
         hxm->data_pin_base);
     pio_sm_set_consecutive_pindirs(
         hxm->_pio,
-        hxm->_state_mach,
+        hxm->_reader_sm,
         hxm->data_pin_base,
         hxm->_chips_len,
         true);
-    for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
-        pio_gpio_init(hxm->_pio, i);
-    }
     sm_config_set_in_pins(
         &cfg,
         hxm->data_pin_base);
@@ -156,7 +212,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
         true,                   //true = shift in right
         false,
         HX711_MULTI_MAX_CHIPS); //"full"
-    hxm->_default_config = cfg;
+    hxm->_reader_default_config = cfg;
 }
 
 #endif
