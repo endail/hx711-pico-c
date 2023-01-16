@@ -1,3 +1,9 @@
-tests/main.c:69:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
-        printf("%li\n", hx711_get_value(&hx));
+src/hx711_multi.c:311:18: style: The scope of the variable 'pinBits' can be reduced. [variableScope]
+        uint32_t pinBits;
+                 ^
+tests/main.c:77:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+        printf("%li\n", val);
+        ^
+tests/main.c:82:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+        printf("%li\n", val);
         ^
