@@ -20,27 +20,6 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
-.program hx711_multi_awaiter
-
-.define DATA_READY_IRQ_NUM 0
-
-.wrap_target
-wrap_target:
-
-PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
-    in pins, 1
-    mov isr, y                          ; Copy the ISR contents into the y register.
-    jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
-    irq clear DATA_READY_IRQ_NUM        ; ...otherwise, clear the interrupt and...
-    jmp wrap_target                     ; go back to trying again.
-
-signal_low:
-    irq nowait DATA_READY_IRQ_NUM rel   ; Set the interrupt, but...
-                                        ; keep going back to make sure data pins are still low.
-
-.wrap
-
-
 .program hx711_multi_reader
 
 .side_set 1 opt                 ; Side set on the clock pin.
@@ -154,39 +133,6 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
         pio_gpio_init(hxm->_pio, i);
     }
-
-}
-
-void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
-
-    assert(hxm != NULL);
-    assert(hxm->_pio != NULL);
-
-    pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
-        hxm->_awaiter_offset);
-
-    //replace placeholder IN instructions
-    hxm->_pio->instr_mem[hx711_multi_awaiter_offset_wait_in_pins_bit_count] = 
-        pio_encode_in(pio_pins, hxm->_chips_len);
-
-    //data pins
-    pio_sm_set_in_pins(
-        hxm->_pio,
-        hxm->_awaiter_sm,
-        hxm->data_pin_base);
-
-    pio_sm_set_consecutive_pindirs(
-        hxm->_pio,
-        hxm->_awaiter_sm,
-        hxm->data_pin_base,
-        hxm->_chips_len,
-        true);
-
-    sm_config_set_in_pins(
-        &cfg,
-        hxm->data_pin_base);
-
-    hxm->_awaiter_default_config = cfg;
 
 }
 
