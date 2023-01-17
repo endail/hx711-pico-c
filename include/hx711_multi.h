@@ -25,6 +25,7 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include "hardware/dma.h"
 #include "hardware/pio.h"
@@ -58,7 +59,7 @@ typedef struct {
     uint clock_pin;
     uint data_pin_base;
 
-    uint _chips_len;
+    size_t _chips_len;
 
     PIO _pio;
 
@@ -87,7 +88,7 @@ void hx711_multi_init(
     hx711_multi_t* const hxm,
     const uint clk,
     const uint datPinBase,
-    const uint chips,
+    const size_t chips,
     PIO const pio,
     hx711_multi_pio_init_t pioInitFunc,
     const pio_program_t* const awaiterProg,
@@ -125,13 +126,13 @@ void hx711_multi_power_down(hx711_multi_t* const hxm);
 static inline void hx711_multi__convert_raw_vals(
     uint32_t* const rawvals,
     int32_t* const values,
-    const uint len) {
+    const size_t len) {
 
         assert(rawvals != NULL);
         assert(values != NULL);
         assert(len > 0);
 
-        for(uint i = 0; i < len; ++i) {
+        for(size_t i = 0; i < len; ++i) {
             values[i] = hx711_get_twos_comp(rawvals[i]);
         }
 
@@ -157,7 +158,7 @@ bool hx711_multi__wait_app_ready_timeout(
 void hx711_multi__pinvals_to_rawvals(
     uint32_t* pinvals,
     uint32_t* rawvals,
-    const uint len);
+    const size_t len);
 
 /**
  * @brief Reads pinvals into the internal buffer.

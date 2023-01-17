@@ -29,7 +29,7 @@ void hx711_multi_init(
     hx711_multi_t* const hxm,
     const uint clk,
     const uint datPinBase,
-    const uint chips,
+    const size_t chips,
     PIO const pio,
     hx711_multi_pio_init_t pioInitFunc,
     const pio_program_t* const awaiterProg,
@@ -323,7 +323,7 @@ bool hx711_multi__wait_app_ready_timeout(
 void hx711_multi__pinvals_to_rawvals(
     uint32_t* pinvals,
     uint32_t* rawvals,
-    const uint len) {
+    const size_t len) {
 
         assert(pinvals != NULL);
         assert(rawvals != NULL);
@@ -352,9 +352,9 @@ void hx711_multi__pinvals_to_rawvals(
         //...
         //    ((pinvals[23]) >> 0) & 1) << 0;
 
-        for(uint chipNum = 0; chipNum < len; ++chipNum) {
+        for(size_t chipNum = 0; chipNum < len; ++chipNum) {
             rawvals[chipNum] = 0; //0-init
-            for(uint bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
+            for(size_t bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
                 rawvals[chipNum] |= 
                     ((pinvals[bitPos] >> chipNum) & 1)
                     << (HX711_READ_BITS - bitPos - 1);

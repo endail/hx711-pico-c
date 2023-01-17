@@ -106,7 +106,7 @@ See the code example below for how you would set this up. You can choose any pin
 hx711_multi_t hxm;
 const uint clkPin = 9;
 const uint baseDatPin = 12;
-const uint chips = 4;
+const size_t chips = 4;
 
 // 1. initialise
 hx711_multi_init(

@@ -88,7 +88,7 @@ int main(void) {
 
 
     hx711_multi_t hxm;
-    const uint chips = 1;
+    const size_t chips = 1;
 
     // 1. initialise
     hx711_multi_init(
