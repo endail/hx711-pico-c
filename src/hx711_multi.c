@@ -22,6 +22,7 @@
 
 #include "../include/hx711_multi.h"
 #include "hardware/gpio.h"
+#include <stdlib.h>
 #include <string.h>
 
 void hx711_multi_init(
@@ -61,10 +62,12 @@ void hx711_multi_init(
 
         hxm->_reader_offset = pio_add_program(hxm->_pio, hxm->_reader_prog);
         hxm->_reader_sm = (uint)pio_claim_unused_sm(hxm->_pio, true);
+        hxm->_read_buffer = (uint32_t*)malloc(sizeof(uint32_t) * hxm->_chips_len);
 
         gpio_init(hxm->clock_pin);
         gpio_set_dir(hxm->clock_pin, GPIO_OUT);
 
+        //contiguous
         for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
             gpio_init(i);
             gpio_set_dir(i, GPIO_IN);
@@ -73,6 +76,36 @@ void hx711_multi_init(
         pioInitFunc(hxm);
         awaiterProgInitFunc(hxm);
         readerProgInitFunc(hxm);
+
+        //set up dma
+        hxm->_dma_reader_channel = dma_claim_unused_channel(true);
+
+        channel_config_set_transfer_data_size(
+            &hxm->_dma_reader_config,
+            DMA_SIZE_32);
+
+        //reading one word from SM RX FIFO
+        channel_config_set_read_increment(
+            &hxm->_dma_reader_config,
+            false);
+
+        //reading multiple words into array buffer
+        channel_config_set_write_increment(
+            &hxm->_dma_reader_config,
+            true);
+
+        //receive data from reader SM
+        channel_config_set_dreq(
+            &hxm->_dma_reader_config,
+            pio_get_dreq(hxm->_pio, hxm->_reader_sm, false));
+
+        dma_channel_configure(
+            hxm->_dma_reader_channel,
+            &hxm->_dma_reader_config,
+            hxm->_read_buffer,
+            &hxm->_pio->rxf[hxm->_reader_sm],
+            HX711_READ_BITS, //24 transfers every time
+            false); //don't start until requested
 
         mutex_exit(&hxm->_mut);
 
@@ -99,6 +132,11 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hxm->_reader_prog,
         hxm->_reader_offset);
 
+    dma_channel_abort(hxm->_dma_reader_channel);
+    dma_channel_unclaim(hxm->_dma_reader_channel);
+
+    free(hxm->_read_buffer);
+
     mutex_exit(&hxm->_mut);
 
 }
@@ -110,7 +148,6 @@ void hx711_multi_set_gain(
         CHECK_HX711_MULTI_INITD(hxm);
 
         const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
-        uint32_t dummy[HX711_MULTI_MAX_CHIPS];
 
         mutex_enter_blocking(&hxm->_mut);
 
@@ -123,10 +160,7 @@ void hx711_multi_set_gain(
             hxm->_reader_sm,
             gainVal);
 
-        hx711_multi__get_values_raw(
-            hxm->_pio,
-            hxm->_reader_sm,
-            dummy);
+        hx711_multi__get_values_raw(hxm);
 
         mutex_exit(&hxm->_mut);
 
@@ -141,24 +175,18 @@ bool hx711_multi_get_values_timeout(
         assert(values != NULL);
 
         bool success;
-        uint32_t rawVals[HX711_MULTI_MAX_CHIPS];
-
-        memset(
-            rawVals,
-            0,
-            sizeof(rawVals[0]) * HX711_MULTI_MAX_CHIPS);
 
         mutex_enter_blocking(&hxm->_mut);
 
         if((success = hx711_multi__wait_app_ready_timeout(hxm->_pio, timeout))) {
-            hx711_multi__read_into_array(hxm->_pio, hxm->_reader_sm, rawVals);
+            hx711_multi__get_values_raw(hxm);
         }
 
         mutex_exit(&hxm->_mut);
 
         if(success) {
             hx711_multi__convert_raw_vals(
-                rawVals,
+                hxm->_read_buffer,
                 values,
                 hxm->_chips_len);
         }
@@ -180,22 +208,12 @@ void hx711_multi_get_values(
         CHECK_HX711_MULTI_INITD(hxm);
         assert(values != NULL);
 
-        uint32_t rawVals[HX711_MULTI_MAX_CHIPS];
-
-        memset(
-            rawVals,
-            0,
-            sizeof(rawVals[0]) * HX711_MULTI_MAX_CHIPS);
-
         mutex_enter_blocking(&hxm->_mut);
 
-        hx711_multi__get_values_raw(
-            hxm->_pio,
-            hxm->_reader_sm,
-            rawVals);
+        hx711_multi__get_values_raw(hxm);
 
         hx711_multi__convert_raw_vals(
-            rawVals,
+            hxm->_read_buffer,
             values,
             hxm->_chips_len);
 
@@ -266,6 +284,8 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
         hxm->_reader_sm,
         false);
 
+    dma_channel_abort(hxm->_dma_reader_channel);
+
     gpio_put(
         hxm->clock_pin,
         true);
@@ -300,30 +320,44 @@ bool hx711_multi__wait_app_ready_timeout(
 
 }
 
-void hx711_multi__read_into_array(
-    PIO const pio,
-    const uint sm,
-    uint32_t* values) {
+void hx711_multi__pinvals_to_rawvals(
+    uint32_t* pinvals,
+    uint32_t* rawvals,
+    const uint len) {
 
-        assert(pio != NULL);
-        assert(values != NULL);
+        assert(pinvals != NULL);
+        assert(rawvals != NULL);
+        assert(len > 0);
 
-        uint32_t pinBits;
-        uint32_t bit;
+        //construct an individual chip value by OR-ing
+        //together the bits from the pinvals array.
+        //
+        //each n-th bit of the pinvals array makes up all
+        //the bits for an individual chip. ie.:
+        //
+        //pinvals[0] contains all the 24th bit HX711 values
+        //for each chip, pinvals[1] contains all the 23rd bit
+        //values, and so on...
+        //
+        //(pinvals[0] >> 0) & 1 is the 24th HX711 bit of the 0th chip
+        //(pinvals[1] >> 0) & 1 is the 23rd HX711 bit of the 0th chip
+        //(pinvals[1] >> 2) & 1 is the 23rd HX711 bit of the 3rd chip
+        //(pinvals[23] >> 0) & 1 is the 0th HX711 bit of the 0th chip
+        //
+        //eg.
+        //rawvals[0] = 
+        //    ((pinvals[0] >> 0) & 1) << 24 |
+        //    ((pinvals[1] >> 0) & 1) << 23 |
+        //    ((pinvals[2] >> 0) & 1) << 22 |
+        //...
+        //    ((pinvals[23]) >> 0) & 1) << 0;
 
-        //read 24 times
-        for(uint i = 0; i < HX711_READ_BITS; ++i) {
-
-            //read 13 bits of pin values
-            //each bit is one pin's value
-            pinBits = pio_sm_get_blocking(pio, sm);
-            
-            //iterate over the 13 bits
-            for(uint j = 0; i < HX711_MULTI_MAX_CHIPS; ++j) {
-                //iterate over all chips
-                //set the i-th bit of the j-th chip
-                bit = (pinBits >> j) & 1;
-                values[j] = values[j] & (~(1 << i) | (bit << j));
+        for(uint chipNum = 0; chipNum < len; ++chipNum) {
+            rawvals[chipNum] = 0; //0-init
+            for(uint bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
+                rawvals[chipNum] |= 
+                    ((pinvals[bitPos] >> chipNum) & 1)
+                    << (HX711_READ_BITS - bitPos - 1);
             }
         }
 

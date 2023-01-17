@@ -26,8 +26,10 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "hardware/dma.h"
 #include "hardware/pio.h"
 #include "pico/mutex.h"
+#include "pico/platform.h"
 #include "pico/time.h"
 #include "hx711.h"
 
@@ -41,6 +43,7 @@ extern "C" {
         assert(hxm->_pio != NULL); \
         assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
         assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
+        assert(dma_channel_is_claimed(hxm->_dma_reader_channel)); \
         assert(mutex_is_initialized(&hxm->_mut));
 #else
     #define CHECK_HX711_MULTI_INITD(hxm)
@@ -68,6 +71,10 @@ typedef struct {
     pio_sm_config _reader_default_config;
     uint _reader_sm;
     uint _reader_offset;
+
+    uint32_t* _read_buffer;
+    int _dma_reader_channel;
+    dma_channel_config _dma_reader_config;
 
     mutex_t _mut;
 
@@ -116,16 +123,16 @@ void hx711_multi_power_up(
 void hx711_multi_power_down(hx711_multi_t* const hxm);
 
 static inline void hx711_multi__convert_raw_vals(
-    uint32_t* const rawVals,
+    uint32_t* const rawvals,
     int32_t* const values,
     const uint len) {
 
-        assert(rawVals != NULL);
+        assert(rawvals != NULL);
         assert(values != NULL);
         assert(len > 0);
 
         for(uint i = 0; i < len; ++i) {
-            values[i] = hx711_get_twos_comp(rawVals[i]);
+            values[i] = hx711_get_twos_comp(rawvals[i]);
         }
 
 }
@@ -136,7 +143,7 @@ static inline void hx711_multi__wait_app_ready(PIO const pio) {
 
     //wait for pio to begin to wait for chips ready
     while(!pio_interrupt_get(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
-        //spin
+        tight_loop_contents();
     }
 
     pio_interrupt_clear(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
@@ -147,35 +154,46 @@ bool hx711_multi__wait_app_ready_timeout(
     PIO const pio,
     const uint timeout);
 
-void hx711_multi__read_into_array(
-    PIO const pio,
-    const uint sm,
-    uint32_t* values);
+void hx711_multi__pinvals_to_rawvals(
+    uint32_t* pinvals,
+    uint32_t* rawvals,
+    const uint len);
 
+/**
+ * @brief Reads pinvals into the internal buffer.
+ * 
+ * @param hxm 
+ */
 static inline void hx711_multi__get_values_raw(
-    PIO const pio,
-    const uint sm,
-    uint32_t* values) {
+    hx711_multi_t* const hxm) {
 
-        assert(pio != NULL);
-        assert(values != NULL);
+        CHECK_HX711_MULTI_INITD(hxm)
 
-        hx711_multi__wait_app_ready(pio);
-        hx711_multi__read_into_array(pio, sm, values);
+        assert(!dma_channel_is_busy(hxm->_dma_reader_channel));
+
+        //wait to start new conversion period
+        hx711_multi__wait_app_ready(hxm->_pio);
+
+        //reset the write address and start the transfer from
+        //the sm to the buffer
+        dma_channel_set_write_addr(
+            hxm->_dma_reader_channel,
+            hxm->_read_buffer,
+            true); //true = start
+        
+        //wait until done
+        dma_channel_wait_for_finish_blocking(hxm->_dma_reader_channel);
 
 }
 
 static inline bool hx711_multi__get_values_timeout_raw(
-    PIO const pio,
-    const uint sm,
-    uint32_t* values,
+    hx711_multi_t* const hxm,
     const uint timeout) {
 
-        assert(pio != NULL);
-        assert(values != NULL);
+        CHECK_HX711_MULTI_INITD(hxm)
 
-        if(hx711_multi__wait_app_ready_timeout(pio, timeout)) {
-            hx711_multi__read_into_array(pio, sm, values);
+        if(hx711_multi__wait_app_ready_timeout(hxm->_pio, timeout)) {
+            hx711_multi__get_values_raw(hxm);
             return true;
         }
 

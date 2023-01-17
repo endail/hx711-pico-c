@@ -70,8 +70,10 @@ add_library(hx711-pico-c INTERFACE)
 
 target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
+        hardware_dma
         hardware_pio
         hardware_timer
+        pico_malloc
         pico_sync
         pico_time
         )
