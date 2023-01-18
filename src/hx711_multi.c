@@ -77,6 +77,11 @@ void hx711_multi_init(
         awaiterProgInitFunc(hxm);
         readerProgInitFunc(hxm);
 
+        pio_set_irq0_source_enabled(
+            hxm->_pio,
+            PIO_INTR_SM0_LSB,
+            false);
+
         //set up dma
         hxm->_dma_reader_channel = dma_claim_unused_channel(true);
 
