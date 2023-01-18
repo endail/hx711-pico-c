@@ -33,6 +33,10 @@ int main(void) {
 
     stdio_init_all();
 
+    sleep_ms(3000);
+
+/*
+
     // SET THESE TO THE GPIO PINS CONNECTED TO THE
     // HX711's CLOCK AND DATA PINS
     // PINOUT REFERENCE: https://learn.adafruit.com/assets/99339
@@ -69,23 +73,32 @@ int main(void) {
 
     // wait (block) until a value is read
     val = hx711_get_value(&hx);
+    printf("blocking value: %li\n", val);
 
     // or use a timeout
     if(hx711_get_value_timeout(&hx, 250000, &val)) {
         // value was obtained within the timeout period
         // in this case, within 250 milliseconds
-        printf("%li\n", val);
+        printf("timeout value: %li\n", val);
+    }
+    else {
+        printf("value was not obtained within the timeout period\n");
     }
 
     // or see if there's a value, but don't block if not
     if(hx711_get_value_noblock(&hx, &val)) {
-        printf("%li\n", val);
+        printf("noblock value: %li\n", val);
+    }
+    else {
+        printf("value was not present\n");
     }
 
     //6. Stop communication with HX711
     hx711_close(&hx);
 
+    printf("cleaned up\n");
 
+*/
 
     hx711_multi_t hxm;
     const size_t chips = 1;
@@ -93,8 +106,8 @@ int main(void) {
     // 1. initialise
     hx711_multi_init(
         &hxm,
-        clkPin, // Pico GPIO pin connected to all HX711 chips
-        14, // the first data pin connected to a HX711 chip
+        14, // Pico GPIO pin connected to all HX711 chips
+        15, // the first data pin connected to a HX711 chip
         chips, // the number of HX711 chips connected
         pio0, // the RP2040 PIO to use (either pio0 or pio1)
         hx711_multi_pio_init, // pio init function
@@ -120,11 +133,17 @@ int main(void) {
     // 5. Read values
     int32_t arr[chips];
 
+    sleep_ms(3000);
+
+    while(true) {
+
     // wait (block) until a value is read from each chip
     hx711_multi_get_values(&hxm, arr);
 
     for(uint i = 0; i < chips; ++i) {
         printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
+    }
+
     }
 
     // or use a timeout
@@ -135,9 +154,16 @@ int main(void) {
             printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
         }
     }
+    else {
+        printf("no value obtained within timeout\n");
+    }
 
     // 6. Stop communication with all HX711 chips
     hx711_multi_close(&hxm);
+
+    printf("cleaned up");
+
+    while(1);
 
     return EXIT_SUCCESS;
 
