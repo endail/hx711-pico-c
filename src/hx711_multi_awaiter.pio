@@ -35,7 +35,7 @@ PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the follo
     jmp wrap_target                     ; go back to trying again.
 
 signal_low:
-    irq nowait DATA_READY_IRQ_NUM rel   ; Set the interrupt, but...
+    irq nowait DATA_READY_IRQ_NUM       ; Set the interrupt, but...
                                         ; keep going back to make sure data pins are still low.
 
 .wrap
