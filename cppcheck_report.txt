@@ -1,3 +1,0 @@
-include/hx711_multi_reader.pio.h:7:88: error: There is an unknown macro here somewhere. Configuration is required. If gpio is a macro then please configure it. [unknownMacro]
-input.pio:44.8-25: syntax error, unexpected identifier, expecting "," or irq or pin or gpio
-                                                                                       ^
