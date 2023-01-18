@@ -30,7 +30,7 @@ static const uint16_t hx711_multi_awaiter_program_instructions[] = {
     0x0065, //  2: jmp    !y, 5                      
     0xc044, //  3: irq    clear 4                    
     0x0000, //  4: jmp    0                          
-    0xc014, //  5: irq    nowait 4 rel               
+    0xc004, //  5: irq    nowait 4                   
             //     .wrap
 };
 
