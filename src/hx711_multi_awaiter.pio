@@ -22,7 +22,7 @@
 
 .program hx711_multi_awaiter
 
-.define DATA_READY_IRQ_NUM 0            ; IRQ num within the PIO, not rel within the state machine
+.define DATA_READY_IRQ_NUM 4            ; IRQ num within the PIO, not rel within the state machine
 
 .wrap_target
 wrap_target:

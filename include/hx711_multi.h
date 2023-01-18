@@ -50,8 +50,8 @@ extern "C" {
     #define CHECK_HX711_MULTI_INITD(hxm)
 #endif
 
-static const uint _HX711_MULTI_DATA_READY_IRQ_NUM = 0;
-static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 1;
+static const uint _HX711_MULTI_DATA_READY_IRQ_NUM = 4;
+static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
 static const uint HX711_MULTI_MAX_CHIPS = 32;
 
 typedef struct {
@@ -172,9 +172,6 @@ static inline void hx711_multi__get_values_raw(
 
         assert(!dma_channel_is_busy(hxm->_dma_reader_channel));
 
-        //wait to start new conversion period
-        hx711_multi__wait_app_ready(hxm->_pio);
-
         //reset the write address and start the transfer from
         //the sm to the buffer
         dma_channel_set_write_addr(
@@ -182,6 +179,9 @@ static inline void hx711_multi__get_values_raw(
             hxm->_read_buffer,
             true); //true = start
         
+        //wait to start new conversion period
+        hx711_multi__wait_app_ready(hxm->_pio);
+
         //wait until done
         dma_channel_wait_for_finish_blocking(hxm->_dma_reader_channel);
 

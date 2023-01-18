@@ -212,6 +212,11 @@ void hx711_multi_get_values(
 
         hx711_multi__get_values_raw(hxm);
 
+        hx711_multi__pinvals_to_rawvals(
+            hxm->_read_buffer,
+            hxm->_read_buffer,
+            hxm->_chips_len);
+
         hx711_multi__convert_raw_vals(
             hxm->_read_buffer,
             values,

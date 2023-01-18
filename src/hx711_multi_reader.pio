@@ -24,8 +24,8 @@
 
 .side_set 1 opt                 ; Side set on the clock pin.
 
-.define DATA_READY_IRQ_NUM 0
-.define APP_WAIT_IRQ_NUM 1
+.define DATA_READY_IRQ_NUM 4
+.define APP_WAIT_IRQ_NUM 0
 .define READ_BITS 23            ; 24 bits to read from HX711 (this is 0-based).
 .define DEFAULT_GAIN 0          ; Default gain (0=128, 1=32, 2=64).
 .define T3 2                    ; 200ns
