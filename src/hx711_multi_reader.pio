@@ -40,7 +40,7 @@ wrap_target:
 
 set y, READ_BITS                ; Read y number of bits. This is 0-based.
 
-irq wait APP_WAIT_IRQ_NUM       ; Wait until application code is ready to obtain. Then
+irq wait APP_WAIT_IRQ_NUM rel   ; Wait until application code is ready to obtain. Then
 irq wait DATA_READY_IRQ_NUM     ; wait for data ready from other state machine.
 
                                 ; At this point it is assumed all HX711 chips are
