@@ -98,7 +98,7 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     sm_config_set_in_shift(
         &cfg,
         false,            //false = shift in left
-        false,             //true = autopush enabled
+        true,             //true = autopush enabled
         hxm->_chips_len);
     hxm->_awaiter_default_config = cfg;
 }
