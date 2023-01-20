@@ -19,9 +19,9 @@
 // ------------------ //
 
 #define hx711_multi_reader_wrap_target 3
-#define hx711_multi_reader_wrap 16
+#define hx711_multi_reader_wrap 15
 
-#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 7u
+#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 6u
 
 static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
@@ -29,26 +29,25 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xa027, //  2: mov    x, osr                     
             //     .wrap_target
     0xe057, //  3: set    y, 23                      
-    0xc020, //  4: irq    wait 0                     
-    0xc021, //  5: irq    wait 1                     
-    0xe001, //  6: set    pins, 1                    
-    0x4001, //  7: in     pins, 1                    
-    0xe000, //  8: set    pins, 0                    
-    0x8020, //  9: push   block                      
-    0x0086, // 10: jmp    y--, 6                     
-    0x9880, // 11: pull   noblock         side 1     
-    0x6022, // 12: out    x, 2                       
-    0x1023, // 13: jmp    !x, 3           side 0     
-    0xa041, // 14: mov    y, x                       
-    0xe101, // 15: set    pins, 1                [1] 
-    0x118f, // 16: jmp    y--, 15         side 0 [1] 
+    0xc021, //  4: irq    wait 1                     
+    0xe001, //  5: set    pins, 1                    
+    0x4001, //  6: in     pins, 1                    
+    0xe000, //  7: set    pins, 0                    
+    0x8020, //  8: push   block                      
+    0x0085, //  9: jmp    y--, 5                     
+    0x9880, // 10: pull   noblock         side 1     
+    0x6022, // 11: out    x, 2                       
+    0x1023, // 12: jmp    !x, 3           side 0     
+    0xa041, // 13: mov    y, x                       
+    0xe101, // 14: set    pins, 1                [1] 
+    0x118e, // 15: jmp    y--, 14         side 0 [1] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_reader_program = {
     .instructions = hx711_multi_reader_program_instructions,
-    .length = 17,
+    .length = 16,
     .origin = -1,
 };
 
