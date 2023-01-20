@@ -21,16 +21,16 @@
 #define hx711_multi_awaiter_wrap_target 0
 #define hx711_multi_awaiter_wrap 5
 
-#define hx711_multi_awaiter_offset_wait_in_pins_bit_count 0u
+#define hx711_multi_awaiter_offset_wait_in_pins_bit_count 1u
 
 static const uint16_t hx711_multi_awaiter_program_instructions[] = {
             //     .wrap_target
-    0x4001, //  0: in     pins, 1                    
-    0xa0c2, //  1: mov    isr, y                     
-    0x0065, //  2: jmp    !y, 5                      
-    0xc041, //  3: irq    clear 1                    
+    0xc022, //  0: irq    wait 2                     
+    0x4001, //  1: in     pins, 1                    
+    0xa0c2, //  2: mov    isr, y                     
+    0x0065, //  3: jmp    !y, 5                      
     0x0000, //  4: jmp    0                          
-    0xc001, //  5: irq    nowait 1                   
+    0xc021, //  5: irq    wait 1                     
             //     .wrap
 };
 
