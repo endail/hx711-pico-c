@@ -91,7 +91,7 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
         hxm->_awaiter_sm,
         hxm->data_pin_base,
         hxm->_chips_len,
-        true);
+        false);
 
     sm_config_set_in_pins(
         &cfg,
