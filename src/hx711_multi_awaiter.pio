@@ -30,6 +30,8 @@ wrap_target:
 
 irq wait WAIT_DATA_READY_IRQ_NUM        ; wait for signal before testing the data lines
 
+in null, 32
+
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
     in pins, 1
     mov isr, y                          ; Copy the ISR contents into the y register.
