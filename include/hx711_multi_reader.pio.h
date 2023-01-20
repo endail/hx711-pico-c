@@ -95,7 +95,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     static const uint SM_HZ = 10000000;
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
-    hxm->_pio->instr_mem[hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
+    hxm->_pio->instr_mem[hxm->_reader_offset + hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
     pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
         hxm->_reader_offset);

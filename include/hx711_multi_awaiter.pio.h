@@ -77,7 +77,7 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
         hxm->_awaiter_offset);
     //replace placeholder IN instructions
-    hxm->_pio->instr_mem[hx711_multi_awaiter_offset_wait_in_pins_bit_count] = 
+    hxm->_pio->instr_mem[hxm->_awaiter_offset + hx711_multi_awaiter_offset_wait_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
     //data pins
     pio_sm_set_in_pins(
