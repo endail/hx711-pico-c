@@ -31,7 +31,7 @@ PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the follo
     in pins, 1
     mov isr, y                          ; Copy the ISR contents into the y register.
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
-    irq clear DATA_READY_IRQ_NUM        ; ...otherwise, clear the interrupt and...
+    ;irq clear DATA_READY_IRQ_NUM        ; ...otherwise, clear the interrupt and...
     jmp wrap_target                     ; go back to trying again.
 
 signal_low:
