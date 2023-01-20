@@ -30,6 +30,7 @@ wrap_target:
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
     in pins, 1
     mov isr, y                          ; Copy the ISR contents into the y register.
+    push
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
     ;irq clear DATA_READY_IRQ_NUM        ; ...otherwise, clear the interrupt and...
     jmp wrap_target                     ; go back to trying again.
