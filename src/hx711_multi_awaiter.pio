@@ -22,21 +22,23 @@
 
 .program hx711_multi_awaiter
 
+.define WAIT_DATA_READY_IRQ_NUM 2       ; IRQ num within the PIO
 .define DATA_READY_IRQ_NUM 1            ; IRQ num within the PIO, not rel within the state machine
 
 .wrap_target
 wrap_target:
 
+irq wait WAIT_DATA_READY_IRQ_NUM        ; wait for signal before testing the data lines
+
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
     in pins, 1
     mov isr, y                          ; Copy the ISR contents into the y register.
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
-    irq clear DATA_READY_IRQ_NUM        ; ...otherwise, clear the interrupt and...
     jmp wrap_target                     ; go back to trying again.
 
 signal_low:
-    irq nowait DATA_READY_IRQ_NUM       ; Set the interrupt, but...
-                                        ; keep going back to make sure data pins are still low.
+    irq wait DATA_READY_IRQ_NUM         ; Set the interrupt, but wait for it to be cleared
+                                        ; before waiting again
 
 .wrap
 
