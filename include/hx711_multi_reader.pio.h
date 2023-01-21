@@ -19,9 +19,9 @@
 // ------------------ //
 
 #define hx711_multi_reader_wrap_target 3
-#define hx711_multi_reader_wrap 14
+#define hx711_multi_reader_wrap 16
 
-#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 5u
+#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 7u
 
 static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
@@ -29,24 +29,26 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xa027, //  2: mov    x, osr                     
             //     .wrap_target
     0xe057, //  3: set    y, 23                      
-    0xe001, //  4: set    pins, 1                    
-    0x4001, //  5: in     pins, 1                    
-    0xe000, //  6: set    pins, 0                    
-    0x8020, //  7: push   block                      
-    0x0084, //  8: jmp    y--, 4                     
-    0x9880, //  9: pull   noblock         side 1     
-    0x6022, // 10: out    x, 2                       
-    0x1023, // 11: jmp    !x, 3           side 0     
-    0xa041, // 12: mov    y, x                       
-    0xe101, // 13: set    pins, 1                [1] 
-    0x118d, // 14: jmp    y--, 13         side 0 [1] 
+    0xc020, //  4: irq    wait 0                     
+    0xc021, //  5: irq    wait 1                     
+    0xe001, //  6: set    pins, 1                    
+    0x4001, //  7: in     pins, 1                    
+    0xe000, //  8: set    pins, 0                    
+    0x8020, //  9: push   block                      
+    0x0086, // 10: jmp    y--, 6                     
+    0x9880, // 11: pull   noblock         side 1     
+    0x6022, // 12: out    x, 2                       
+    0x1023, // 13: jmp    !x, 3           side 0     
+    0xa041, // 14: mov    y, x                       
+    0xe101, // 15: set    pins, 1                [1] 
+    0x118f, // 16: jmp    y--, 15         side 0 [1] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_reader_program = {
     .instructions = hx711_multi_reader_program_instructions,
-    .length = 15,
+    .length = 17,
     .origin = -1,
 };
 
