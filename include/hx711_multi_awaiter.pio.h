@@ -19,7 +19,7 @@
 // ------------------- //
 
 #define hx711_multi_awaiter_wrap_target 0
-#define hx711_multi_awaiter_wrap 5
+#define hx711_multi_awaiter_wrap 7
 
 #define hx711_multi_awaiter_offset_wait_in_pins_bit_count 1u
 
@@ -28,16 +28,18 @@ static const uint16_t hx711_multi_awaiter_program_instructions[] = {
     0xc022, //  0: irq    wait 2                     
     0x4001, //  1: in     pins, 1                    
     0xa0c2, //  2: mov    isr, y                     
-    0x0065, //  3: jmp    !y, 5                      
-    0x0000, //  4: jmp    0                          
-    0xc021, //  5: irq    wait 1                     
+    0x8000, //  3: push   noblock                    
+    0x0067, //  4: jmp    !y, 7                      
+    0xc041, //  5: irq    clear 1                    
+    0x0000, //  6: jmp    0                          
+    0xc001, //  7: irq    nowait 1                   
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_awaiter_program = {
     .instructions = hx711_multi_awaiter_program_instructions,
-    .length = 6,
+    .length = 8,
     .origin = -1,
 };
 
