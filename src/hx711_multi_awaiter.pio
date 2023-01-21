@@ -33,7 +33,7 @@ irq wait WAIT_DATA_READY_IRQ_NUM        ; wait for signal before testing the dat
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
     in pins, 1
     mov isr, y                          ; Copy the ISR contents into the y register.
-    mov isr, 0                          ; clear the ISR; we don't care about the contents
+    mov isr, null                       ; clear the ISR; we don't care about the contents
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
     jmp wrap_target                     ; go back to trying again.
 
