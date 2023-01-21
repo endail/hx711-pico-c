@@ -19,7 +19,7 @@
 // ------------------- //
 
 #define hx711_multi_awaiter_wrap_target 0
-#define hx711_multi_awaiter_wrap 5
+#define hx711_multi_awaiter_wrap 6
 
 #define hx711_multi_awaiter_offset_wait_in_pins_bit_count 1u
 
@@ -28,16 +28,17 @@ static const uint16_t hx711_multi_awaiter_program_instructions[] = {
     0xc022, //  0: irq    wait 2                     
     0x4001, //  1: in     pins, 1                    
     0xa046, //  2: mov    y, isr                     
-    0x0065, //  3: jmp    !y, 5                      
-    0x0001, //  4: jmp    1                          
-    0xc021, //  5: irq    wait 1                     
+    0xa0c3, //  3: mov    isr, null                  
+    0x0066, //  4: jmp    !y, 6                      
+    0x0001, //  5: jmp    1                          
+    0xc021, //  6: irq    wait 1                     
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_awaiter_program = {
     .instructions = hx711_multi_awaiter_program_instructions,
-    .length = 6,
+    .length = 7,
     .origin = -1,
 };
 
@@ -97,8 +98,8 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     sm_config_set_in_shift(
         &cfg,
         false,            //false = shift in left
-        true,             //true = autopush enabled
-        hxm->_chips_len);
+        false,             //true = autopush enabled
+        32);
     hxm->_awaiter_default_config = cfg;
 }
 
