@@ -34,7 +34,7 @@ testpins:
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
     in pins, 1
     mov y, isr                          ; Copy the ISR contents into the y register.
-    mov isr, null                       ; clear the ISR; we don't care about the contents
+    ; mov isr, null                       ; clear the ISR; we don't care about the contents
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
     jmp testpins                        ; go back to trying again.
 
