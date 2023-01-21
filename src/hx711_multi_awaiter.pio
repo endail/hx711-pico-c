@@ -34,7 +34,7 @@ testpins:
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
     in pins, 1
     mov y, isr                          ; Copy the ISR contents into the y register.
-    ;mov isr, null                       ; clear the ISR; we don't care about the contents
+    mov isr, null                       ; clear the ISR; we don't care about the contents
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
     jmp testpins                        ; go back to trying again.
 
@@ -104,8 +104,8 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     sm_config_set_in_shift(
         &cfg,
         false,            //false = shift in left
-        true,             //true = autopush enabled
-        hxm->_chips_len);
+        false,             //true = autopush enabled
+        32);
 
     hxm->_awaiter_default_config = cfg;
 
