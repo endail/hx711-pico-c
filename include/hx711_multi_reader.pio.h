@@ -34,7 +34,7 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xc042, //  6: irq    clear 2                    
     0xc021, //  7: irq    wait 1                     
     0xc041, //  8: irq    clear 1                    
-    0xe001, //  9: set    pins, 1                    
+    0xe002, //  9: set    pins, 2                    
     0x4001, // 10: in     pins, 1                    
     0xe000, // 11: set    pins, 0                    
     0x8020, // 12: push   block                      
