@@ -76,7 +76,7 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                 ; instruction.
     in pins, 1                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
     set pins, 0                 ; Set clock low.
-    push block                  ; Push the pin bits to the RX FIFO
+    push                        ; Push the pin bits to the RX FIFO
     jmp y-- bitloop             ; Jump back and keep reading.
 
                                 ; Now set the gain in the same manner as the single
@@ -136,7 +136,6 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     for(uint i = hxm->data_pin_base, l = hxm->data_pin_base + hxm->_chips_len - 1; i <= l; ++i) {
         pio_gpio_init(hxm->_pio, i);
     }
-
 
     pio_interrupt_clear(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM);
