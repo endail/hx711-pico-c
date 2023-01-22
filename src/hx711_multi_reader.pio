@@ -44,7 +44,7 @@ set y, READ_BITS                ; Read y number of bits. This is 0-based.
 
 irq wait APP_WAIT_IRQ_NUM       ; Wait until application code is ready to obtain. Then
 
-wait 1 irq WAIT_DATA_READY_IRQ_NUM
+irq clear WAIT_DATA_READY_IRQ_NUM
 wait 1 irq DATA_READY_IRQ_NUM   ; wait for data ready from other state machine.
 
                                 ; At this point it is assumed all HX711 chips are
@@ -71,7 +71,7 @@ wait 1 irq DATA_READY_IRQ_NUM   ; wait for data ready from other state machine.
                                 ; where n is the number of chips
 
 bitloop:
-    set pins, 2                 ; Set rising edge of clock pin.
+    set pins, 1                 ; Set rising edge of clock pin.
 PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                 ; instruction.
     in pins, 1                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
