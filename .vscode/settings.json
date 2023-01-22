@@ -15,7 +15,8 @@
     "cmake.configureOnOpen": true,
     "files.associations": {
         "stdio.h": "c",
-        "hx711.h": "c"
+        "hx711.h": "c",
+        "cstdlib": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled",
     "C_Cpp.default.intelliSenseMode": "gcc-arm",

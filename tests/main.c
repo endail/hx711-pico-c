@@ -29,13 +29,14 @@
 #include "../include/hx711_multi_awaiter.pio.h"
 #include "../include/hx711_multi_reader.pio.h"
 
+#include <string.h>
+
 int main(void) {
 
     stdio_init_all();
 
-    sleep_ms(3000);
-
 /*
+    sleep_ms(3000);
 
     // SET THESE TO THE GPIO PINS CONNECTED TO THE
     // HX711's CLOCK AND DATA PINS
@@ -135,14 +136,36 @@ int main(void) {
 
     sleep_ms(3000);
 
+/*/
+    while(true) {
+        if(hx711_multi__is_data_ready(&hxm)) {
+           printf("data ready\n");
+        }
+        else {
+            printf("not ready\n");
+        }
+    }
+*/
+
+/*
+    while(true) {
+        printf("waiting... ");
+        hx711_multi__wait_data_ready(&hxm);
+        printf("ready!\n");
+    }
+*/
+
     while(true) {
 
-    // wait (block) until a value is read from each chip
-    hx711_multi_get_values(&hxm, arr);
+        memset(arr, 0, sizeof(arr[0]) * chips);
 
-    for(uint i = 0; i < chips; ++i) {
-        printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
-    }
+        // wait (block) until a value is read from each chip
+        //hx711_multi__wait_data_ready(&hxm);
+        hx711_multi_get_values(&hxm, arr);
+
+        for(uint i = 0; i < chips; ++i) {
+            printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
+        }
 
     }
 

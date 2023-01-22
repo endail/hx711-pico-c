@@ -57,19 +57,24 @@ void hx711_multi_init(
         hxm->_awaiter_prog = awaiterProg;
         hxm->_reader_prog = readerProg;
 
+        hxm->_reader_offset = pio_add_program(hxm->_pio, hxm->_reader_prog);
+        hxm->_reader_sm = (uint)pio_claim_unused_sm(hxm->_pio, true);
+
         hxm->_awaiter_offset = pio_add_program(hxm->_pio, hxm->_awaiter_prog);
         hxm->_awaiter_sm = (uint)pio_claim_unused_sm(hxm->_pio, true);
 
-        hxm->_reader_offset = pio_add_program(hxm->_pio, hxm->_reader_prog);
-        hxm->_reader_sm = (uint)pio_claim_unused_sm(hxm->_pio, true);
         hxm->_read_buffer = (uint32_t*)malloc(sizeof(uint32_t) * hxm->_chips_len);
+        memset(hxm->_read_buffer, 0, sizeof(hxm->_read_buffer[0]) * hxm->_chips_len);
+
+        hxm->_read_buffer_2 = (uint32_t*)malloc(sizeof(uint32_t) * hxm->_chips_len);
 
         gpio_init(hxm->clock_pin);
         gpio_set_dir(hxm->clock_pin, GPIO_OUT);
 
         //contiguous
-        for(uint i = hxm->data_pin_base; i < hxm->_chips_len; ++i) {
+        for(uint i = hxm->data_pin_base, l = hxm->data_pin_base + hxm->_chips_len - 1; i <= l; ++i) {
             gpio_init(i);
+            gpio_pull_up(i);
             gpio_set_dir(i, GPIO_IN);
         }
 
@@ -77,12 +82,17 @@ void hx711_multi_init(
         awaiterProgInitFunc(hxm);
         readerProgInitFunc(hxm);
 
-        pio_set_irq0_source_enabled(
+        /*pio_set_irq0_source_enabled(
             hxm->_pio,
-            PIO_INTR_SM0_LSB,
+            pis_interrupt0,
             false);
 
+        pio_interrupt_clear(
+            hxm->_pio,
+            0);*/
+
         //set up dma
+        /*
         hxm->_dma_reader_channel = dma_claim_unused_channel(true);
 
         channel_config_set_transfer_data_size(
@@ -111,6 +121,7 @@ void hx711_multi_init(
             &hxm->_pio->rxf[hxm->_reader_sm],
             HX711_READ_BITS, //24 transfers every time
             false); //don't start until requested
+        */
 
         mutex_exit(&hxm->_mut);
 
@@ -137,10 +148,11 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hxm->_reader_prog,
         hxm->_reader_offset);
 
-    dma_channel_abort(hxm->_dma_reader_channel);
-    dma_channel_unclaim(hxm->_dma_reader_channel);
+    //dma_channel_abort(hxm->_dma_reader_channel);
+    //dma_channel_unclaim(hxm->_dma_reader_channel);
 
     free(hxm->_read_buffer);
+    free(hxm->_read_buffer_2);
 
     mutex_exit(&hxm->_mut);
 
@@ -213,17 +225,28 @@ void hx711_multi_get_values(
         CHECK_HX711_MULTI_INITD(hxm);
         assert(values != NULL);
 
+        //reset the buffers
+        memset(
+            hxm->_read_buffer_2,
+            0,
+            sizeof(hxm->_read_buffer[0]) * hxm->_chips_len);
+
+        memset(
+            hxm->_read_buffer_2,
+            0,
+            sizeof(hxm->_read_buffer_2[0]) * hxm->_chips_len);
+
         mutex_enter_blocking(&hxm->_mut);
 
         hx711_multi__get_values_raw(hxm);
 
         hx711_multi__pinvals_to_rawvals(
             hxm->_read_buffer,
-            hxm->_read_buffer,
+            hxm->_read_buffer_2,
             hxm->_chips_len);
 
         hx711_multi__convert_raw_vals(
-            hxm->_read_buffer,
+            hxm->_read_buffer_2,
             values,
             hxm->_chips_len);
 
@@ -294,7 +317,7 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
         hxm->_reader_sm,
         false);
 
-    dma_channel_abort(hxm->_dma_reader_channel);
+    //dma_channel_abort(hxm->_dma_reader_channel);
 
     gpio_put(
         hxm->clock_pin,
