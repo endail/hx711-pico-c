@@ -74,7 +74,7 @@ bitloop:
     set pins, 1                 ; Set rising edge of clock pin.
 PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                 ; instruction.
-    in pins, 1                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    in pins, 2                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
     set pins, 0                 ; Set clock low.
     push                        ; Push the pin bits to the RX FIFO
     jmp y-- bitloop             ; Jump back and keep reading.
