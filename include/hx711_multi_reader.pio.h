@@ -94,6 +94,9 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     for(uint i = hxm->data_pin_base, l = hxm->data_pin_base + hxm->_chips_len - 1; i <= l; ++i) {
         pio_gpio_init(hxm->_pio, i);
     }
+    pio_interrupt_clear(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM);
 }
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //set state machine to 10MHz clock speed
