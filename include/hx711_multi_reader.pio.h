@@ -91,7 +91,9 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     pio_gpio_init(
         hxm->_pio,
         hxm->clock_pin);
-    //pio_gpio_init not needed for input pins
+    for(uint i = hxm->data_pin_base, l = hxm->data_pin_base + hxm->_chips_len - 1; i <= l; ++i) {
+        pio_gpio_init(hxm->_pio, i);
+    }
 }
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //set state machine to 10MHz clock speed
@@ -150,9 +152,9 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
         hxm->data_pin_base);
     sm_config_set_in_shift(
         &cfg,
-        true,                   //true = shift in right
-        false,
-        HX711_MULTI_MAX_CHIPS); //"full"
+        false,                   //false = shift in left
+        false,                   //false = autopush disabled
+        32);
     hxm->_reader_default_config = cfg;
 }
 
