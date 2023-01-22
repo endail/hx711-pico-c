@@ -220,6 +220,10 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
         false,                   //false = autopush disabled
         32);
 
+    pio_sm_clear_fifos(
+        hxm->_pio,
+        hxm->_reader_sm);
+
     hxm->_reader_default_config = cfg;
 
 }
