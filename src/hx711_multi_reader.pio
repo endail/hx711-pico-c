@@ -77,8 +77,9 @@ bitloop:
     set pins, HIGH                 ; Set rising edge of clock pin.
 PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                 ; instruction.
-    in pins, 2                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
+    in pins, 1                  ; [REPLACE THE BIT COUNT IN THIS INSTRUCTION THROUGH C]
     set pins, LOW                 ; Set clock low.
+    push block
     jmp y-- bitloop             ; Jump back and keep reading.
 
                                 ; Now set the gain in the same manner as the single
@@ -218,8 +219,8 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
 
     sm_config_set_in_shift(
         &cfg,
-        false,                   //false = shift in left
-        true,                    //false = autopush disabled
+        false,                    //false = shift in left
+        false,                    //false = autopush disabled
         32);
 
     pio_sm_clear_fifos(
