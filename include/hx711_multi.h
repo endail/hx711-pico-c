@@ -27,7 +27,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 #include "hardware/pio.h"
 #include "pico/mutex.h"
 #include "pico/platform.h"
@@ -57,9 +56,8 @@ static const uint HX711_MULTI_MAX_CHIPS = 32;
 
 typedef struct {
 
-    uint clock_pin;
-    uint data_pin_base;
-
+    uint _clock_pin;
+    uint _data_pin_base;
     size_t _chips_len;
 
     PIO _pio;
@@ -82,28 +80,32 @@ typedef struct {
 typedef void (*hx711_multi_pio_init_t)(hx711_multi_t* const);
 typedef void (*hx711_multi_program_init_t)(hx711_multi_t* const);
 
+typedef struct {
+
+    uint clock_pin;
+    uint data_pin_base;
+    size_t chips_len;
+
+    PIO pio;
+    hx711_multi_pio_init_t pio_init;
+
+    const pio_program_t* awaiter_prog;
+    hx711_multi_program_init_t awaiter_prog_init;
+
+    const pio_program_t* reader_prog;
+    hx711_multi_program_init_t reader_prog_init;
+
+} hx711_multi_config_t;
+
 void hx711_multi_init(
     hx711_multi_t* const hxm,
-    const uint clk,
-    const uint datPinBase,
-    const size_t chips,
-    PIO const pio,
-    hx711_multi_pio_init_t pioInitFunc,
-    const pio_program_t* const awaiterProg,
-    hx711_multi_program_init_t awaiterProgInitFunc,
-    const pio_program_t* const readerProg,
-    hx711_multi_program_init_t readerProgInitFunc);
+    const hx711_multi_config_t* const config);
 
 void hx711_multi_close(hx711_multi_t* const hxm);
 
 void hx711_multi_set_gain(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain);
-
-bool hx711_multi_get_values_timeout(
-    hx711_multi_t* const hxm,
-    const uint timeout,
-    int32_t* values);
 
 /**
  * @brief Fill an array with one value from each chip
@@ -125,37 +127,23 @@ void hx711_multi_power_down(hx711_multi_t* const hxm);
  * @brief Signal to the reader SM that it's time to start
  * reading in values
  * 
- * @param pio 
+ * @param hxm 
  */
-static inline void hx711_multi__wait_app_ready(PIO const pio) {
+static inline void hx711_multi__wait_app_ready(hx711_multi_t* const hxm) {
 
-    assert(pio != NULL);
+    CHECK_HX711_MULTI_INITD(hxm)
 
     //wait until the SM has returned to waiting for the app code
     //this may be unnecessary, but would help to prevent obtaining
     //values too quickly and corrupting the HX711 conversion period
-    while(!pio_interrupt_get(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
+    while(!pio_interrupt_get(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
         tight_loop_contents();
     }
 
     //then clear that irq to allow it to proceed
-    pio_interrupt_clear(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
 
 }
-
-/**
- * @brief Signal to the reader SM that it's time to start
- * reading in values, but not if the SM is not ready within
- * the timeout value
- * 
- * @param pio 
- * @param timeout 
- * @return true if the SM has been cleared to begin reading
- * @return false if the timeout was reached
- */
-bool hx711_multi__wait_app_ready_timeout(
-    PIO const pio,
-    const uint timeout);
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -165,7 +153,7 @@ bool hx711_multi__wait_app_ready_timeout(
  * @param rawvals 
  * @param len number of values to convert
  */
-void hx711_multi__pinvals_to_values(
+static void hx711_multi__pinvals_to_values(
     const uint32_t* const pinvals,
     int32_t* const rawvals,
     const size_t len);
@@ -180,28 +168,13 @@ static inline void hx711_multi__get_values_raw(
 
         CHECK_HX711_MULTI_INITD(hxm)
 
-        hx711_multi__wait_app_ready(hxm->_pio);
+        hx711_multi__wait_app_ready(hxm);
 
         for(size_t i = 0; i < HX711_READ_BITS; ++i) {
             hxm->_read_buffer[i] = pio_sm_get_blocking(
                 hxm->_pio,
                 hxm->_reader_sm);
         }
-
-}
-
-static inline bool hx711_multi__get_values_timeout_raw(
-    hx711_multi_t* const hxm,
-    const uint timeout) {
-
-        CHECK_HX711_MULTI_INITD(hxm)
-
-        if(hx711_multi__wait_app_ready_timeout(hxm->_pio, timeout)) {
-            hx711_multi__get_values_raw(hxm);
-            return true;
-        }
-
-        return false;
 
 }
 
