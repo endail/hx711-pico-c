@@ -88,11 +88,16 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
+    assert(hxm->_chips_len > 0);
     pio_gpio_init(
         hxm->_pio,
-        hxm->clock_pin);
-    for(uint i = hxm->data_pin_base, l = hxm->data_pin_base + hxm->_chips_len - 1; i <= l; ++i) {
-        pio_gpio_init(hxm->_pio, i);
+        hxm->_clock_pin);
+    {
+        uint i = hxm->data_pin_base;
+        const uint l = hxm->_data_pin_base + hxm->_chips_len - 1;
+        for(; i <= l; ++i) {
+            pio_gpio_init(hxm->_pio, i);
+        }
     }
     pio_interrupt_clear(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM);
@@ -115,49 +120,49 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     pio_sm_set_out_pins(
         hxm->_pio,
         hxm->_reader_sm,
-        hxm->clock_pin,
+        hxm->_clock_pin,
         1);
     pio_sm_set_set_pins(
         hxm->_pio,
         hxm->_reader_sm,
-        hxm->clock_pin,
+        hxm->_clock_pin,
         1);
     pio_sm_set_consecutive_pindirs(
         hxm->_pio,
         hxm->_reader_sm,
-        hxm->clock_pin,
+        hxm->_clock_pin,
         1,
         true);
     sm_config_set_set_pins(
         &cfg,
-        hxm->clock_pin,
+        hxm->_clock_pin,
         1);
     sm_config_set_out_pins(
         &cfg,
-        hxm->clock_pin,
+        hxm->_clock_pin,
         1);
     sm_config_set_sideset_pins(
         &cfg,
-        hxm->clock_pin);
+        hxm->_clock_pin);
     //data pins
     pio_sm_set_in_pins(
         hxm->_pio,
         hxm->_reader_sm,
-        hxm->data_pin_base);
+        hxm->_data_pin_base);
     pio_sm_set_consecutive_pindirs(
         hxm->_pio,
         hxm->_reader_sm,
-        hxm->data_pin_base,
+        hxm->_data_pin_base,
         hxm->_chips_len,
         false);         //false = input
     sm_config_set_in_pins(
         &cfg,
-        hxm->data_pin_base);
+        hxm->_data_pin_base);
     sm_config_set_in_shift(
         &cfg,
         false,                    //false = shift in left
         false,                    //false = autopush disabled
-        32);
+        0);
     pio_sm_clear_fifos(
         hxm->_pio,
         hxm->_reader_sm);

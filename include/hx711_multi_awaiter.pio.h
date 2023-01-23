@@ -75,6 +75,7 @@ static inline pio_sm_config hx711_multi_awaiter_program_get_default_config(uint 
 void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
+    assert(hxm->_chips_len > 0);
     pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
         hxm->_awaiter_offset);
     //replace placeholder IN instructions
@@ -84,21 +85,21 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     pio_sm_set_in_pins(
         hxm->_pio,
         hxm->_awaiter_sm,
-        hxm->data_pin_base);
+        hxm->_data_pin_base);
     pio_sm_set_consecutive_pindirs(
         hxm->_pio,
         hxm->_awaiter_sm,
-        hxm->data_pin_base,
+        hxm->_data_pin_base,
         hxm->_chips_len,
         false);
     sm_config_set_in_pins(
         &cfg,
-        hxm->data_pin_base);
+        hxm->_data_pin_base);
     sm_config_set_in_shift(
         &cfg,
-        false,            //false = shift in left
-        false,             //true = autopush enabled
-        32);
+        false,              //false = shift in left
+        false,              //true = autopush enabled
+        0);
     hxm->_awaiter_default_config = cfg;
 }
 
