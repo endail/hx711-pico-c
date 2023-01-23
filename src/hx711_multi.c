@@ -22,6 +22,7 @@
 
 #include "../include/hx711_multi.h"
 #include "hardware/gpio.h"
+#include "pico/time.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -63,65 +64,19 @@ void hx711_multi_init(
         hxm->_awaiter_offset = pio_add_program(hxm->_pio, hxm->_awaiter_prog);
         hxm->_awaiter_sm = (uint)pio_claim_unused_sm(hxm->_pio, true);
 
-        hxm->_read_buffer = (uint32_t*)malloc(sizeof(uint32_t) * hxm->_chips_len);
-        memset(hxm->_read_buffer, 0, sizeof(hxm->_read_buffer[0]) * hxm->_chips_len);
-
-        hxm->_read_buffer_2 = (uint32_t*)malloc(sizeof(uint32_t) * hxm->_chips_len);
-
+        //clock pin
         gpio_init(hxm->clock_pin);
         gpio_set_dir(hxm->clock_pin, GPIO_OUT);
 
-        //contiguous
+        //contiguous data pins
         for(uint i = hxm->data_pin_base, l = hxm->data_pin_base + hxm->_chips_len - 1; i <= l; ++i) {
             gpio_init(i);
-            gpio_pull_up(i);
             gpio_set_dir(i, GPIO_IN);
         }
 
         pioInitFunc(hxm);
         awaiterProgInitFunc(hxm);
         readerProgInitFunc(hxm);
-
-        /*pio_set_irq0_source_enabled(
-            hxm->_pio,
-            pis_interrupt0,
-            false);
-
-        pio_interrupt_clear(
-            hxm->_pio,
-            0);*/
-
-        //set up dma
-        /*
-        hxm->_dma_reader_channel = dma_claim_unused_channel(true);
-
-        channel_config_set_transfer_data_size(
-            &hxm->_dma_reader_config,
-            DMA_SIZE_32);
-
-        //reading one word from SM RX FIFO
-        channel_config_set_read_increment(
-            &hxm->_dma_reader_config,
-            false);
-
-        //reading multiple words into array buffer
-        channel_config_set_write_increment(
-            &hxm->_dma_reader_config,
-            true);
-
-        //receive data from reader SM
-        channel_config_set_dreq(
-            &hxm->_dma_reader_config,
-            pio_get_dreq(hxm->_pio, hxm->_reader_sm, false));
-
-        dma_channel_configure(
-            hxm->_dma_reader_channel,
-            &hxm->_dma_reader_config,
-            hxm->_read_buffer,
-            &hxm->_pio->rxf[hxm->_reader_sm],
-            HX711_READ_BITS, //24 transfers every time
-            false); //don't start until requested
-        */
 
         mutex_exit(&hxm->_mut);
 
@@ -147,12 +102,6 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
     pio_remove_program(hxm->_pio,
         hxm->_reader_prog,
         hxm->_reader_offset);
-
-    //dma_channel_abort(hxm->_dma_reader_channel);
-    //dma_channel_unclaim(hxm->_dma_reader_channel);
-
-    free(hxm->_read_buffer);
-    free(hxm->_read_buffer_2);
 
     mutex_exit(&hxm->_mut);
 
@@ -199,14 +148,14 @@ bool hx711_multi_get_values_timeout(
             hx711_multi__get_values_raw(hxm);
         }
 
-        mutex_exit(&hxm->_mut);
-
         if(success) {
-            hx711_multi__convert_raw_vals(
+            hx711_multi__pinvals_to_values(
                 hxm->_read_buffer,
                 values,
                 hxm->_chips_len);
         }
+
+        mutex_exit(&hxm->_mut);
 
         return success;
 
@@ -225,28 +174,14 @@ void hx711_multi_get_values(
         CHECK_HX711_MULTI_INITD(hxm);
         assert(values != NULL);
 
-        //reset the buffers
-        memset(
-            hxm->_read_buffer_2,
-            0,
-            sizeof(hxm->_read_buffer[0]) * hxm->_chips_len);
-
-        memset(
-            hxm->_read_buffer_2,
-            0,
-            sizeof(hxm->_read_buffer_2[0]) * hxm->_chips_len);
-
         mutex_enter_blocking(&hxm->_mut);
 
         hx711_multi__get_values_raw(hxm);
 
-        hx711_multi__pinvals_to_rawvals(
+        //probable race condition with read_buffer if
+        //this is moved outside of the mutex
+        hx711_multi__pinvals_to_values(
             hxm->_read_buffer,
-            hxm->_read_buffer_2,
-            hxm->_chips_len);
-
-        hx711_multi__convert_raw_vals(
-            hxm->_read_buffer_2,
             values,
             hxm->_chips_len);
 
@@ -262,6 +197,8 @@ void hx711_multi_power_up(
 
         const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
 
+        assert(gainVal <= 2);
+
         mutex_enter_blocking(&hxm->_mut);
 
         gpio_put(
@@ -274,6 +211,7 @@ void hx711_multi_power_up(
             hxm->_reader_offset,
             &hxm->_reader_default_config);
 
+        //put the gain value into the reader FIFO
         pio_sm_put(
             hxm->_pio,
             hxm->_reader_sm,
@@ -307,17 +245,17 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
 
     mutex_enter_blocking(&hxm->_mut);
 
+    //stop checking for data readiness
     pio_sm_set_enabled(
         hxm->_pio,
         hxm->_awaiter_sm,
         false);
 
+    //stop reading values
     pio_sm_set_enabled(
         hxm->_pio,
         hxm->_reader_sm,
         false);
-
-    //dma_channel_abort(hxm->_dma_reader_channel);
 
     gpio_put(
         hxm->clock_pin,
@@ -353,13 +291,13 @@ bool hx711_multi__wait_app_ready_timeout(
 
 }
 
-void hx711_multi__pinvals_to_rawvals(
-    uint32_t* pinvals,
-    uint32_t* rawvals,
+void hx711_multi__pinvals_to_values(
+    const uint32_t* const pinvals,
+    int32_t* const values,
     const size_t len) {
 
         assert(pinvals != NULL);
-        assert(rawvals != NULL);
+        assert(values != NULL);
         assert(len > 0);
 
         //construct an individual chip value by OR-ing
@@ -385,13 +323,24 @@ void hx711_multi__pinvals_to_rawvals(
         //...
         //    ((pinvals[23]) >> 0) & 1) << 0;
 
+        uint32_t rawVal;
+
         for(size_t chipNum = 0; chipNum < len; ++chipNum) {
-            rawvals[chipNum] = 0; //0-init
+
+            //0 init
+            rawVal = 0;
+
+            //reconstruct an individual twos comp HX711 value from the
+            //pin bits - this is the raw val
             for(size_t bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
-                rawvals[chipNum] |= 
+                rawVal |= 
                     ((pinvals[bitPos] >> chipNum) & 1)
                     << (HX711_READ_BITS - bitPos - 1);
             }
+
+            //then convert to a regular ones comp
+            values[chipNum] = hx711_get_twos_comp(rawVal);
+
         }
 
 }

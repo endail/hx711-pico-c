@@ -28,11 +28,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-//#include "hardware/dma.h"
 #include "hardware/pio.h"
 #include "pico/mutex.h"
 #include "pico/platform.h"
-#include "pico/time.h"
 #include "hx711.h"
 
 #ifdef __cplusplus
@@ -49,6 +47,8 @@ extern "C" {
 #else
     #define CHECK_HX711_MULTI_INITD(hxm)
 #endif
+
+#define _HX711_MULTI_READ_BUFFER_SIZE 24
 
 static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
 static const uint _HX711_MULTI_DATA_READY_IRQ_NUM = 1;
@@ -73,11 +73,7 @@ typedef struct {
     pio_sm_config _reader_default_config;
     uint _reader_sm;
     uint _reader_offset;
-
-    uint32_t* _read_buffer;
-    uint32_t* _read_buffer_2;
-    //int _dma_reader_channel;
-    //dma_channel_config _dma_reader_config;
+    uint32_t _read_buffer[_HX711_MULTI_READ_BUFFER_SIZE];
 
     mutex_t _mut;
 
@@ -125,76 +121,57 @@ void hx711_multi_power_up(
 
 void hx711_multi_power_down(hx711_multi_t* const hxm);
 
-static inline void hx711_multi__convert_raw_vals(
-    uint32_t* const rawvals,
-    int32_t* const values,
-    const size_t len) {
-
-        assert(rawvals != NULL);
-        assert(values != NULL);
-        assert(len > 0);
-
-        for(size_t i = 0; i < len; ++i) {
-            values[i] = hx711_get_twos_comp(rawvals[i]);
-        }
-
-}
-
+/**
+ * @brief Signal to the reader SM that it's time to start
+ * reading in values
+ * 
+ * @param pio 
+ */
 static inline void hx711_multi__wait_app_ready(PIO const pio) {
 
     assert(pio != NULL);
 
-    //wait for pio to begin to wait for chips ready
+    //wait until the SM has returned to waiting for the app code
+    //this may be unnecessary, but would help to prevent obtaining
+    //values too quickly and corrupting the HX711 conversion period
     while(!pio_interrupt_get(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
         tight_loop_contents();
     }
 
+    //then clear that irq to allow it to proceed
     pio_interrupt_clear(pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
 
 }
 
+/**
+ * @brief Signal to the reader SM that it's time to start
+ * reading in values, but not if the SM is not ready within
+ * the timeout value
+ * 
+ * @param pio 
+ * @param timeout 
+ * @return true if the SM has been cleared to begin reading
+ * @return false if the timeout was reached
+ */
 bool hx711_multi__wait_app_ready_timeout(
     PIO const pio,
     const uint timeout);
 
-void hx711_multi__pinvals_to_rawvals(
-    uint32_t* pinvals,
-    uint32_t* rawvals,
+/**
+ * @brief Convert an array of pinvals to regular HX711
+ * values
+ * 
+ * @param pinvals 
+ * @param rawvals 
+ * @param len number of values to convert
+ */
+void hx711_multi__pinvals_to_values(
+    const uint32_t* const pinvals,
+    int32_t* const rawvals,
     const size_t len);
 
-static void hx711_multi__wait_data_ready(hx711_multi_t* const hxm) {
-
-    //wait for the wait data ready flag if necessary...
-    while(!pio_interrupt_get(hxm->_pio, _HX711_MULTI_WAIT_DATA_READY_IRQ_NUM)) {
-        tight_loop_contents();
-    }
-
-    //...then clear it...
-    pio_interrupt_clear(hxm->_pio, _HX711_MULTI_WAIT_DATA_READY_IRQ_NUM);
-
-    //...then wait for the data ready flag...
-    while(!pio_interrupt_get(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM)) {
-        tight_loop_contents();
-    }
-
-    //...then clear that.
-    pio_interrupt_clear(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM);
-
-}
-
-static bool hx711_multi__is_data_ready(hx711_multi_t* const hxm) {
-    //bool b = pio_interrupt_get(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM);
-    //pio_interrupt_clear(hxm->_pio, _HX711_MULTI_DATA_READY_IRQ_NUM);
-    return gpio_get(hxm->data_pin_base) == false;
-    //return b;
-}
-
-static uint32_t hx711_multi__get_data_ready_pinvals(hx711_multi_t* const hxm) {
-    return pio_sm_get_blocking(hxm->_pio, hxm->_awaiter_sm);
-}
-
 /**
- * @brief Reads pinvals into the internal buffer.
+ * @brief Reads pinvals into the internal buffer
  * 
  * @param hxm 
  */
@@ -206,28 +183,10 @@ static inline void hx711_multi__get_values_raw(
         hx711_multi__wait_app_ready(hxm->_pio);
 
         for(size_t i = 0; i < HX711_READ_BITS; ++i) {
-            hxm->_read_buffer[i] = pio_sm_get_blocking(hxm->_pio, hxm->_reader_sm);
-            //printf("%lu\n", hxm->_read_buffer[i]);
+            hxm->_read_buffer[i] = pio_sm_get_blocking(
+                hxm->_pio,
+                hxm->_reader_sm);
         }
-
-/*
-        assert(!dma_channel_is_busy(hxm->_dma_reader_channel));
-
-        memset(hxm->_read_buffer, 0, sizeof(hxm->_read_buffer[0]) * hxm->_chips_len);
-
-        //reset the write address and start the transfer from
-        //the sm to the buffer
-        dma_channel_set_write_addr(
-            hxm->_dma_reader_channel,
-            hxm->_read_buffer,
-            true); //true = start
-        
-        //wait to start new conversion period
-        hx711_multi__wait_app_ready(hxm->_pio);
-
-        //wait until done
-        dma_channel_wait_for_finish_blocking(hxm->_dma_reader_channel);
-*/
 
 }
 
