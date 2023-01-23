@@ -19,7 +19,7 @@
 // ------------------ //
 
 #define hx711_multi_reader_wrap_target 3
-#define hx711_multi_reader_wrap 16
+#define hx711_multi_reader_wrap 17
 
 #define hx711_multi_reader_offset_bitloop_in_pins_bit_count 8u
 
@@ -33,22 +33,23 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xc042, //  5: irq    clear 2                    
     0x20c1, //  6: wait   1 irq, 1                   
     0xe001, //  7: set    pins, 1                    
-    0x4002, //  8: in     pins, 2                    
+    0x4001, //  8: in     pins, 1                    
     0xe000, //  9: set    pins, 0                    
-    0x0087, // 10: jmp    y--, 7                     
-    0x9880, // 11: pull   noblock         side 1     
-    0x6022, // 12: out    x, 2                       
-    0x1023, // 13: jmp    !x, 3           side 0     
-    0xa041, // 14: mov    y, x                       
-    0xe101, // 15: set    pins, 1                [1] 
-    0x118f, // 16: jmp    y--, 15         side 0 [1] 
+    0x8020, // 10: push   block                      
+    0x0087, // 11: jmp    y--, 7                     
+    0x9880, // 12: pull   noblock         side 1     
+    0x6022, // 13: out    x, 2                       
+    0x1023, // 14: jmp    !x, 3           side 0     
+    0xa041, // 15: mov    y, x                       
+    0xe101, // 16: set    pins, 1                [1] 
+    0x1190, // 17: jmp    y--, 16         side 0 [1] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_reader_program = {
     .instructions = hx711_multi_reader_program_instructions,
-    .length = 17,
+    .length = 18,
     .origin = -1,
 };
 
@@ -154,8 +155,8 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
         hxm->data_pin_base);
     sm_config_set_in_shift(
         &cfg,
-        false,                   //false = shift in left
-        true,                    //false = autopush disabled
+        false,                    //false = shift in left
+        false,                    //false = autopush disabled
         32);
     pio_sm_clear_fifos(
         hxm->_pio,
