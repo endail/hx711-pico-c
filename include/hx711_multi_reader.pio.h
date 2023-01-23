@@ -93,7 +93,7 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_pio,
         hxm->_clock_pin);
     {
-        uint i = hxm->data_pin_base;
+        uint i = hxm->_data_pin_base;
         const uint l = hxm->_data_pin_base + hxm->_chips_len - 1;
         for(; i <= l; ++i) {
             pio_gpio_init(hxm->_pio, i);
