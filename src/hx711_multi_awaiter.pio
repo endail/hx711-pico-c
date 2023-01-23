@@ -29,6 +29,8 @@
 .define LOW 0
 .define HIGH 1
 
+.define PLACEHOLDER_IN 1
+
 .wrap_target
 wrap_target:
 
@@ -36,7 +38,7 @@ irq wait WAIT_DATA_READY_IRQ_NUM        ; wait for signal before testing the dat
 
 testpins:
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
-    in pins, 1
+    in pins, PLACEHOLDER_IN
     mov y, isr                          ; Copy the ISR contents into the y register.
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
     jmp testpins                        ; go back to trying again.
@@ -79,6 +81,7 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
 
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
+    assert(hxm->_chips_len > 0);
 
     pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
         hxm->_awaiter_offset);
@@ -91,24 +94,24 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     pio_sm_set_in_pins(
         hxm->_pio,
         hxm->_awaiter_sm,
-        hxm->data_pin_base);
+        hxm->_data_pin_base);
 
     pio_sm_set_consecutive_pindirs(
         hxm->_pio,
         hxm->_awaiter_sm,
-        hxm->data_pin_base,
+        hxm->_data_pin_base,
         hxm->_chips_len,
         false);
 
     sm_config_set_in_pins(
         &cfg,
-        hxm->data_pin_base);
+        hxm->_data_pin_base);
 
     sm_config_set_in_shift(
         &cfg,
-        false,            //false = shift in left
-        false,             //true = autopush enabled
-        32);
+        false,              //false = shift in left
+        false,              //true = autopush enabled
+        0);
 
     hxm->_awaiter_default_config = cfg;
 
