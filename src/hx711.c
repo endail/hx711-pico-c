@@ -23,30 +23,39 @@
 #include "../include/hx711.h"
 #include "hardware/gpio.h"
 
+const uint HX711_SETTLING_TIMES[] = { //ms
+    400,
+    50
+};
+
+const uint HX711_SAMPLE_RATES[] = {
+    10,
+    80
+};
+
 void hx711_init(
     hx711_t* const hx, 
-    const uint clk,
-    const uint dat,
-    PIO const pio,
-    const pio_program_t* const prog,
-    hx711_program_init_t prog_init_func) {
+    const hx711_config_t* const config) {
 
         assert(hx != NULL);
-        assert(pio != NULL);
-        assert(prog != NULL);
-        assert(prog_init_func != NULL);
-        assert(pio_can_add_program(pio, prog));
+        assert(config != NULL);
+        assert(config->pio != NULL);
+        assert(config->pio_init != NULL);
+        assert(config->reader_prog != NULL);
+        assert(config->reader_prog_init != NULL);
+
+        assert(pio_can_add_program(config->pio, config->reader_prog));
 
         mutex_init(&hx->_mut);
         mutex_enter_blocking(&hx->_mut);
 
-        hx->clock_pin = clk;
-        hx->data_pin = dat;
-        hx->_pio = pio;
-        hx->_prog = prog;
+        hx->_clock_pin = config->clock_pin;
+        hx->_data_pin = config->data_pin;
+        hx->_pio = config->pio;
+        hx->_reader_prog = config->reader_prog;
 
-        gpio_init(hx->clock_pin);
-        gpio_set_dir(hx->clock_pin, GPIO_OUT);
+        gpio_init(hx->_clock_pin);
+        gpio_set_dir(hx->_clock_pin, GPIO_OUT);
 
         /**
          * There was originally a call here to gpio_put on the
@@ -61,8 +70,7 @@ void hx711_init(
          * state machine.
          */
 
-        gpio_init(hx->data_pin);
-        gpio_set_dir(hx->data_pin, GPIO_IN);
+        gpio_set_input_enabled(hx->_data_pin, true);
 
         /**
          * There was originally a call here to gpio_pull_up
@@ -73,10 +81,11 @@ void hx711_init(
          */
 
         //either statement below will panic if it fails
-        hx->_offset = pio_add_program(hx->_pio, hx->_prog);
-        hx->_state_mach = (uint)pio_claim_unused_sm(hx->_pio, true);
+        hx->_reader_offset = pio_add_program(hx->_pio, hx->_reader_prog);
+        hx->_reader_sm = (uint)pio_claim_unused_sm(hx->_pio, true);
 
-        prog_init_func(hx);
+        config->pio_init(hx);
+        config->reader_prog_init(hx);
 
         mutex_exit(&hx->_mut);
 
@@ -90,17 +99,17 @@ void hx711_close(hx711_t* const hx) {
 
     pio_sm_set_enabled(
         hx->_pio,
-        hx->_state_mach,
+        hx->_reader_sm,
         false);
 
     pio_sm_unclaim(
         hx->_pio,
-        hx->_state_mach);
+        hx->_reader_sm);
 
     pio_remove_program(
         hx->_pio,
-        hx->_prog,
-        hx->_offset);
+        hx->_reader_prog,
+        hx->_reader_offset);
 
     mutex_exit(&hx->_mut);
 
@@ -124,11 +133,11 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
      */
     pio_sm_drain_tx_fifo(
         hx->_pio,
-        hx->_state_mach);
+        hx->_reader_sm);
 
     pio_sm_put(
         hx->_pio,
-        hx->_state_mach,
+        hx->_reader_sm,
         gainVal);
 
     /**
@@ -161,13 +170,13 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
     //1. clear the RX FIFO with the non-blocking read
     pio_sm_get(
         hx->_pio,
-        hx->_state_mach);
+        hx->_reader_sm);
 
     //2. wait until the value from the currently-set gain
     //can be safely read and discarded
     pio_sm_get_blocking(
         hx->_pio,
-        hx->_state_mach);
+        hx->_reader_sm);
 
     /**
      * Immediately following the above blocking call, the
@@ -202,7 +211,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
      */
     const uint32_t rawVal = pio_sm_get_blocking(
         hx->_pio,
-        hx->_state_mach);
+        hx->_reader_sm);
 
     mutex_exit(&hx->_mut);
 
@@ -227,7 +236,7 @@ bool hx711_get_value_timeout(
         mutex_enter_blocking(&hx->_mut);
 
         while(!time_reached(endTime)) {
-            if((success = hx711__try_get_value(hx->_pio, hx->_state_mach, &tempVal))) {
+            if((success = hx711__try_get_value(hx->_pio, hx->_reader_sm, &tempVal))) {
                 break;
             }
         }
@@ -254,7 +263,7 @@ bool hx711_get_value_noblock(
 
         mutex_enter_blocking(&hx->_mut);
 
-        success = hx711__try_get_value(hx->_pio, hx->_state_mach, &tempVal);
+        success = hx711__try_get_value(hx->_pio, hx->_reader_sm, &tempVal);
 
         mutex_exit(&hx->_mut);
 
@@ -291,26 +300,26 @@ void hx711_power_up(
          * going low. Which, in turn, is handled by the state
          * machine in waiting for the low signal.
          */
-        gpio_put(hx->clock_pin, false);
+        gpio_put(hx->_clock_pin, false);
 
         //2. reset the state machine using the default config
         //obtained when init'ing.
         pio_sm_init(
             hx->_pio,
-            hx->_state_mach,
-            hx->_offset,
-            &hx->_default_config);
+            hx->_reader_sm,
+            hx->_reader_offset,
+            &hx->_reader_prog_default_config);
 
         //3. Push the initial gain into the TX FIFO
         pio_sm_put(
             hx->_pio,
-            hx->_state_mach,
+            hx->_reader_sm,
             gainVal);
 
         //4. start the state machine
         pio_sm_set_enabled(
             hx->_pio,
-            hx->_state_mach,
+            hx->_reader_sm,
             true);
 
         mutex_exit(&hx->_mut);
@@ -326,7 +335,7 @@ void hx711_power_down(hx711_t* const hx) {
     //1. stop the state machine
     pio_sm_set_enabled(
         hx->_pio,
-        hx->_state_mach,
+        hx->_reader_sm,
         false);
 
     /**
@@ -340,7 +349,7 @@ void hx711_power_down(hx711_t* const hx) {
      * hx711_power_down(&hx);
      * hx711_wait_power_down();
      */
-    gpio_put(hx->clock_pin, true);
+    gpio_put(hx->_clock_pin, true);
 
     mutex_exit(&hx->_mut);
 

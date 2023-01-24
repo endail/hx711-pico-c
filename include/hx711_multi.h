@@ -47,12 +47,10 @@ extern "C" {
     #define CHECK_HX711_MULTI_INITD(hxm)
 #endif
 
-#define _HX711_MULTI_READ_BUFFER_SIZE 24
-
-static const uint _HX711_MULTI_APP_WAIT_IRQ_NUM = 0;
-static const uint _HX711_MULTI_DATA_READY_IRQ_NUM = 1;
-static const uint _HX711_MULTI_WAIT_DATA_READY_IRQ_NUM = 2;
-static const uint HX711_MULTI_MAX_CHIPS = 32;
+#define HX711_MULTI_APP_WAIT_IRQ_NUM 0
+#define HX711_MULTI_DATA_READY_IRQ_NUM 1
+#define HX711_MULTI_WAIT_DATA_READY_IRQ_NUM 2
+#define HX711_MULTI_MAX_CHIPS 32
 
 typedef struct {
 
@@ -71,7 +69,9 @@ typedef struct {
     pio_sm_config _reader_default_config;
     uint _reader_sm;
     uint _reader_offset;
-    uint32_t _read_buffer[_HX711_MULTI_READ_BUFFER_SIZE];
+
+    //static array; unit'd is OK, will be overwritten
+    uint32_t _read_buffer[HX711_READ_BITS];
 
     mutex_t _mut;
 
@@ -136,12 +136,12 @@ static inline void hx711_multi__wait_app_ready(hx711_multi_t* const hxm) {
     //wait until the SM has returned to waiting for the app code
     //this may be unnecessary, but would help to prevent obtaining
     //values too quickly and corrupting the HX711 conversion period
-    while(!pio_interrupt_get(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM)) {
+    while(!pio_interrupt_get(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM)) {
         tight_loop_contents();
     }
 
     //then clear that irq to allow it to proceed
-    pio_interrupt_clear(hxm->_pio, _HX711_MULTI_APP_WAIT_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM);
 
 }
 

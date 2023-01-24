@@ -32,7 +32,6 @@ void hx711_multi_init(
 
         assert(hxm != NULL);
         assert(config != NULL);
-
         assert(config->chips_len <= HX711_MULTI_MAX_CHIPS);
         assert(config->pio != NULL);
         assert(config->pio_init != NULL);
@@ -68,8 +67,6 @@ void hx711_multi_init(
             const uint l = hxm->_data_pin_base + hxm->_chips_len - 1;
             for(; i <= l; ++i) {
                 gpio_set_input_enabled(i, true);
-                //gpio_init(i);
-                //gpio_set_dir(i, GPIO_IN);
             }
         }
 
@@ -139,12 +136,6 @@ void hx711_multi_set_gain(
 
 }
 
-/**
- * @brief Fill an array with one value from each chip
- * 
- * @param hxm 
- * @param values 
- */
 void hx711_multi_get_values(
     hx711_multi_t* const hxm,
     int32_t* values) {
@@ -175,7 +166,7 @@ void hx711_multi_power_up(
 
         const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
 
-        assert(gainVal <= 2);
+        assert(gainVal <= HX711_PIO_MAX_GAIN);
 
         mutex_enter_blocking(&hxm->_mut);
 
