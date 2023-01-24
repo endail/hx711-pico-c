@@ -201,7 +201,7 @@ void hx711_noblock_program_init(hx711_t* const hx) {
     assert(hx != NULL);
     assert(hx->_pio != NULL);
 
-    pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_offset);
+    pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_reader_offset);
 
     const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
 
