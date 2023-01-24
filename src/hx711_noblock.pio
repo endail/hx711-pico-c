@@ -212,61 +212,61 @@ void hx711_noblock_program_init(hx711_t* const hx) {
     //clock pin setup
     pio_sm_set_out_pins(
         hx->_pio,
-        hx->_state_mach,
-        hx->clock_pin,
+        hx->_reader_sm,
+        hx->_clock_pin,
         1);
 
     pio_sm_set_set_pins(
         hx->_pio,
-        hx->_state_mach,
-        hx->clock_pin,
+        hx->_reader_sm,
+        hx->_clock_pin,
         1);
 
     pio_gpio_init(
         hx->_pio,
-        hx->clock_pin);
+        hx->_clock_pin);
 
     pio_sm_set_consecutive_pindirs(
         hx->_pio,
-        hx->_state_mach,
-        hx->clock_pin,
+        hx->_reader_sm,
+        hx->_clock_pin,
         1,
         true);
 
     sm_config_set_set_pins(
         &cfg,
-        hx->clock_pin,
+        hx->_clock_pin,
         1);
 
     sm_config_set_out_pins(
         &cfg,
-        hx->clock_pin,
+        hx->_clock_pin,
         1);
 
     sm_config_set_sideset_pins(
         &cfg,
-        hx->clock_pin);
+        hx->_clock_pin);
 
     //data pin setup
     pio_sm_set_in_pins(
         hx->_pio,
-        hx->_state_mach,
-        hx->data_pin);
+        hx->_reader_sm,
+        hx->_data_pin);
 
     pio_sm_set_consecutive_pindirs(
         hx->_pio,
-        hx->_state_mach,
-        hx->data_pin,
+        hx->_reader_sm,
+        hx->_data_pin,
         1,
         false);
     
     pio_gpio_init(
         hx->_pio,
-        hx->data_pin);
+        hx->_data_pin);
 
     sm_config_set_in_pins(
         &cfg,
-        hx->data_pin);
+        hx->_data_pin);
 
     /**
      * Why enable autopush?
@@ -294,7 +294,7 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         HX711_READ_BITS); //autopush on 24 bits
 
     //store a copy of the configuration for resetting the sm
-    hx->_default_config = cfg;
+    hx->_reader_default_config = cfg;
 
 }
 
