@@ -44,7 +44,7 @@ void hx711_multi_init(
         mutex_init(&hxm->_mut);
         mutex_enter_blocking(&hxm->_mut);
 
-        hxm->_clock_pin = config->chips_len;
+        hxm->_clock_pin = config->clock_pin;
         hxm->_data_pin_base = config->data_pin_base;
         hxm->_chips_len = config->chips_len;
 

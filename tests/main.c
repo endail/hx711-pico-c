@@ -102,20 +102,21 @@ int main(void) {
 */
 
     hx711_multi_t hxm;
+    hx711_multi_config_t cfg;
     const size_t chips = 1;
 
     // 1. initialise
-    hx711_multi_init(
-        &hxm,
-        14, // Pico GPIO pin connected to all HX711 chips
-        15, // the first data pin connected to a HX711 chip
-        chips, // the number of HX711 chips connected
-        pio0, // the RP2040 PIO to use (either pio0 or pio1)
-        hx711_multi_pio_init, // pio init function
-        &hx711_multi_awaiter_program, // pio program which waits for HX711 data readiness
-        hx711_multi_awaiter_program_init, // data readiness program init function
-        &hx711_multi_reader_program, // pio program which reads bits from HX711 chips
-        hx711_multi_reader_program_init); // bit reading program init function
+    cfg.clock_pin = 14;
+    cfg.data_pin_base = 15;
+    cfg.chips_len = chips;
+    cfg.pio = pio0;
+    cfg.pio_init = hx711_multi_pio_init;
+    cfg.awaiter_prog = &hx711_multi_awaiter_program;
+    cfg.awaiter_prog_init = hx711_multi_awaiter_program_init;
+    cfg.reader_prog = &hx711_multi_reader_program;
+    cfg.reader_prog_init = hx711_multi_reader_program_init;
+
+    hx711_multi_init(&hxm, &cfg);
 
     // 2. Power up the HX711 chips and use a gain of 128
     hx711_multi_power_up(&hxm, hx711_gain_128);
@@ -129,56 +130,22 @@ int main(void) {
     //hx711_multi_power_up(&hxm, hx711_gain_64);
 
     // 4. Wait for readings to settle
-    hx711_wait_settle(hx711_rate_10); // or hx711_rate_80 depending on each chip's config
+    hx711_wait_settle(hx711_rate_80); // or hx711_rate_80 depending on each chip's config
 
     // 5. Read values
     int32_t arr[chips];
 
     sleep_ms(3000);
 
-/*/
     while(true) {
-        if(hx711_multi__is_data_ready(&hxm)) {
-           printf("data ready\n");
-        }
-        else {
-            printf("not ready\n");
-        }
-    }
-*/
-
-/*
-    while(true) {
-        printf("waiting... ");
-        hx711_multi__wait_data_ready(&hxm);
-        printf("ready!\n");
-    }
-*/
-
-    while(true) {
-
-        memset(arr, 0, sizeof(arr[0]) * chips);
 
         // wait (block) until a value is read from each chip
-        //hx711_multi__wait_data_ready(&hxm);
         hx711_multi_get_values(&hxm, arr);
 
         for(uint i = 0; i < chips; ++i) {
             printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
         }
 
-    }
-
-    // or use a timeout
-    if(hx711_multi_get_values_timeout(&hxm, 250000, arr)) {
-        // value was obtained within the timeout period
-        // in this case, within 250 milliseconds
-        for(uint i = 0; i < chips; ++i) {
-            printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
-        }
-    }
-    else {
-        printf("no value obtained within timeout\n");
     }
 
     // 6. Stop communication with all HX711 chips
