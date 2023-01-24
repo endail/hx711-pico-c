@@ -164,7 +164,7 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         true,             //true = autopush enabled
         HX711_READ_BITS); //autopush on 24 bits
     //store a copy of the configuration for resetting the sm
-    hx->_reader_default_config = cfg;
+    hx->_reader_prog_default_config = cfg;
 }
 
 #endif
