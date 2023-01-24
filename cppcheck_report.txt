@@ -1,12 +1,12 @@
-src/hx711_multi.c:279:18: style: The scope of the variable 'rawVal' can be reduced. [variableScope]
+src/hx711_multi.c:270:18: style: The scope of the variable 'rawVal' can be reduced. [variableScope]
         uint32_t rawVal;
                  ^
-src/hx711_multi.c:248:20: style:inconclusive: Function 'hx711_multi__pinvals_to_values' argument 2 names different: declaration 'rawvals' definition 'values'. [funcArgNamesDifferent]
+src/hx711_multi.c:239:20: style:inconclusive: Function 'hx711_multi__pinvals_to_values' argument 2 names different: declaration 'rawvals' definition 'values'. [funcArgNamesDifferent]
     int32_t* const values,
                    ^
 include/hx711_multi.h:158:20: note: Function 'hx711_multi__pinvals_to_values' argument 2 names different: declaration 'rawvals' definition 'values'.
     int32_t* const rawvals,
                    ^
-src/hx711_multi.c:248:20: note: Function 'hx711_multi__pinvals_to_values' argument 2 names different: declaration 'rawvals' definition 'values'.
+src/hx711_multi.c:239:20: note: Function 'hx711_multi__pinvals_to_values' argument 2 names different: declaration 'rawvals' definition 'values'.
     int32_t* const values,
                    ^
