@@ -24,7 +24,7 @@
 static const uint16_t hx711_noblock_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
     0x8080, //  1: pull   noblock                    
-    0xa027, //  2: mov    x, osr                     
+    0x6020, //  2: out    x, 32                      
             //     .wrap_target
     0xe057, //  3: set    y, 23                      
     0x2020, //  4: wait   0 pin, 0                   
@@ -32,7 +32,7 @@ static const uint16_t hx711_noblock_program_instructions[] = {
     0x4001, //  6: in     pins, 1                    
     0x1185, //  7: jmp    y--, 5          side 0 [1] 
     0x9880, //  8: pull   noblock         side 1     
-    0x6022, //  9: out    x, 2                       
+    0x6020, //  9: out    x, 32                      
     0x1023, // 10: jmp    !x, 3           side 0     
     0xa041, // 11: mov    y, x                       
     0xe101, // 12: set    pins, 1                [1] 

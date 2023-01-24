@@ -26,7 +26,7 @@
 static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
     0x8080, //  1: pull   noblock                    
-    0xa027, //  2: mov    x, osr                     
+    0x6020, //  2: out    x, 32                      
             //     .wrap_target
     0xe057, //  3: set    y, 23                      
     0xc020, //  4: irq    wait 0                     
@@ -38,7 +38,7 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0x8020, // 10: push   block                      
     0x0087, // 11: jmp    y--, 7                     
     0x9880, // 12: pull   noblock         side 1     
-    0x6022, // 13: out    x, 2                       
+    0x6020, // 13: out    x, 32                      
     0x1023, // 14: jmp    !x, 3           side 0     
     0xa041, // 15: mov    y, x                       
     0xe101, // 16: set    pins, 1                [1] 
