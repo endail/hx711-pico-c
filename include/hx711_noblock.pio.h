@@ -76,21 +76,16 @@ static inline pio_sm_config hx711_noblock_program_get_default_config(uint offset
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <assert.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 #include "hx711.h"
-void hx711_noblock_program_init(hx711_t* const hx) {
-    //set state machine to 10MHz clock speed
-    static const uint SM_HZ = 10000000;
+void hx711_noblock_pio_init(hx711_t* const hx) {
     assert(hx != NULL);
     assert(hx->_pio != NULL);
-    pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_reader_offset);
-    const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
-    sm_config_set_clkdiv(
-        &cfg,
-        div);
+    pio_gpio_init(
+        hx->_pio,
+        hx->_clock_pin);
     //clock pin setup
     pio_sm_set_out_pins(
         hx->_pio,
@@ -102,15 +97,37 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         hx->_reader_sm,
         hx->_clock_pin,
         1);
-    pio_gpio_init(
-        hx->_pio,
-        hx->_clock_pin);
     pio_sm_set_consecutive_pindirs(
         hx->_pio,
         hx->_reader_sm,
         hx->_clock_pin,
         1,
         true);
+    //data pin setup
+    pio_gpio_init(
+        hx->_pio,
+        hx->_data_pin);
+    pio_sm_set_in_pins(
+        hx->_pio,
+        hx->_reader_sm,
+        hx->_data_pin);
+    pio_sm_set_consecutive_pindirs(
+        hx->_pio,
+        hx->_reader_sm,
+        hx->_data_pin,
+        1,
+        false);
+}
+void hx711_noblock_program_init(hx711_t* const hx) {
+    //set state machine to 10MHz clock speed
+    static const uint SM_HZ = 10000000;
+    assert(hx != NULL);
+    assert(hx->_pio != NULL);
+    pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_reader_offset);
+    const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
+    sm_config_set_clkdiv(
+        &cfg,
+        div);
     sm_config_set_set_pins(
         &cfg,
         hx->_clock_pin,
@@ -122,20 +139,6 @@ void hx711_noblock_program_init(hx711_t* const hx) {
     sm_config_set_sideset_pins(
         &cfg,
         hx->_clock_pin);
-    //data pin setup
-    pio_sm_set_in_pins(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->_data_pin);
-    pio_sm_set_consecutive_pindirs(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->_data_pin,
-        1,
-        false);
-    pio_gpio_init(
-        hx->_pio,
-        hx->_data_pin);
     sm_config_set_in_pins(
         &cfg,
         hx->_data_pin);
