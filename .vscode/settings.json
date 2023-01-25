@@ -16,7 +16,14 @@
     "files.associations": {
         "stdio.h": "c",
         "hx711.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "stdint.h": "c",
+        "cstdint": "c",
+        "time.h": "c",
+        "_timespec.h": "c",
+        "_types.h": "c",
+        "gpio.h": "c",
+        "hx711_multi.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Enabled",
     "C_Cpp.default.intelliSenseMode": "gcc-arm",

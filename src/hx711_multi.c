@@ -22,9 +22,6 @@
 
 #include "../include/hx711_multi.h"
 #include "hardware/gpio.h"
-#include "pico/time.h"
-#include <stdlib.h>
-#include <string.h>
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
@@ -32,6 +29,7 @@ void hx711_multi_init(
 
         assert(hxm != NULL);
         assert(config != NULL);
+        assert(config->chips_len >= HX711_MULTI_MIN_CHIPS);
         assert(config->chips_len <= HX711_MULTI_MAX_CHIPS);
         assert(config->pio != NULL);
         assert(config->pio_init != NULL);
@@ -166,8 +164,6 @@ void hx711_multi_power_up(
 
         const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
 
-        assert(gainVal <= HX711_PIO_MAX_GAIN);
-
         mutex_enter_blocking(&hxm->_mut);
 
         gpio_put(
@@ -270,9 +266,29 @@ void hx711_multi__pinvals_to_values(
         uint32_t rawVal;
         uint shift;
 
+/*
+        //faster, but uses an array
+        //iterations: 24 + chip nums
+
+        uint32_t arr[HX711_MULTI_MAX_CHIPS];
+
+        memset(arr, 0, sizeof(*arr) * 32);
+
+        for(int i = 0; i < HX711_READ_BITS) {
+            arr[i] <<= 1;
+            arr[i] |= pinvals[i];
+        }
+
+        for(int i = 0; i < len; ++i) {
+            values[i] = hx711_get_twos_comp(arr[i]);
+        }
+*/
+
+        //slower, but no array
+        //iterations: 24 * chip nums
         for(size_t chipNum = 0; chipNum < len; ++chipNum) {
 
-            //0 init
+            //reset to 0
             //this is the raw value for an individual chip
             rawVal = 0;
 

@@ -24,7 +24,6 @@
 #define _HX711_MULTI_H_253BF37A_8356_462B_B8F9_39E09A7193E6
 
 #include <assert.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "hardware/pio.h"
@@ -50,6 +49,8 @@ extern "C" {
 #define HX711_MULTI_APP_WAIT_IRQ_NUM 0
 #define HX711_MULTI_DATA_READY_IRQ_NUM 1
 #define HX711_MULTI_WAIT_DATA_READY_IRQ_NUM 2
+
+#define HX711_MULTI_MIN_CHIPS 1
 #define HX711_MULTI_MAX_CHIPS 32
 
 typedef struct {
@@ -70,7 +71,7 @@ typedef struct {
     uint _reader_sm;
     uint _reader_offset;
 
-    //static array; unit'd is OK, will be overwritten
+    //static array; uninit'd is OK, will be overwritten
     uint32_t _read_buffer[HX711_READ_BITS];
 
     mutex_t _mut;
@@ -103,6 +104,12 @@ void hx711_multi_init(
 
 void hx711_multi_close(hx711_multi_t* const hxm);
 
+/**
+ * @brief Sets the gain on all chips
+ * 
+ * @param hxm 
+ * @param gain 
+ */
 void hx711_multi_set_gain(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain);
@@ -122,6 +129,20 @@ void hx711_multi_power_up(
     const hx711_gain_t gain);
 
 void hx711_multi_power_down(hx711_multi_t* const hxm);
+
+/**
+ * @brief Attempt to synchronise all connected chips
+ * 
+ * @param hxm 
+ * @param gain initial gain to set to all chips
+ */
+inline void hx711_multi_sync(
+    hx711_multi_t* const hxm,
+    const hx711_gain_t gain) {
+        hx711_multi_power_down(hxm);
+        hx711_wait_power_down();
+        hx711_multi_power_up(hxm, gain);
+}
 
 /**
  * @brief Signal to the reader SM that it's time to start

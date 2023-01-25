@@ -187,11 +187,58 @@ gainloop:
 // SOFTWARE.
 
 #include <assert.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 #include "hx711.h"
+
+void hx711_noblock_pio_init(hx711_t* const hx) {
+
+    assert(hx != NULL);
+    assert(hx->_pio != NULL);
+
+    pio_gpio_init(
+        hx->_pio,
+        hx->_clock_pin);
+
+    //clock pin setup
+    pio_sm_set_out_pins(
+        hx->_pio,
+        hx->_reader_sm,
+        hx->_clock_pin,
+        1);
+
+    pio_sm_set_set_pins(
+        hx->_pio,
+        hx->_reader_sm,
+        hx->_clock_pin,
+        1);
+
+    pio_sm_set_consecutive_pindirs(
+        hx->_pio,
+        hx->_reader_sm,
+        hx->_clock_pin,
+        1,
+        true);
+
+    //data pin setup
+    pio_gpio_init(
+        hx->_pio,
+        hx->_data_pin);
+
+    pio_sm_set_in_pins(
+        hx->_pio,
+        hx->_reader_sm,
+        hx->_data_pin);
+
+    pio_sm_set_consecutive_pindirs(
+        hx->_pio,
+        hx->_reader_sm,
+        hx->_data_pin,
+        1,
+        false);
+
+}
 
 void hx711_noblock_program_init(hx711_t* const hx) {
 
@@ -209,30 +256,6 @@ void hx711_noblock_program_init(hx711_t* const hx) {
         &cfg,
         div);
 
-    //clock pin setup
-    pio_sm_set_out_pins(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->_clock_pin,
-        1);
-
-    pio_sm_set_set_pins(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->_clock_pin,
-        1);
-
-    pio_gpio_init(
-        hx->_pio,
-        hx->_clock_pin);
-
-    pio_sm_set_consecutive_pindirs(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->_clock_pin,
-        1,
-        true);
-
     sm_config_set_set_pins(
         &cfg,
         hx->_clock_pin,
@@ -246,23 +269,6 @@ void hx711_noblock_program_init(hx711_t* const hx) {
     sm_config_set_sideset_pins(
         &cfg,
         hx->_clock_pin);
-
-    //data pin setup
-    pio_sm_set_in_pins(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->_data_pin);
-
-    pio_sm_set_consecutive_pindirs(
-        hx->_pio,
-        hx->_reader_sm,
-        hx->_data_pin,
-        1,
-        false);
-    
-    pio_gpio_init(
-        hx->_pio,
-        hx->_data_pin);
 
     sm_config_set_in_pins(
         &cfg,

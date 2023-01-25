@@ -178,6 +178,10 @@ The HX711 requires the clock pin to be held high for at least 60us (60 microseco
 
 In the example code above, the final statement closes communication with the HX711. This leaves the HX711 in a powered-up state. `hx711_close` and `hx711_multi_close` stops the internal state machines from reading data from the HX711. Whereas `hx711_power_down` and `hx711_multi_power_down` also begins the power down process on a HX711 chip by setting the clock pin high.
 
+### Synchronising Multiple Chips
+
+When using multiple HX711 chips, it is possible they may become desynchronised if not powered up simultaneously. You can use `hx711_multi_sync()` which will power down and power up all chips together.
+
 ### Save HX711 Gain to Chip
 
 By setting the HX711 gain with `hx711_set_gain` and then powering down, the chip saves the gain for when it is powered back up. This is a feature built-in to the HX711.
