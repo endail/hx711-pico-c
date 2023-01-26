@@ -86,8 +86,8 @@ set y, READ_BITS
 irq wait APP_WAIT_IRQ_NUM           ; Wait until application is ready to obtain
                                     ; values.
 
-;wait HIGH irq DATA_READY_IRQ_NUM
-irq wait DATA_READY_IRQ_NUM         ; Wait for the IRQ from the other state machine
+wait HIGH irq DATA_READY_IRQ_NUM
+;irq wait DATA_READY_IRQ_NUM         ; Wait for the IRQ from the other state machine
                                     ; to indicate all HX711s are ready for data
                                     ; retrieval.
 
