@@ -78,7 +78,8 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     assert(hxm->_chips_len > 0);
     pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
         hxm->_awaiter_offset);
-    //replace placeholder IN instructions
+    //replace placeholder in instruction with the number of pins
+    //to read
     hxm->_pio->instr_mem[hxm->_awaiter_offset + hx711_multi_awaiter_offset_wait_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
     //data pins
@@ -91,15 +92,18 @@ void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
         hxm->_awaiter_sm,
         hxm->_data_pin_base,
         hxm->_chips_len,
-        false);
+        false);         //false = output pins
     sm_config_set_in_pins(
         &cfg,
         hxm->_data_pin_base);
+    //even though the program reads data into the ISR,
+    //it does not push any data, so make sure autopushing
+    //is disabled
     sm_config_set_in_shift(
         &cfg,
-        false,              //false = shift in left
-        false,              //true = autopush enabled
-        0);
+        false,              //false = shift left
+        false,              //false = autopush disabled
+        0);                 //autopush threshold
     hxm->_awaiter_default_config = cfg;
 }
 
