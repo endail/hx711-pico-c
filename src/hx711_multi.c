@@ -262,30 +262,13 @@ void hx711_multi__pinvals_to_values(
         //...
         //    ((pinvals[23]) >> 0) & 1) << 0;
 
+        //could use bool for bit var, but uint32_t avoids implicit
+        //casting from bool to int and any issues with OR-ing with
+        //rawVal
         uint32_t bit;
         uint32_t rawVal;
         uint shift;
 
-/*
-        //faster, but uses an array
-        //iterations: 24 + chip nums
-
-        uint32_t arr[HX711_MULTI_MAX_CHIPS];
-
-        memset(arr, 0, sizeof(*arr) * 32);
-
-        for(int i = 0; i < HX711_READ_BITS) {
-            arr[i] <<= 1;
-            arr[i] |= pinvals[i];
-        }
-
-        for(int i = 0; i < len; ++i) {
-            values[i] = hx711_get_twos_comp(arr[i]);
-        }
-*/
-
-        //slower, but no array
-        //iterations: 24 * chip nums
         for(size_t chipNum = 0; chipNum < len; ++chipNum) {
 
             //reset to 0
