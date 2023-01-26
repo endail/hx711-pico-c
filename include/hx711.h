@@ -124,7 +124,7 @@ void hx711_set_gain(
  * @param raw 
  * @return int32_t 
  */
-inline int32_t hx711_get_twos_comp(const uint32_t raw) {
+static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
 
     const int32_t val = 
         (int32_t)(-(raw & +HX711_MIN_VALUE)) + (int32_t)(raw & HX711_MAX_VALUE);

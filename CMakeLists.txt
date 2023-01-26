@@ -22,12 +22,7 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-#set(CMAKE_SYSTEM_NAME Generic)
-#set(CMAKE_SYSTEM_PROCESSOR arm)
-#set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
-
-# does the import file have include guard? assuming no
-# this must go above project()
+# this must go above project()!
 include(pico_sdk_import.cmake)
 
 project(hx711-pico-c
@@ -62,8 +57,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 # check for minimum pico sdk version
-if(PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
-        message(FATAL_ERROR "hx711-pico-c requires Raspberry Pi Pico SDK version 1.3.0 (or later). Your version is ${PICO_SDK_VERSION_STRING}")
+if(PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
+        message(FATAL_ERROR "hx711-pico-c requires Raspberry Pi Pico SDK version 1.4.0 (or later). Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
 add_library(hx711-pico-c INTERFACE)
