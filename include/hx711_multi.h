@@ -48,7 +48,6 @@ extern "C" {
 
 #define HX711_MULTI_APP_WAIT_IRQ_NUM 0
 #define HX711_MULTI_DATA_READY_IRQ_NUM 1
-#define HX711_MULTI_WAIT_DATA_READY_IRQ_NUM 2
 
 #define HX711_MULTI_MIN_CHIPS 1
 #define HX711_MULTI_MAX_CHIPS 32
@@ -131,7 +130,8 @@ void hx711_multi_power_up(
 void hx711_multi_power_down(hx711_multi_t* const hxm);
 
 /**
- * @brief Attempt to synchronise all connected chips
+ * @brief Attempt to synchronise all connected chips. This
+ * does not include a settling time.
  * 
  * @param hxm 
  * @param gain initial gain to set to all chips
@@ -188,7 +188,7 @@ static inline void hx711_multi__get_values_raw(
     hx711_multi_t* const hxm) {
 
         CHECK_HX711_MULTI_INITD(hxm)
-
+        
         hx711_multi__wait_app_ready(hxm);
 
         for(size_t i = 0; i < HX711_READ_BITS; ++i) {

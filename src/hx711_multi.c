@@ -92,8 +92,13 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hxm->_reader_sm,
         false);
 
-    pio_sm_unclaim(hxm->_pio, hxm->_awaiter_sm);
-    pio_sm_unclaim(hxm->_pio, hxm->_reader_sm);
+    pio_sm_unclaim(
+        hxm->_pio,
+        hxm->_awaiter_sm);
+
+    pio_sm_unclaim(
+        hxm->_pio,
+        hxm->_reader_sm);
 
     pio_remove_program(
         hxm->_pio,
