@@ -34,17 +34,18 @@
 .wrap_target
 wrap_target:
 
-irq wait WAIT_DATA_READY_IRQ_NUM        ; wait for signal before testing the data lines
+; irq wait WAIT_DATA_READY_IRQ_NUM        ; wait for signal before testing the data lines
 
 testpins:
 PUBLIC wait_in_pins_bit_count:          ; Set a public label to modify the following instruction.
     in pins, PLACEHOLDER_IN
     mov y, isr                          ; Copy the ISR contents into the y register.
     jmp !y signal_low                   ; If y is 0 - all chips ready - then interrupt.
+    irq clear DATA_READY_IRQ_NUM        ; if no jmp, clear the irq
     jmp testpins                        ; go back to trying again.
 
 signal_low:
-    irq wait DATA_READY_IRQ_NUM       ; Set the interrupt, but wait for it to be cleared
+    irq set DATA_READY_IRQ_NUM       ; Set the interrupt, but wait for it to be cleared
                                         ; before waiting again
 
 .wrap
