@@ -69,7 +69,7 @@
 ; 6. There is a small speedup by side-setting on the gain loop jmp
 ; instruction.
 ; 
-.program hx711_noblock
+.program hx711_reader
 
 .define LOW 0
 .define HIGH 1
@@ -192,7 +192,7 @@ gainloop:
 #include "hardware/pio.h"
 #include "hx711.h"
 
-void hx711_noblock_pio_init(hx711_t* const hx) {
+void hx711_reader_pio_init(hx711_t* const hx) {
 
     assert(hx != NULL);
     assert(hx->_pio != NULL);
@@ -240,7 +240,7 @@ void hx711_noblock_pio_init(hx711_t* const hx) {
 
 }
 
-void hx711_noblock_program_init(hx711_t* const hx) {
+void hx711_reader_program_init(hx711_t* const hx) {
 
     //set state machine to 10MHz clock speed
     static const uint SM_HZ = 10000000;
@@ -248,7 +248,7 @@ void hx711_noblock_program_init(hx711_t* const hx) {
     assert(hx != NULL);
     assert(hx->_pio != NULL);
 
-    pio_sm_config cfg = hx711_noblock_program_get_default_config(hx->_reader_offset);
+    pio_sm_config cfg = hx711_reader_program_get_default_config(hx->_reader_offset);
 
     const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
 
