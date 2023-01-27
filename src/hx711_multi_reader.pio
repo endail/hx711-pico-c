@@ -100,10 +100,8 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                     ; instruction.
     in pins, PLACEHOLDER_IN
 
-    ; set pins, LOW
-
-    ; push block                      ; Push the bitmask of pin values out of the state
-                                    ; machine.
+                                    ; Autopush is configured below with a threshold equal
+                                    ; to the number of chips configured.
 
     jmp y-- bitloop side LOW [T4 - 1]
 
