@@ -72,6 +72,34 @@ void hx711_multi_init(
         config->awaiter_prog_init(hxm);
         config->reader_prog_init(hxm);
 
+        hxm->_dma_channel = dma_claim_unused_channel(true);
+        
+        hxm->_dma_conf = dma_channel_get_default_config(hxm->_dma_channel);
+        
+        channel_config_set_transfer_data_size(
+            &hxm->_dma_conf,
+            DMA_SIZE_32);
+        
+        channel_config_set_read_increment(
+            &hxm->_dma_conf,
+            false);
+        
+        channel_config_set_write_increment(
+            &hxm->_dma_conf,
+            true);
+        
+        channel_config_set_dreq(
+            &hxm->_dma_conf,
+            pio_get_dreq(hxm->_pio, hxm->_reader_sm, false));
+        
+        dma_channel_configure(
+            hxm->_dma_channel,
+            &hxm->_dma_conf,
+            hxm->_read_buffer,
+            &hxm->_pio->rxf[hxm->_reader_sm],
+            HX711_READ_BITS,
+            false);
+
         mutex_exit(&hxm->_mut);
 
 }
@@ -158,6 +186,33 @@ void hx711_multi_get_values(
             hxm->_chips_len);
 
         mutex_exit(&hxm->_mut);
+
+}
+
+bool hx711_multi_get_values_timeout(
+    hx711_multi_t* const hxm,
+    int32_t* values,
+    const uint timeout) {
+
+        CHECK_HX711_MULTI_INITD(hxm);
+        assert(values != NULL);
+
+        mutex_enter_blocking(&hxm->_mut);
+
+        if(!hx711_multi__get_values_timeout_raw(hxm, timeout)) {
+            return false;
+        }
+
+        //probable race condition with read_buffer if
+        //this is moved outside of the mutex
+        hx711_multi__pinvals_to_values(
+            hxm->_read_buffer,
+            values,
+            hxm->_chips_len);
+
+        mutex_exit(&hxm->_mut);
+
+        return true;
 
 }
 
