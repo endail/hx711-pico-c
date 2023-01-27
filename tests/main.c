@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include "pico/stdio.h"
 #include "../include/hx711.h"
-#include "../include/hx711_noblock.pio.h"
+#include "../include/hx711_reader.pio.h"
 #include "../include/hx711_multi.h"
 #include "../include/hx711_multi_awaiter.pio.h"
 #include "../include/hx711_multi_reader.pio.h"
@@ -35,28 +35,25 @@ int main(void) {
 
     stdio_init_all();
 
-/*
     sleep_ms(3000);
 
-    // SET THESE TO THE GPIO PINS CONNECTED TO THE
-    // HX711's CLOCK AND DATA PINS
-    // PINOUT REFERENCE: https://learn.adafruit.com/assets/99339
-    const uint clkPin = 14; // GP14, PAD19
-    const uint datPin = 15; // GP15, PAD20
-
     hx711_t hx;
+    hx711_config_t config;
+    const hx711_rate_t rate = hx711_rate_10; //or hx711_rate_80
+    const hx711_gain_t gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
     // 1. Initialise
-    hx711_init(
-        &hx,
-        clkPin, // Pico GPIO pin connected to HX711's clock pin
-        datPin, // Pico GPIO pin connected to HX711's data pin
-        pio0, // the RP2040 PIO to use (either pio0 or pio1)
-        &hx711_noblock_program, // the PIO program which reads data from the HX711
-        &hx711_noblock_program_init); // the PIO program's init function
+    config.clock_pin = 14;
+    config.data_pin = 15;
+    config.pio = pio0;
+    config.pio_init = hx711_reader_pio_init;
+    config.reader_prog = &hx711_reader_program;
+    config.reader_prog_init = hx711_reader_program_init;
 
-    //2. Power up the hx711 and use a gain of 128
-    hx711_power_up(&hx, hx711_gain_128);
+    hx711_init(&hx, &config);
+
+    //2. Power up the hx711 and set gain on chip
+    hx711_power_up(&hx, gain);
 
     //3. This step is optional. Only do this if you want to
     //change the gain AND save it to the HX711 chip
@@ -67,26 +64,26 @@ int main(void) {
     //hx711_power_up(&hx, hx711_gain_64);
 
     // 4. Wait for readings to settle
-    hx711_wait_settle(hx711_rate_10); // or hx711_rate_80 depending on your chip's config
+    hx711_wait_settle(rate);
 
     // 5. Read values
-    int32_t val;
+    // You can now...
 
-    // wait (block) until a value is read
-    val = hx711_get_value(&hx);
-    printf("blocking value: %li\n", val);
+    // wait (block) until a value is obtained
+    printf("blocking value: %li\n", hx711_get_value(&hx));
 
     // or use a timeout
-    if(hx711_get_value_timeout(&hx, 250000, &val)) {
+    int32_t val;
+    const uint timeout = 250000; //milliseconds
+    if(hx711_get_value_timeout(&hx, timeout, &val)) {
         // value was obtained within the timeout period
-        // in this case, within 250 milliseconds
         printf("timeout value: %li\n", val);
     }
     else {
         printf("value was not obtained within the timeout period\n");
     }
 
-    // or see if there's a value, but don't block if not
+    // or see if there's a value, but don't block if there isn't one ready
     if(hx711_get_value_noblock(&hx, &val)) {
         printf("noblock value: %li\n", val);
     }
@@ -97,18 +94,20 @@ int main(void) {
     //6. Stop communication with HX711
     hx711_close(&hx);
 
-    printf("cleaned up\n");
+    printf("Closed communication with single HX711 chip\n");
 
-*/
+
+    sleep_ms(3000);
 
     hx711_multi_t hxm;
     hx711_multi_config_t cfg;
-    const size_t chips = 1;
+    const hx711_rate_t multi_rate = hx711_rate_10; //or hx711_rate_80
+    const hx711_gain_t multi_gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
     // 1. initialise
     cfg.clock_pin = 14;
     cfg.data_pin_base = 15;
-    cfg.chips_len = chips;
+    cfg.chips_len = 1;
     cfg.pio = pio0;
     cfg.pio_init = hx711_multi_pio_init;
     cfg.awaiter_prog = &hx711_multi_awaiter_program;
@@ -118,8 +117,8 @@ int main(void) {
 
     hx711_multi_init(&hxm, &cfg);
 
-    // 2. Power up the HX711 chips and use a gain of 128
-    hx711_multi_power_up(&hxm, hx711_gain_128);
+    // 2. Power up the HX711 chips and set gain on each chip
+    hx711_multi_power_up(&hxm, multi_gain);
 
     //3. This step is optional. Only do this if you want to
     //change the gain AND save it to each HX711 chip
@@ -130,28 +129,26 @@ int main(void) {
     //hx711_multi_power_up(&hxm, hx711_gain_64);
 
     // 4. Wait for readings to settle
-    hx711_wait_settle(hx711_rate_80); // or hx711_rate_80 depending on each chip's config
+    hx711_wait_settle(multi_rate);
 
     // 5. Read values
-    int32_t arr[chips];
+    int32_t arr[cfg.chips_len];
 
-    sleep_ms(3000);
+    // wait (block) until a values are read
+    hx711_multi_get_values(&hxm, arr);
 
-    while(true) {
-
-        // wait (block) until a value is read from each chip
-        hx711_multi_get_values(&hxm, arr);
-
-        for(uint i = 0; i < chips; ++i) {
-            printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
-        }
-
+    // then print the value from each chip
+    // the first value in the array is from the HX711
+    // connected to the first configured data pin and
+    // so on
+    for(uint i = 0; i < cfg.chips_len; ++i) {
+        printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
     }
 
     // 6. Stop communication with all HX711 chips
     hx711_multi_close(&hxm);
 
-    printf("cleaned up");
+    printf("Closed communication with multiple HX711 chips\n");
 
     while(1);
 
