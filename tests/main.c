@@ -35,6 +35,7 @@ int main(void) {
 
     stdio_init_all();
 
+/*
     sleep_ms(3000);
 
     hx711_t hx;
@@ -95,7 +96,7 @@ int main(void) {
     hx711_close(&hx);
 
     printf("Closed communication with single HX711 chip\n");
-
+*/
 
     sleep_ms(3000);
 
@@ -134,15 +135,19 @@ int main(void) {
     // 5. Read values
     int32_t arr[cfg.chips_len];
 
-    // wait (block) until a values are read
-    hx711_multi_get_values(&hxm, arr);
+    while(true) {
 
-    // then print the value from each chip
-    // the first value in the array is from the HX711
-    // connected to the first configured data pin and
-    // so on
-    for(uint i = 0; i < cfg.chips_len; ++i) {
-        printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
+        // wait (block) until a values are read
+        hx711_multi_get_values(&hxm, arr);
+
+        // then print the value from each chip
+        // the first value in the array is from the HX711
+        // connected to the first configured data pin and
+        // so on
+        for(uint i = 0; i < cfg.chips_len; ++i) {
+            printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
+        }
+
     }
 
     // 6. Stop communication with all HX711 chips

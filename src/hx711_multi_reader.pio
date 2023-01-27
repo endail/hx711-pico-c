@@ -100,12 +100,12 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                     ; instruction.
     in pins, PLACEHOLDER_IN
 
-    set pins, LOW
+    ; set pins, LOW
 
-    push block                      ; Push the bitmask of pin values out of the state
+    ; push block                      ; Push the bitmask of pin values out of the state
                                     ; machine.
 
-    jmp y-- bitloop
+    jmp y-- bitloop side LOW [T4 - 1]
 
 pull noblock side HIGH
 out x, GAIN_BITS
@@ -234,7 +234,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
         hxm->_reader_sm,
         hxm->_data_pin_base,
         hxm->_chips_len,
-        false);         //false = input
+        false);                 //false = input
 
     sm_config_set_in_pins(
         &cfg,
@@ -242,9 +242,9 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
 
     sm_config_set_in_shift(
         &cfg,
-        false,                    //false = shift in left
-        false,                    //false = autopush disabled
-        0);
+        false,                  //false = shift in left
+        true,                   //true = autopush enabled
+        hxm->_chips_len);
 
     pio_sm_clear_fifos(
         hxm->_pio,
