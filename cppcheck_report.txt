@@ -10,3 +10,12 @@ include/hx711_multi.h:179:20: note: Function 'hx711_multi__pinvals_to_values' ar
 src/hx711_multi.c:240:20: note: Function 'hx711_multi__pinvals_to_values' argument 2 names different: declaration 'rawvals' definition 'values'.
     int32_t* const values,
                    ^
+tests/main.c:73:5: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+    printf("blocking value: %li\n", hx711_get_value(&hx));
+    ^
+tests/main.c:80:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+        printf("timeout value: %li\n", val);
+        ^
+tests/main.c:88:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+        printf("noblock value: %li\n", val);
+        ^
