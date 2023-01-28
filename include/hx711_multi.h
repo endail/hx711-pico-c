@@ -42,6 +42,7 @@ extern "C" {
         assert(hxm->_pio != NULL); \
         assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
         assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
+        assert(dma_channel_is_claimed(hxm->_dma_channel)); \
         assert(mutex_is_initialized(&hxm->_mut));
 #else
     #define CHECK_HX711_MULTI_INITD(hxm)
@@ -127,6 +128,17 @@ void hx711_multi_get_values(
     hx711_multi_t* const hxm,
     int32_t* values);
 
+/**
+ * @brief Fill an array with one value from each chip,
+ * timing out if failing to obtain values within the
+ * timeout period
+ * 
+ * @param hxm 
+ * @param values 
+ * @param timeout 
+ * @return true if values obtained within the timeout period
+ * @return false if values not obtained within the timeout period
+ */
 bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
     int32_t* values,
@@ -159,55 +171,19 @@ inline void hx711_multi_sync(
  * 
  * @param hxm 
  */
-static inline void hx711_multi__wait_app_ready(hx711_multi_t* const hxm) {
+void hx711_multi__wait_app_ready(hx711_multi_t* const hxm);
 
-    CHECK_HX711_MULTI_INITD(hxm)
-
-    //wait until the SM has returned to waiting for the app code
-    //this may be unnecessary, but would help to prevent obtaining
-    //values too quickly and corrupting the HX711 conversion period
-    while(!pio_interrupt_get(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM)) {
-        tight_loop_contents();
-    }
-
-    //then clear that irq to allow it to proceed
-    pio_interrupt_clear(
-        hxm->_pio,
-        HX711_MULTI_APP_WAIT_IRQ_NUM);
-
-}
-
-static inline bool hx711_multi__wait_app_ready_timeout(
+/**
+ * @brief 
+ * 
+ * @param hxm 
+ * @param timeout 
+ * @return true 
+ * @return false 
+ */
+bool hx711_multi__wait_app_ready_timeout(
     hx711_multi_t* const hxm,
-    const uint timeout) {
-
-        CHECK_HX711_MULTI_INITD(hxm)
-
-        bool success = false;
-        const absolute_time_t endTime = make_timeout_time_us(timeout);
-
-        assert(!is_nil_time(endTime));
-
-        //give sm time to return to wait app ready
-        while(!time_reached(endTime)) {
-            if((success = pio_interrupt_get(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM))) {
-                break;
-            }
-        }
-
-        //if the above failed in time, return false
-        if(!success) {
-            return false;
-        }
-
-        //start the reading process
-        pio_interrupt_clear(
-            hxm->_pio,
-            HX711_MULTI_APP_WAIT_IRQ_NUM);
-
-        return true;
-
-}
+    const uint timeout);
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -227,58 +203,12 @@ static void hx711_multi__pinvals_to_values(
  * 
  * @param hxm 
  */
-static inline void hx711_multi__get_values_raw(
-    hx711_multi_t* const hxm) {
+void hx711_multi__get_values_raw(
+    hx711_multi_t* const hxm);
 
-        CHECK_HX711_MULTI_INITD(hxm)
-
-        dma_channel_set_write_addr(
-            hxm->_dma_channel,
-            hxm->_read_buffer,
-            true);
-
-        hx711_multi__wait_app_ready(hxm);
-
-        //for(size_t i = 0; i < HX711_READ_BITS; ++i) {
-        //    hxm->_read_buffer[i] = pio_sm_get_blocking(
-        //        hxm->_pio,
-        //        hxm->_reader_sm);
-        //}
-
-        dma_channel_wait_for_finish_blocking(hxm->_dma_channel);
-
-}
-
-static inline bool hx711_multi__get_values_timeout_raw(
+bool hx711_multi__get_values_timeout_raw(
     hx711_multi_t* const hxm,
-    const uint timeout) {
-
-        const absolute_time_t endTime = make_timeout_time_us(timeout);
-
-        assert(!is_nil_time(endTime));
-
-        //if the wait timed out, return false
-        if(!hx711_multi__wait_app_ready_timeout(hxm, timeout)) {
-            return false;
-        }
-
-        dma_channel_set_write_addr(
-            hxm->_dma_channel,
-            hxm->_read_buffer,
-            true);
-
-        while(!time_reached(endTime)) {
-            if(!dma_channel_is_busy(hxm->_dma_channel)) {
-                return true;
-            }
-        }
-
-        //assume an error
-        dma_channel_abort(hxm->_dma_channel);
-
-        return false;
-
-}
+    const uint timeout);
 
 #ifdef __cplusplus
 }

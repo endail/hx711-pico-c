@@ -49,15 +49,27 @@ void hx711_multi_init(
         hxm->_awaiter_prog = config->awaiter_prog;
         hxm->_reader_prog = config->reader_prog;
 
-        hxm->_reader_offset = pio_add_program(hxm->_pio, hxm->_reader_prog);
-        hxm->_reader_sm = (uint)pio_claim_unused_sm(hxm->_pio, true);
+        hxm->_reader_offset = pio_add_program(
+            hxm->_pio,
+            hxm->_reader_prog);
 
-        hxm->_awaiter_offset = pio_add_program(hxm->_pio, hxm->_awaiter_prog);
-        hxm->_awaiter_sm = (uint)pio_claim_unused_sm(hxm->_pio, true);
+        hxm->_reader_sm = (uint)pio_claim_unused_sm(
+            hxm->_pio,
+            true);
+
+        hxm->_awaiter_offset = pio_add_program(
+            hxm->_pio,
+            hxm->_awaiter_prog);
+
+        hxm->_awaiter_sm = (uint)pio_claim_unused_sm(
+            hxm->_pio,
+            true);
 
         //clock pin
         gpio_init(hxm->_clock_pin);
-        gpio_set_dir(hxm->_clock_pin, GPIO_OUT);
+        gpio_set_dir(
+            hxm->_clock_pin,
+            GPIO_OUT);
 
         //contiguous data pins
         {
@@ -74,7 +86,8 @@ void hx711_multi_init(
 
         hxm->_dma_channel = dma_claim_unused_channel(true);
         
-        hxm->_dma_conf = dma_channel_get_default_config(hxm->_dma_channel);
+        hxm->_dma_conf = dma_channel_get_default_config(
+            hxm->_dma_channel);
         
         channel_config_set_transfer_data_size(
             &hxm->_dma_conf,
@@ -87,10 +100,18 @@ void hx711_multi_init(
         channel_config_set_write_increment(
             &hxm->_dma_conf,
             true);
-        
+
+        //do NOT set ring buffer
+        //ie. do not use channel_config_set_ring
+        //if, for whatever reason, the DMA transfer
+        //fails, subsequent transfer invocations
+        //will reset the write address
+
         channel_config_set_dreq(
             &hxm->_dma_conf,
-            pio_get_dreq(hxm->_pio, hxm->_reader_sm, false));
+            pio_get_dreq(
+                hxm->_pio,
+                hxm->_reader_sm, false));
         
         dma_channel_configure(
             hxm->_dma_channel,
@@ -137,6 +158,12 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hxm->_pio,
         hxm->_reader_prog,
         hxm->_reader_offset);
+
+    dma_channel_abort(
+        hxm->_dma_channel);
+
+    dma_channel_unclaim(
+        hxm->_dma_channel);
 
     mutex_exit(&hxm->_mut);
 
@@ -290,6 +317,56 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
 
 }
 
+void hx711_multi__wait_app_ready(hx711_multi_t* const hxm) {
+
+    CHECK_HX711_MULTI_INITD(hxm)
+
+    //wait until the SM has returned to waiting for the app code
+    //this may be unnecessary, but would help to prevent obtaining
+    //values too quickly and corrupting the HX711 conversion period
+    while(!pio_interrupt_get(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM)) {
+        tight_loop_contents();
+    }
+
+    //then clear that irq to allow it to proceed
+    pio_interrupt_clear(
+        hxm->_pio,
+        HX711_MULTI_APP_WAIT_IRQ_NUM);
+
+}
+
+bool hx711_multi__wait_app_ready_timeout(
+    hx711_multi_t* const hxm,
+    const uint timeout) {
+
+        CHECK_HX711_MULTI_INITD(hxm)
+
+        bool success = false;
+        const absolute_time_t endTime = make_timeout_time_us(timeout);
+
+        assert(!is_nil_time(endTime));
+
+        //give sm time to return to wait app ready
+        while(!time_reached(endTime)) {
+            if((success = pio_interrupt_get(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM))) {
+                break;
+            }
+        }
+
+        //if the above failed in time, return false
+        if(!success) {
+            return false;
+        }
+
+        //start the reading process
+        pio_interrupt_clear(
+            hxm->_pio,
+            HX711_MULTI_APP_WAIT_IRQ_NUM);
+
+        return true;
+
+}
+
 void hx711_multi__pinvals_to_values(
     const uint32_t* const pinvals,
     int32_t* const values,
@@ -347,5 +424,55 @@ void hx711_multi__pinvals_to_values(
             values[chipNum] = hx711_get_twos_comp(rawVal);
 
         }
+
+}
+
+void hx711_multi__get_values_raw(
+    hx711_multi_t* const hxm) {
+
+        CHECK_HX711_MULTI_INITD(hxm)
+        assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
+        assert(!dma_channel_is_busy(hxm->_dma_channel));
+
+        hx711_multi__wait_app_ready(hxm);
+
+        dma_channel_set_write_addr(
+            hxm->_dma_channel,
+            hxm->_read_buffer,
+            true);
+
+        dma_channel_wait_for_finish_blocking(
+            hxm->_dma_channel);
+
+}
+
+bool hx711_multi__get_values_timeout_raw(
+    hx711_multi_t* const hxm,
+    const uint timeout) {
+
+        const absolute_time_t endTime = make_timeout_time_us(timeout);
+
+        assert(!is_nil_time(endTime));
+        assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
+        assert(!dma_channel_is_busy(hxm->_dma_channel));
+
+        //don't include app wait in timeout period
+        hx711_multi__wait_app_ready(hxm);
+
+        dma_channel_set_write_addr(
+            hxm->_dma_channel,
+            hxm->_read_buffer,
+            true);
+
+        while(!time_reached(endTime)) {
+            if(!dma_channel_is_busy(hxm->_dma_channel)) {
+                return true;
+            }
+        }
+
+        //assume an error
+        dma_channel_abort(hxm->_dma_channel);
+
+        return false;
 
 }

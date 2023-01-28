@@ -25,7 +25,7 @@
         "gpio.h": "c",
         "hx711_multi.h": "c"
     },
-    "C_Cpp.intelliSenseEngineFallback": "Enabled",
+    "C_Cpp.intelliSenseEngineFallback": "enabled",
     "C_Cpp.default.intelliSenseMode": "gcc-arm",
     "C_Cpp.default.browse.limitSymbolsToIncludedHeaders": false,
     "C_Cpp.default.cppStandard": "",
