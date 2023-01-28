@@ -72,11 +72,8 @@ typedef struct {
     uint _reader_sm;
     uint _reader_offset;
 
-    //static array; uninit'd is OK, will be overwritten
     uint32_t _read_buffer[HX711_READ_BITS];
-
     int _dma_channel;
-    dma_channel_config _dma_conf;
 
     mutex_t _mut;
 
@@ -160,6 +157,7 @@ void hx711_multi_power_down(hx711_multi_t* const hxm);
 inline void hx711_multi_sync(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
+        CHECK_HX711_MULTI_INITD(hxm)
         hx711_multi_power_down(hxm);
         hx711_wait_power_down();
         hx711_multi_power_up(hxm, gain);

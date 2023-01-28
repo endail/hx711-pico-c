@@ -23,13 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "pico/stdio.h"
-#include "../include/hx711.h"
-#include "../include/hx711_reader.pio.h"
-#include "../include/hx711_multi.h"
-#include "../include/hx711_multi_awaiter.pio.h"
-#include "../include/hx711_multi_reader.pio.h"
-
-#include <string.h>
+#include "../include/common.h"
 
 int main(void) {
 

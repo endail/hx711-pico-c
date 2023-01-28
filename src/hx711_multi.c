@@ -76,6 +76,7 @@ void hx711_multi_init(
             uint i = hxm->_data_pin_base;
             const uint l = hxm->_data_pin_base + hxm->_chips_len - 1;
             for(; i <= l; ++i) {
+                assert(i != hxm->_clock_pin);
                 gpio_set_input_enabled(i, true);
             }
         }
@@ -85,20 +86,20 @@ void hx711_multi_init(
         config->reader_prog_init(hxm);
 
         hxm->_dma_channel = dma_claim_unused_channel(true);
-        
-        hxm->_dma_conf = dma_channel_get_default_config(
+
+        dma_channel_config cfg = dma_channel_get_default_config(
             hxm->_dma_channel);
-        
+
         channel_config_set_transfer_data_size(
-            &hxm->_dma_conf,
-            DMA_SIZE_32);
-        
+            &cfg,
+            DMA_SIZE_32);   //pio fifo output is 32 bits
+
         channel_config_set_read_increment(
-            &hxm->_dma_conf,
+            &cfg,
             false);
-        
+
         channel_config_set_write_increment(
-            &hxm->_dma_conf,
+            &cfg,
             true);
 
         //do NOT set ring buffer
@@ -108,18 +109,18 @@ void hx711_multi_init(
         //will reset the write address
 
         channel_config_set_dreq(
-            &hxm->_dma_conf,
+            &cfg,
             pio_get_dreq(
                 hxm->_pio,
                 hxm->_reader_sm, false));
-        
+
         dma_channel_configure(
             hxm->_dma_channel,
-            &hxm->_dma_conf,
-            hxm->_read_buffer,
-            &hxm->_pio->rxf[hxm->_reader_sm],
-            HX711_READ_BITS,
-            false);
+            &cfg,
+            hxm->_read_buffer,                  //write to buffer
+            &hxm->_pio->rxf[hxm->_reader_sm],   //read from reader pio program rx fifo
+            HX711_READ_BITS,                    //24 transfers; one for each HX711 bit
+            false);                             //false = don't start now
 
         mutex_exit(&hxm->_mut);
 
