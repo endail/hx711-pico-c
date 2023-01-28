@@ -28,9 +28,9 @@
 int main(void) {
 
     stdio_init_all();
+    sleep_ms(5000);
 
-    sleep_ms(3000);
-
+/*
     hx711_t hx;
     hx711_config_t config = HX711_DEFAULT_CONFIG;
     config.clock_pin = 14;
@@ -63,7 +63,7 @@ int main(void) {
 
     // or use a timeout
     int32_t val;
-    const uint timeout = 250000; //milliseconds
+    const uint timeout = 250000; //microseconds
     if(hx711_get_value_timeout(&hx, timeout, &val)) {
         // value was obtained within the timeout period
         printf("timeout value: %li\n", val);
@@ -84,10 +84,10 @@ int main(void) {
     hx711_close(&hx);
 
     printf("Closed communication with single HX711 chip\n");
+*/
 
 
-    sleep_ms(3000);
-
+/*
     hx711_multi_t hxm;
     hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
     cfg.clock_pin = 14;
@@ -135,6 +135,8 @@ int main(void) {
     hx711_multi_close(&hxm);
 
     printf("Closed communication with multiple HX711 chips\n");
+*/
+
 
     while(1);
 
