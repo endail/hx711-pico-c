@@ -40,6 +40,11 @@ hx711_t hx;
 hx711_config_t config = HX711_DEFAULT_CONFIG;
 config.clock_pin = 14; //GPIO pin connected to HX711 clock pin
 config.data_pin = 15; //GPIO pin connected to HX711 data pin
+
+//by default, the underlying PIO program will run on pio0
+//if you need to change this, you can do:
+//config.pio = pio1;
+
 const hx711_rate_t rate = hx711_rate_10; //or hx711_rate_80
 const hx711_gain_t gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
@@ -91,7 +96,7 @@ hx711_close(&hx);
 
 ## How to Use hx711_multi_t
 
-See [here](https://pico.pinout.xyz/) for a pinout to choose at least two GPIO pins on the Pico (RP2040).
+See [here](https://pico.pinout.xyz/) for a pinout to choose at least two separate GPIO pins on the Pico (RP2040).
 
 * One GPIO pin to connect to __every__ HX711's clock pin.
 * One or more __contiguous__ GPIO pins to separately connect to each HX711's data pin.
@@ -103,14 +108,21 @@ For example, if you wanted to connect four HX711 chips, you could:
 
 See the code example below for how you would set this up. You can choose any pins as the clock and data pins, as long as they are capable of digital output and input respectively.
 
+Note: each chip should use the same sample rate. Using chips with different sample rates will lead to unpredictible results.
+
 ```c
 #include "../include/common.h"
 
 hx711_multi_t hxm;
 hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
-cfg.clock_pin = 9;
-cfg.data_pin_base = 12;
-cfg.chips_len = 4;
+cfg.clock_pin = 9; //GPIO pin connected to each HX711 chip
+cfg.data_pin_base = 12; //first GPIO pin used to connect to HX711 data pin
+cfg.chips_len = 4; //how many HX711 chips connected
+
+//by default, the underlying PIO program will run on pio0
+//if you need to change this, you can do:
+//cfg.pio = pio1;
+
 const hx711_rate_t multi_rate = hx711_rate_10; //or hx711_rate_80
 const hx711_gain_t multi_gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
