@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include "../include/hx711.h"
+#include "../include/util.h"
 #include "hardware/gpio.h"
 
 const uint HX711_SETTLING_TIMES[] = { //ms
@@ -45,7 +46,6 @@ void hx711_init(
 
         assert(config->reader_prog != NULL);
         assert(config->reader_prog_init != NULL);
-        assert(pio_can_add_program(config->pio, config->reader_prog));
 
         assert(config->clock_pin != config->data_pin);
 
@@ -57,8 +57,7 @@ void hx711_init(
         hx->_pio = config->pio;
         hx->_reader_prog = config->reader_prog;
 
-        gpio_init(hx->_clock_pin);
-        gpio_set_dir(hx->_clock_pin, GPIO_OUT);
+        util_gpio_set_output_enabled(hx->_clock_pin);
 
         /**
          * There was originally a call here to gpio_put on the
@@ -73,7 +72,9 @@ void hx711_init(
          * state machine.
          */
 
-        gpio_set_input_enabled(hx->_data_pin, true);
+        gpio_set_input_enabled(
+            hx->_data_pin,
+            true);
 
         /**
          * There was originally a call here to gpio_pull_up
@@ -84,8 +85,13 @@ void hx711_init(
          */
 
         //either statement below will panic if it fails
-        hx->_reader_offset = pio_add_program(hx->_pio, hx->_reader_prog);
-        hx->_reader_sm = (uint)pio_claim_unused_sm(hx->_pio, true);
+        hx->_reader_offset = pio_add_program(
+            hx->_pio,
+            hx->_reader_prog);
+
+        hx->_reader_sm = (uint)pio_claim_unused_sm(
+            hx->_pio,
+            true);
 
         config->pio_init(hx);
         config->reader_prog_init(hx);
@@ -266,7 +272,10 @@ bool hx711_get_value_noblock(
 
         mutex_enter_blocking(&hx->_mut);
 
-        success = hx711__try_get_value(hx->_pio, hx->_reader_sm, &tempVal);
+        success = hx711__try_get_value(
+            hx->_pio,
+            hx->_reader_sm,
+            &tempVal);
 
         mutex_exit(&hx->_mut);
 
@@ -303,7 +312,9 @@ void hx711_power_up(
          * going low. Which, in turn, is handled by the state
          * machine in waiting for the low signal.
          */
-        gpio_put(hx->_clock_pin, false);
+        gpio_put(
+            hx->_clock_pin,
+            false);
 
         //2. reset the state machine using the default config
         //obtained when init'ing.
@@ -352,7 +363,9 @@ void hx711_power_down(hx711_t* const hx) {
      * hx711_power_down(&hx);
      * hx711_wait_power_down();
      */
-    gpio_put(hx->_clock_pin, true);
+    gpio_put(
+        hx->_clock_pin,
+        true);
 
     mutex_exit(&hx->_mut);
 

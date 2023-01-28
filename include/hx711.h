@@ -29,6 +29,7 @@
 #include "hardware/pio.h"
 #include "pico/mutex.h"
 #include "pico/time.h"
+#include "../include/util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -266,7 +267,7 @@ inline void hx711_wait_power_down() {
  * @param gain 
  * @return uint32_t 
  */
-static uint32_t hx711__gain_to_sm_gain(const hx711_gain_t gain) {
+static inline uint32_t hx711__gain_to_sm_gain(const hx711_gain_t gain) {
 
     /**
      * gain value is 0-based and calculated by:
@@ -296,19 +297,12 @@ static inline bool hx711__try_get_value(
     PIO const pio,
     const uint sm,
     uint32_t* const val) {
-
-        assert(pio != NULL);
-        assert(val != NULL);
-
         static const uint byteThreshold = HX711_READ_BITS / 8;
-
-        if(pio_sm_get_rx_fifo_level(pio, sm) >= byteThreshold) {
-            *val = pio_sm_get(pio, sm);
-            return true;
-        }
-
-        return false;
-
+        return util_pio_sm_try_get(
+            pio,
+            sm,
+            val,
+            byteThreshold);
 }
 
 #ifdef __cplusplus

@@ -39,14 +39,9 @@ void hx711_multi_init(
         
         assert(config->awaiter_prog != NULL);
         assert(config->awaiter_prog_init != NULL);
-        assert(pio_can_add_program(config->pio, config->awaiter_prog));
-        
+
         assert(config->reader_prog != NULL);
         assert(config->reader_prog_init != NULL);
-        assert(pio_can_add_program_at_offset(
-            config->pio,
-            config->reader_prog,
-            config->awaiter_prog->length));
 
         mutex_init(&hxm->_mut);
         mutex_enter_blocking(&hxm->_mut);
@@ -75,21 +70,11 @@ void hx711_multi_init(
             hxm->_pio,
             true);
 
-        //clock pin
-        gpio_init(hxm->_clock_pin);
-        gpio_set_dir(
-            hxm->_clock_pin,
-            GPIO_OUT);
+        util_gpio_set_output_enabled(hxm->_clock_pin);
 
-        //contiguous data pins
-        {
-            uint i = hxm->_data_pin_base;
-            const uint l = hxm->_data_pin_base + hxm->_chips_len - 1;
-            for(; i <= l; ++i) {
-                assert(i != hxm->_clock_pin);
-                gpio_set_input_enabled(i, true);
-            }
-        }
+        util_gpio_set_contiguous_input_pins(
+            hxm->_data_pin_base,
+            hxm->_chips_len);
 
         config->pio_init(hxm);
         config->awaiter_prog_init(hxm);
@@ -332,15 +317,7 @@ void hx711_multi__wait_app_ready(hx711_multi_t* const hxm) {
 
     CHECK_HX711_MULTI_INITD(hxm)
 
-    //wait until the SM has returned to waiting for the app code
-    //this may be unnecessary, but would help to prevent obtaining
-    //values too quickly and corrupting the HX711 conversion period
-    while(!pio_interrupt_get(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM)) {
-        tight_loop_contents();
-    }
-
-    //then clear that irq to allow it to proceed
-    pio_interrupt_clear(
+    util_pio_interrupt_wait_clear(
         hxm->_pio,
         HX711_MULTI_APP_WAIT_IRQ_NUM);
 
@@ -352,6 +329,12 @@ bool hx711_multi__wait_app_ready_timeout(
 
         CHECK_HX711_MULTI_INITD(hxm)
 
+        return util_pio_interrupt_wait_clear_timeout(
+            hxm->_pio,
+            HX711_MULTI_APP_WAIT_IRQ_NUM,
+            timeout);
+
+/*
         bool success = false;
         const absolute_time_t endTime = make_timeout_time_us(timeout);
 
@@ -375,6 +358,7 @@ bool hx711_multi__wait_app_ready_timeout(
             HX711_MULTI_APP_WAIT_IRQ_NUM);
 
         return true;
+*/
 
 }
 
