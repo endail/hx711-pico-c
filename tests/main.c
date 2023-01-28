@@ -29,22 +29,16 @@ int main(void) {
 
     stdio_init_all();
 
-/*
     sleep_ms(3000);
 
     hx711_t hx;
-    hx711_config_t config;
+    hx711_config_t config = HX711_DEFAULT_CONFIG;
+    config.clock_pin = 14;
+    config.data_pin = 15;
     const hx711_rate_t rate = hx711_rate_10; //or hx711_rate_80
     const hx711_gain_t gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
     // 1. Initialise
-    config.clock_pin = 14;
-    config.data_pin = 15;
-    config.pio = pio0;
-    config.pio_init = hx711_reader_pio_init;
-    config.reader_prog = &hx711_reader_program;
-    config.reader_prog_init = hx711_reader_program_init;
-
     hx711_init(&hx, &config);
 
     //2. Power up the hx711 and set gain on chip
@@ -90,26 +84,19 @@ int main(void) {
     hx711_close(&hx);
 
     printf("Closed communication with single HX711 chip\n");
-*/
+
 
     sleep_ms(3000);
 
     hx711_multi_t hxm;
-    hx711_multi_config_t cfg;
+    hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
+    cfg.clock_pin = 14;
+    cfg.data_pin_base = 15;
+    cfg.chips_len = 1;
     const hx711_rate_t multi_rate = hx711_rate_10; //or hx711_rate_80
     const hx711_gain_t multi_gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
     // 1. initialise
-    cfg.clock_pin = 14;
-    cfg.data_pin_base = 15;
-    cfg.chips_len = 1;
-    cfg.pio = pio0;
-    cfg.pio_init = hx711_multi_pio_init;
-    cfg.awaiter_prog = &hx711_multi_awaiter_program;
-    cfg.awaiter_prog_init = hx711_multi_awaiter_program_init;
-    cfg.reader_prog = &hx711_multi_reader_program;
-    cfg.reader_prog_init = hx711_multi_reader_program_init;
-
     hx711_multi_init(&hxm, &cfg);
 
     // 2. Power up the HX711 chips and set gain on each chip

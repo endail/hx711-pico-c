@@ -102,14 +102,14 @@ void hx711_init(
     const hx711_config_t* const config);
 
 /**
- * @brief Stop communication with HX711.
+ * @brief Stop communication with the HX711.
  * 
  * @param hx 
  */
 void hx711_close(hx711_t* const hx);
 
 /**
- * @brief Sets HX711 gain.
+ * @brief Sets the HX711 gain.
  * 
  * @param hx 
  * @param gain 
@@ -136,7 +136,7 @@ static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
 }
 
 /**
- * @brief Returns true if the load cell is saturated at its
+ * @brief Returns true if the HX711 is saturated at its
  * minimum level.
  * 
  * @param val 
@@ -148,7 +148,7 @@ inline bool hx711_is_min_saturated(const int32_t val) {
 }
 
 /**
- * @brief Returns true if the load cell is saturated at its
+ * @brief Returns true if the HX711 is saturated at its
  * maximum level.
  * 
  * @param val 
@@ -218,18 +218,20 @@ bool hx711_get_value_noblock(
     int32_t* const val);
 
 /**
- * @brief Power up the HX711 module and start the state machine
+ * @brief Power up the HX711 and start the internal read/write
+ * functionality.
  * 
  * @related hx711_wait_settle
  * @param hx 
- * @param g hx711_gain_t initial gain
+ * @param gain hx711_gain_t initial gain
  */
 void hx711_power_up(
     hx711_t* const hx,
     const hx711_gain_t gain);
 
 /**
- * @brief Power down the HX711 module and stop the state machine
+ * @brief Power down the HX711 and stop the internal read/write
+ * functionality
  * 
  * @related hx711_wait_power_down()
  * @param hx 

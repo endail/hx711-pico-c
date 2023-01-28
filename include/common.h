@@ -20,9 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "hardware/pio.h"
 #include "hx711.h"
 #include "hx711_reader.pio.h"
-
 #include "hx711_multi.h"
 #include "hx711_multi_awaiter.pio.h"
 #include "hx711_multi_reader.pio.h"
+
+const hx711_config_t HX711_DEFAULT_CONFIG = {
+    .clock_pin = 0,
+    .data_pin = 0,
+    .pio = pio0,
+    .pio_init = hx711_reader_pio_init,
+    .reader_prog = &hx711_reader_program,
+    .reader_prog_init = hx711_reader_program_init
+};
+
+const hx711_multi_config_t HX711_MULTI_DEFAULT_CONFIG = {
+    .clock_pin = 0,
+    .data_pin_base = 0,
+    .chips_len = 0,
+    .pio = pio0,
+    .pio_init = hx711_multi_pio_init,
+    .awaiter_prog = &hx711_multi_awaiter_program,
+    .awaiter_prog_init = hx711_multi_awaiter_program_init,
+    .reader_prog = &hx711_multi_reader_program,
+    .reader_prog_init = hx711_multi_reader_program_init
+};

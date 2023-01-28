@@ -103,10 +103,15 @@ void hx711_multi_init(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config);
 
+/**
+ * @brief Stop communication with all HX711s.
+ * 
+ * @param hxm 
+ */
 void hx711_multi_close(hx711_multi_t* const hxm);
 
 /**
- * @brief Sets the gain on all chips
+ * @brief Sets the HX711s gain.
  * 
  * @param hxm 
  * @param gain 
@@ -116,7 +121,8 @@ void hx711_multi_set_gain(
     const hx711_gain_t gain);
 
 /**
- * @brief Fill an array with one value from each chip
+ * @brief Fill an array with one value from each HX711. Blocks
+ * until values are obtained.
  * 
  * @param hxm 
  * @param values 
@@ -126,13 +132,13 @@ void hx711_multi_get_values(
     int32_t* values);
 
 /**
- * @brief Fill an array with one value from each chip,
+ * @brief Fill an array with one value from each HX711,
  * timing out if failing to obtain values within the
- * timeout period
+ * timeout period.
  * 
  * @param hxm 
  * @param values 
- * @param timeout 
+ * @param timeout microseconds
  * @return true if values obtained within the timeout period
  * @return false if values not obtained within the timeout period
  */
@@ -141,10 +147,25 @@ bool hx711_multi_get_values_timeout(
     int32_t* values,
     const uint timeout);
 
+/**
+ * @brief Power up each HX711 and start the internal read/write
+ * functionality.
+ * 
+ * @related hx711_wait_settle
+ * @param hxm 
+ * @param gain hx711_gain_t initial gain
+ */
 void hx711_multi_power_up(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain);
 
+/**
+ * @brief Power down each HX711 and stop the internal read/write
+ * functionlity.
+ * 
+ * @related hx711_wait_power_down()
+ * @param hxm 
+ */
 void hx711_multi_power_down(hx711_multi_t* const hxm);
 
 /**
@@ -164,18 +185,20 @@ inline void hx711_multi_sync(
 }
 
 /**
- * @brief Signal to the reader SM that it's time to start
- * reading in values
+ * @brief Signal to the reader state machine that it's time
+ * to start reading in values.
  * 
  * @param hxm 
  */
 void hx711_multi__wait_app_ready(hx711_multi_t* const hxm);
 
 /**
- * @brief 
+ * @brief Signal to the reader state machine that it's time
+ * to start reading in values, and to timeout if this cannot be done
+ * within the given period.
  * 
  * @param hxm 
- * @param timeout 
+ * @param timeout microseconds
  * @return true 
  * @return false 
  */
@@ -185,25 +208,34 @@ bool hx711_multi__wait_app_ready_timeout(
 
 /**
  * @brief Convert an array of pinvals to regular HX711
- * values
+ * values.
  * 
  * @param pinvals 
- * @param rawvals 
+ * @param values 
  * @param len number of values to convert
  */
 static void hx711_multi__pinvals_to_values(
     const uint32_t* const pinvals,
-    int32_t* const rawvals,
+    int32_t* const values,
     const size_t len);
 
 /**
- * @brief Reads pinvals into the internal buffer
+ * @brief Reads pinvals into the internal buffer.
  * 
  * @param hxm 
  */
 void hx711_multi__get_values_raw(
     hx711_multi_t* const hxm);
 
+/**
+ * @brief Reads pinvals into the internal buffer, timing out
+ * if not possible within the given period.
+ * 
+ * @param hxm 
+ * @param timeout microseconds
+ * @return true 
+ * @return false 
+ */
 bool hx711_multi__get_values_timeout_raw(
     hx711_multi_t* const hxm,
     const uint timeout);
