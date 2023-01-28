@@ -433,7 +433,7 @@ void hx711_multi__get_values_raw(
             hxm->_dma_channel);
 
         //there should be nothing left to read
-        assert(util_dma_get_transfer_count_remaining(hxm->_dma_channel) == 0);
+        assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
         assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
 
 }
@@ -458,7 +458,7 @@ bool hx711_multi__get_values_timeout_raw(
 
         while(!time_reached(endTime)) {
             if(!dma_channel_is_busy(hxm->_dma_channel)) {
-                assert(util_dma_get_transfer_count_remaining(hxm->_dma_channel) == 0);
+                assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
                 assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
                 return true;
             }

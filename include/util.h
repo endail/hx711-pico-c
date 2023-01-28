@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-static inline uint32_t util_dma_get_transfer_count_remaining(const uint channel) {
+static inline uint32_t util_dma_get_transfer_count(const uint channel) {
     check_dma_channel_param(channel);
     return (uint32_t)dma_hw->ch[channel].transfer_count;
 }
