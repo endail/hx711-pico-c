@@ -8,7 +8,7 @@ __NOTE__: if you are looking for a method to weigh objects (ie. by using the HX7
 
 ![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
 
-The .gif above illustrates the [current example code](main.c) obtaining data from a HX711 operating at 80 samples per second.
+The .gif above illustrates the [current example code](tests/main.c) obtaining data from a HX711 operating at 80 samples per second.
 
 ## Clone Repository
 
@@ -108,6 +108,8 @@ For example, if you wanted to connect four HX711 chips, you could:
 
 See the code example below for how you would set this up. You can choose any pins as the clock and data pins, as long as they are capable of digital output and input respectively.
 
+You can connect up to 32 HX711s, although the Pico (RP2040) will limit you to the available pins.
+
 Note: each chip should use the same sample rate. Using chips with different sample rates will lead to unpredictible results.
 
 ```c
@@ -195,4 +197,8 @@ In the example code above, the final statement closes communication with the HX7
 
 ### Synchronising Multiple Chips
 
-When using multiple HX711 chips, it is possible they may become desynchronised if not powered up simultaneously. You can use `hx711_multi_sync()` which will power down and power up all chips together.
+When using multiple HX711 chips, it is possible they may be desynchronised if not powered up simultaneously. You can use `hx711_multi_sync()` which will power down and then power up all chips together.
+
+## Overview of Functionality
+
+
