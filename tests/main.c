@@ -64,8 +64,9 @@ int main(void) {
     // or use a timeout
     int32_t val;
     const uint timeout = 250000; //microseconds
-    if(hx711_get_value_timeout(&hx, timeout, &val)) {
-        // value was obtained within the timeout period
+    if(hx711_get_value_timeout(&hx, &val, timeout)) {
+        // value was obtained within the timeout period,
+        // in this case within 250 milliseconds
         printf("timeout value: %li\n", val);
     }
     else {

@@ -224,8 +224,8 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
 bool hx711_get_value_timeout(
     hx711_t* const hx,
-    const uint timeout,
-    int32_t* const val) {
+    int32_t* const val,
+    const uint timeout) {
 
         CHECK_HX711_INITD(hx)
         assert(val != NULL);

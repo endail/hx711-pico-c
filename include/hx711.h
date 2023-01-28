@@ -129,7 +129,8 @@ static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
     const int32_t val = 
         (int32_t)(-(raw & +HX711_MIN_VALUE)) + (int32_t)(raw & HX711_MAX_VALUE);
 
-    assert(val >= HX711_MIN_VALUE && val <= HX711_MAX_VALUE);
+    assert(val >= HX711_MIN_VALUE);
+    assert(val <= HX711_MAX_VALUE);
 
     return val;
 
@@ -194,15 +195,15 @@ int32_t hx711_get_value(hx711_t* const hx);
  * is available or the timeout is reached.
  * 
  * @param hx 
- * @param timeout maximum time to wait for a value in microseconds
  * @param val pointer to the value
+ * @param timeout maximum time to wait for a value in microseconds
  * @return true if a value was obtained within the timeout
  * @return false if a timeout was reached
  */
 bool hx711_get_value_timeout(
     hx711_t* const hx,
-    const uint timeout,
-    int32_t* const val);
+    int32_t* const val,
+    const uint timeout);
 
 /**
  * @brief Obtains a value from the HX711. Returns immediately if
