@@ -39,11 +39,14 @@ void hx711_init(
 
         assert(hx != NULL);
         assert(config != NULL);
+
         assert(config->pio != NULL);
         assert(config->pio_init != NULL);
+
         assert(config->reader_prog != NULL);
         assert(config->reader_prog_init != NULL);
         assert(pio_can_add_program(config->pio, config->reader_prog));
+
         assert(config->clock_pin != config->data_pin);
 
         mutex_init(&hx->_mut);

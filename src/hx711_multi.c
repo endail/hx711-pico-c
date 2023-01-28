@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include "../include/hx711_multi.h"
+#include "../include/util.h"
 #include "hardware/gpio.h"
 
 void hx711_multi_init(
@@ -29,14 +30,23 @@ void hx711_multi_init(
 
         assert(hxm != NULL);
         assert(config != NULL);
+        
         assert(config->chips_len >= HX711_MULTI_MIN_CHIPS);
         assert(config->chips_len <= HX711_MULTI_MAX_CHIPS);
+        
         assert(config->pio != NULL);
         assert(config->pio_init != NULL);
+        
         assert(config->awaiter_prog != NULL);
         assert(config->awaiter_prog_init != NULL);
+        assert(pio_can_add_program(config->pio, config->awaiter_prog));
+        
         assert(config->reader_prog != NULL);
         assert(config->reader_prog_init != NULL);
+        assert(pio_can_add_program_at_offset(
+            config->pio,
+            config->reader_prog,
+            config->awaiter_prog->length));
 
         mutex_init(&hxm->_mut);
         mutex_enter_blocking(&hxm->_mut);
@@ -49,19 +59,19 @@ void hx711_multi_init(
         hxm->_awaiter_prog = config->awaiter_prog;
         hxm->_reader_prog = config->reader_prog;
 
-        hxm->_reader_offset = pio_add_program(
-            hxm->_pio,
-            hxm->_reader_prog);
-
-        hxm->_reader_sm = (uint)pio_claim_unused_sm(
-            hxm->_pio,
-            true);
-
         hxm->_awaiter_offset = pio_add_program(
             hxm->_pio,
             hxm->_awaiter_prog);
 
         hxm->_awaiter_sm = (uint)pio_claim_unused_sm(
+            hxm->_pio,
+            true);
+
+        hxm->_reader_offset = pio_add_program(
+            hxm->_pio,
+            hxm->_reader_prog);
+
+        hxm->_reader_sm = (uint)pio_claim_unused_sm(
             hxm->_pio,
             true);
 
@@ -375,6 +385,7 @@ void hx711_multi__pinvals_to_values(
 
         assert(pinvals != NULL);
         assert(values != NULL);
+        assert((void*)values != (void*)pinvals);
         assert(len > 0);
 
         //construct an individual chip value by OR-ing
@@ -437,6 +448,10 @@ void hx711_multi__get_values_raw(
         dma_channel_wait_for_finish_blocking(
             hxm->_dma_channel);
 
+        //there should be nothing left to read
+        assert(util_dma_get_transfer_count_remaining(hxm->_dma_channel) == 0);
+        assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
+
 }
 
 bool hx711_multi__get_values_timeout_raw(
@@ -459,6 +474,8 @@ bool hx711_multi__get_values_timeout_raw(
 
         while(!time_reached(endTime)) {
             if(!dma_channel_is_busy(hxm->_dma_channel)) {
+                assert(util_dma_get_transfer_count_remaining(hxm->_dma_channel) == 0);
+                assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
                 return true;
             }
         }
