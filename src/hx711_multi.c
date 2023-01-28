@@ -400,24 +400,16 @@ void hx711_multi__pinvals_to_values(
         //...
         //    ((pinvals[23]) >> 0) & 1) << 0;
 
-        //could use bool for bit var, but uint32_t avoids implicit
-        //casting from bool to int and any issues with OR-ing with
-        //rawVal
-        uint32_t bit;
-        uint32_t rawVal;
-        uint shift;
-
         for(size_t chipNum = 0; chipNum < len; ++chipNum) {
 
             //reset to 0
             //this is the raw value for an individual chip
-            rawVal = 0;
+            uint32_t rawVal = 0;
 
-            //reconstruct an individual twos comp HX711 value from the
-            //pin bits - this is the raw val
+            //reconstruct an individual twos comp HX711 value from pinbits
             for(size_t bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
-                shift = HX711_READ_BITS - bitPos - 1;
-                bit = (pinvals[bitPos] >> chipNum) & 1;
+                const uint shift = HX711_READ_BITS - bitPos - 1;
+                const uint32_t bit = (pinvals[bitPos] >> chipNum) & 1;
                 rawVal |= bit << shift;
             }
 
