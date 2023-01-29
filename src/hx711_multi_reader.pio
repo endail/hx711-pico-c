@@ -32,7 +32,7 @@
 ; the state machine as a 32 bit unsigned integer where the 0th bit (the
 ; least significant bit) is the state of the HX711's data pin connected to
 ; the base data pin, the 1th bit is the second HX711, the 2th bit is the
-; third HX711, and so on. This occurs 24 times. Onnce for each bit in a raw,
+; third HX711, and so on. This occurs 24 times. Once for each bit in a raw,
 ; two's complement HX711 value.
 ; 
 ; After the 24 bits have been pushed out of the state machine, effectively
@@ -58,8 +58,8 @@
 
 .program hx711_multi_reader
 
-.define DATA_READY_IRQ_NUM          1
 .define APP_WAIT_IRQ_NUM            0
+.define DATA_READY_IRQ_NUM          4
 
 .define LOW                         0
 .define HIGH                        1
@@ -143,6 +143,7 @@ gainloop:
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 #include "hx711_multi.h"
+#include "util.h"
 
 void hx711_multi_pio_init(hx711_multi_t* const hxm) {
 
@@ -154,13 +155,10 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_pio,
         hxm->_clock_pin);
 
-    {
-        uint i = hxm->_data_pin_base;
-        const uint l = hxm->_data_pin_base + hxm->_chips_len - 1;
-        for(; i <= l; ++i) {
-            pio_gpio_init(hxm->_pio, i);
-        }
-    }
+    util_pio_gpio_contiguous_init(
+        hxm->_pio,
+        hxm->_data_pin_base,
+        hxm->_chips_len);
 
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);

@@ -40,10 +40,7 @@
 
 .program hx711_multi_awaiter
 
-; this IRQ could be replaced with num 4 - 7 since they're ony visible
-; to the state machines
-
-.define DATA_READY_IRQ_NUM          1   ; IRQ is set when all data pins become low.
+.define DATA_READY_IRQ_NUM          4   ; IRQ is set when all data pins become low.
                                         ; If any data pins are high, the IRQ is
                                         ; cleared.
 
