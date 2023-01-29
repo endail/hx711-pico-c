@@ -30,7 +30,7 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
             //     .wrap_target
     0xe057, //  3: set    y, 23                      
     0xc020, //  4: irq    wait 0                     
-    0x20c1, //  5: wait   1 irq, 1                   
+    0x20c4, //  5: wait   1 irq, 4                   
     0xe001, //  6: set    pins, 1                    
     0x4001, //  7: in     pins, 1                    
     0x1186, //  8: jmp    y--, 6          side 0 [1] 
@@ -82,6 +82,7 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 #include "hx711_multi.h"
+#include "util.h"
 void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
@@ -89,13 +90,10 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
     pio_gpio_init(
         hxm->_pio,
         hxm->_clock_pin);
-    {
-        uint i = hxm->_data_pin_base;
-        const uint l = hxm->_data_pin_base + hxm->_chips_len - 1;
-        for(; i <= l; ++i) {
-            pio_gpio_init(hxm->_pio, i);
-        }
-    }
+    util_pio_gpio_contiguous_init(
+        hxm->_pio,
+        hxm->_data_pin_base,
+        hxm->_chips_len);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
 }
