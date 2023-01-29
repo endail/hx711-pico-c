@@ -200,5 +200,3 @@ In the example code above, the final statement closes communication with the HX7
 When using multiple HX711 chips, it is possible they may be desynchronised if not powered up simultaneously. You can use `hx711_multi_sync()` which will power down and then power up all chips together.
 
 ## Overview of Functionality
-
-

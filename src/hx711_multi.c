@@ -70,7 +70,7 @@ void hx711_multi_init(
             hxm->_pio,
             true);
 
-        util_gpio_set_output_enabled(hxm->_clock_pin);
+        util_gpio_set_output(hxm->_clock_pin);
 
         util_gpio_set_contiguous_input_pins(
             hxm->_data_pin_base,
@@ -97,11 +97,13 @@ void hx711_multi_init(
             &cfg,
             true);
 
-        //do NOT set ring buffer
-        //ie. do not use channel_config_set_ring
-        //if, for whatever reason, the DMA transfer
-        //fails, subsequent transfer invocations
-        //will reset the write address
+        /**
+         * Do not set ring buffer.
+         * ie. do not use channel_config_set_ring.
+         * If, for whatever reason, the DMA transfer
+         * fails, subsequent transfer invocations
+         * will reset the write address.
+         */
 
         channel_config_set_dreq(
             &cfg,
@@ -222,20 +224,22 @@ bool hx711_multi_get_values_timeout(
 
         mutex_enter_blocking(&hxm->_mut);
 
-        if(!hx711_multi__get_values_timeout_raw(hxm, timeout)) {
-            return false;
-        }
+        bool success = hx711_multi__get_values_timeout_raw(
+            hxm,
+            timeout);
 
-        //probable race condition with read_buffer if
-        //this is moved outside of the mutex
-        hx711_multi__pinvals_to_values(
-            hxm->_read_buffer,
-            values,
-            hxm->_chips_len);
+        if(success) {
+            //probable race condition with read_buffer if
+            //this is moved outside of the mutex
+            hx711_multi__pinvals_to_values(
+                hxm->_read_buffer,
+                values,
+                hxm->_chips_len);
+        }
 
         mutex_exit(&hxm->_mut);
 
-        return true;
+        return success;
 
 }
 
@@ -258,6 +262,10 @@ void hx711_multi_power_up(
             hxm->_reader_sm,
             hxm->_reader_offset,
             &hxm->_reader_default_config);
+
+        pio_sm_clear_fifos(
+            hxm->_pio,
+            hxm->_reader_sm);
 
         //put the gain value into the reader FIFO
         pio_sm_put(
@@ -292,6 +300,8 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
     CHECK_HX711_MULTI_INITD(hxm);
 
     mutex_enter_blocking(&hxm->_mut);
+
+    dma_channel_abort(hxm->_dma_channel);
 
     //stop checking for data readiness
     pio_sm_set_enabled(
@@ -333,32 +343,6 @@ bool hx711_multi__wait_app_ready_timeout(
             hxm->_pio,
             HX711_MULTI_APP_WAIT_IRQ_NUM,
             timeout);
-
-/*
-        bool success = false;
-        const absolute_time_t endTime = make_timeout_time_us(timeout);
-
-        assert(!is_nil_time(endTime));
-
-        //give sm time to return to wait app ready
-        while(!time_reached(endTime)) {
-            if((success = pio_interrupt_get(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM))) {
-                break;
-            }
-        }
-
-        //if the above failed in time, return false
-        if(!success) {
-            return false;
-        }
-
-        //start the reading process
-        pio_interrupt_clear(
-            hxm->_pio,
-            HX711_MULTI_APP_WAIT_IRQ_NUM);
-
-        return true;
-*/
 
 }
 
@@ -419,7 +403,7 @@ void hx711_multi__get_values_raw(
     hx711_multi_t* const hxm) {
 
         CHECK_HX711_MULTI_INITD(hxm)
-        assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
+        assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
         assert(!dma_channel_is_busy(hxm->_dma_channel));
 
         hx711_multi__wait_app_ready(hxm);
@@ -434,7 +418,7 @@ void hx711_multi__get_values_raw(
 
         //there should be nothing left to read
         assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
-        assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
+        assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
 
 }
 
@@ -445,7 +429,7 @@ bool hx711_multi__get_values_timeout_raw(
         const absolute_time_t endTime = make_timeout_time_us(timeout);
 
         assert(!is_nil_time(endTime));
-        assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
+        assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
         assert(!dma_channel_is_busy(hxm->_dma_channel));
 
         //don't include app wait in timeout period
@@ -459,7 +443,7 @@ bool hx711_multi__get_values_timeout_raw(
         while(!time_reached(endTime)) {
             if(!dma_channel_is_busy(hxm->_dma_channel)) {
                 assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
-                assert(pio_sm_get_rx_fifo_level(hxm->_pio, hxm->_reader_sm) == 0);
+                assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
                 return true;
             }
         }

@@ -35,22 +35,71 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Get the transfer count for a given DMA channel. When a
+ * DMA transfer is active, this count is the number of transfers
+ * remaining.
+ * 
+ * @param channel 
+ * @return uint32_t 
+ */
 static inline uint32_t util_dma_get_transfer_count(const uint channel) {
     check_dma_channel_param(channel);
     return (uint32_t)dma_hw->ch[channel].transfer_count;
 }
 
+/**
+ * @brief Sets GPIO pins from base to base + len to input.
+ * 
+ * @param base 
+ * @param len 
+ */
 static inline void util_gpio_set_contiguous_input_pins(const uint base, const uint len) {
-    for(uint i = base, l = base + len - 1; i <= l; ++i) {
+
+    assert(len > 0);
+
+    const uint l = base + len - 1;
+
+    for(uint i = base; i <= l; ++i) {
+        check_gpio_param(i);
         gpio_set_input_enabled(i, true);
     }
+
 }
 
-static inline void util_gpio_set_output_enabled(const uint gpio) {
+/**
+ * @brief Inits and sets GPIO pin to output.
+ * 
+ * @param gpio 
+ */
+static inline void util_gpio_set_output(const uint gpio) {
     gpio_init(gpio);
     gpio_set_dir(gpio, true);
 }
 
+/**
+ * @brief Inits GPIO pins for PIO from base to base + len.
+ * 
+ * @param pio 
+ * @param base 
+ * @param len 
+ */
+static inline void util_pio_gpio_contiguous_init(
+    const PIO pio,
+    const uint base,
+    const uint len) {
+        const uint l = base + len - 1;
+        for(uint i = base; i <= l; ++i) {
+            pio_gpio_init(pio, i);
+        }
+}
+
+/**
+ * @brief Clears a given state machine's RX FIFO.
+ * 
+ * @param pio 
+ * @param sm 
+ */
 static inline void util_pio_sm_clear_rx_fifo(
     const PIO pio,
     const uint sm) {
@@ -60,6 +109,12 @@ static inline void util_pio_sm_clear_rx_fifo(
         }
 }
 
+/**
+ * @brief Waits for a given PIO interrupt to be set.
+ * 
+ * @param pio 
+ * @param pio_interrupt_num 
+ */
 static inline void util_pio_interrupt_wait(
     const PIO pio,
     const uint pio_interrupt_num) {
@@ -68,6 +123,13 @@ static inline void util_pio_interrupt_wait(
         }
 }
 
+/**
+ * @brief Waits for a given PIO interrupt to be set and then
+ * clears it.
+ * 
+ * @param pio 
+ * @param pio_interrupt_num 
+ */
 static inline void util_pio_interrupt_wait_clear(
     const PIO pio,
     const uint pio_interrupt_num) {
@@ -75,6 +137,16 @@ static inline void util_pio_interrupt_wait_clear(
         pio_interrupt_clear(pio, pio_interrupt_num);
 }
 
+/**
+ * @brief Waits for a given PIO to be set within the timeout
+ * period.
+ * 
+ * @param pio 
+ * @param pio_interrupt_num 
+ * @param timeout_us microseconds
+ * @return true if the interrupt was set within the timeout
+ * @return false if the timeout was reached
+ */
 static inline bool util_pio_interrupt_wait_timeout(
     const PIO pio,
     const uint pio_interrupt_num,
@@ -93,6 +165,16 @@ static inline bool util_pio_interrupt_wait_timeout(
 
 }
 
+/**
+ * @brief Waits for a given PIO to be set within the timeout
+ * period and then clears it.
+ * 
+ * @param pio 
+ * @param pio_interrupt_num 
+ * @param timeout_us microseconds
+ * @return true if the interrupt was set within the timeout
+ * @return false if the timeout was reached
+ */
 static inline bool util_pio_interrupt_wait_clear_timeout(
     const PIO pio,
     const uint pio_interrupt_num,
@@ -111,11 +193,25 @@ static inline bool util_pio_interrupt_wait_clear_timeout(
 
 }
 
+/**
+ * @brief Attempts to get a word from the state machine's RX FIFO
+ * if more than threshold words are in the buffer.
+ * 
+ * @param pio 
+ * @param sm 
+ * @param word variable to be set
+ * @param threshold word count (1 word = 8 bytes)
+ * @return true if word was set with the value from the RX FIFO
+ * @return false if the number of words in the RX FIFO is below
+ * the threshold
+ */
 static inline bool util_pio_sm_try_get(
     const PIO pio,
     const uint sm,
     uint32_t* const word,
     const uint threshold) {
+
+        assert(word != NULL);
 
         if(pio_sm_get_rx_fifo_level(pio, sm) >= threshold) {
             *word = pio_sm_get(pio, sm);

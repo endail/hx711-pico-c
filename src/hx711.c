@@ -57,7 +57,7 @@ void hx711_init(
         hx->_pio = config->pio;
         hx->_reader_prog = config->reader_prog;
 
-        util_gpio_set_output_enabled(hx->_clock_pin);
+        util_gpio_set_output(hx->_clock_pin);
 
         /**
          * There was originally a call here to gpio_put on the
