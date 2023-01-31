@@ -59,6 +59,8 @@
 .program hx711_multi_reader
 
 .define APP_WAIT_IRQ_NUM            0
+.define CONVERSION_RUNNING_IRQ_NUM  1
+.define PINVALS_READY_IRQ_NUM       2
 .define DATA_READY_IRQ_NUM          4
 
 .define LOW                         0
@@ -83,7 +85,7 @@ wrap_target:
 
 set y, READ_BITS
 
-irq wait APP_WAIT_IRQ_NUM           ; Wait until application is ready to obtain
+; irq wait APP_WAIT_IRQ_NUM           ; Wait until application is ready to obtain
                                     ; values.
 
 wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state machine
@@ -92,6 +94,9 @@ wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state mach
 
                                     ; At this point it is assumed all HX711 chips are
                                     ; synchronised.
+
+irq set CONVERSION_RUNNING_IRQ_NUM
+irq clear PINVALS_READY_IRQ_NUM
 
 bitloop:
     set pins, HIGH
@@ -104,6 +109,9 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                     ; to the number of chips configured.
 
     jmp y-- bitloop side LOW [T4 - 1]
+
+irq clear CONVERSION_RUNNING_IRQ_NUM
+irq set PINVALS_READY_IRQ_NUM
 
 pull noblock side HIGH
 out x, GAIN_BITS
@@ -162,6 +170,7 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
 
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
 
 }
 
