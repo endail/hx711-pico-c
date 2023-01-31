@@ -49,21 +49,49 @@ static inline uint32_t util_dma_get_transfer_count(const uint channel) {
 }
 
 /**
+ * @brief Wait until channel has completed transferring up
+ * to a timeout.
+ * 
+ * @param channel 
+ * @param end 
+ * @return true if transfer completed
+ * @return false is timeout was reached
+ */
+static inline bool util_dma_channel_wait_for_finish_timeout(
+    const uint channel,
+    const absolute_time_t* end) {
+
+        assert(end != NULL);
+        assert(!is_nil_time(*end));
+
+        while(!time_reached(*end)) {
+            if(!dma_channel_is_busy(channel)) {
+                return true;
+            }
+        }
+
+        return false;
+
+}
+
+/**
  * @brief Sets GPIO pins from base to base + len to input.
  * 
  * @param base 
  * @param len 
  */
-static inline void util_gpio_set_contiguous_input_pins(const uint base, const uint len) {
+static inline void util_gpio_set_contiguous_input_pins(
+    const uint base,
+    const uint len) {
 
-    assert(len > 0);
+        assert(len > 0);
 
-    const uint l = base + len - 1;
+        const uint l = base + len - 1;
 
-    for(uint i = base; i <= l; ++i) {
-        check_gpio_param(i);
-        gpio_set_input_enabled(i, true);
-    }
+        for(uint i = base; i <= l; ++i) {
+            check_gpio_param(i);
+            gpio_set_input_enabled(i, true);
+        }
 
 }
 
@@ -88,10 +116,15 @@ static inline void util_pio_gpio_contiguous_init(
     const PIO pio,
     const uint base,
     const uint len) {
+
+        assert(len > 0);
+
         const uint l = base + len - 1;
+        
         for(uint i = base; i <= l; ++i) {
             pio_gpio_init(pio, i);
         }
+
 }
 
 /**
@@ -101,6 +134,14 @@ static inline void util_pio_gpio_contiguous_init(
  * @param sm 
  */
 static inline void util_pio_sm_clear_rx_fifo(
+    const PIO pio,
+    const uint sm) {
+        while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
+            pio_sm_get(pio, sm);
+        }
+}
+
+static inline void util_pio_sm_clear_osr(
     const PIO pio,
     const uint sm) {
         const uint instr = pio_encode_push(false, false);
@@ -123,6 +164,42 @@ static inline void util_pio_interrupt_wait(
         }
 }
 
+static inline void util_pio_interrupt_wait_cleared(
+    const PIO pio,
+    const uint pio_interrupt_num) {
+        while(pio_interrupt_get(pio, pio_interrupt_num)) {
+            tight_loop_contents();
+        }
+}
+
+/**
+ * @brief Waits until the given interrupt is cleared, up to
+ * a maximum timeout
+ * 
+ * @param pio 
+ * @param pio_interrupt_num 
+ * @param end 
+ * @return true 
+ * @return false 
+ */
+static inline bool util_pio_interrupt_wait_cleared_timeout(
+    const PIO pio,
+    const uint pio_interrupt_num,
+    const absolute_time_t* const end) {
+
+        assert(end != NULL);
+        assert(!is_nil_time(*end));
+
+        while(!time_reached(*end)) {
+            if(!pio_interrupt_get(pio, pio_interrupt_num)) {
+                return true;
+            }
+        }
+
+        return false;
+
+}
+
 /**
  * @brief Waits for a given PIO interrupt to be set and then
  * clears it.
@@ -143,19 +220,19 @@ static inline void util_pio_interrupt_wait_clear(
  * 
  * @param pio 
  * @param pio_interrupt_num 
- * @param timeout_us microseconds
+ * @param end
  * @return true if the interrupt was set within the timeout
  * @return false if the timeout was reached
  */
 static inline bool util_pio_interrupt_wait_timeout(
     const PIO pio,
     const uint pio_interrupt_num,
-    const uint64_t timeout_us) {
+    const absolute_time_t* const end) {
 
-        const absolute_time_t endTime = make_timeout_time_us(timeout_us);
-        assert(!is_nil_time(endTime));
+        assert(end != NULL);
+        assert(!is_nil_time(*end));
 
-        while(!time_reached(endTime)) {
+        while(!time_reached(*end)) {
             if(pio_interrupt_get(pio, pio_interrupt_num)) {
                 return true;
             }
@@ -171,22 +248,27 @@ static inline bool util_pio_interrupt_wait_timeout(
  * 
  * @param pio 
  * @param pio_interrupt_num 
- * @param timeout_us microseconds
+ * @param end
  * @return true if the interrupt was set within the timeout
  * @return false if the timeout was reached
  */
 static inline bool util_pio_interrupt_wait_clear_timeout(
     const PIO pio,
     const uint pio_interrupt_num,
-    const uint64_t timeout_us) {
+    const absolute_time_t* const end) {
+
+        assert(end != NULL);
+        assert(!is_nil_time(*end));
 
         const bool ok = util_pio_interrupt_wait_timeout(
             pio,
             pio_interrupt_num,
-            timeout_us);
+            end);
 
         if(ok) {
-            pio_interrupt_clear(pio, pio_interrupt_num);
+            pio_interrupt_clear(
+                pio,
+                pio_interrupt_num);
         }
 
         return ok;

@@ -48,11 +48,11 @@ extern "C" {
     #define CHECK_HX711_MULTI_INITD(hxm)
 #endif
 
-#define HX711_MULTI_APP_WAIT_IRQ_NUM 0
-#define HX711_MULTI_DATA_READY_IRQ_NUM 1
+#define HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM  1
+#define HX711_MULTI_DATA_READY_IRQ_NUM          4
 
-#define HX711_MULTI_MIN_CHIPS 1
-#define HX711_MULTI_MAX_CHIPS 32
+#define HX711_MULTI_MIN_CHIPS                   1
+#define HX711_MULTI_MAX_CHIPS                   32
 
 typedef struct {
 
@@ -72,7 +72,6 @@ typedef struct {
     uint _reader_sm;
     uint _reader_offset;
 
-    uint32_t _read_buffer[HX711_READ_BITS];
     int _dma_channel;
 
     mutex_t _mut;
@@ -129,7 +128,7 @@ void hx711_multi_set_gain(
  */
 void hx711_multi_get_values(
     hx711_multi_t* const hxm,
-    int32_t* values);
+    int32_t* const values);
 
 /**
  * @brief Fill an array with one value from each HX711,
@@ -144,7 +143,7 @@ void hx711_multi_get_values(
  */
 bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
-    int32_t* values,
+    int32_t* const values,
     const uint timeout);
 
 /**
@@ -185,28 +184,6 @@ inline void hx711_multi_sync(
 }
 
 /**
- * @brief Signal to the reader state machine that it's time
- * to start reading in values.
- * 
- * @param hxm 
- */
-void hx711_multi__wait_app_ready(hx711_multi_t* const hxm);
-
-/**
- * @brief Signal to the reader state machine that it's time
- * to start reading in values, and to timeout if this cannot be done
- * within the given period.
- * 
- * @param hxm 
- * @param timeout microseconds
- * @return true 
- * @return false 
- */
-bool hx711_multi__wait_app_ready_timeout(
-    hx711_multi_t* const hxm,
-    const uint timeout);
-
-/**
  * @brief Convert an array of pinvals to regular HX711
  * values.
  * 
@@ -220,15 +197,16 @@ static void hx711_multi__pinvals_to_values(
     const size_t len);
 
 /**
- * @brief Reads pinvals into the internal buffer.
+ * @brief Reads pinvals into an array.
  * 
  * @param hxm 
  */
 void hx711_multi__get_values_raw(
-    hx711_multi_t* const hxm);
+    hx711_multi_t* const hxm,
+    uint32_t* const pinvals);
 
 /**
- * @brief Reads pinvals into the internal buffer, timing out
+ * @brief Reads pinvals into an array, timing out
  * if not possible within the given period.
  * 
  * @param hxm 
@@ -238,7 +216,8 @@ void hx711_multi__get_values_raw(
  */
 bool hx711_multi__get_values_timeout_raw(
     hx711_multi_t* const hxm,
-    const uint timeout);
+    uint32_t* const pinvals,
+    const absolute_time_t* const end);
 
 #ifdef __cplusplus
 }

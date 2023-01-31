@@ -45,13 +45,13 @@ extern "C" {
     #define CHECK_HX711_INITD(hx)
 #endif
 
-#define HX711_READ_BITS 24
-#define HX711_MIN_VALUE INT32_C(-0x800000)
-#define HX711_MAX_VALUE INT32_C(0x7fffff)
-#define HX711_POWER_DOWN_TIMEOUT 60 //us
+#define HX711_READ_BITS                 24
+#define HX711_MIN_VALUE                 INT32_C(-0x800000)
+#define HX711_MAX_VALUE                 INT32_C(0x7fffff)
+#define HX711_POWER_DOWN_TIMEOUT        60 //us
 
-#define HX711_PIO_MIN_GAIN 0
-#define HX711_PIO_MAX_GAIN 2
+#define HX711_PIO_MIN_GAIN              0
+#define HX711_PIO_MAX_GAIN              2
 
 extern const uint HX711_SETTLING_TIMES[]; //ms
 extern const uint HX711_SAMPLE_RATES[];

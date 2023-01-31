@@ -23,7 +23,14 @@
         "_timespec.h": "c",
         "_types.h": "c",
         "gpio.h": "c",
-        "hx711_multi.h": "c"
+        "hx711_multi.h": "c",
+        "array": "c",
+        "deque": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "string_view": "c",
+        "initializer_list": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "enabled",
     "C_Cpp.default.intelliSenseMode": "gcc-arm",

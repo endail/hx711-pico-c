@@ -22,7 +22,6 @@
 
 #include "../include/hx711_multi.h"
 #include "../include/util.h"
-#include "hardware/gpio.h"
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
@@ -30,7 +29,7 @@ void hx711_multi_init(
 
         assert(hxm != NULL);
         assert(config != NULL);
-        
+
         assert(config->chips_len >= HX711_MULTI_MIN_CHIPS);
         assert(config->chips_len <= HX711_MULTI_MAX_CHIPS);
         
@@ -114,7 +113,7 @@ void hx711_multi_init(
         dma_channel_configure(
             hxm->_dma_channel,
             &cfg,
-            hxm->_read_buffer,                  //write to buffer
+            NULL,                               //don't set a write address yet
             &hxm->_pio->rxf[hxm->_reader_sm],   //read from reader pio program rx fifo
             HX711_READ_BITS,                    //24 transfers; one for each HX711 bit
             false);                             //false = don't start now
@@ -173,6 +172,8 @@ void hx711_multi_set_gain(
 
         CHECK_HX711_MULTI_INITD(hxm);
 
+        //no need to 0-init this, pinvals are ignored in this func
+        uint32_t dummy[HX711_READ_BITS];
         const uint32_t gainVal = hx711__gain_to_sm_gain(gain);
 
         mutex_enter_blocking(&hxm->_mut);
@@ -186,7 +187,9 @@ void hx711_multi_set_gain(
             hxm->_reader_sm,
             gainVal);
 
-        hx711_multi__get_values_raw(hxm);
+        hx711_multi__get_values_raw(
+            hxm,
+            dummy);
 
         mutex_exit(&hxm->_mut);
 
@@ -194,50 +197,54 @@ void hx711_multi_set_gain(
 
 void hx711_multi_get_values(
     hx711_multi_t* const hxm,
-    int32_t* values) {
+    int32_t* const values) {
 
         CHECK_HX711_MULTI_INITD(hxm);
         assert(values != NULL);
 
+        uint32_t pinvals[HX711_READ_BITS] = {0};
+
         mutex_enter_blocking(&hxm->_mut);
 
-        hx711_multi__get_values_raw(hxm);
-
-        //probable race condition with read_buffer if
-        //this is moved outside of the mutex
-        hx711_multi__pinvals_to_values(
-            hxm->_read_buffer,
-            values,
-            hxm->_chips_len);
+        hx711_multi__get_values_raw(
+            hxm,
+            pinvals);
 
         mutex_exit(&hxm->_mut);
+
+        hx711_multi__pinvals_to_values(
+            pinvals,
+            values,
+            hxm->_chips_len);
 
 }
 
 bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
-    int32_t* values,
+    int32_t* const values,
     const uint timeout) {
 
         CHECK_HX711_MULTI_INITD(hxm);
         assert(values != NULL);
 
+        uint32_t pinvals[HX711_READ_BITS] = {0};
+        const absolute_time_t end = make_timeout_time_us(timeout);
+
         mutex_enter_blocking(&hxm->_mut);
 
         bool success = hx711_multi__get_values_timeout_raw(
             hxm,
-            timeout);
+            pinvals,
+            &end);
+
+        mutex_exit(&hxm->_mut);
 
         if(success) {
-            //probable race condition with read_buffer if
-            //this is moved outside of the mutex
             hx711_multi__pinvals_to_values(
-                hxm->_read_buffer,
+                pinvals,
                 values,
                 hxm->_chips_len);
         }
-
-        mutex_exit(&hxm->_mut);
 
         return success;
 
@@ -323,29 +330,6 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
 
 }
 
-void hx711_multi__wait_app_ready(hx711_multi_t* const hxm) {
-
-    CHECK_HX711_MULTI_INITD(hxm)
-
-    util_pio_interrupt_wait_clear(
-        hxm->_pio,
-        HX711_MULTI_APP_WAIT_IRQ_NUM);
-
-}
-
-bool hx711_multi__wait_app_ready_timeout(
-    hx711_multi_t* const hxm,
-    const uint timeout) {
-
-        CHECK_HX711_MULTI_INITD(hxm)
-
-        return util_pio_interrupt_wait_clear_timeout(
-            hxm->_pio,
-            HX711_MULTI_APP_WAIT_IRQ_NUM,
-            timeout);
-
-}
-
 void hx711_multi__pinvals_to_values(
     const uint32_t* const pinvals,
     int32_t* const values,
@@ -400,17 +384,33 @@ void hx711_multi__pinvals_to_values(
 }
 
 void hx711_multi__get_values_raw(
-    hx711_multi_t* const hxm) {
+    hx711_multi_t* const hxm,
+    uint32_t* const pinvals) {
 
         CHECK_HX711_MULTI_INITD(hxm)
-        assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
+        assert(pinvals != NULL);
+
+        //DMA should not be active
         assert(!dma_channel_is_busy(hxm->_dma_channel));
 
-        hx711_multi__wait_app_ready(hxm);
+        //wait for any current conversion period to end
+        util_pio_interrupt_wait_cleared(
+            hxm->_pio,
+            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
 
+        //clear any residual data
+        util_pio_sm_clear_rx_fifo(
+            hxm->_pio,
+            hxm->_reader_sm);
+
+        //at this stage there is no need to wait for the
+        //conversion period irq to be set, just let DMA
+        //handle the writes when they begin
+
+        //then start reading
         dma_channel_set_write_addr(
             hxm->_dma_channel,
-            hxm->_read_buffer,
+            pinvals,
             true);
 
         dma_channel_wait_for_finish_blocking(
@@ -418,39 +418,49 @@ void hx711_multi__get_values_raw(
 
         //there should be nothing left to read
         assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
-        assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
 
 }
 
 bool hx711_multi__get_values_timeout_raw(
     hx711_multi_t* const hxm,
-    const uint timeout) {
+    uint32_t* const pinvals,
+    const absolute_time_t* const end) {
 
-        const absolute_time_t endTime = make_timeout_time_us(timeout);
-
-        assert(!is_nil_time(endTime));
-        assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
+        CHECK_HX711_MULTI_INITD(hxm)
+        assert(pinvals != NULL);
+        assert(end != NULL);
+        assert(!is_nil_time(*end));
         assert(!dma_channel_is_busy(hxm->_dma_channel));
 
-        //don't include app wait in timeout period
-        hx711_multi__wait_app_ready(hxm);
+        bool isDone = false;
+
+        util_pio_interrupt_wait_cleared_timeout(
+            hxm->_pio,
+            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM,
+            end);
+
+        util_pio_sm_clear_rx_fifo(
+            hxm->_pio,
+            hxm->_reader_sm);
 
         dma_channel_set_write_addr(
             hxm->_dma_channel,
-            hxm->_read_buffer,
+            pinvals,
             true);
 
-        while(!time_reached(endTime)) {
-            if(!dma_channel_is_busy(hxm->_dma_channel)) {
-                assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
-                assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
-                return true;
-            }
+        isDone = util_dma_channel_wait_for_finish_timeout(
+            hxm->_dma_channel,
+            end);
+
+        if(!isDone) {
+            //assume an error
+            dma_channel_abort(hxm->_dma_channel);
+        }
+        else {
+            assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
+            assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
         }
 
-        //assume an error
-        dma_channel_abort(hxm->_dma_channel);
-
-        return false;
+        return isDone;
 
 }
