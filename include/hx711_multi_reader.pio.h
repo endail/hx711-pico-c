@@ -19,7 +19,7 @@
 // ------------------ //
 
 #define hx711_multi_reader_wrap_target 3
-#define hx711_multi_reader_wrap 17
+#define hx711_multi_reader_wrap 18
 
 #define hx711_multi_reader_offset_bitloop_in_pins_bit_count 8u
 
@@ -34,22 +34,23 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xc042, //  6: irq    clear 2                    
     0xe001, //  7: set    pins, 1                    
     0x4001, //  8: in     pins, 1                    
-    0x1187, //  9: jmp    y--, 7          side 0 [1] 
-    0xc041, // 10: irq    clear 1                    
-    0xc002, // 11: irq    nowait 2                   
-    0x9880, // 12: pull   noblock         side 1     
-    0x6020, // 13: out    x, 32                      
-    0x1023, // 14: jmp    !x, 3           side 0     
-    0xa041, // 15: mov    y, x                       
-    0xe101, // 16: set    pins, 1                [1] 
-    0x1190, // 17: jmp    y--, 16         side 0 [1] 
+    0x8000, //  9: push   noblock                    
+    0x1087, // 10: jmp    y--, 7          side 0     
+    0xc041, // 11: irq    clear 1                    
+    0xc002, // 12: irq    nowait 2                   
+    0x9880, // 13: pull   noblock         side 1     
+    0x6020, // 14: out    x, 32                      
+    0x1023, // 15: jmp    !x, 3           side 0     
+    0xa041, // 16: mov    y, x                       
+    0xe101, // 17: set    pins, 1                [1] 
+    0x1191, // 18: jmp    y--, 17         side 0 [1] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_reader_program = {
     .instructions = hx711_multi_reader_program_instructions,
-    .length = 18,
+    .length = 19,
     .origin = -1,
 };
 
