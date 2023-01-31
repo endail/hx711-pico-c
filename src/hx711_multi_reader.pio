@@ -44,17 +44,19 @@
 ; [ 1, 1, 0, ... 1 ]    This is the next set of bits for each HX711.
 ; ...
 ; [ 0, 0, 1, ... 0 ]    This is the LSB set of bits for each HX711.
-;
+; 
 ; =========================================================================
 ; 
-; The main program loop waits for an IRQ from code to be cleared before it
-; begins. It will then wait for an IRQ to be set from a another state
-; machine to indiciate each HX711 has data ready for retrieval. It then
-; follows the standard bit reading loop and pushes each set of pin bits out
-; of the state machine. This push must be blocking since, if the application
-; consuming the data misses a push, it will subsequently miss a set of bits
-; and lead to invalid HX711 values. After reading in the bits, the same gain
-; setting procedure is followed as with a single HX711.
+; The reader program is free-running. It constantly clocks-in data during a
+; period guarded by an IRQ flag. An application consuming data from the
+; state machine can start reading in data by waiting until the conversion
+; period IRQ flag is set and then reading in each push. After reading in
+; bits, the same gain setting procedure is followed as with a single HX711.
+; 
+; NOTE: the RX FIFO may have residual data in it at the beginning of a
+; conversion period from the previous conversion period. Application code
+; should ensure the RX FIFO is empty.
+; 
 
 .program hx711_multi_reader
 
@@ -82,6 +84,9 @@ out x, GAIN_BITS
 wrap_target:
 
 set y, READ_BITS
+
+in null, 32                         ; Completely clear the ISR and RX FIFO.
+push noblock
 
 wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state machine
                                     ; to indicate all HX711s are ready for data
@@ -115,6 +120,8 @@ mov y, x
 gainloop:
     set pins, HIGH [T3 - 1]
     jmp y-- gainloop side LOW [T4 - 1]
+
+out 
 
 .wrap
 
