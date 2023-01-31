@@ -108,7 +108,10 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                     ; Autopush is configured below with a threshold equal
                                     ; to the number of chips configured.
 
-    jmp y-- bitloop side LOW [T4 - 1]
+    push noblock
+
+    ; jmp y-- bitloop side LOW [T4 - 1]
+    jmp y-- bitloop side LOW
 
 irq clear CONVERSION_RUNNING_IRQ_NUM
 irq set PINVALS_READY_IRQ_NUM
