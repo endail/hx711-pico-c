@@ -19,9 +19,9 @@
 // ------------------ //
 
 #define hx711_multi_reader_wrap_target 3
-#define hx711_multi_reader_wrap 17
+#define hx711_multi_reader_wrap 16
 
-#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 8u
+#define hx711_multi_reader_offset_bitloop_in_pins_bit_count 7u
 
 static const uint16_t hx711_multi_reader_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
@@ -29,27 +29,26 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0x6020, //  2: out    x, 32                      
             //     .wrap_target
     0xe057, //  3: set    y, 23                      
-    0x6060, //  4: out    null, 32                   
-    0x20c4, //  5: wait   1 irq, 4                   
-    0xc001, //  6: irq    nowait 1                   
-    0xe001, //  7: set    pins, 1                    
-    0x4001, //  8: in     pins, 1                    
-    0x8000, //  9: push   noblock                    
-    0x1087, // 10: jmp    y--, 7          side 0     
-    0xc041, // 11: irq    clear 1                    
-    0x9880, // 12: pull   noblock         side 1     
-    0x6020, // 13: out    x, 32                      
-    0x1023, // 14: jmp    !x, 3           side 0     
-    0xa041, // 15: mov    y, x                       
-    0xe101, // 16: set    pins, 1                [1] 
-    0x1190, // 17: jmp    y--, 16         side 0 [1] 
+    0x20c4, //  4: wait   1 irq, 4                   
+    0xc001, //  5: irq    nowait 1                   
+    0xe001, //  6: set    pins, 1                    
+    0x4001, //  7: in     pins, 1                    
+    0x8000, //  8: push   noblock                    
+    0x1086, //  9: jmp    y--, 6          side 0     
+    0xc041, // 10: irq    clear 1                    
+    0x9880, // 11: pull   noblock         side 1     
+    0x6020, // 12: out    x, 32                      
+    0x1023, // 13: jmp    !x, 3           side 0     
+    0xa041, // 14: mov    y, x                       
+    0xe101, // 15: set    pins, 1                [1] 
+    0x118f, // 16: jmp    y--, 15         side 0 [1] 
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program hx711_multi_reader_program = {
     .instructions = hx711_multi_reader_program_instructions,
-    .length = 18,
+    .length = 17,
     .origin = -1,
 };
 
@@ -97,9 +96,8 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_pio,
         hxm->_data_pin_base,
         hxm->_chips_len);
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM);
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
 }
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //set state machine to 10MHz clock speed
@@ -159,7 +157,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     sm_config_set_in_shift(
         &cfg,
         false,                  //false = shift in left
-        false,                   //true = autopush enabled
+        false,                  //false = autopush disabled
         hxm->_chips_len);
     pio_sm_clear_fifos(
         hxm->_pio,
