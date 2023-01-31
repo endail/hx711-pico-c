@@ -121,8 +121,6 @@ gainloop:
     set pins, HIGH [T3 - 1]
     jmp y-- gainloop side LOW [T4 - 1]
 
-out 
-
 .wrap
 
 % c-sdk {
