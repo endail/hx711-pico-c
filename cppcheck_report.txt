@@ -1,0 +1,3 @@
+include/hx711_multi_reader.pio.h:9:7: error: Syntax Error: AST broken, binary operator '|' doesn't have two operands. [internalAstError]
+      |     ^
+      ^
