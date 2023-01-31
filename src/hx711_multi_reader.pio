@@ -58,9 +58,7 @@
 
 .program hx711_multi_reader
 
-.define APP_WAIT_IRQ_NUM            0
 .define CONVERSION_RUNNING_IRQ_NUM  1
-.define PINVALS_READY_IRQ_NUM       2
 .define DATA_READY_IRQ_NUM          4
 
 .define LOW                         0
@@ -85,10 +83,6 @@ wrap_target:
 
 set y, READ_BITS
 
-; irq wait APP_WAIT_IRQ_NUM           ; Wait until application is ready to obtain
-                                    ; values.
-out null, 32
-
 wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state machine
                                     ; to indicate all HX711s are ready for data
                                     ; retrieval.
@@ -96,7 +90,8 @@ wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state mach
                                     ; At this point it is assumed all HX711 chips are
                                     ; synchronised.
 
-irq set CONVERSION_RUNNING_IRQ_NUM
+irq set CONVERSION_RUNNING_IRQ_NUM  ; Set flag to allow reader code to hook-in at this
+                                    ; point.
 
 bitloop:
     set pins, HIGH
@@ -105,12 +100,9 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
                                     ; instruction.
     in pins, PLACEHOLDER_IN
 
-                                    ; Autopush is configured below with a threshold equal
-                                    ; to the number of chips configured.
+    push noblock                    ; State machine is free-running, so cannot
+                                    ; allow it to block with autopush.
 
-    push noblock
-
-    ; jmp y-- bitloop side LOW [T4 - 1]
     jmp y-- bitloop side LOW
 
 irq clear CONVERSION_RUNNING_IRQ_NUM
@@ -170,9 +162,8 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_data_pin_base,
         hxm->_chips_len);
 
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_APP_WAIT_IRQ_NUM);
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
 
 }
 
@@ -250,7 +241,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     sm_config_set_in_shift(
         &cfg,
         false,                  //false = shift in left
-        false,                   //true = autopush enabled
+        false,                  //false = autopush disabled
         hxm->_chips_len);
 
     pio_sm_clear_fifos(
