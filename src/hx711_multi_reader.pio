@@ -96,7 +96,6 @@ wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state mach
                                     ; synchronised.
 
 irq set CONVERSION_RUNNING_IRQ_NUM
-irq clear PINVALS_READY_IRQ_NUM
 
 bitloop:
     set pins, HIGH
@@ -114,7 +113,6 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
     jmp y-- bitloop side LOW
 
 irq clear CONVERSION_RUNNING_IRQ_NUM
-irq set PINVALS_READY_IRQ_NUM
 
 pull noblock side HIGH
 out x, GAIN_BITS
@@ -251,7 +249,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     sm_config_set_in_shift(
         &cfg,
         false,                  //false = shift in left
-        true,                   //true = autopush enabled
+        false,                   //true = autopush enabled
         hxm->_chips_len);
 
     pio_sm_clear_fifos(
