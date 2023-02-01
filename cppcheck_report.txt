@@ -1,0 +1,12 @@
+src/hx711.c:141:5: style: Unsigned expression 'gainVal' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    HX711_ASSERT_PIO_GAIN(gainVal)
+    ^
+src/hx711.c:305:9: style: Unsigned expression 'gainVal' can't be negative so it is unnecessary to test it. [unsignedPositive]
+        HX711_ASSERT_PIO_GAIN(gainVal)
+        ^
+src/hx711_multi.c:178:9: style: Unsigned expression 'gainVal' can't be negative so it is unnecessary to test it. [unsignedPositive]
+        HX711_ASSERT_PIO_GAIN(gainVal)
+        ^
+src/hx711_multi.c:262:9: style: Unsigned expression 'gainVal' can't be negative so it is unnecessary to test it. [unsignedPositive]
+        HX711_ASSERT_PIO_GAIN(gainVal)
+        ^
