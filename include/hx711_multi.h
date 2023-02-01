@@ -31,22 +31,23 @@
 #include "pico/mutex.h"
 #include "pico/platform.h"
 #include "hx711.h"
+#include "util.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef DEBUG
-    #define CHECK_HX711_MULTI_INITD(hxm) \
-        assert(hxm != NULL); \
-        assert(hxm->_pio != NULL); \
-        assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
-        assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
-        assert(dma_channel_is_claimed(hxm->_dma_channel)); \
-        assert(mutex_is_initialized(&hxm->_mut));
-#else
-    #define CHECK_HX711_MULTI_INITD(hxm)
-#endif
+#define HX711_MULTI_ASSERT_INITD(hxm) \
+    UTIL_ASSERT_NOT_NULL(hxm) \
+    UTIL_ASSERT_NOT_NULL(hxm->_pio) \
+    assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
+    assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
+    assert(dma_channel_is_claimed(hxm->_dma_channel)); \
+    assert(mutex_is_initialized(&hxm->_mut));
+
+#define HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm) \
+    assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_awaiter_sm)); \
+    assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm));
 
 #define HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM  1
 #define HX711_MULTI_DATA_READY_IRQ_NUM          4
@@ -177,7 +178,7 @@ void hx711_multi_power_down(hx711_multi_t* const hxm);
 inline void hx711_multi_sync(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
-        CHECK_HX711_MULTI_INITD(hxm)
+        HX711_MULTI_ASSERT_INITD(hxm)
         hx711_multi_power_down(hxm);
         hx711_wait_power_down();
         hx711_multi_power_up(hxm, gain);

@@ -28,44 +28,58 @@
 #include <stdint.h>
 #include "hardware/pio.h"
 #include "pico/mutex.h"
+#include "pico/platform.h"
 #include "pico/time.h"
-#include "../include/util.h"
+#include "util.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef DEBUG
-    #define CHECK_HX711_INITD(hx) \
-        assert(hx != NULL); \
-        assert(hx->_pio != NULL); \
-        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
-        assert(mutex_is_initialized(&hx->_mut));
-#else
-    #define CHECK_HX711_INITD(hx)
-#endif
+#define HX711_ASSERT_INITD(hx) \
+    UTIL_ASSERT_NOT_NULL(hx) \
+    UTIL_ASSERT_NOT_NULL(hx->_pio) \
+    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
+    assert(mutex_is_initialized(&hx->_mut));
+
+#define HX711_ASSERT_STATE_MACHINE_ENABLED(hxm) \
+    assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm));
 
 #define HX711_READ_BITS                 24
+#define HX711_POWER_DOWN_TIMEOUT        60 //microseconds
+
 #define HX711_MIN_VALUE                 INT32_C(-0x800000)
 #define HX711_MAX_VALUE                 INT32_C(0x7fffff)
-#define HX711_POWER_DOWN_TIMEOUT        60 //us
+
+#define HX711_ASSERT_VALUE(v) \
+    UTIL_ASSERT_RANGE(v, HX711_MIN_VALUE, HX711_MAX_VALUE)
 
 #define HX711_PIO_MIN_GAIN              0
 #define HX711_PIO_MAX_GAIN              2
 
-extern const uint HX711_SETTLING_TIMES[]; //ms
-extern const uint HX711_SAMPLE_RATES[];
+#define HX711_ASSERT_PIO_GAIN(g) \
+    UTIL_ASSERT_RANGE(g, HX711_PIO_MIN_GAIN, HX711_PIO_MAX_GAIN)
+
+extern const unsigned short HX711_SETTLING_TIMES[]; //milliseconds
+extern const unsigned char HX711_SAMPLE_RATES[];
+extern const unsigned char HX711_CLOCK_PULSES[];
 
 typedef enum {
     hx711_rate_10 = 0,
     hx711_rate_80
 } hx711_rate_t;
 
+#define HX711_ASSERT_RATE(r) \
+    UTIL_ASSERT_RANGE(r, hx711_rate_10, hx711_rate_80)
+
 typedef enum {
-    hx711_gain_128 = 25, //clock pulse counts
-    hx711_gain_32 = 26,
-    hx711_gain_64 = 27
+    hx711_gain_128 = 0,
+    hx711_gain_32,
+    hx711_gain_64
 } hx711_gain_t;
+
+#define HX711_ASSERT_GAIN(g) \
+    UTIL_ASSERT_RANGE(g, hx711_gain_128, hx711_gain_64)
 
 typedef struct {
 
@@ -126,15 +140,9 @@ void hx711_set_gain(
  * @return int32_t 
  */
 static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
-
-    const int32_t val = 
-        (int32_t)(-(raw & +HX711_MIN_VALUE)) + (int32_t)(raw & HX711_MAX_VALUE);
-
-    assert(val >= HX711_MIN_VALUE);
-    assert(val <= HX711_MAX_VALUE);
-
-    return val;
-
+    return
+        (int32_t)(-(raw & +HX711_MIN_VALUE)) + 
+        (int32_t)(raw & HX711_MAX_VALUE);
 }
 
 /**
@@ -166,9 +174,10 @@ inline bool hx711_is_max_saturated(const int32_t val) {
  * to the given HX711 sample rate to allow readings to settle.
  * 
  * @param rate 
- * @return uint 
+ * @return unsigned short 
  */
-inline uint hx711_get_settling_time(const hx711_rate_t rate) {
+inline unsigned short hx711_get_settling_time(const hx711_rate_t rate) {
+    assert((uint)rate <= count_of(HX711_SETTLING_TIMES) - 1);
     return HX711_SETTLING_TIMES[(uint)rate];
 }
 
@@ -176,10 +185,22 @@ inline uint hx711_get_settling_time(const hx711_rate_t rate) {
  * @brief Returns the numeric sample rate of the given rate.
  * 
  * @param rate 
- * @return uint 
+ * @return unsigned char 
  */
-inline uint hx711_get_rate_sps(const hx711_rate_t rate) {
+inline unsigned char hx711_get_rate_sps(const hx711_rate_t rate) {
+    assert((uint)rate <= count_of(HX711_SAMPLE_RATES) - 1);
     return HX711_SAMPLE_RATES[(uint)rate];
+}
+
+/**
+ * @brief Returns the clock pulse count for a given gain value.
+ * 
+ * @param gain 
+ * @return unsigned char 
+ */
+inline unsigned char hx711_get_clock_pulses(const hx711_gain_t gain) {
+    assert((uint)gain <= count_of(HX711_CLOCK_PULSES) - 1);
+    return HX711_CLOCK_PULSES[(uint)gain];
 }
 
 /**
@@ -267,7 +288,7 @@ inline void hx711_wait_power_down() {
  * @param gain 
  * @return uint32_t 
  */
-static inline uint32_t hx711__gain_to_sm_gain(const hx711_gain_t gain) {
+static inline uint32_t hx711__gain_to_pio_gain(const hx711_gain_t gain) {
 
     /**
      * gain value is 0-based and calculated by:
@@ -276,11 +297,11 @@ static inline uint32_t hx711__gain_to_sm_gain(const hx711_gain_t gain) {
      * gain = 25 - 24 - 1
      * gain = 0
      */
-    const uint32_t gainVal = (uint32_t)gain - HX711_READ_BITS - 1;
 
-    assert(gainVal <= HX711_PIO_MAX_GAIN);
+    HX711_ASSERT_GAIN(gain)
 
-    return gainVal;
+    const uint32_t clockPulses = hx711_get_clock_pulses(gain);
+    return clockPulses - HX711_READ_BITS - 1;
 
 }
 

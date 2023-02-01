@@ -35,6 +35,18 @@
 extern "C" {
 #endif
 
+#define UTIL_ASSERT_NOT_NULL(ptr) \
+    assert(ptr != NULL);
+
+#define UTIL_ASSERT_RANGE(val, min, max) \
+    assert(val >= min); \
+    assert(val <= max);
+
+#define UTIL_MUTEX_BLOCK(mut, ...) \
+    mutex_enter_blocking(&mut); \
+    __VA_ARGS__ \
+    mutex_exit(&mut);
+
 /**
  * @brief Get the transfer count for a given DMA channel. When a
  * DMA transfer is active, this count is the number of transfers
@@ -101,6 +113,7 @@ static inline void util_gpio_set_contiguous_input_pins(
  * @param gpio 
  */
 static inline void util_gpio_set_output(const uint gpio) {
+    check_gpio_param(gpio);
     gpio_init(gpio);
     gpio_set_dir(gpio, true);
 }
@@ -120,8 +133,9 @@ static inline void util_pio_gpio_contiguous_init(
         assert(len > 0);
 
         const uint l = base + len - 1;
-        
+
         for(uint i = base; i <= l; ++i) {
+            check_gpio_param(i);
             pio_gpio_init(pio, i);
         }
 
@@ -148,6 +162,14 @@ static inline void util_pio_sm_clear_osr(
         while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
             pio_sm_exec(pio, sm, instr);
         }
+}
+
+static inline bool util_pio_sm_is_enabled(
+    const PIO pio,
+    const uint sm) {
+        check_pio_param(pio);
+        check_sm_param(sm);
+        return (pio->ctrl & (1u << (PIO_CTRL_SM_ENABLE_LSB + sm))) != 0;
 }
 
 /**
