@@ -80,9 +80,10 @@ static inline pio_sm_config hx711_reader_program_get_default_config(uint offset)
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
 #include "hx711.h"
+#include "util.h"
 void hx711_reader_pio_init(hx711_t* const hx) {
-    assert(hx != NULL);
-    assert(hx->_pio != NULL);
+    UTIL_ASSERT_NOT_NULL(hx)
+    UTIL_ASSERT_NOT_NULL(hx->_pio)
     pio_gpio_init(
         hx->_pio,
         hx->_clock_pin);
@@ -121,8 +122,8 @@ void hx711_reader_pio_init(hx711_t* const hx) {
 void hx711_reader_program_init(hx711_t* const hx) {
     //set state machine to 10MHz clock speed
     static const uint SM_HZ = 10000000;
-    assert(hx != NULL);
-    assert(hx->_pio != NULL);
+    UTIL_ASSERT_NOT_NULL(hx)
+    UTIL_ASSERT_NOT_NULL(hx->_pio)
     pio_sm_config cfg = hx711_reader_program_get_default_config(hx->_reader_offset);
     const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
     sm_config_set_clkdiv(
