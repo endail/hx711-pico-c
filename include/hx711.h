@@ -58,7 +58,7 @@ extern "C" {
 #define HX711_PIO_MAX_GAIN              2
 
 #define HX711_ASSERT_PIO_GAIN(g) \
-    UTIL_ASSERT_RANGE(g, HX711_PIO_MIN_GAIN, HX711_PIO_MAX_GAIN)
+    assert(g <= HX711_PIO_MAX_GAIN);
 
 extern const unsigned short HX711_SETTLING_TIMES[]; //milliseconds
 extern const unsigned char HX711_SAMPLE_RATES[];
