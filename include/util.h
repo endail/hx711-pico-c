@@ -118,6 +118,34 @@ static inline void util_gpio_set_output(const uint gpio) {
     gpio_set_dir(gpio, true);
 }
 
+static inline uint util_pion_get_irqn(
+    PIO pio,
+    const uint irq_num) {
+
+        UTIL_ASSERT_NOT_NULL(pio)
+        UTIL_ASSERT_RANGE(irq_num, 0, 1)
+
+        const uint basePioIrq = PIO0_IRQ_0;
+
+        const uint irqn = basePioIrq +
+            (pio == pio0 ? 0 : 2) +
+            (irq_num == 0 ? 0 : 2);
+
+        UTIL_ASSERT_RANGE(irqn, PIO0_IRQ_0, PIO1_IRQ_1)
+
+        return irqn;
+
+}
+
+static inline uint util_pio_get_pis(
+    const uint pio_interrupt_num) {
+        UTIL_ASSERT_RANGE(pio_interrupt_num, 0, 3)
+        const uint basePis = pis_interrupt0;
+        const uint pis = basePis + pio_interrupt_num;
+        UTIL_ASSERT_RANGE(pis, pis_interrupt0, pis_interrupt3)
+        return pis;
+}
+
 /**
  * @brief Inits GPIO pins for PIO from base to base + len.
  * 

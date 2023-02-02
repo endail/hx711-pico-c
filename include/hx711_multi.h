@@ -228,8 +228,9 @@ static void hx711_multi__irq_handler() {
 
     UTIL_ASSERT_NOT_NULL(req);
 
-    const uint pioIrq = req->_hxm->_pio == pio0
-        ? PIO0_IRQ_0 : PIO1_IRQ_0;
+    const uint pioIrq = util_pion_get_irqn(
+        req->_hxm->_pio,
+        0);
 
     irq_set_enabled(
         pioIrq,
@@ -238,7 +239,7 @@ static void hx711_multi__irq_handler() {
     pio_set_irqn_source_enabled(
         req->_hxm->_pio,
         pioIrq,
-        pis_interrupt1,
+        util_pio_get_pis(HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM),
         false);
 
     irq_remove_handler(

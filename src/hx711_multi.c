@@ -265,14 +265,10 @@ void hx711_multi_async_open(
 
         mutex_enter_blocking(&hxm->_mut);
 
-        //DMA should not be active
-        assert(!dma_channel_is_busy(hxm->_dma_channel));
+        const uint pioIrq = util_pion_get_irqn(hxm->_pio, 0);
 
-        const uint pioIndex = pio_get_index(hxm->_pio);
-        const uint pioIrq = hxm->_pio == pio0
-            ? PIO0_IRQ_0 : PIO1_IRQ_0;
-
-        hx711_multi_irq_map[pioIndex] = req;
+        hx711_multi_irq_map[pio_get_index(hxm->_pio)]
+            = req;
 
         irq_set_exclusive_handler(
             pioIrq,
@@ -285,7 +281,7 @@ void hx711_multi_async_open(
         pio_set_irqn_source_enabled(
             hxm->_pio,
             pioIrq,
-            pis_interrupt1,
+            util_pio_get_pis(HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM),
             true);
 
 }

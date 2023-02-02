@@ -120,14 +120,15 @@ int main(void) {
 
     while(true) {
 
-        hx711_multi_async_begin(&hxm, &req);
+        hx711_multi_async_open(&hxm, &req);
 
         while(hx711_multi_async_is_done(&req)) {
+            // wait until done, but can do other stuff
             tight_loop_contents();
         }
 
         hx711_multi_async_get(&req, arr);
-        hx711_multi_async_end(&req);
+        hx711_multi_async_close(&req);
 
         for(uint i = 0; i < cfg.chips_len; ++i) {
             printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
