@@ -116,6 +116,28 @@ int main(void) {
     // 5. Read values
     int32_t arr[cfg.chips_len];
 
+    hx711_multi_async_request_t req;
+
+    while(true) {
+
+        hx711_multi_async_begin(&hxm, &req);
+
+        while(hx711_multi_async_is_done(&req)) {
+            tight_loop_contents();
+        }
+
+        hx711_multi_async_get(&req, arr);
+        hx711_multi_async_end(&req);
+
+        for(uint i = 0; i < cfg.chips_len; ++i) {
+            printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
+        }
+
+    }
+
+
+
+
     while(true) {
 
         // wait (block) until a values are read

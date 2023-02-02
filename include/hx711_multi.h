@@ -99,6 +99,49 @@ typedef struct {
 
 } hx711_multi_config_t;
 
+typedef struct {
+    hx711_multi_t* _hxm;
+    uint32_t _buffer[HX711_READ_BITS];
+} hx711_multi_async_request_t;
+
+extern hx711_multi_async_request_t* hx711_multi_irq_map[NUM_PIOS];
+
+/**
+ * @brief Convert an array of pinvals to regular HX711
+ * values.
+ * 
+ * @param pinvals 
+ * @param values 
+ * @param len number of values to convert
+ */
+static void hx711_multi__pinvals_to_values(
+    const uint32_t* const pinvals,
+    int32_t* const values,
+    const size_t len);
+
+/**
+ * @brief Reads pinvals into an array.
+ * 
+ * @param hxm 
+ */
+void hx711_multi__get_values_raw(
+    hx711_multi_t* const hxm,
+    uint32_t* const pinvals);
+
+/**
+ * @brief Reads pinvals into an array, timing out
+ * if not possible within the given period.
+ * 
+ * @param hxm 
+ * @param timeout microseconds
+ * @return true 
+ * @return false 
+ */
+bool hx711_multi__get_values_timeout_raw(
+    hx711_multi_t* const hxm,
+    uint32_t* const pinvals,
+    const absolute_time_t* const end);
+
 void hx711_multi_init(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config);
@@ -147,6 +190,76 @@ bool hx711_multi_get_values_timeout(
     int32_t* const values,
     const uint timeout);
 
+void hx711_multi_async_open(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req);
+
+bool hx711_multi_async_is_done(
+    const hx711_multi_async_request_t* const req);
+
+void hx711_multi_async_get(
+    hx711_multi_async_request_t* const req,
+    int32_t* const values);
+
+void hx711_multi_async_close(
+    hx711_multi_async_request_t* const req);
+
+static void hx711_multi__irq_handler() {
+
+    hx711_multi_async_request_t* req = NULL;
+
+    //either going to be pio0 or pio1
+
+    for(uint i = 0; i < NUM_PIOS; ++i) {
+
+        if(hx711_multi_irq_map[i] != NULL) {
+            continue;
+        }
+
+        if(pio_interrupt_get(
+            hx711_multi_irq_map[i]->_hxm->_pio,
+            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM)) {
+                req = hx711_multi_irq_map[i];
+                hx711_multi_irq_map[i] = NULL;
+                break;
+        }
+
+    }
+
+    UTIL_ASSERT_NOT_NULL(req);
+
+    const uint pioIrq = req->_hxm->_pio == pio0
+        ? PIO0_IRQ_0 : PIO1_IRQ_0;
+
+    irq_set_enabled(
+        pioIrq,
+        false);
+
+    pio_set_irqn_source_enabled(
+        req->_hxm->_pio,
+        pioIrq,
+        pis_interrupt1,
+        false);
+
+    irq_remove_handler(
+        pioIrq,
+        hx711_multi__irq_handler);
+
+    irq_clear(pioIrq);
+
+    //clear any residual data
+    util_pio_sm_clear_rx_fifo(
+        req->_hxm->_pio,
+        req->_hxm->_reader_sm);
+
+    //then start reading
+    dma_channel_set_write_addr(
+        req->_hxm->_dma_channel,
+        req->_buffer,
+        true);
+
+}
+
 /**
  * @brief Power up each HX711 and start the internal read/write
  * functionality.
@@ -183,42 +296,6 @@ inline void hx711_multi_sync(
         hx711_wait_power_down();
         hx711_multi_power_up(hxm, gain);
 }
-
-/**
- * @brief Convert an array of pinvals to regular HX711
- * values.
- * 
- * @param pinvals 
- * @param values 
- * @param len number of values to convert
- */
-static void hx711_multi__pinvals_to_values(
-    const uint32_t* const pinvals,
-    int32_t* const values,
-    const size_t len);
-
-/**
- * @brief Reads pinvals into an array.
- * 
- * @param hxm 
- */
-void hx711_multi__get_values_raw(
-    hx711_multi_t* const hxm,
-    uint32_t* const pinvals);
-
-/**
- * @brief Reads pinvals into an array, timing out
- * if not possible within the given period.
- * 
- * @param hxm 
- * @param timeout microseconds
- * @return true 
- * @return false 
- */
-bool hx711_multi__get_values_timeout_raw(
-    hx711_multi_t* const hxm,
-    uint32_t* const pinvals,
-    const absolute_time_t* const end);
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,9 @@
 
 #include "../include/hx711_multi.h"
 #include "../include/util.h"
+#include "hardware/irq.h"
+
+hx711_multi_async_request_t* hx711_multi_irq_map[] = { NULL };
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
@@ -249,6 +252,62 @@ bool hx711_multi_get_values_timeout(
 
         return success;
 
+}
+
+void hx711_multi_async_open(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req) {
+
+        UTIL_ASSERT_NOT_NULL(hxm)
+        UTIL_ASSERT_NOT_NULL(req)
+        HX711_MULTI_ASSERT_INITD(hxm)
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
+
+        mutex_enter_blocking(&hxm->_mut);
+
+        //DMA should not be active
+        assert(!dma_channel_is_busy(hxm->_dma_channel));
+
+        const uint pioIndex = pio_get_index(hxm->_pio);
+        const uint pioIrq = hxm->_pio == pio0
+            ? PIO0_IRQ_0 : PIO1_IRQ_0;
+
+        hx711_multi_irq_map[pioIndex] = req;
+
+        irq_set_exclusive_handler(
+            pioIrq,
+            hx711_multi__irq_handler);
+
+        irq_set_enabled(
+            pioIrq,
+            true);
+
+        pio_set_irqn_source_enabled(
+            hxm->_pio,
+            pioIrq,
+            pis_interrupt1,
+            true);
+
+}
+
+bool hx711_multi_async_is_done(
+    const hx711_multi_async_request_t* const req) {
+        return !dma_channel_is_busy(req->_hxm->_dma_channel);
+}
+
+void hx711_multi_async_get(
+    hx711_multi_async_request_t* const req,
+    int32_t* const values) {
+        hx711_multi__pinvals_to_values(
+            req->_buffer,
+            values,
+            req->_hxm->_chips_len);
+}
+
+void hx711_multi_async_close(
+    hx711_multi_async_request_t* const req) {
+        dma_channel_abort(req->_hxm->_dma_channel);
+        mutex_exit(&req->_hxm->_mut);
 }
 
 void hx711_multi_power_up(
