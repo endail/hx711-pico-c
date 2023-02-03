@@ -22,9 +22,140 @@
 
 #include "../include/hx711_multi.h"
 #include "../include/util.h"
-#include "hardware/irq.h"
 
-hx711_multi_async_request_t* hx711_multi_irq_map[] = { NULL };
+void hx711_multi__pinvals_to_values(
+    const uint32_t* const pinvals,
+    int32_t* const values,
+    const size_t len) {
+
+        UTIL_ASSERT_NOT_NULL(pinvals)
+        UTIL_ASSERT_NOT_NULL(values)
+        assert((void*)values != (void*)pinvals);
+        assert(len > 0);
+
+        //construct an individual chip value by OR-ing
+        //together the bits from the pinvals array.
+        //
+        //each n-th bit of the pinvals array makes up all
+        //the bits for an individual chip. ie.:
+        //
+        //pinvals[0] contains all the 24th bit HX711 values
+        //for each chip, pinvals[1] contains all the 23rd bit
+        //values, and so on...
+        //
+        //(pinvals[0] >> 0) & 1 is the 24th HX711 bit of the 0th chip
+        //(pinvals[1] >> 0) & 1 is the 23rd HX711 bit of the 0th chip
+        //(pinvals[1] >> 2) & 1 is the 23rd HX711 bit of the 3rd chip
+        //(pinvals[23] >> 0) & 1 is the 0th HX711 bit of the 0th chip
+        //
+        //eg.
+        //rawvals[0] = 
+        //    ((pinvals[0] >> 0) & 1) << 24 |
+        //    ((pinvals[1] >> 0) & 1) << 23 |
+        //    ((pinvals[2] >> 0) & 1) << 22 |
+        //...
+        //    ((pinvals[23]) >> 0) & 1) << 0;
+
+        for(size_t chipNum = 0; chipNum < len; ++chipNum) {
+
+            //reset to 0
+            //this is the raw value for an individual chip
+            uint32_t rawVal = 0;
+
+            //reconstruct an individual twos comp HX711 value from pinbits
+            for(size_t bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
+                const uint shift = HX711_READ_BITS - bitPos - 1;
+                const uint32_t bit = (pinvals[bitPos] >> chipNum) & 1;
+                rawVal |= bit << shift;
+            }
+
+            //then convert to a regular ones comp
+            values[chipNum] = hx711_get_twos_comp(rawVal);
+
+        }
+
+}
+
+void hx711_multi__get_values_raw(
+    hx711_multi_t* const hxm,
+    uint32_t* const pinvals) {
+
+        HX711_MULTI_ASSERT_INITD(hxm)
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
+        UTIL_ASSERT_NOT_NULL(pinvals)
+
+        //DMA should not be active
+        assert(!dma_channel_is_busy(hxm->_dma_channel));
+
+        //wait for any current conversion period to end
+        util_pio_interrupt_wait_cleared(
+            hxm->_pio,
+            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
+
+        //clear any residual data
+        util_pio_sm_clear_rx_fifo(
+            hxm->_pio,
+            hxm->_reader_sm);
+
+        //at this stage there is no need to wait for the
+        //conversion period irq to be set, just let DMA
+        //handle the writes when they begin
+
+        dma_channel_set_write_addr(
+            hxm->_dma_channel,
+            pinvals,
+            true);
+
+        dma_channel_wait_for_finish_blocking(
+            hxm->_dma_channel);
+
+        //there should be nothing left to read
+        assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
+
+}
+
+bool hx711_multi__get_values_timeout_raw(
+    hx711_multi_t* const hxm,
+    uint32_t* const pinvals,
+    const absolute_time_t* const end) {
+
+        HX711_MULTI_ASSERT_INITD(hxm)
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
+        UTIL_ASSERT_NOT_NULL(pinvals)
+        UTIL_ASSERT_NOT_NULL(end)
+        assert(!is_nil_time(*end));
+        assert(!dma_channel_is_busy(hxm->_dma_channel));
+
+        util_pio_interrupt_wait_cleared_timeout(
+            hxm->_pio,
+            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM,
+            end);
+
+        util_pio_sm_clear_rx_fifo(
+            hxm->_pio,
+            hxm->_reader_sm);
+
+        dma_channel_set_write_addr(
+            hxm->_dma_channel,
+            pinvals,
+            true);
+
+        const bool isDone = util_dma_channel_wait_for_finish_timeout(
+            hxm->_dma_channel,
+            end);
+
+        if(!isDone) {
+            //assume an error
+            dma_channel_abort(hxm->_dma_channel);
+        }
+        else {
+            assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
+            assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
+        }
+
+        return isDone;
+
+}
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
@@ -59,17 +190,19 @@ void hx711_multi_init(
             hxm->_awaiter_prog = config->awaiter_prog;
             hxm->_reader_prog = config->reader_prog;
 
+            //adding programs and claiming state machines
+            //will panic if unable
             hxm->_awaiter_offset = pio_add_program(
                 hxm->_pio,
                 hxm->_awaiter_prog);
 
-            hxm->_awaiter_sm = (uint)pio_claim_unused_sm(
-                hxm->_pio,
-                true);
-
             hxm->_reader_offset = pio_add_program(
                 hxm->_pio,
                 hxm->_reader_prog);
+
+            hxm->_awaiter_sm = (uint)pio_claim_unused_sm(
+                hxm->_pio,
+                true);
 
             hxm->_reader_sm = (uint)pio_claim_unused_sm(
                 hxm->_pio,
@@ -254,58 +387,6 @@ bool hx711_multi_get_values_timeout(
 
 }
 
-void hx711_multi_async_open(
-    hx711_multi_t* const hxm,
-    hx711_multi_async_request_t* const req) {
-
-        UTIL_ASSERT_NOT_NULL(hxm)
-        UTIL_ASSERT_NOT_NULL(req)
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
-
-        mutex_enter_blocking(&hxm->_mut);
-
-        const uint pioIrq = util_pion_get_irqn(hxm->_pio, 0);
-
-        hx711_multi_irq_map[pio_get_index(hxm->_pio)]
-            = req;
-
-        irq_set_exclusive_handler(
-            pioIrq,
-            hx711_multi__irq_handler);
-
-        irq_set_enabled(
-            pioIrq,
-            true);
-
-        pio_set_irqn_source_enabled(
-            hxm->_pio,
-            pioIrq,
-            util_pio_get_pis(HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM),
-            true);
-
-}
-
-bool hx711_multi_async_is_done(
-    const hx711_multi_async_request_t* const req) {
-        return !dma_channel_is_busy(req->_hxm->_dma_channel);
-}
-
-void hx711_multi_async_get(
-    hx711_multi_async_request_t* const req,
-    int32_t* const values) {
-        hx711_multi__pinvals_to_values(
-            req->_buffer,
-            values,
-            req->_hxm->_chips_len);
-}
-
-void hx711_multi_async_close(
-    hx711_multi_async_request_t* const req) {
-        dma_channel_abort(req->_hxm->_dma_channel);
-        mutex_exit(&req->_hxm->_mut);
-}
-
 void hx711_multi_power_up(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
@@ -378,140 +459,5 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
             true);
 
     )
-
-}
-
-void hx711_multi__pinvals_to_values(
-    const uint32_t* const pinvals,
-    int32_t* const values,
-    const size_t len) {
-
-        UTIL_ASSERT_NOT_NULL(pinvals)
-        UTIL_ASSERT_NOT_NULL(values)
-        assert((void*)values != (void*)pinvals);
-        assert(len > 0);
-
-        //construct an individual chip value by OR-ing
-        //together the bits from the pinvals array.
-        //
-        //each n-th bit of the pinvals array makes up all
-        //the bits for an individual chip. ie.:
-        //
-        //pinvals[0] contains all the 24th bit HX711 values
-        //for each chip, pinvals[1] contains all the 23rd bit
-        //values, and so on...
-        //
-        //(pinvals[0] >> 0) & 1 is the 24th HX711 bit of the 0th chip
-        //(pinvals[1] >> 0) & 1 is the 23rd HX711 bit of the 0th chip
-        //(pinvals[1] >> 2) & 1 is the 23rd HX711 bit of the 3rd chip
-        //(pinvals[23] >> 0) & 1 is the 0th HX711 bit of the 0th chip
-        //
-        //eg.
-        //rawvals[0] = 
-        //    ((pinvals[0] >> 0) & 1) << 24 |
-        //    ((pinvals[1] >> 0) & 1) << 23 |
-        //    ((pinvals[2] >> 0) & 1) << 22 |
-        //...
-        //    ((pinvals[23]) >> 0) & 1) << 0;
-
-        for(size_t chipNum = 0; chipNum < len; ++chipNum) {
-
-            //reset to 0
-            //this is the raw value for an individual chip
-            uint32_t rawVal = 0;
-
-            //reconstruct an individual twos comp HX711 value from pinbits
-            for(size_t bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
-                const uint shift = HX711_READ_BITS - bitPos - 1;
-                const uint32_t bit = (pinvals[bitPos] >> chipNum) & 1;
-                rawVal |= bit << shift;
-            }
-
-            //then convert to a regular ones comp
-            values[chipNum] = hx711_get_twos_comp(rawVal);
-
-        }
-
-}
-
-void hx711_multi__get_values_raw(
-    hx711_multi_t* const hxm,
-    uint32_t* const pinvals) {
-
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
-        UTIL_ASSERT_NOT_NULL(pinvals)
-
-        //DMA should not be active
-        assert(!dma_channel_is_busy(hxm->_dma_channel));
-
-        //wait for any current conversion period to end
-        util_pio_interrupt_wait_cleared(
-            hxm->_pio,
-            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
-
-        //clear any residual data
-        util_pio_sm_clear_rx_fifo(
-            hxm->_pio,
-            hxm->_reader_sm);
-
-        //at this stage there is no need to wait for the
-        //conversion period irq to be set, just let DMA
-        //handle the writes when they begin
-
-        //then start reading
-        dma_channel_set_write_addr(
-            hxm->_dma_channel,
-            pinvals,
-            true);
-
-        dma_channel_wait_for_finish_blocking(
-            hxm->_dma_channel);
-
-        //there should be nothing left to read
-        assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
-
-}
-
-bool hx711_multi__get_values_timeout_raw(
-    hx711_multi_t* const hxm,
-    uint32_t* const pinvals,
-    const absolute_time_t* const end) {
-
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
-        UTIL_ASSERT_NOT_NULL(pinvals)
-        UTIL_ASSERT_NOT_NULL(end)
-        assert(!is_nil_time(*end));
-        assert(!dma_channel_is_busy(hxm->_dma_channel));
-
-        util_pio_interrupt_wait_cleared_timeout(
-            hxm->_pio,
-            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM,
-            end);
-
-        util_pio_sm_clear_rx_fifo(
-            hxm->_pio,
-            hxm->_reader_sm);
-
-        dma_channel_set_write_addr(
-            hxm->_dma_channel,
-            pinvals,
-            true);
-
-        const bool isDone = util_dma_channel_wait_for_finish_timeout(
-            hxm->_dma_channel,
-            end);
-
-        if(!isDone) {
-            //assume an error
-            dma_channel_abort(hxm->_dma_channel);
-        }
-        else {
-            assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
-            assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
-        }
-
-        return isDone;
 
 }

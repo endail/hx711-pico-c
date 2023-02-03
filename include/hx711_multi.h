@@ -49,7 +49,7 @@ extern "C" {
     assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_awaiter_sm)); \
     assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm));
 
-#define HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM  1
+#define HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM  0
 #define HX711_MULTI_DATA_READY_IRQ_NUM          4
 
 #define HX711_MULTI_MIN_CHIPS                   1
@@ -98,13 +98,6 @@ typedef struct {
     hx711_multi_program_init_t reader_prog_init;
 
 } hx711_multi_config_t;
-
-typedef struct {
-    hx711_multi_t* _hxm;
-    uint32_t _buffer[HX711_READ_BITS];
-} hx711_multi_async_request_t;
-
-extern hx711_multi_async_request_t* hx711_multi_irq_map[NUM_PIOS];
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -189,77 +182,6 @@ bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
     int32_t* const values,
     const uint timeout);
-
-void hx711_multi_async_open(
-    hx711_multi_t* const hxm,
-    hx711_multi_async_request_t* const req);
-
-bool hx711_multi_async_is_done(
-    const hx711_multi_async_request_t* const req);
-
-void hx711_multi_async_get(
-    hx711_multi_async_request_t* const req,
-    int32_t* const values);
-
-void hx711_multi_async_close(
-    hx711_multi_async_request_t* const req);
-
-static void hx711_multi__irq_handler() {
-
-    hx711_multi_async_request_t* req = NULL;
-
-    //either going to be pio0 or pio1
-
-    for(uint i = 0; i < NUM_PIOS; ++i) {
-
-        if(hx711_multi_irq_map[i] != NULL) {
-            continue;
-        }
-
-        if(pio_interrupt_get(
-            hx711_multi_irq_map[i]->_hxm->_pio,
-            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM)) {
-                req = hx711_multi_irq_map[i];
-                hx711_multi_irq_map[i] = NULL;
-                break;
-        }
-
-    }
-
-    UTIL_ASSERT_NOT_NULL(req);
-
-    const uint pioIrq = util_pion_get_irqn(
-        req->_hxm->_pio,
-        0);
-
-    irq_set_enabled(
-        pioIrq,
-        false);
-
-    pio_set_irqn_source_enabled(
-        req->_hxm->_pio,
-        pioIrq,
-        util_pio_get_pis(HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM),
-        false);
-
-    irq_remove_handler(
-        pioIrq,
-        hx711_multi__irq_handler);
-
-    irq_clear(pioIrq);
-
-    //clear any residual data
-    util_pio_sm_clear_rx_fifo(
-        req->_hxm->_pio,
-        req->_hxm->_reader_sm);
-
-    //then start reading
-    dma_channel_set_write_addr(
-        req->_hxm->_dma_channel,
-        req->_buffer,
-        true);
-
-}
 
 /**
  * @brief Power up each HX711 and start the internal read/write

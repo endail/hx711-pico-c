@@ -333,6 +333,12 @@ void hx711_power_up(
                 hx->_reader_offset,
                 &hx->_reader_prog_default_config);
 
+            //make sure TX FIFO is empty before putting the 
+            //gain in.
+            pio_sm_drain_tx_fifo(
+                hx->_pio,
+                hx->_reader_sm);
+
             //3. Push the initial gain into the TX FIFO
             pio_sm_put(
                 hx->_pio,
