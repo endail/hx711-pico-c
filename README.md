@@ -215,8 +215,12 @@ The reader clocks in the state of each data input pin as a bitmask and then push
 
 On the receiving end of the SM is a DMA channel which automatically reads in each bitmask of HX711 bits into an array. These bitmasks are then transformed into HX711 values for each chip and returned to application code.
 
-Here is what didn't work.
+### Additional Notes
 
 * `channel_config_set_ring` in conjunction with a static array buffer to constantly read in values from the SM lead to misaligned write addresses. As the HX711 uses 3 bytes to represent a value and the ring buffer requires a "naturally aligned buffer", it would take another byte to "reset" the ring back to the initial address. An application could not simply read the buffer and obtain valid value.
 
 * Two DMA channels in a ping-pong configuration to activate each other were tried as a method to keep the application-side reading in values. But there did not appear to be a straightforward method to constantly reset the write address back to the address of an array buffer. There also seemed to be an inherent race condition in having DMA write to a buffer when an application could read from it at any moment without a method to protect access to it which DMA would abide by.
+
+* A major disdvantage of the HX711 conversion period process is the time it takes to both wait for it to begin and complete. A processor could be doing other work. This is where DMA is particularly advantageous because the processor _can_ do other work even while waiting for a value to be clocked-in.
+
+* Reading in the state of all configured data input pins as a bitmask has the advantage of being simultaneous on all HX711 chips. If each bit of each HX711 were to be clocked in round robin style, it would be much slower and run the risk of holding the clock pin for longer than the power down period. The second issue would lead to one or more chips powering down and becoming desynchronised from each other.
