@@ -30,12 +30,12 @@ int main(void) {
     stdio_init_all();
     sleep_ms(5000);
 
-/*
+
     hx711_t hx;
     hx711_config_t config = HX711_DEFAULT_CONFIG;
     config.clock_pin = 14;
     config.data_pin = 15;
-    const hx711_rate_t rate = hx711_rate_10; //or hx711_rate_80
+    const hx711_rate_t rate = hx711_rate_80; //or hx711_rate_80
     const hx711_gain_t gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
     // 1. Initialise
@@ -59,7 +59,9 @@ int main(void) {
     // You can now...
 
     // wait (block) until a value is obtained
-    printf("blocking value: %li\n", hx711_get_value(&hx));
+    while(true) {
+        printf("blocking value: %li\n", hx711_get_value(&hx));
+    }
 
     // or use a timeout
     int32_t val;
@@ -85,9 +87,10 @@ int main(void) {
     hx711_close(&hx);
 
     printf("Closed communication with single HX711 chip\n");
-*/
 
 
+
+/*
     hx711_multi_t hxm;
     hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
     cfg.clock_pin = 14;
@@ -135,7 +138,7 @@ int main(void) {
     hx711_multi_close(&hxm);
 
     printf("Closed communication with multiple HX711 chips\n");
-
+*/
 
     while(1);
 

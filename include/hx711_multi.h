@@ -211,14 +211,9 @@ void hx711_multi_power_down(hx711_multi_t* const hxm);
  * @param hxm 
  * @param gain initial gain to set to all chips
  */
-inline void hx711_multi_sync(
+void hx711_multi_sync(
     hx711_multi_t* const hxm,
-    const hx711_gain_t gain) {
-        HX711_MULTI_ASSERT_INITD(hxm)
-        hx711_multi_power_down(hxm);
-        hx711_wait_power_down();
-        hx711_multi_power_up(hxm, gain);
-}
+    const hx711_gain_t gain);
 
 #ifdef __cplusplus
 }

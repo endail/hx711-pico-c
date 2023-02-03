@@ -39,7 +39,7 @@ extern "C" {
 #define HX711_ASSERT_INITD(hx) \
     UTIL_ASSERT_NOT_NULL(hx) \
     UTIL_ASSERT_NOT_NULL(hx->_pio) \
-    assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
+    assert(pio_sm_is_claimed(hx->_pio, hx->_reader_sm)); \
     assert(mutex_is_initialized(&hx->_mut));
 
 #define HX711_ASSERT_STATE_MACHINE_ENABLED(hxm) \
@@ -60,9 +60,9 @@ extern "C" {
 #define HX711_ASSERT_PIO_GAIN(g) \
     assert(g <= HX711_PIO_MAX_GAIN);
 
-extern const unsigned short HX711_SETTLING_TIMES[]; //milliseconds
-extern const unsigned char HX711_SAMPLE_RATES[];
-extern const unsigned char HX711_CLOCK_PULSES[];
+extern const unsigned short HX711_SETTLING_TIMES[3]; //milliseconds
+extern const unsigned char HX711_SAMPLE_RATES[2];
+extern const unsigned char HX711_CLOCK_PULSES[3];
 
 typedef enum {
     hx711_rate_10 = 0,
@@ -153,7 +153,7 @@ static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
  * @return true 
  * @return false 
  */
-inline bool hx711_is_min_saturated(const int32_t val) {
+static inline bool hx711_is_min_saturated(const int32_t val) {
     return val == HX711_MIN_VALUE; //−8,388,608
 }
 
@@ -165,7 +165,7 @@ inline bool hx711_is_min_saturated(const int32_t val) {
  * @return true 
  * @return false 
  */
-inline bool hx711_is_max_saturated(const int32_t val) {
+static inline bool hx711_is_max_saturated(const int32_t val) {
     return val == HX711_MAX_VALUE; //8,388,607
 }
 
@@ -176,7 +176,7 @@ inline bool hx711_is_max_saturated(const int32_t val) {
  * @param rate 
  * @return unsigned short 
  */
-inline unsigned short hx711_get_settling_time(const hx711_rate_t rate) {
+static inline unsigned short hx711_get_settling_time(const hx711_rate_t rate) {
     assert((uint)rate <= count_of(HX711_SETTLING_TIMES) - 1);
     return HX711_SETTLING_TIMES[(uint)rate];
 }
@@ -187,7 +187,7 @@ inline unsigned short hx711_get_settling_time(const hx711_rate_t rate) {
  * @param rate 
  * @return unsigned char 
  */
-inline unsigned char hx711_get_rate_sps(const hx711_rate_t rate) {
+static inline unsigned char hx711_get_rate_sps(const hx711_rate_t rate) {
     assert((uint)rate <= count_of(HX711_SAMPLE_RATES) - 1);
     return HX711_SAMPLE_RATES[(uint)rate];
 }
@@ -198,7 +198,7 @@ inline unsigned char hx711_get_rate_sps(const hx711_rate_t rate) {
  * @param gain 
  * @return unsigned char 
  */
-inline unsigned char hx711_get_clock_pulses(const hx711_gain_t gain) {
+static inline unsigned char hx711_get_clock_pulses(const hx711_gain_t gain) {
     assert((uint)gain <= count_of(HX711_CLOCK_PULSES) - 1);
     return HX711_CLOCK_PULSES[(uint)gain];
 }
@@ -268,7 +268,7 @@ void hx711_power_down(hx711_t* const hx);
  * 
  * @param rate 
  */
-inline void hx711_wait_settle(const hx711_rate_t rate) {
+static inline void hx711_wait_settle(const hx711_rate_t rate) {
     sleep_ms(hx711_get_settling_time(rate));
 }
 
@@ -277,7 +277,7 @@ inline void hx711_wait_settle(const hx711_rate_t rate) {
  * appropriate amount of time to allow the HX711 to power
  * down.
  */
-inline void hx711_wait_power_down() {
+static inline void hx711_wait_power_down() {
     sleep_us(HX711_POWER_DOWN_TIMEOUT);
 }
 

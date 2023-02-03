@@ -39,8 +39,11 @@ extern "C" {
     assert(ptr != NULL);
 
 #define UTIL_ASSERT_RANGE(val, min, max) \
+_Pragma("GCC diagnostic push") \
+_Pragma("GCC diagnostic ignored \"-Wtype-limits\"") \
     assert(val >= min); \
-    assert(val <= max);
+    assert(val <= max); \
+_Pragma("GCC diagnostic pop")
 
 #define UTIL_MUTEX_BLOCK(mut, ...) \
     mutex_enter_blocking(&mut); \
