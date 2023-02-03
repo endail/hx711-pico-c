@@ -60,7 +60,7 @@
 
 .program hx711_multi_reader
 
-.define CONVERSION_RUNNING_IRQ_NUM  1
+.define CONVERSION_RUNNING_IRQ_NUM  0
 .define DATA_READY_IRQ_NUM          4
 
 .define LOW                         0
