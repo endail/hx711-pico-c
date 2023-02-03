@@ -24,6 +24,7 @@
 #define HX711_MULTI_H_253BF37A_8356_462B_B8F9_39E09A7193E6
 
 #include <assert.h>
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "hardware/dma.h"
@@ -214,6 +215,34 @@ void hx711_multi_power_down(hx711_multi_t* const hxm);
 void hx711_multi_sync(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain);
+
+/**
+ * @brief Returns the state of each chip as a bitmask. The 0th
+ * bit is the first chip, 1th bit is the second, and so on.
+ * 
+ * @param hxm 
+ * @return uint32_t 
+ */
+static inline uint32_t hx711_multi_sync_state(
+    hx711_multi_t* const hxm) {
+        return pio_sm_get_blocking(hxm->_pio, hxm->_awaiter_sm);
+}
+
+/**
+ * @brief Determines whether all chips are in sync.
+ * 
+ * @param hxm 
+ * @return true 
+ * @return false 
+ */
+static inline bool hx711_multi_is_syncd(
+    hx711_multi_t* const hxm) {
+        //all chips should either be 0 or 1 which translates
+        //to a bitmask of exactly 0 or 2^chips
+        const uint32_t allReady = (uint32_t)pow(2, hxm->_chips_len);
+        const uint32_t state = hx711_multi_sync_state(hxm);
+        return state == 0 || state == allReady;
+}
 
 #ifdef __cplusplus
 }

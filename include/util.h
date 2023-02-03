@@ -76,7 +76,7 @@ static inline bool util_dma_channel_wait_for_finish_timeout(
     const uint channel,
     const absolute_time_t* end) {
 
-        assert(end != NULL);
+        UTIL_ASSERT_NOT_NULL(end)
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
@@ -122,7 +122,7 @@ static inline void util_gpio_set_output(const uint gpio) {
 }
 
 static inline uint util_pion_get_irqn(
-    PIO pio,
+    const PIO pio,
     const uint irq_num) {
 
         UTIL_ASSERT_NOT_NULL(pio)
@@ -240,7 +240,7 @@ static inline bool util_pio_interrupt_wait_cleared_timeout(
     const uint pio_interrupt_num,
     const absolute_time_t* const end) {
 
-        assert(end != NULL);
+        UTIL_ASSERT_NOT_NULL(end)
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
@@ -310,7 +310,7 @@ static inline bool util_pio_interrupt_wait_clear_timeout(
     const uint pio_interrupt_num,
     const absolute_time_t* const end) {
 
-        assert(end != NULL);
+        UTIL_ASSERT_NOT_NULL(end)
         assert(!is_nil_time(*end));
 
         const bool ok = util_pio_interrupt_wait_timeout(
@@ -346,7 +346,7 @@ static inline bool util_pio_sm_try_get(
     uint32_t* const word,
     const uint threshold) {
 
-        assert(word != NULL);
+        UTIL_ASSERT_NOT_NULL(word)
 
         if(pio_sm_get_rx_fifo_level(pio, sm) >= threshold) {
             *word = pio_sm_get(pio, sm);

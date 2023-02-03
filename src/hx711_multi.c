@@ -72,6 +72,8 @@ void hx711_multi__pinvals_to_values(
             //then convert to a regular ones comp
             values[chipNum] = hx711_get_twos_comp(rawVal);
 
+            HX711_ASSERT_VALUE(values[chipNum]);
+
         }
 
 }
@@ -126,10 +128,16 @@ bool hx711_multi__get_values_timeout_raw(
         assert(!is_nil_time(*end));
         assert(!dma_channel_is_busy(hxm->_dma_channel));
 
-        util_pio_interrupt_wait_cleared_timeout(
+        //wait for any current conversion period to end to
+        //be able to sync with the next period
+        if(!util_pio_interrupt_wait_cleared_timeout(
             hxm->_pio,
             HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM,
-            end);
+            end)) {
+                //failed to reach conversion period within
+                //timeout
+                return false;
+        }
 
         util_pio_sm_clear_rx_fifo(
             hxm->_pio,
@@ -148,10 +156,13 @@ bool hx711_multi__get_values_timeout_raw(
             //assume an error
             dma_channel_abort(hxm->_dma_channel);
         }
+#ifndef NDEBUG
         else {
             assert(util_dma_get_transfer_count(hxm->_dma_channel) == 0);
-            assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
+            //enabling this assertion would lead to a race condition with the FIFO
+            //assert(pio_sm_is_rx_fifo_empty(hxm->_pio, hxm->_reader_sm));
         }
+#endif
 
         return isDone;
 
@@ -177,6 +188,16 @@ void hx711_multi_init(
 
         UTIL_ASSERT_NOT_NULL(config->reader_prog)
         UTIL_ASSERT_NOT_NULL(config->reader_prog_init)
+
+#ifndef NDEBUG
+        {
+            //make sure none of the data pins are also the clock pin
+            const uint l = config->data_pin_base + config->chips_len - 1;
+            for(uint i = config->data_pin_base; i <= l; ++i) {
+                assert(i != config->clock_pin);
+            }
+        }
+#endif
 
         mutex_init(&hxm->_mut);
 
@@ -247,7 +268,8 @@ void hx711_multi_init(
                 &cfg,
                 pio_get_dreq(
                     hxm->_pio,
-                    hxm->_reader_sm, false));
+                    hxm->_reader_sm,
+                    false));
 
             dma_channel_configure(
                 hxm->_dma_channel,
@@ -269,7 +291,7 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
 
         pio_set_sm_mask_enabled(
             hxm->_pio,
-            hxm->_awaiter_sm | hxm->_reader_sm,
+            (1 << hxm->_awaiter_sm) | (1 << hxm->_reader_sm),
             false);
 
         dma_channel_abort(
@@ -307,7 +329,6 @@ void hx711_multi_set_gain(
         HX711_MULTI_ASSERT_INITD(hxm)
         HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
 
-        //no need to 0-init this, pinvals are ignored in this func
         uint32_t dummy[HX711_READ_BITS];
         const uint32_t gainVal = hx711__gain_to_pio_gain(gain);
 
@@ -427,7 +448,7 @@ void hx711_multi_power_up(
 
             pio_set_sm_mask_enabled(
                 hxm->_pio,
-                hxm->_awaiter_sm | hxm->_reader_sm,
+                (1 << hxm->_awaiter_sm) | (1 << hxm->_reader_sm),
                 true);
 
         )
@@ -442,16 +463,9 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
 
         dma_channel_abort(hxm->_dma_channel);
 
-        //stop checking for data readiness
-        pio_sm_set_enabled(
+        pio_set_sm_mask_enabled(
             hxm->_pio,
-            hxm->_awaiter_sm,
-            false);
-
-        //stop reading values
-        pio_sm_set_enabled(
-            hxm->_pio,
-            hxm->_reader_sm,
+            (1 << hxm->_awaiter_sm) | (1 << hxm->_reader_sm),
             false);
 
         gpio_put(
