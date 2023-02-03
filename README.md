@@ -200,3 +200,23 @@ In the example code above, the final statement closes communication with the HX7
 When using multiple HX711 chips, it is possible they may be desynchronised if not powered up simultaneously. You can use `hx711_multi_sync()` which will power down and then power up all chips together.
 
 ## Overview of Functionality
+
+### `hx711_t`
+
+The single chip `hx711_t` functions with a single RP2040 State Machine (SM) in one PIO. This includes setting and changing the HX711's gain. The SM is configured to be free-running which constantly obtains values from the HX711. Values are buffered in the SM's RX FIFO which enables application code to retrieve the most up-to-date value possible. Reading from the RX FIFO simultaneously clears it, so applications are simply able to busy-wait on the RX_FIFO being filled for the next value.
+
+### `hx711_multi_t`
+
+The multi chip `hx711_multi_t` functions with two RP2040 State Machines (SM) in one PIO. This includes setting and changing all HX711s gains. The first SM is the "awaiter". It is free-running. It constantly reads the pin state of each RP2040 GPIO pin configured as a data input pin. If and when every pin is low - indicating that every chip has data ready - an interrupt is set.
+
+The second SM is the "reader". It is also free-running. The reader waits for the interrupt from the awaiter and then begins the HX711 conversion period of reading in bits. The conversion period is synchronised with application code by setting and clearing an interrupt.
+
+The reader clocks in the state of each data input pin as a bitmask and then pushes it back out of the SM into the RX FIFO. There are 24 pushes. One for each HX711 bit. Due to the size of the RX FIFO only being 32 bits, a SM is not capable of buffering all HX711 input bits when there are multiple chips. Hence why there is a `push` for each HX711 bit.
+
+On the receiving end of the SM is a DMA channel which automatically reads in each bitmask of HX711 bits into an array. These bitmasks are then transformed into HX711 values for each chip and returned to application code.
+
+Here is what didn't work.
+
+* `channel_config_set_ring` in conjunction with a static array buffer to constantly read in values from the SM lead to misaligned write addresses. As the HX711 uses 3 bytes to represent a value and the ring buffer requires a "naturally aligned buffer", it would take another byte to "reset" the ring back to the initial address. An application could not simply read the buffer and obtain valid value.
+
+* Two DMA channels in a ping-pong configuration to activate each other were tried as a method to keep the application-side reading in values. But there did not appear to be a straightforward method to constantly reset the write address back to the address of an array buffer. There also seemed to be an inherent race condition in having DMA write to a buffer when an application could read from it at any moment without a method to protect access to it which DMA would abide by.
