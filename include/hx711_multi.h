@@ -53,6 +53,8 @@ extern "C" {
 #define HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM  0
 #define HX711_MULTI_DATA_READY_IRQ_NUM          4
 
+#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0
+
 #define HX711_MULTI_MIN_CHIPS                   1
 #define HX711_MULTI_MAX_CHIPS                   32
 
@@ -99,6 +101,14 @@ typedef struct {
     hx711_multi_program_init_t reader_prog_init;
 
 } hx711_multi_config_t;
+
+typedef struct {
+    uint32_t _buffer[HX711_READ_BITS];
+    hx711_multi_t* _hxm;
+    volatile bool _locked;
+} hx711_multi_async_request_t;
+
+extern hx711_multi_async_request_t* hx711_multi__request_map[NUM_PIOS];
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -183,6 +193,25 @@ bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
     int32_t* const values,
     const uint timeout);
+
+bool hx711_multi__async_irq_is_set(
+    hx711_multi_async_request_t* const req);
+
+void hx711_multi__irq_async_handler();
+
+void hx711_multi_async_open(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req);
+
+bool hx711_multi_async_is_done(
+    hx711_multi_async_request_t* const req);
+
+void hx711_multi_async_get_values(
+    hx711_multi_async_request_t* const req,
+    int32_t* const values);
+
+void hx711_multi_async_close(
+    hx711_multi_async_request_t* const req);
 
 /**
  * @brief Power up each HX711 and start the internal read/write
