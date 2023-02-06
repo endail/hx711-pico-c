@@ -88,12 +88,13 @@ int main(void) {
 */
 
 
+
     hx711_multi_t hxm;
     hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
     cfg.clock_pin = 14;
     cfg.data_pin_base = 15;
     cfg.chips_len = 1;
-    const hx711_rate_t multi_rate = hx711_rate_10; //or hx711_rate_80
+    const hx711_rate_t multi_rate = hx711_rate_80; //or hx711_rate_80
     const hx711_gain_t multi_gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
     // 1. initialise
@@ -114,29 +115,21 @@ int main(void) {
     hx711_wait_settle(multi_rate);
 
     // 5. Read values
-    //int32_t arr[cfg.chips_len];
+    int32_t arr[cfg.chips_len];
 
     while(true) {
 
         // wait (block) until a values are read
-        //hx711_multi_get_values(&hxm, arr);
+        hx711_multi_get_values(&hxm, arr);
 
         // or use a timeout
         
         //printf("%lu\n", hx711_multi_sync_state(&hxm));
 
-        if(hx711_multi_is_syncd(&hxm)) {
-            printf("OK!\n");
-        }
-        else {
-            printf("Nope!\n");
-        }
-
-        /*
-        if(!hx711_multi_get_values_timeout(&hxm, arr, 250000)) {
-            printf("Failed to obtain values within timeout\n");
-            continue;
-        }
+        //if(!hx711_multi_get_values_timeout(&hxm, arr, 250000)) {
+        //    printf("Failed to obtain values within timeout\n");
+        //    continue;
+        //}
 
         // then print the value from each chip
         // the first value in the array is from the HX711
@@ -146,15 +139,13 @@ int main(void) {
             printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
         }
 
-        */
-
     }
 
     // 6. Stop communication with all HX711 chips
     hx711_multi_close(&hxm);
 
     printf("Closed communication with multiple HX711 chips\n");
-
+    
 
     while(1);
 
