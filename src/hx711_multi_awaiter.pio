@@ -61,6 +61,8 @@ PUBLIC wait_in_pins_bit_count:          ; Public label is set to modify the foll
                                         ; able to test a jmp condition, as it is not
                                         ; possible to do so directly on the ISR.
 
+    push noblock                        ; Push pinbits out.
+
     jmp !y signal_low                   ; If all the pins are low, y will be 0. The `!y`
                                         ; condition tests for y == 0. If any of the data
                                         ; pins are high, y will be non-zero and execution
