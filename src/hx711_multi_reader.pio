@@ -95,7 +95,7 @@ wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state mach
                                     ; At this point it is assumed all HX711 chips are
                                     ; synchronised.
 
-irq set CONVERSION_RUNNING_IRQ_NUM  ; Set flag to allow reader code to hook-in at this
+irq set CONVERSION_RUNNING_IRQ_NUM [10]  ; Set flag to allow reader code to hook-in at this
                                     ; point.
 
 bitloop:
