@@ -1,3 +1,0 @@
-include/hx711_multi_reader.pio.h:7:106: error: syntax error [syntaxError]
-input.pio:98.37-38: the instruction delay limit is 7 because of the side set specified at input.pio:77.1-15
-                                                                                                         ^
