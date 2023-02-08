@@ -61,6 +61,7 @@
 .program hx711_multi_reader
 
 .define CONVERSION_RUNNING_IRQ_NUM  0
+.define CONVERSION_ENDED_IRQ_NUM    1
 .define DATA_READY_IRQ_NUM          4
 
 .define LOW                         0
@@ -95,7 +96,8 @@ wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state mach
                                     ; At this point it is assumed all HX711 chips are
                                     ; synchronised.
 
-irq set CONVERSION_RUNNING_IRQ_NUM [7]  ; Set flag to allow reader code to hook-in at this
+irq clear CONVERSION_ENDED_IRQ_NUM
+irq set CONVERSION_RUNNING_IRQ_NUM  ; Set flag to allow reader code to hook-in at this
                                     ; point.
 
 bitloop:
@@ -111,6 +113,7 @@ PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following
     jmp y-- bitloop side LOW
 
 irq clear CONVERSION_RUNNING_IRQ_NUM
+irq set CONVERSION_ENDED_IRQ_NUM
 
 pull noblock side HIGH
 out x, GAIN_BITS
