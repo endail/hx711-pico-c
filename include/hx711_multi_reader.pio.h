@@ -99,7 +99,7 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_data_pin_base,
         hxm->_chips_len);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_ENDED_IRQ_NUM);
+    pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_DONE_IRQ_NUM);
     pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
 }
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
