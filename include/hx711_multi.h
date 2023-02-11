@@ -54,6 +54,7 @@ extern "C" {
 #define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     1
 #define HX711_MULTI_DATA_READY_IRQ_NUM          4
 
+#define HX711_MULTI_ASYNC_REQ_COUNT             NUM_PIOS
 #define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0
 #define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0
 
@@ -112,17 +113,17 @@ typedef enum {
 } hx711_multi_async_state_t;
 
 typedef struct {
-    volatile uint pio_irq_index;
-    volatile uint dma_irq_index;
+    uint pio_irq_index;
+    uint dma_irq_index;
     volatile hx711_multi_async_state_t _state;
-    volatile uint32_t _buffer[HX711_READ_BITS];
-    volatile size_t _buff_len;
-    PIO volatile _pio;
-    volatile int _sm;
-    volatile int _channel;
+    uint32_t _buffer[HX711_READ_BITS];
+    size_t _buff_len;
+    PIO _pio;
+    int _sm;
+    int _channel;
 } hx711_multi_async_request_t;
 
-extern volatile hx711_multi_async_request_t* volatile hx711_multi__async_request_map[NUM_PIOS];
+extern hx711_multi_async_request_t* hx711_multi__async_request_map[NUM_PIOS];
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -209,14 +210,14 @@ bool hx711_multi_get_values_timeout(
     const uint timeout);
 
 bool hx711_multi__async_dma_irq_is_set(
-    volatile hx711_multi_async_request_t* volatile const req);
+    hx711_multi_async_request_t* const req);
 
 bool hx711_multi__async_pio_irq_is_set(
-    volatile hx711_multi_async_request_t* volatile const req);
+    hx711_multi_async_request_t* const req);
 
-volatile hx711_multi_async_request_t* volatile hx711_multi__async_get_dma_irq_request();
+hx711_multi_async_request_t* hx711_multi__async_get_dma_irq_request();
 
-volatile hx711_multi_async_request_t* volatile hx711_multi__async_get_pio_irq_request();
+hx711_multi_async_request_t* hx711_multi__async_get_pio_irq_request();
 
 void hx711_multi__async_start_dma(
     volatile hx711_multi_async_request_t* volatile const req);
@@ -226,7 +227,10 @@ static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
 static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
 
 bool hx711_multi__async_set_free_map_location(
-    volatile hx711_multi_async_request_t* volatile const req);
+    hx711_multi_async_request_t* const req);
+
+void hx711_multi__async_remove_request(
+    const hx711_multi_async_request_t* const req);
 
 void hx711_multi_async_get_request_defaults(
     hx711_multi_t* const hxm,
