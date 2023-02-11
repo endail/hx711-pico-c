@@ -22,6 +22,12 @@
 
 #include "../include/hx711_multi.h"
 #include "../include/util.h"
+#include "hardware/irq.h"
+
+volatile hx711_multi_async_request_t* volatile hx711_multi__async_request_map[] = {
+    NULL,
+    NULL
+};
 
 void hx711_multi__pinvals_to_values(
     const uint32_t* const pinvals,
@@ -90,9 +96,9 @@ void hx711_multi__get_values_raw(
         assert(!dma_channel_is_busy(hxm->_dma_channel));
 
         //wait for any current conversion period to end
-        util_pio_interrupt_wait_cleared(
+        util_pio_interrupt_wait(
             hxm->_pio,
-            HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
+            HX711_MULTI_CONVERSION_DONE_IRQ_NUM);
 
         //clear any residual data
         util_pio_sm_clear_rx_fifo(
@@ -130,7 +136,7 @@ bool hx711_multi__get_values_timeout_raw(
 
         //wait for any current conversion period to end to
         //be able to sync with the next period
-        if(!util_pio_interrupt_wait_cleared_timeout(
+        if(!util_pio_interrupt_wait_timeout(
             hxm->_pio,
             HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM,
             end)) {
@@ -405,6 +411,323 @@ bool hx711_multi_get_values_timeout(
         }
 
         return success;
+
+}
+
+bool hx711_multi__async_pio_irq_is_set(
+    volatile hx711_multi_async_request_t* volatile const req) {
+        UTIL_ASSERT_NOT_NULL(req)
+        //return (req->_pio->irq & HX711_MULTI_CONVERSION_DONE_IRQ_NUM) != 0;
+        return pio_interrupt_get(req->_pio, HX711_MULTI_CONVERSION_DONE_IRQ_NUM);
+}
+
+bool hx711_multi__async_dma_irq_is_set(
+    volatile hx711_multi_async_request_t* volatile const req) {
+        UTIL_ASSERT_NOT_NULL(req)
+        return dma_irqn_get_channel_status(req->dma_irq_index, req->_channel);
+}
+
+volatile hx711_multi_async_request_t* volatile hx711_multi__async_get_dma_irq_request() {
+
+    for(uint i = 0; i < NUM_PIOS; ++i) {
+
+        if(hx711_multi__async_request_map[i] == NULL) {
+            continue;
+        }
+
+        if(hx711_multi__async_dma_irq_is_set(hx711_multi__async_request_map[i])) {
+            return hx711_multi__async_request_map[i];
+        }
+
+    }
+
+    return NULL;
+
+}
+
+volatile hx711_multi_async_request_t* volatile hx711_multi__async_get_pio_irq_request() {
+
+    for(uint i = 0; i < NUM_PIOS; ++i) {
+
+        if(hx711_multi__async_request_map[i] == NULL) {
+            continue;
+        }
+
+        if(hx711_multi__async_pio_irq_is_set(hx711_multi__async_request_map[i])) {
+            return hx711_multi__async_request_map[i];
+        }
+
+    }
+
+    return NULL;
+
+}
+
+void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)() {
+
+    volatile hx711_multi_async_request_t* volatile req = 
+        hx711_multi__async_get_pio_irq_request();
+
+    UTIL_ASSERT_NOT_NULL(req)
+    assert(req->_state == HX711_MULTI_ASYNC_STATE_WAITING);
+
+    hx711_multi__async_start_dma(req);
+        
+    //pio irq not needed any more
+    //irq_set_enabled(
+    //    util_pion_get_irqn(req->_pio, req->pio_irq_index),
+    //    false);
+
+    irq_clear(
+        util_pion_get_irqn(
+            req->_pio,
+            req->pio_irq_index));
+
+}
+
+void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)() {
+
+    volatile hx711_multi_async_request_t* volatile req =
+        hx711_multi__async_get_dma_irq_request();
+
+    UTIL_ASSERT_NOT_NULL(req)
+    //assert(req->_state == HX711_MULTI_ASYNC_STATE_READING);
+
+    req->_state = HX711_MULTI_ASYNC_STATE_DONE;
+
+    //dma no longer needed
+    //irq_set_enabled(
+    //    util_dma_get_irqn(req->dma_irq_index),
+    //    false);
+
+    dma_irqn_acknowledge_channel(
+        req->dma_irq_index,
+        req->_channel);
+
+    irq_clear(
+        util_dma_get_irqn(
+            req->dma_irq_index));
+
+}
+
+void hx711_multi__async_start_dma(
+    volatile hx711_multi_async_request_t* volatile const req) {
+
+        UTIL_ASSERT_NOT_NULL(req)
+
+        //if already reading, don't start again
+        assert(req->_state == HX711_MULTI_ASYNC_STATE_WAITING);
+
+        //UTIL_INTERRUPTS_OFF_BLOCK(
+
+            util_pio_sm_clear_rx_fifo(
+                req->_pio,
+                req->_sm);
+
+            dma_channel_set_write_addr(
+                req->_channel,
+                req->_buffer,
+                true);
+
+            req->_state = HX711_MULTI_ASYNC_STATE_READING;
+
+            //listen for DMA done
+            //irq_set_enabled(
+            //    util_dma_get_irqn(req->dma_irq_index),
+            //    true);
+
+        //)
+
+}
+
+bool hx711_multi__async_set_free_map_location(
+    volatile hx711_multi_async_request_t* volatile const req) {
+
+        for(uint i = 0; i < NUM_PIOS; ++i) {
+            if(hx711_multi__async_request_map[i] == NULL) {
+                hx711_multi__async_request_map[i] = req;
+                return true;
+            }
+        }
+
+        return false;
+
+}
+
+void hx711_multi_async_get_request_defaults(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req) {
+        req->pio_irq_index = HX711_MULTI_ASYNC_PIO_IRQ_IDX;
+        req->dma_irq_index = HX711_MULTI_ASYNC_DMA_IRQ_IDX;
+        req->_state = HX711_MULTI_ASYNC_STATE_NONE;
+        req->_pio = hxm->_pio;
+        req->_channel = hxm->_dma_channel;
+        req->_sm = hxm->_reader_sm;
+        req->_buff_len = hxm->_chips_len;
+}
+
+void hx711_multi_async_open(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req) {
+
+        UTIL_ASSERT_NOT_NULL(hxm)
+        UTIL_ASSERT_NOT_NULL(req)
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
+
+        mutex_enter_blocking(&hxm->_mut);
+
+        req->_state = HX711_MULTI_ASYNC_STATE_NONE;
+
+        hx711_multi__async_set_free_map_location(req);
+
+        dma_channel_config cfg = dma_get_channel_config(hxm->_dma_channel);
+        channel_config_set_irq_quiet(&cfg, false);
+        dma_channel_set_config(hxm->_dma_channel, &cfg, false);
+
+        dma_irqn_set_channel_enabled(
+            req->dma_irq_index,
+            req->_channel,
+            true);
+
+        irq_set_exclusive_handler(
+            util_dma_get_irqn(req->dma_irq_index),
+            hx711_multi__async_dma_irq_handler);
+
+        pio_set_irqn_source_enabled(
+            hxm->_pio,
+            req->pio_irq_index,
+            util_pio_get_pis(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+            true);
+
+        irq_set_exclusive_handler(
+            util_pion_get_irqn(hxm->_pio, req->pio_irq_index),
+            hx711_multi__async_pio_irq_handler);
+
+}
+
+void hx711_multi_async_start(
+    hx711_multi_async_request_t* const req) {
+
+        UTIL_ASSERT_NOT_NULL(req)
+
+        //UTIL_INTERRUPTS_OFF_BLOCK(
+
+            //always reset the write pointer
+            req->_state = HX711_MULTI_ASYNC_STATE_WAITING;
+
+            irq_set_enabled(
+                util_dma_get_irqn(req->dma_irq_index),
+                true);
+
+            if(pio_interrupt_get(req->_pio, HX711_MULTI_CONVERSION_DONE_IRQ_NUM)) {
+                hx711_multi__async_start_dma(req);
+            }
+            else {
+                irq_set_enabled(
+                    util_pion_get_irqn(
+                        req->_pio,
+                        req->pio_irq_index),
+                    true);
+            }
+
+        //)
+
+}
+
+bool hx711_multi_async_is_done(
+    hx711_multi_async_request_t* const req) {
+
+        UTIL_ASSERT_NOT_NULL(req)
+
+        //return !dma_channel_is_busy(req->_channel);
+
+        return req->_state == HX711_MULTI_ASYNC_STATE_DONE;
+
+/*
+        if(req->_state == HX711_MULTI_ASYNC_STATE_DONE) {
+            return true;
+        }
+
+        if(req->_state == HX711_MULTI_ASYNC_STATE_READING) {
+            if(!dma_channel_is_busy(req->_channel)) {
+                req->_state = HX711_MULTI_ASYNC_STATE_DONE;
+                irq_set_enabled(
+                    util_pion_get_irqn(req->_pio, req->pio_irq_index),
+                    false);
+                return true;
+            }
+        }
+
+        return false;
+*/
+
+}
+
+void hx711_multi_async_get_values(
+    hx711_multi_async_request_t* const req,
+    int32_t* const values) {
+
+        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(values)
+        assert(hx711_multi_async_is_done(req));
+
+        hx711_multi__pinvals_to_values(
+            (uint32_t*)req->_buffer,
+            values,
+            req->_buff_len);
+
+        req->_state = HX711_MULTI_ASYNC_STATE_NONE;
+
+}
+
+void hx711_multi_async_close(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req) {
+
+        UTIL_ASSERT_NOT_NULL(hxm)
+        UTIL_ASSERT_NOT_NULL(req)
+
+        UTIL_INTERRUPTS_OFF_BLOCK(
+
+            dma_channel_abort(hxm->_dma_channel);
+
+            pio_set_irqn_source_enabled(
+                hxm->_pio,
+                req->pio_irq_index,
+                util_pio_get_pis(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+                false);
+
+            irq_set_enabled(
+                util_pion_get_irqn(
+                    hxm->_pio,
+                    req->pio_irq_index),
+                false);
+
+            irq_set_enabled(
+                util_dma_get_irqn(req->dma_irq_index),
+                false);
+
+            irq_remove_handler(
+                util_pion_get_irqn(
+                    hxm->_pio,
+                    req->pio_irq_index),
+                hx711_multi__async_pio_irq_handler);
+
+            irq_remove_handler(
+                util_dma_get_irqn(req->dma_irq_index),
+                hx711_multi__async_pio_irq_handler);
+
+            dma_channel_config cfg = dma_get_channel_config(hxm->_dma_channel);
+            channel_config_set_irq_quiet(&cfg, true);
+            dma_channel_set_config(hxm->_dma_channel, &cfg, false);
+
+            hx711_multi__async_request_map[pio_get_index(hxm->_pio)] = NULL;
+
+            req->_state = HX711_MULTI_ASYNC_STATE_NONE;
+
+        )
+
+        mutex_exit(&hxm->_mut);
 
 }
 

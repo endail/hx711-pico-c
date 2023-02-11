@@ -24,11 +24,15 @@
 #include <stdio.h>
 #include "pico/stdio.h"
 #include "../include/common.h"
+#include "tusb.h"
 
 int main(void) {
 
     stdio_init_all();
-    sleep_ms(5000);
+
+//    while (!tud_cdc_connected()) {
+//        sleep_ms(1);
+//    }
 
 /*
     hx711_t hx;
@@ -117,10 +121,26 @@ int main(void) {
     // 5. Read values
     int32_t arr[cfg.chips_len];
 
+
+    hx711_multi_async_request_t req;
+
+    hx711_multi_async_get_request_defaults(&hxm, &req);
+    hx711_multi_async_open(&hxm, &req);
+
     while(true) {
 
+        //sleep_ms(rand() % 500);
+
+        hx711_multi_async_start(&req);
+
+        while(!hx711_multi_async_is_done(&req)) {
+            tight_loop_contents();
+        }
+
+        hx711_multi_async_get_values(&req, arr);
+
         // wait (block) until a values are read
-        hx711_multi_get_values(&hxm, arr);
+//        hx711_multi_get_values(&hxm, arr);
 
         // or use a timeout
         
@@ -140,6 +160,8 @@ int main(void) {
         }
 
     }
+
+    hx711_multi_async_close(&hxm, &req);
 
     // 6. Stop communication with all HX711 chips
     hx711_multi_close(&hxm);

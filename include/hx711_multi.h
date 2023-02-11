@@ -51,7 +51,11 @@ extern "C" {
     assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm));
 
 #define HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM  0
+#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     1
 #define HX711_MULTI_DATA_READY_IRQ_NUM          4
+
+#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0
+#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0
 
 #define HX711_MULTI_MIN_CHIPS                   1
 #define HX711_MULTI_MAX_CHIPS                   32
@@ -99,6 +103,26 @@ typedef struct {
     hx711_multi_program_init_t reader_prog_init;
 
 } hx711_multi_config_t;
+
+typedef enum {
+    HX711_MULTI_ASYNC_STATE_NONE = 0,
+    HX711_MULTI_ASYNC_STATE_WAITING,
+    HX711_MULTI_ASYNC_STATE_READING,
+    HX711_MULTI_ASYNC_STATE_DONE
+} hx711_multi_async_state_t;
+
+typedef struct {
+    volatile uint pio_irq_index;
+    volatile uint dma_irq_index;
+    volatile hx711_multi_async_state_t _state;
+    volatile uint32_t _buffer[HX711_READ_BITS];
+    volatile size_t _buff_len;
+    PIO volatile _pio;
+    volatile int _sm;
+    volatile int _channel;
+} hx711_multi_async_request_t;
+
+extern volatile hx711_multi_async_request_t* volatile hx711_multi__async_request_map[NUM_PIOS];
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -183,6 +207,48 @@ bool hx711_multi_get_values_timeout(
     hx711_multi_t* const hxm,
     int32_t* const values,
     const uint timeout);
+
+bool hx711_multi__async_dma_irq_is_set(
+    volatile hx711_multi_async_request_t* volatile const req);
+
+bool hx711_multi__async_pio_irq_is_set(
+    volatile hx711_multi_async_request_t* volatile const req);
+
+volatile hx711_multi_async_request_t* volatile hx711_multi__async_get_dma_irq_request();
+
+volatile hx711_multi_async_request_t* volatile hx711_multi__async_get_pio_irq_request();
+
+void hx711_multi__async_start_dma(
+    volatile hx711_multi_async_request_t* volatile const req);
+
+static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
+
+static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
+
+bool hx711_multi__async_set_free_map_location(
+    volatile hx711_multi_async_request_t* volatile const req);
+
+void hx711_multi_async_get_request_defaults(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req);
+
+void hx711_multi_async_open(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req);
+
+void hx711_multi_async_start(
+    hx711_multi_async_request_t* const req);
+
+bool hx711_multi_async_is_done(
+    hx711_multi_async_request_t* const req);
+
+void hx711_multi_async_get_values(
+    hx711_multi_async_request_t* const req,
+    int32_t* const values);
+
+void hx711_multi_async_close(
+    hx711_multi_t* const hxm,
+    hx711_multi_async_request_t* const req);
 
 /**
  * @brief Power up each HX711 and start the internal read/write

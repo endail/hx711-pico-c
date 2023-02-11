@@ -28,6 +28,7 @@
 #include "hardware/dma.h"
 #include "hardware/gpio.h"
 #include "hardware/pio.h"
+#include "hardware/sync.h"
 #include "hardware/timer.h"
 #include "pico/platform.h"
 
@@ -49,6 +50,11 @@ _Pragma("GCC diagnostic pop")
     mutex_enter_blocking(&mut); \
     __VA_ARGS__ \
     mutex_exit(&mut);
+
+#define UTIL_INTERRUPTS_OFF_BLOCK(...) \
+    const uint32_t __interrupt_status = save_and_disable_interrupts(); \
+    __VA_ARGS__ \
+    restore_interrupts(__interrupt_status);
 
 /**
  * @brief Get the transfer count for a given DMA channel. When a
@@ -87,6 +93,11 @@ static inline bool util_dma_channel_wait_for_finish_timeout(
 
         return false;
 
+}
+
+static inline uint util_dma_get_irqn(const uint irq_num) {
+    UTIL_ASSERT_RANGE(irq_num, 0, 1)
+    return DMA_IRQ_0 + irq_num;
 }
 
 /**
