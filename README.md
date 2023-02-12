@@ -182,7 +182,7 @@ if(hx711_multi_async_is_done(&req)) {
 hx711_multi_async_close(&hxm, &req);
 ```
 
-After calling `hx711_multi_async_open()` your program loop should follow:
+After calling `hx711_multi_async_open()` your program flow should follow:
 
 * `hx711_multi_async_start()` to initiate an async request.
 * `hx711_multi_async_is_done()` to check if the request is complete (although this is not strictly required).
@@ -228,7 +228,7 @@ When using multiple HX711 chips, it is possible they may be desynchronised if no
 
 ### PIO + DMA Interrupt Specifics
 
-When using `hx711_multi_async_*` functions two interrupts are claimed: one for a PIO interrupt and one for a DMA interrupt. By default, `PIO[N]_IRQ_0` and `DMA_IRQ_0` are used, where `[N]` is the PIO index being used (ie. initialising `hx711_multi_t` with `pio0` means the resulting interrupt is `PIO0_IRQ_0` and `pio1` results in `PIO1_IRQ_0`). If you need to change the IRQ number for either PIO or DMA, you can set a `hx711_multi_async_request_t`'s `pio_irq_index` and `dma_irq_index` to either 0 or 1. For example:
+When using `hx711_multi_async_*` functions, two interrupts are claimed: one for a PIO interrupt and one for a DMA interrupt. By default, `PIO[N]_IRQ_0` and `DMA_IRQ_0` are used, where `[N]` is the PIO index being used (ie. initialising `hx711_multi_t` with `pio0` means the resulting interrupt is `PIO0_IRQ_0` and `pio1` results in `PIO1_IRQ_0`). If you need to change the IRQ number for either PIO or DMA, you can set a `hx711_multi_async_request_t`'s `pio_irq_index` and `dma_irq_index` to either 0 or 1. For example:
 
 ```c
 hx711_multi_async_request_t req;
