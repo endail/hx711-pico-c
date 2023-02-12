@@ -32,12 +32,12 @@ static const uint16_t hx711_multi_reader_program_instructions[] = {
     0x4060, //  4: in     null, 32                   
     0x8000, //  5: push   noblock                    
     0x20c4, //  6: wait   1 irq, 4                   
-    0xc041, //  7: irq    clear 1                    
+    0xc040, //  7: irq    clear 0                    
     0xe001, //  8: set    pins, 1                    
     0x4001, //  9: in     pins, 1                    
     0x8000, // 10: push   noblock                    
     0x1088, // 11: jmp    y--, 8          side 0     
-    0xc001, // 12: irq    nowait 1                   
+    0xc000, // 12: irq    nowait 0                   
     0x9880, // 13: pull   noblock         side 1     
     0x6020, // 14: out    x, 32                      
     0x1023, // 15: jmp    !x, 3           side 0     
@@ -98,9 +98,12 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_pio,
         hxm->_data_pin_base,
         hxm->_chips_len);
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM);
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_CONVERSION_DONE_IRQ_NUM);
-    pio_interrupt_clear(hxm->_pio, HX711_MULTI_DATA_READY_IRQ_NUM);
+    pio_interrupt_clear(
+        hxm->_pio,
+        HX711_MULTI_CONVERSION_DONE_IRQ_NUM);
+    pio_interrupt_clear(
+        hxm->_pio,
+        HX711_MULTI_DATA_READY_IRQ_NUM);
 }
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //set state machine to 10MHz clock speed
