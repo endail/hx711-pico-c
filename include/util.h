@@ -25,12 +25,8 @@
 
 #include <assert.h>
 #include <stdint.h>
-#include "hardware/dma.h"
-#include "hardware/gpio.h"
 #include "hardware/pio.h"
 #include "hardware/sync.h"
-#include "hardware/timer.h"
-#include "pico/platform.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,9 +48,9 @@ _Pragma("GCC diagnostic pop")
     mutex_exit(&mut);
 
 #define UTIL_INTERRUPTS_OFF_BLOCK(...) \
-    const uint32_t __interrupt_status = save_and_disable_interrupts(); \
+    const uint32_t _interrupt_status = save_and_disable_interrupts(); \
     __VA_ARGS__ \
-    restore_interrupts(__interrupt_status);
+    restore_interrupts(_interrupt_status);
 
 /**
  * @brief Get the transfer count for a given DMA channel. When a
@@ -64,10 +60,7 @@ _Pragma("GCC diagnostic pop")
  * @param channel 
  * @return uint32_t 
  */
-static inline uint32_t util_dma_get_transfer_count(const uint channel) {
-    check_dma_channel_param(channel);
-    return (uint32_t)dma_hw->ch[channel].transfer_count;
-}
+uint32_t util_dma_get_transfer_count(const uint channel);
 
 /**
  * @brief Wait until channel has completed transferring up
@@ -78,27 +71,28 @@ static inline uint32_t util_dma_get_transfer_count(const uint channel) {
  * @return true if transfer completed
  * @return false is timeout was reached
  */
-static inline bool util_dma_channel_wait_for_finish_timeout(
+bool util_dma_channel_wait_for_finish_timeout(
     const uint channel,
-    const absolute_time_t* end) {
+    const absolute_time_t* end);
 
-        UTIL_ASSERT_NOT_NULL(end)
-        assert(!is_nil_time(*end));
+/**
+ * @brief Gets the NVIC IRQ number based on the DMA IRQ
+ * index.
+ * 
+ * @param irq_num 0 or 1
+ * @return uint DMA_IRQ_0 or DMA_IRQ_1
+ */
+uint util_dma_get_irqn(const uint irq_num);
 
-        while(!time_reached(*end)) {
-            if(!dma_channel_is_busy(channel)) {
-                return true;
-            }
-        }
-
-        return false;
-
-}
-
-static inline uint util_dma_get_irqn(const uint irq_num) {
-    UTIL_ASSERT_RANGE(irq_num, 0, 1)
-    return DMA_IRQ_0 + irq_num;
-}
+/**
+ * @brief Sets a DMA channel's IRQ quiet mode.
+ * 
+ * @param channel 
+ * @param quiet true for quiet otherwise false
+ */
+void util_dma_channel_set_quiet(
+    const uint channel,
+    const bool quiet);
 
 /**
  * @brief Sets GPIO pins from base to base + len to input.
@@ -106,59 +100,43 @@ static inline uint util_dma_get_irqn(const uint irq_num) {
  * @param base 
  * @param len 
  */
-static inline void util_gpio_set_contiguous_input_pins(
+void util_gpio_set_contiguous_input_pins(
     const uint base,
-    const uint len) {
-
-        assert(len > 0);
-
-        const uint l = base + len - 1;
-
-        for(uint i = base; i <= l; ++i) {
-            check_gpio_param(i);
-            gpio_set_input_enabled(i, true);
-        }
-
-}
+    const uint len);
 
 /**
- * @brief Inits and sets GPIO pin to output.
+ * @brief Initialises and sets GPIO pin to output.
  * 
  * @param gpio 
  */
-static inline void util_gpio_set_output(const uint gpio) {
-    check_gpio_param(gpio);
-    gpio_init(gpio);
-    gpio_set_dir(gpio, true);
-}
+void util_gpio_set_output(const uint gpio);
 
-static inline uint util_pion_get_irqn(
+/**
+ * @brief Gets the correct NVIC IRQ number for a PIO
+ * according to the IRQ number.
+ * 
+ * @example util_pion_get_irqn(pio1, 1); //returns PIO1_IRQ_1
+ * 
+ * @param pio 
+ * @param irq_num 0 or 1
+ * @return uint 
+ */
+uint util_pion_get_irqn(
     const PIO pio,
-    const uint irq_num) {
+    const uint irq_num);
 
-        UTIL_ASSERT_NOT_NULL(pio)
-        UTIL_ASSERT_RANGE(irq_num, 0, 1)
-
-        const uint basePioIrq = PIO0_IRQ_0;
-
-        const uint irqn = basePioIrq +
-            (pio == pio0 ? 0 : 2) +
-            (irq_num == 0 ? 0 : 2);
-
-        UTIL_ASSERT_RANGE(irqn, PIO0_IRQ_0, PIO1_IRQ_1)
-
-        return irqn;
-
-}
-
-static inline uint util_pio_get_pis(
-    const uint pio_interrupt_num) {
-        UTIL_ASSERT_RANGE(pio_interrupt_num, 0, 3)
-        const uint basePis = pis_interrupt0;
-        const uint pis = basePis + pio_interrupt_num;
-        UTIL_ASSERT_RANGE(pis, pis_interrupt0, pis_interrupt3)
-        return pis;
-}
+/**
+ * @brief Gets the correct PIO interrupt source number according
+ * to the raw PIO interrupt number used in a .pio file.
+ * 
+ * @example util_pio_get_pis(3); //returns pis_interrupt3 (11)
+ * 
+ * @see pio_interrupt_source
+ * @param pio_interrupt_num 
+ * @return uint 
+ */
+uint util_pio_get_pis(
+    const uint pio_interrupt_num);
 
 /**
  * @brief Inits GPIO pins for PIO from base to base + len.
@@ -167,21 +145,10 @@ static inline uint util_pio_get_pis(
  * @param base 
  * @param len 
  */
-static inline void util_pio_gpio_contiguous_init(
+void util_pio_gpio_contiguous_init(
     const PIO pio,
     const uint base,
-    const uint len) {
-
-        assert(len > 0);
-
-        const uint l = base + len - 1;
-
-        for(uint i = base; i <= l; ++i) {
-            check_gpio_param(i);
-            pio_gpio_init(pio, i);
-        }
-
-}
+    const uint len);
 
 /**
  * @brief Clears a given state machine's RX FIFO.
@@ -189,30 +156,31 @@ static inline void util_pio_gpio_contiguous_init(
  * @param pio 
  * @param sm 
  */
-static inline void util_pio_sm_clear_rx_fifo(
+void util_pio_sm_clear_rx_fifo(
     const PIO pio,
-    const uint sm) {
-        while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
-            pio_sm_get(pio, sm);
-        }
-}
+    const uint sm);
 
-static inline void util_pio_sm_clear_osr(
+/**
+ * @brief Clear's a given state machine's OSR.
+ * 
+ * @param pio 
+ * @param sm 
+ */
+void util_pio_sm_clear_osr(
     const PIO pio,
-    const uint sm) {
-        const uint instr = pio_encode_push(false, false);
-        while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
-            pio_sm_exec(pio, sm, instr);
-        }
-}
+    const uint sm);
 
-static inline bool util_pio_sm_is_enabled(
+/**
+ * @brief Check whether a given state machine is enabled.
+ * 
+ * @param pio 
+ * @param sm 
+ * @return true 
+ * @return false 
+ */
+bool util_pio_sm_is_enabled(
     const PIO pio,
-    const uint sm) {
-        check_pio_param(pio);
-        check_sm_param(sm);
-        return (pio->ctrl & (1u << (PIO_CTRL_SM_ENABLE_LSB + sm))) != 0;
-}
+    const uint sm);
 
 /**
  * @brief Waits for a given PIO interrupt to be set.
@@ -220,25 +188,23 @@ static inline bool util_pio_sm_is_enabled(
  * @param pio 
  * @param pio_interrupt_num 
  */
-static inline void util_pio_interrupt_wait(
+void util_pio_interrupt_wait(
     const PIO pio,
-    const uint pio_interrupt_num) {
-        while(!pio_interrupt_get(pio, pio_interrupt_num)) {
-            tight_loop_contents();
-        }
-}
+    const uint pio_interrupt_num);
 
-static inline void util_pio_interrupt_wait_cleared(
+/**
+ * @brief Waits until a given PIO interrupt is cleared.
+ * 
+ * @param pio 
+ * @param pio_interrupt_num 
+ */
+void util_pio_interrupt_wait_cleared(
     const PIO pio,
-    const uint pio_interrupt_num) {
-        while(pio_interrupt_get(pio, pio_interrupt_num)) {
-            tight_loop_contents();
-        }
-}
+    const uint pio_interrupt_num);
 
 /**
  * @brief Waits until the given interrupt is cleared, up to
- * a maximum timeout
+ * a maximum timeout.
  * 
  * @param pio 
  * @param pio_interrupt_num 
@@ -246,23 +212,10 @@ static inline void util_pio_interrupt_wait_cleared(
  * @return true 
  * @return false 
  */
-static inline bool util_pio_interrupt_wait_cleared_timeout(
+bool util_pio_interrupt_wait_cleared_timeout(
     const PIO pio,
     const uint pio_interrupt_num,
-    const absolute_time_t* const end) {
-
-        UTIL_ASSERT_NOT_NULL(end)
-        assert(!is_nil_time(*end));
-
-        while(!time_reached(*end)) {
-            if(!pio_interrupt_get(pio, pio_interrupt_num)) {
-                return true;
-            }
-        }
-
-        return false;
-
-}
+    const absolute_time_t* const end);
 
 /**
  * @brief Waits for a given PIO interrupt to be set and then
@@ -271,12 +224,9 @@ static inline bool util_pio_interrupt_wait_cleared_timeout(
  * @param pio 
  * @param pio_interrupt_num 
  */
-static inline void util_pio_interrupt_wait_clear(
+void util_pio_interrupt_wait_clear(
     const PIO pio,
-    const uint pio_interrupt_num) {
-        util_pio_interrupt_wait(pio, pio_interrupt_num);
-        pio_interrupt_clear(pio, pio_interrupt_num);
-}
+    const uint pio_interrupt_num);
 
 /**
  * @brief Waits for a given PIO to be set within the timeout
@@ -288,23 +238,10 @@ static inline void util_pio_interrupt_wait_clear(
  * @return true if the interrupt was set within the timeout
  * @return false if the timeout was reached
  */
-static inline bool util_pio_interrupt_wait_timeout(
+bool util_pio_interrupt_wait_timeout(
     const PIO pio,
     const uint pio_interrupt_num,
-    const absolute_time_t* const end) {
-
-        assert(end != NULL);
-        assert(!is_nil_time(*end));
-
-        while(!time_reached(*end)) {
-            if(pio_interrupt_get(pio, pio_interrupt_num)) {
-                return true;
-            }
-        }
-
-        return false;
-
-}
+    const absolute_time_t* const end);
 
 /**
  * @brief Waits for a given PIO to be set within the timeout
@@ -316,28 +253,10 @@ static inline bool util_pio_interrupt_wait_timeout(
  * @return true if the interrupt was set within the timeout
  * @return false if the timeout was reached
  */
-static inline bool util_pio_interrupt_wait_clear_timeout(
+bool util_pio_interrupt_wait_clear_timeout(
     const PIO pio,
     const uint pio_interrupt_num,
-    const absolute_time_t* const end) {
-
-        UTIL_ASSERT_NOT_NULL(end)
-        assert(!is_nil_time(*end));
-
-        const bool ok = util_pio_interrupt_wait_timeout(
-            pio,
-            pio_interrupt_num,
-            end);
-
-        if(ok) {
-            pio_interrupt_clear(
-                pio,
-                pio_interrupt_num);
-        }
-
-        return ok;
-
-}
+    const absolute_time_t* const end);
 
 /**
  * @brief Attempts to get a word from the state machine's RX FIFO
@@ -351,22 +270,11 @@ static inline bool util_pio_interrupt_wait_clear_timeout(
  * @return false if the number of words in the RX FIFO is below
  * the threshold
  */
-static inline bool util_pio_sm_try_get(
+bool util_pio_sm_try_get(
     const PIO pio,
     const uint sm,
     uint32_t* const word,
-    const uint threshold) {
-
-        UTIL_ASSERT_NOT_NULL(word)
-
-        if(pio_sm_get_rx_fifo_level(pio, sm) >= threshold) {
-            *word = pio_sm_get(pio, sm);
-            return true;
-        }
-
-        return false;
-
-}
+    const uint threshold);
 
 #ifdef __cplusplus
 }

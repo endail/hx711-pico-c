@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2022 Daniel Robertson
+// Copyright (c) 2023 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -127,15 +127,20 @@ int main(void) {
     hx711_multi_async_get_request_defaults(&hxm, &req);
     hx711_multi_async_open(&hxm, &req);
 
-    while(true) {
+    for(uint loops = 0; loops < 5000; ++loops) {
 
         //sleep_ms(rand() % 500);
 
         hx711_multi_async_start(&req);
 
+        //sleep_ms(rand() % 500);
+
         while(!hx711_multi_async_is_done(&req)) {
+            // do other stuff...
             tight_loop_contents();
         }
+
+        //sleep_ms(rand() % 500);
 
         hx711_multi_async_get_values(&req, arr);
 

@@ -1,6 +1,6 @@
 # MIT License
 # 
-# Copyright (c) 2022 Daniel Robertson
+# Copyright (c) 2023 Daniel Robertson
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ cmake_minimum_required(VERSION 3.12)
 include(pico_sdk_import.cmake)
 
 project(hx711-pico-c
-        VERSION 1.0.0
+        VERSION 2.0.0
         DESCRIPTION "Implementation of HX711 use via RP2040's state machine"
         HOMEPAGE_URL "https://github.com/endail/hx711-pico-c"
         LANGUAGES C CXX ASM
@@ -57,8 +57,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 # check for minimum pico sdk version
-if(PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
-        message(FATAL_ERROR "hx711-pico-c requires Raspberry Pi Pico SDK version 1.4.0 (or later). Your version is ${PICO_SDK_VERSION_STRING}")
+if(PICO_SDK_VERSION_STRING VERSION_LESS "1.5.0")
+        message(FATAL_ERROR "hx711-pico-c requires Raspberry Pi Pico SDK version 1.5.0 (or later). Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
 add_library(hx711-pico-c INTERFACE)
@@ -66,6 +66,7 @@ add_library(hx711-pico-c INTERFACE)
 target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
         hardware_dma
+        hardware_irq
         hardware_pio
         hardware_timer
         pico_sync
@@ -75,6 +76,7 @@ target_link_libraries(hx711-pico-c INTERFACE
 target_sources(hx711-pico-c INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_multi.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/util.c
         )
 
 # when running the tests in this project, build the main test exe

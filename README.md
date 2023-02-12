@@ -163,6 +163,33 @@ for(uint i = 0; i < cfg.chips_len; ++i) {
 hx711_multi_close(&hxm);
 ```
 
+There is also an interface for asynchronous requests.
+
+```c
+hx711_multi_async_request_t req;
+
+hx711_multi_async_get_request_defaults(&hxm, &req);
+hx711_multi_async_open(&hxm, &req);
+
+hx711_multi_async_start(&req);
+
+// do other work while waiting...
+
+if(hx711_multi_async_is_done(&req)) {
+    hx711_multi_async_get_values(&req, arr);
+}
+
+hx711_multi_async_close(&hxm, &req);
+```
+
+After calling `hx711_multi_async_open()` your program loop should follow:
+
+* `hx711_multi_async_start()` to initiate an async request.
+* `hx711_multi_async_is_done()` to check if the request is complete (although this is not strictly required).
+* `hx711_multi_async_get_values()` to obtain the values from the request.
+
+You can then repeat the above loop as many times as you want. When you no longer wish to read values asynchronously, call `hx711_multi_async_close()`. Be aware that you __cannot call other `hx711_multi_*` functions between `hx711_multi_async_open()` and `hx711_multi_async_close()`__. If you want to change the gain, power down, etc... you __must__ call `hx711_multi_async_close()` first.
+
 ## Notes
 
 ### Where is Channel A and Channel B?
@@ -198,6 +225,19 @@ In the example code above, the final statement closes communication with the HX7
 ### Synchronising Multiple Chips
 
 When using multiple HX711 chips, it is possible they may be desynchronised if not powered up simultaneously. You can use `hx711_multi_sync()` which will power down and then power up all chips together.
+
+### PIO + DMA Interrupt Specifics
+
+When using `hx711_multi_async_*` functions two interrupts are claimed: one for a PIO interrupt and one for a DMA interrupt. By default, `PIO[N]_IRQ_0` and `DMA_IRQ_0` are used, where `[N]` is the PIO index being used (ie. initialising `hx711_multi_t` with `pio0` means the resulting interrupt is `PIO0_IRQ_0` and `pio1` results in `PIO1_IRQ_0`). If you need to change the IRQ number for either PIO or DMA, you can set a `hx711_multi_async_request_t`'s `pio_irq_index` and `dma_irq_index` to either 0 or 1. For example:
+
+```c
+hx711_multi_async_request_t req;
+hx711_multi_async_get_request_defaults(&hxm, &req);
+req.pio_irq_index = 1; //PIO0_IRQ_1 will be used
+req.dma_irq_index = 1; //DMA_IRQ_1 will be used
+hx711_multi_async_open(&hxm, &req);
+//...
+```
 
 ## Overview of Functionality
 

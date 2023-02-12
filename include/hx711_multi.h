@@ -24,7 +24,6 @@
 #define HX711_MULTI_H_253BF37A_8356_462B_B8F9_39E09A7193E6
 
 #include <assert.h>
-#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "hardware/dma.h"
@@ -50,8 +49,7 @@ extern "C" {
     assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_awaiter_sm)); \
     assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm));
 
-#define HX711_MULTI_CONVERSION_RUNNING_IRQ_NUM  0
-#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     1
+#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0
 #define HX711_MULTI_DATA_READY_IRQ_NUM          4
 
 #define HX711_MULTI_ASYNC_REQ_COUNT             NUM_PIOS
@@ -113,17 +111,35 @@ typedef enum {
 } hx711_multi_async_state_t;
 
 typedef struct {
+
+    hx711_multi_t* _hxm;
+
+    /**
+     * @brief Which PIOX_IRQ_N interrupt to use, where N
+     * is either 0 or 1. 
+     */
     uint pio_irq_index;
+
+    /**
+     * @brief Which DMA_IRQ_N interrupt to use, where N
+     * is either 0 or 1.
+     */
     uint dma_irq_index;
+
+    /**
+     * @brief The state of the request as it moves through the
+     * read process.
+     */
     volatile hx711_multi_async_state_t _state;
+
+    /**
+     * @brief Array of pin values read from PIO through DMA.
+     */
     uint32_t _buffer[HX711_READ_BITS];
-    size_t _buff_len;
-    PIO _pio;
-    int _sm;
-    int _channel;
+
 } hx711_multi_async_request_t;
 
-extern hx711_multi_async_request_t* hx711_multi__async_request_map[NUM_PIOS];
+extern hx711_multi_async_request_t* hx711_multi__async_request_map[HX711_MULTI_ASYNC_REQ_COUNT];
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -133,7 +149,7 @@ extern hx711_multi_async_request_t* hx711_multi__async_request_map[NUM_PIOS];
  * @param values 
  * @param len number of values to convert
  */
-static void hx711_multi__pinvals_to_values(
+void hx711_multi_pinvals_to_values(
     const uint32_t* const pinvals,
     int32_t* const values,
     const size_t len);
@@ -143,7 +159,7 @@ static void hx711_multi__pinvals_to_values(
  * 
  * @param hxm 
  */
-void hx711_multi__get_values_raw(
+static void hx711_multi__get_values_raw(
     hx711_multi_t* const hxm,
     uint32_t* const pinvals);
 
@@ -156,7 +172,7 @@ void hx711_multi__get_values_raw(
  * @return true 
  * @return false 
  */
-bool hx711_multi__get_values_timeout_raw(
+static bool hx711_multi__get_values_timeout_raw(
     hx711_multi_t* const hxm,
     uint32_t* const pinvals,
     const absolute_time_t* const end);
@@ -209,27 +225,27 @@ bool hx711_multi_get_values_timeout(
     int32_t* const values,
     const uint timeout);
 
-bool hx711_multi__async_dma_irq_is_set(
+static bool hx711_multi__async_dma_irq_is_set(
     hx711_multi_async_request_t* const req);
 
-bool hx711_multi__async_pio_irq_is_set(
+static bool hx711_multi__async_pio_irq_is_set(
     hx711_multi_async_request_t* const req);
 
-hx711_multi_async_request_t* hx711_multi__async_get_dma_irq_request();
+static hx711_multi_async_request_t* const hx711_multi__async_get_dma_irq_request();
 
-hx711_multi_async_request_t* hx711_multi__async_get_pio_irq_request();
+static hx711_multi_async_request_t* const hx711_multi__async_get_pio_irq_request();
 
-void hx711_multi__async_start_dma(
+static void hx711_multi__async_start_dma(
     volatile hx711_multi_async_request_t* volatile const req);
 
 static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
 
 static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
 
-bool hx711_multi__async_set_free_map_location(
+static bool hx711_multi__async_add_request(
     hx711_multi_async_request_t* const req);
 
-void hx711_multi__async_remove_request(
+static void hx711_multi__async_remove_request(
     const hx711_multi_async_request_t* const req);
 
 void hx711_multi_async_get_request_defaults(
@@ -293,10 +309,8 @@ void hx711_multi_sync(
  * @param hxm 
  * @return uint32_t 
  */
-static inline uint32_t hx711_multi_sync_state(
-    hx711_multi_t* const hxm) {
-        return pio_sm_get_blocking(hxm->_pio, hxm->_awaiter_sm);
-}
+uint32_t hx711_multi_sync_state(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Determines whether all chips are in sync.
@@ -305,14 +319,8 @@ static inline uint32_t hx711_multi_sync_state(
  * @return true 
  * @return false 
  */
-static inline bool hx711_multi_is_syncd(
-    hx711_multi_t* const hxm) {
-        //all chips should either be 0 or 1 which translates
-        //to a bitmask of exactly 0 or 2^chips
-        const uint32_t allReady = (uint32_t)pow(2, hxm->_chips_len);
-        const uint32_t state = hx711_multi_sync_state(hxm);
-        return state == 0 || state == allReady;
-}
+bool hx711_multi_is_syncd(
+    hx711_multi_t* const hxm);
 
 #ifdef __cplusplus
 }
