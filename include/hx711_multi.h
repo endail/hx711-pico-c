@@ -112,6 +112,9 @@ typedef enum {
 
 typedef struct {
 
+    /**
+     * @brief Pointer to underlying hx711_multi_t.
+     */
     hx711_multi_t* _hxm;
 
     /**
@@ -139,6 +142,9 @@ typedef struct {
 
 } hx711_multi_async_request_t;
 
+/**
+ * @brief Array of requests for ISR to access.
+ */
 extern hx711_multi_async_request_t* hx711_multi__async_request_map[HX711_MULTI_ASYNC_REQ_COUNT];
 
 /**
@@ -189,7 +195,7 @@ void hx711_multi_init(
 void hx711_multi_close(hx711_multi_t* const hxm);
 
 /**
- * @brief Sets the HX711s gain.
+ * @brief Sets the HX711s' gain.
  * 
  * @param hxm 
  * @param gain 
@@ -225,47 +231,139 @@ bool hx711_multi_get_values_timeout(
     int32_t* const values,
     const uint timeout);
 
+/**
+ * @brief Whether a given request is the cause of the current
+ * DMA IRQ.
+ * 
+ * @param req 
+ * @return true 
+ * @return false 
+ */
 static bool hx711_multi__async_dma_irq_is_set(
     hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Whether a given request is the cause of the current
+ * PIO IRQ.
+ * 
+ * @param req 
+ * @return true 
+ * @return false 
+ */
 static bool hx711_multi__async_pio_irq_is_set(
     hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Get the request which caused the current DMA IRQ. Returns
+ * NULL if none found.
+ * 
+ * @return hx711_multi_async_request_t* const 
+ */
 static hx711_multi_async_request_t* const hx711_multi__async_get_dma_irq_request();
 
+/**
+ * @brief Get the request which caused the current PIO IRQ. Returns
+ * NULL if none found.
+ * 
+ * @return hx711_multi_async_request_t* const 
+ */
 static hx711_multi_async_request_t* const hx711_multi__async_get_pio_irq_request();
 
+/**
+ * @brief Triggers DMA reading; moves request state from WAITING to READING.
+ * 
+ * @param req 
+ */
 static void hx711_multi__async_start_dma(
     volatile hx711_multi_async_request_t* volatile const req);
 
+/**
+ * @brief ISR handler for PIO IRQs.
+ */
 static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
 
+/**
+ * @brief ISR handler for DMA IRQs.
+ */
 static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
 
+/**
+ * @brief Adds request to the request map for ISR access. Returns false
+ * if no space.
+ * 
+ * @param req 
+ * @return true 
+ * @return false 
+ */
 static bool hx711_multi__async_add_request(
     hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Removes the given request from the request.
+ * 
+ * @param req 
+ */
 static void hx711_multi__async_remove_request(
     const hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Sets the given request to default settings.
+ * 
+ * @param hxm 
+ * @param req 
+ */
 void hx711_multi_async_get_request_defaults(
     hx711_multi_t* const hxm,
     hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Sets up asynchronous request functions. PIO and DMA IRQs
+ * are claimed.
+ * 
+ * @param hxm 
+ * @param req 
+ */
 void hx711_multi_async_open(
     hx711_multi_t* const hxm,
     hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Begins an asynchronous request.
+ * 
+ * @param req 
+ */
 void hx711_multi_async_start(
     hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Returns true if the given request is complete and
+ * values can be read from it.
+ * 
+ * @param req 
+ * @return true 
+ * @return false 
+ */
 bool hx711_multi_async_is_done(
     hx711_multi_async_request_t* const req);
 
+/**
+ * @brief Obtains HX711 values in chip-order from the internal
+ * request.
+ * 
+ * @param req 
+ * @param values 
+ */
 void hx711_multi_async_get_values(
     hx711_multi_async_request_t* const req,
     int32_t* const values);
 
+/**
+ * @brief Closes asychronous functionality. PIO and DMA IRQs are
+ * released.
+ * 
+ * @param hxm 
+ * @param req 
+ */
 void hx711_multi_async_close(
     hx711_multi_t* const hxm,
     hx711_multi_async_request_t* const req);
