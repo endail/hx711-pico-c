@@ -3,10 +3,6 @@ name: Generate PIO header files
 on:
   workflow_dispatch:
   push:
-    paths:
-      - src
-      - include
-      - .github/workflows/generate_pio.yml
 
 jobs:
   build:
