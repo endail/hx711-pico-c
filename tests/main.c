@@ -92,7 +92,6 @@ int main(void) {
 */
 
 
-
     hx711_multi_t hxm;
     hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
     cfg.clock_pin = 14;
