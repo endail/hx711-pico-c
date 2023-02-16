@@ -69,8 +69,8 @@ static inline pio_sm_config hx711_multi_awaiter_program_get_default_config(uint 
 #include "hx711_multi.h"
 #include "util.h"
 void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
-    UTIL_ASSERT_NOT_NULL(hxm)
-    UTIL_ASSERT_NOT_NULL(hxm->_pio)
+    UTIL_ASSERT_NOT_NULL(hxm);
+    UTIL_ASSERT_NOT_NULL(hxm->_pio);
     assert(hxm->_chips_len > 0);
     pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
         hxm->_awaiter_offset);

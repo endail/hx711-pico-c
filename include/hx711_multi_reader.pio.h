@@ -82,8 +82,8 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 #include "hx711_multi.h"
 #include "util.h"
 void hx711_multi_pio_init(hx711_multi_t* const hxm) {
-    UTIL_ASSERT_NOT_NULL(hxm)
-    UTIL_ASSERT_NOT_NULL(hxm->_pio)
+    UTIL_ASSERT_NOT_NULL(hxm);
+    UTIL_ASSERT_NOT_NULL(hxm->_pio);
     assert(hxm->_chips_len > 0);
     pio_gpio_init(
         hxm->_pio,
@@ -102,8 +102,8 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //set state machine to 10MHz clock speed
     static const uint SM_HZ = 10000000;
-    UTIL_ASSERT_NOT_NULL(hxm)
-    UTIL_ASSERT_NOT_NULL(hxm->_pio)
+    UTIL_ASSERT_NOT_NULL(hxm);
+    UTIL_ASSERT_NOT_NULL(hxm->_pio);
     hxm->_pio->instr_mem[hxm->_reader_offset + hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
     pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
