@@ -37,7 +37,7 @@ bool util_dma_channel_wait_for_finish_timeout(
     const absolute_time_t* end) {
 
         check_dma_channel_param(channel);
-        UTIL_ASSERT_NOT_NULL(end)
+        UTIL_ASSERT_NOT_NULL(end);
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
@@ -51,7 +51,7 @@ bool util_dma_channel_wait_for_finish_timeout(
 }
 
 uint util_dma_get_irqn(const uint irq_num) {
-    UTIL_ASSERT_RANGE(irq_num, 0, 1)
+    UTIL_ASSERT_RANGE(irq_num, 0, 1);
     return DMA_IRQ_0 + irq_num;
 }
 
@@ -90,13 +90,13 @@ uint util_pion_get_irqn(
     const uint irq_num) {
 
         check_pio_param(pio);
-        UTIL_ASSERT_RANGE(irq_num, 0, 1)
+        UTIL_ASSERT_RANGE(irq_num, 0, 1);
 
         const uint irqn = PIO0_IRQ_0 +
             (pio == pio0 ? 0 : 2) +
             (irq_num == 0 ? 0 : 2);
 
-        UTIL_ASSERT_RANGE(irqn, PIO0_IRQ_0, PIO1_IRQ_1)
+        UTIL_ASSERT_RANGE(irqn, PIO0_IRQ_0, PIO1_IRQ_1);
 
         return irqn;
 
@@ -104,10 +104,10 @@ uint util_pion_get_irqn(
 
 uint util_pio_get_pis(
     const uint pio_interrupt_num) {
-        UTIL_ASSERT_RANGE(pio_interrupt_num, 0, 3)
+        UTIL_ASSERT_RANGE(pio_interrupt_num, 0, 3);
         const uint basePis = pis_interrupt0;
         const uint pis = basePis + pio_interrupt_num;
-        UTIL_ASSERT_RANGE(pis, pis_interrupt0, pis_interrupt3)
+        UTIL_ASSERT_RANGE(pis, pis_interrupt0, pis_interrupt3);
         return pis;
 }
 
@@ -181,7 +181,7 @@ bool util_pio_interrupt_wait_cleared_timeout(
     const absolute_time_t* const end) {
 
         check_pio_param(pio);
-        UTIL_ASSERT_NOT_NULL(end)
+        UTIL_ASSERT_NOT_NULL(end);
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
@@ -227,7 +227,7 @@ bool util_pio_interrupt_wait_clear_timeout(
     const absolute_time_t* const end) {
 
         check_pio_param(pio);
-        UTIL_ASSERT_NOT_NULL(end)
+        UTIL_ASSERT_NOT_NULL(end);
         assert(!is_nil_time(*end));
 
         const bool ok = util_pio_interrupt_wait_timeout(
@@ -253,7 +253,7 @@ bool util_pio_sm_try_get(
 
         check_pio_param(pio);
         check_sm_param(sm);
-        UTIL_ASSERT_NOT_NULL(word)
+        UTIL_ASSERT_NOT_NULL(word);
 
         if(pio_sm_get_rx_fifo_level(pio, sm) >= threshold) {
             *word = pio_sm_get(pio, sm);

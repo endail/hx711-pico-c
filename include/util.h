@@ -33,24 +33,32 @@ extern "C" {
 #endif
 
 #define UTIL_ASSERT_NOT_NULL(ptr) \
-    assert(ptr != NULL);
+    do { \
+        assert(ptr != NULL); \
+    } while(0)
 
 #define UTIL_ASSERT_RANGE(val, min, max) \
-_Pragma("GCC diagnostic push") \
-_Pragma("GCC diagnostic ignored \"-Wtype-limits\"") \
-    assert(val >= min); \
-    assert(val <= max); \
-_Pragma("GCC diagnostic pop")
+    do { \
+        _Pragma("GCC diagnostic push") \
+        _Pragma("GCC diagnostic ignored \"-Wtype-limits\"") \
+            assert(val >= min); \
+            assert(val <= max); \
+        _Pragma("GCC diagnostic pop") \
+    } while(0)
 
 #define UTIL_MUTEX_BLOCK(mut, ...) \
-    mutex_enter_blocking(&mut); \
-    __VA_ARGS__ \
-    mutex_exit(&mut);
+    do { \
+        mutex_enter_blocking(&mut); \
+        __VA_ARGS__ \
+        mutex_exit(&mut); \
+    } while(0)
 
 #define UTIL_INTERRUPTS_OFF_BLOCK(...) \
-    const uint32_t _interrupt_status = save_and_disable_interrupts(); \
-    __VA_ARGS__ \
-    restore_interrupts(_interrupt_status);
+    do { \
+        const uint32_t _interrupt_status = save_and_disable_interrupts(); \
+        __VA_ARGS__ \
+        restore_interrupts(_interrupt_status); \
+    } while(0)
 
 /**
  * @brief Get the transfer count for a given DMA channel. When a

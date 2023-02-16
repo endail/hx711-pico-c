@@ -37,28 +37,36 @@ extern "C" {
 #endif
 
 #define HX711_ASSERT_INITD(hx) \
-    UTIL_ASSERT_NOT_NULL(hx) \
-    UTIL_ASSERT_NOT_NULL(hx->_pio) \
-    assert(pio_sm_is_claimed(hx->_pio, hx->_reader_sm)); \
-    assert(mutex_is_initialized(&hx->_mut));
+    do { \
+        UTIL_ASSERT_NOT_NULL(hx); \
+        UTIL_ASSERT_NOT_NULL(hx->_pio); \
+        assert(pio_sm_is_claimed(hx->_pio, hx->_reader_sm)); \
+        assert(mutex_is_initialized(&hx->_mut)); \
+    } while(0)
 
 #define HX711_ASSERT_STATE_MACHINE_ENABLED(hxm) \
-    assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm));
+    do { \
+        assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm)); \
+    } while(0)
 
-#define HX711_READ_BITS                 24
-#define HX711_POWER_DOWN_TIMEOUT        60 //microseconds
+#define HX711_READ_BITS                 24u
+#define HX711_POWER_DOWN_TIMEOUT        60u //microseconds
 
 #define HX711_MIN_VALUE                 INT32_C(-0x800000)
 #define HX711_MAX_VALUE                 INT32_C(0x7fffff)
 
 #define HX711_ASSERT_VALUE(v) \
-    UTIL_ASSERT_RANGE(v, HX711_MIN_VALUE, HX711_MAX_VALUE)
+    do { \
+        UTIL_ASSERT_RANGE(v, HX711_MIN_VALUE, HX711_MAX_VALUE); \
+    } while(0)
 
-#define HX711_PIO_MIN_GAIN              0
-#define HX711_PIO_MAX_GAIN              2
+#define HX711_PIO_MIN_GAIN              0u
+#define HX711_PIO_MAX_GAIN              2u
 
 #define HX711_ASSERT_PIO_GAIN(g) \
-    assert(g <= HX711_PIO_MAX_GAIN);
+    do { \
+        assert(g <= HX711_PIO_MAX_GAIN); \
+    } while(0)
 
 extern const unsigned short HX711_SETTLING_TIMES[3]; //milliseconds
 extern const unsigned char HX711_SAMPLE_RATES[2];
@@ -70,7 +78,9 @@ typedef enum {
 } hx711_rate_t;
 
 #define HX711_ASSERT_RATE(r) \
-    UTIL_ASSERT_RANGE(r, hx711_rate_10, hx711_rate_80)
+    do { \
+        UTIL_ASSERT_RANGE(r, hx711_rate_10, hx711_rate_80); \
+    } while(0)
 
 typedef enum {
     hx711_gain_128 = 0,
@@ -79,7 +89,9 @@ typedef enum {
 } hx711_gain_t;
 
 #define HX711_ASSERT_GAIN(g) \
-    UTIL_ASSERT_RANGE(g, hx711_gain_128, hx711_gain_64)
+    do { \
+        UTIL_ASSERT_RANGE(g, hx711_gain_128, hx711_gain_64); \
+    } while(0)
 
 typedef struct {
 
@@ -298,7 +310,7 @@ static inline uint32_t hx711__gain_to_pio_gain(const hx711_gain_t gain) {
      * gain = 0
      */
 
-    HX711_ASSERT_GAIN(gain)
+    HX711_ASSERT_GAIN(gain);
 
     const uint32_t clockPulses = hx711_get_clock_pulses(gain);
     return clockPulses - HX711_READ_BITS - 1;

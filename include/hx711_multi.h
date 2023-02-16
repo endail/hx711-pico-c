@@ -38,16 +38,20 @@ extern "C" {
 #endif
 
 #define HX711_MULTI_ASSERT_INITD(hxm) \
-    UTIL_ASSERT_NOT_NULL(hxm) \
-    UTIL_ASSERT_NOT_NULL(hxm->_pio) \
-    assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
-    assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
-    assert(dma_channel_is_claimed(hxm->_dma_channel)); \
-    assert(mutex_is_initialized(&hxm->_mut));
+    do { \
+        UTIL_ASSERT_NOT_NULL(hxm); \
+        UTIL_ASSERT_NOT_NULL(hxm->_pio); \
+        assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
+        assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
+        assert(dma_channel_is_claimed(hxm->_dma_channel)); \
+        assert(mutex_is_initialized(&hxm->_mut)); \
+    } while(0)
 
 #define HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm) \
-    assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_awaiter_sm)); \
-    assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm));
+    do { \
+        assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_awaiter_sm)); \
+        assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm)); \
+    } while(0)
 
 #define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0
 #define HX711_MULTI_DATA_READY_IRQ_NUM          4
@@ -56,8 +60,8 @@ extern "C" {
 #define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0
 #define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0
 
-#define HX711_MULTI_MIN_CHIPS                   1
-#define HX711_MULTI_MAX_CHIPS                   32
+#define HX711_MULTI_MIN_CHIPS                   1u
+#define HX711_MULTI_MAX_CHIPS                   32u
 
 typedef struct {
 

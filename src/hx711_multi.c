@@ -35,8 +35,8 @@ void hx711_multi_pinvals_to_values(
     int32_t* const values,
     const size_t len) {
 
-        UTIL_ASSERT_NOT_NULL(pinvals)
-        UTIL_ASSERT_NOT_NULL(values)
+        UTIL_ASSERT_NOT_NULL(pinvals);
+        UTIL_ASSERT_NOT_NULL(values);
         assert(len > 0);
 
         //construct an individual chip value by OR-ing
@@ -88,9 +88,9 @@ void hx711_multi__get_values_raw(
     hx711_multi_t* const hxm,
     uint32_t* const pinvals) {
 
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
-        UTIL_ASSERT_NOT_NULL(pinvals)
+        HX711_MULTI_ASSERT_INITD(hxm);
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm);
+        UTIL_ASSERT_NOT_NULL(pinvals);
 
         //DMA should not be active
         assert(!dma_channel_is_busy(hxm->_dma_channel));
@@ -127,10 +127,10 @@ bool hx711_multi__get_values_timeout_raw(
     uint32_t* const pinvals,
     const absolute_time_t* const end) {
 
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
-        UTIL_ASSERT_NOT_NULL(pinvals)
-        UTIL_ASSERT_NOT_NULL(end)
+        HX711_MULTI_ASSERT_INITD(hxm);
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm);
+        UTIL_ASSERT_NOT_NULL(pinvals);
+        UTIL_ASSERT_NOT_NULL(end);
         assert(!is_nil_time(*end));
         assert(!dma_channel_is_busy(hxm->_dma_channel));
 
@@ -178,23 +178,23 @@ void hx711_multi_init(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config) {
 
-        UTIL_ASSERT_NOT_NULL(hxm)
-        UTIL_ASSERT_NOT_NULL(config)
+        UTIL_ASSERT_NOT_NULL(hxm);
+        UTIL_ASSERT_NOT_NULL(config);
 
         UTIL_ASSERT_RANGE(
             config->chips_len,
             HX711_MULTI_MIN_CHIPS,
-            HX711_MULTI_MAX_CHIPS)
+            HX711_MULTI_MAX_CHIPS);
 
-        UTIL_ASSERT_NOT_NULL(config->pio)
+        UTIL_ASSERT_NOT_NULL(config->pio);
         check_pio_param(config->pio);
-        UTIL_ASSERT_NOT_NULL(config->pio_init)
+        UTIL_ASSERT_NOT_NULL(config->pio_init);
 
-        UTIL_ASSERT_NOT_NULL(config->awaiter_prog)
-        UTIL_ASSERT_NOT_NULL(config->awaiter_prog_init)
+        UTIL_ASSERT_NOT_NULL(config->awaiter_prog);
+        UTIL_ASSERT_NOT_NULL(config->awaiter_prog_init);
 
-        UTIL_ASSERT_NOT_NULL(config->reader_prog)
-        UTIL_ASSERT_NOT_NULL(config->reader_prog_init)
+        UTIL_ASSERT_NOT_NULL(config->reader_prog);
+        UTIL_ASSERT_NOT_NULL(config->reader_prog_init);
 
 #ifndef NDEBUG
         {
@@ -286,13 +286,13 @@ void hx711_multi_init(
                 HX711_READ_BITS,                    //24 transfers; one for each HX711 bit
                 false);                             //false = don't start now
 
-        )
+        );
 
 }
 
 void hx711_multi_close(hx711_multi_t* const hxm) {
 
-    HX711_MULTI_ASSERT_INITD(hxm)
+    HX711_MULTI_ASSERT_INITD(hxm);
 
     UTIL_MUTEX_BLOCK(hxm->_mut, 
 
@@ -325,7 +325,7 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
             hxm->_reader_prog,
             hxm->_reader_offset);
 
-    )
+    );
 
 }
 
@@ -333,13 +333,13 @@ void hx711_multi_set_gain(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
 
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
+        HX711_MULTI_ASSERT_INITD(hxm);
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm);
 
         uint32_t dummy[HX711_READ_BITS];
         const uint32_t gainVal = hx711__gain_to_pio_gain(gain);
 
-        HX711_ASSERT_PIO_GAIN(gainVal)
+        HX711_ASSERT_PIO_GAIN(gainVal);
 
         UTIL_MUTEX_BLOCK(hxm->_mut, 
 
@@ -356,7 +356,7 @@ void hx711_multi_set_gain(
                 hxm,
                 dummy);
 
-        )
+        );
 
 }
 
@@ -364,9 +364,9 @@ void hx711_multi_get_values(
     hx711_multi_t* const hxm,
     int32_t* const values) {
 
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
-        UTIL_ASSERT_NOT_NULL(values)
+        HX711_MULTI_ASSERT_INITD(hxm);
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm);
+        UTIL_ASSERT_NOT_NULL(values);
 
         uint32_t pinvals[HX711_READ_BITS];
 
@@ -374,7 +374,7 @@ void hx711_multi_get_values(
             hx711_multi__get_values_raw(
                 hxm,
                 pinvals);
-        )
+        );
 
         hx711_multi_pinvals_to_values(
             pinvals,
@@ -388,9 +388,9 @@ bool hx711_multi_get_values_timeout(
     int32_t* const values,
     const uint timeout) {
 
-        HX711_MULTI_ASSERT_INITD(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
-        UTIL_ASSERT_NOT_NULL(values)
+        HX711_MULTI_ASSERT_INITD(hxm);
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm);
+        UTIL_ASSERT_NOT_NULL(values);
 
         uint32_t pinvals[HX711_READ_BITS];
         const absolute_time_t end = make_timeout_time_us(timeout);
@@ -402,7 +402,7 @@ bool hx711_multi_get_values_timeout(
                 hxm,
                 pinvals,
                 &end);
-        )
+        );
 
         if(success) {
             hx711_multi_pinvals_to_values(
@@ -418,7 +418,7 @@ bool hx711_multi_get_values_timeout(
 bool hx711_multi__async_pio_irq_is_set(
     hx711_multi_async_request_t* const req) {
 
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
 
         return pio_interrupt_get(
             req->_hxm->_pio,
@@ -429,7 +429,7 @@ bool hx711_multi__async_pio_irq_is_set(
 bool hx711_multi__async_dma_irq_is_set(
     hx711_multi_async_request_t* const req) {
 
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
 
         return dma_irqn_get_channel_status(
             req->dma_irq_index,
@@ -468,7 +468,7 @@ hx711_multi_async_request_t* const hx711_multi__async_get_pio_irq_request() {
 void hx711_multi__async_start_dma(
     volatile hx711_multi_async_request_t* volatile const req) {
 
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
 
         //if already reading, don't start again
         assert(req->_state == HX711_MULTI_ASYNC_STATE_WAITING);
@@ -492,7 +492,7 @@ void hx711_multi__async_start_dma(
                 req->_buffer,
                 true); //trigger
 
-        )
+        );
 
 }
 
@@ -501,7 +501,7 @@ void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)() {
     hx711_multi_async_request_t* const req = 
         hx711_multi__async_get_pio_irq_request();
 
-    UTIL_ASSERT_NOT_NULL(req)
+    UTIL_ASSERT_NOT_NULL(req);
     assert(req->_state == HX711_MULTI_ASYNC_STATE_WAITING);
 
     hx711_multi__async_start_dma(req);
@@ -526,7 +526,7 @@ void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)() {
     hx711_multi_async_request_t* const req =
         hx711_multi__async_get_dma_irq_request();
 
-    UTIL_ASSERT_NOT_NULL(req)
+    UTIL_ASSERT_NOT_NULL(req);
     assert(req->_state == HX711_MULTI_ASYNC_STATE_READING);
 
     req->_state = HX711_MULTI_ASYNC_STATE_DONE;
@@ -550,7 +550,7 @@ void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)() {
 bool hx711_multi__async_add_request(
     hx711_multi_async_request_t* const req) {
 
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
 
         for(uint i = 0; i < HX711_MULTI_ASYNC_REQ_COUNT; ++i) {
             if(hx711_multi__async_request_map[i] == NULL) {
@@ -566,7 +566,7 @@ bool hx711_multi__async_add_request(
 void hx711_multi__async_remove_request(
     const hx711_multi_async_request_t* const req) {
 
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
 
         for(uint i = 0; i < HX711_MULTI_ASYNC_REQ_COUNT; ++i) {
             if(hx711_multi__async_request_map[i] == req) {
@@ -590,15 +590,15 @@ void hx711_multi_async_open(
     hx711_multi_t* const hxm,
     hx711_multi_async_request_t* const req) {
 
-        UTIL_ASSERT_NOT_NULL(hxm)
-        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm)
+        UTIL_ASSERT_NOT_NULL(hxm);
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm);
         
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
 
-        UTIL_ASSERT_RANGE(req->pio_irq_index, 0, 1)
-        UTIL_ASSERT_RANGE(req->dma_irq_index, 0, 1)
+        UTIL_ASSERT_RANGE(req->pio_irq_index, 0, 1);
+        UTIL_ASSERT_RANGE(req->dma_irq_index, 0, 1);
 
-        UTIL_ASSERT_NOT_NULL(req->_buffer)
+        UTIL_ASSERT_NOT_NULL(req->_buffer);
 
         mutex_enter_blocking(&hxm->_mut);
 
@@ -649,7 +649,7 @@ void hx711_multi_async_open(
 void hx711_multi_async_start(
     hx711_multi_async_request_t* const req) {
 
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
 
         req->_state = HX711_MULTI_ASYNC_STATE_WAITING;
 
@@ -672,7 +672,7 @@ void hx711_multi_async_start(
 
 bool hx711_multi_async_is_done(
     hx711_multi_async_request_t* const req) {
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(req);
         return req->_state == HX711_MULTI_ASYNC_STATE_DONE;
 }
 
@@ -680,8 +680,8 @@ void hx711_multi_async_get_values(
     hx711_multi_async_request_t* const req,
     int32_t* const values) {
 
-        UTIL_ASSERT_NOT_NULL(req)
-        UTIL_ASSERT_NOT_NULL(values)
+        UTIL_ASSERT_NOT_NULL(req);
+        UTIL_ASSERT_NOT_NULL(values);
         assert(hx711_multi_async_is_done(req));
 
         hx711_multi_pinvals_to_values(
@@ -697,8 +697,8 @@ void hx711_multi_async_close(
     hx711_multi_t* const hxm,
     hx711_multi_async_request_t* const req) {
 
-        UTIL_ASSERT_NOT_NULL(hxm)
-        UTIL_ASSERT_NOT_NULL(req)
+        UTIL_ASSERT_NOT_NULL(hxm);
+        UTIL_ASSERT_NOT_NULL(req);
 
         UTIL_INTERRUPTS_OFF_BLOCK(
 
@@ -738,7 +738,7 @@ void hx711_multi_async_close(
 
             req->_state = HX711_MULTI_ASYNC_STATE_NONE;
 
-        )
+        );
 
         mutex_exit(&hxm->_mut);
 
@@ -748,11 +748,11 @@ void hx711_multi_power_up(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
 
-        HX711_MULTI_ASSERT_INITD(hxm)
+        HX711_MULTI_ASSERT_INITD(hxm);
 
         const uint32_t gainVal = hx711__gain_to_pio_gain(gain);
 
-        HX711_ASSERT_PIO_GAIN(gainVal)
+        HX711_ASSERT_PIO_GAIN(gainVal);
 
         UTIL_MUTEX_BLOCK(hxm->_mut, 
 
@@ -787,13 +787,13 @@ void hx711_multi_power_up(
                 (1 << hxm->_awaiter_sm) | (1 << hxm->_reader_sm),
                 true);
 
-        )
+        );
 
 }
 
 void hx711_multi_power_down(hx711_multi_t* const hxm) {
 
-    HX711_MULTI_ASSERT_INITD(hxm)
+    HX711_MULTI_ASSERT_INITD(hxm);
 
     UTIL_MUTEX_BLOCK(hxm->_mut,
 
@@ -808,14 +808,14 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
             hxm->_clock_pin,
             true);
 
-    )
+    );
 
 }
 
 void hx711_multi_sync(
     hx711_multi_t* const hxm,
     const hx711_gain_t gain) {
-        HX711_MULTI_ASSERT_INITD(hxm)
+        HX711_MULTI_ASSERT_INITD(hxm);
         hx711_multi_power_down(hxm);
         hx711_wait_power_down();
         hx711_multi_power_up(hxm, gain);
@@ -823,11 +823,15 @@ void hx711_multi_sync(
 
 uint32_t hx711_multi_sync_state(
     hx711_multi_t* const hxm) {
+        UTIL_ASSERT_NOT_NULL(hxm);
+        HX711_MULTI_ASSERT_INITD(hxm);
+        HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm);
         return pio_sm_get_blocking(hxm->_pio, hxm->_awaiter_sm);
 }
 
 bool hx711_multi_is_syncd(
     hx711_multi_t* const hxm) {
+        UTIL_ASSERT_NOT_NULL(hxm);
         //all chips should either be 0 or 1 which translates
         //to a bitmask of exactly 0 or 2^chips
         const uint32_t allReady = (uint32_t)pow(2, hxm->_chips_len);

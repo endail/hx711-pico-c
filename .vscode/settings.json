@@ -30,7 +30,8 @@
         "unordered_map": "c",
         "vector": "c",
         "string_view": "c",
-        "initializer_list": "c"
+        "initializer_list": "c",
+        "util.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "enabled",
     "C_Cpp.default.intelliSenseMode": "gcc-arm",

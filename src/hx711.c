@@ -44,14 +44,14 @@ void hx711_init(
     hx711_t* const hx, 
     const hx711_config_t* const config) {
 
-        UTIL_ASSERT_NOT_NULL(hx)
-        UTIL_ASSERT_NOT_NULL(config)
+        UTIL_ASSERT_NOT_NULL(hx);
+        UTIL_ASSERT_NOT_NULL(config);
 
-        UTIL_ASSERT_NOT_NULL(config->pio)
-        UTIL_ASSERT_NOT_NULL(config->pio_init)
+        UTIL_ASSERT_NOT_NULL(config->pio);
+        UTIL_ASSERT_NOT_NULL(config->pio_init);
 
-        UTIL_ASSERT_NOT_NULL(config->reader_prog)
-        UTIL_ASSERT_NOT_NULL(config->reader_prog_init)
+        UTIL_ASSERT_NOT_NULL(config->reader_prog);
+        UTIL_ASSERT_NOT_NULL(config->reader_prog_init);
 
         assert(config->clock_pin != config->data_pin);
 
@@ -103,13 +103,13 @@ void hx711_init(
             config->pio_init(hx);
             config->reader_prog_init(hx);
 
-        )
+        );
 
 }
 
 void hx711_close(hx711_t* const hx) {
 
-    HX711_ASSERT_INITD(hx)
+    HX711_ASSERT_INITD(hx);
 
     UTIL_MUTEX_BLOCK(hx->_mut, 
 
@@ -127,18 +127,18 @@ void hx711_close(hx711_t* const hx) {
             hx->_reader_prog,
             hx->_reader_offset);
 
-    )
+    );
 
 }
 
 void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
-    HX711_ASSERT_INITD(hx)
-    HX711_ASSERT_GAIN(gain)
+    HX711_ASSERT_INITD(hx);
+    HX711_ASSERT_GAIN(gain);
 
     const uint32_t gainVal = hx711__gain_to_pio_gain(gain);
 
-    HX711_ASSERT_PIO_GAIN(gainVal)
+    HX711_ASSERT_PIO_GAIN(gainVal);
 
     UTIL_MUTEX_BLOCK(hx->_mut, 
 
@@ -209,13 +209,15 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
          * block until one is there (or check the RX FIFO level).
          */
 
-    )
+    );
 
 }
 
 int32_t hx711_get_value(hx711_t* const hx) {
 
-    HX711_ASSERT_INITD(hx)
+    HX711_ASSERT_INITD(hx);
+
+    uint32_t rawVal;
 
     UTIL_MUTEX_BLOCK(hx->_mut, 
 
@@ -228,11 +230,11 @@ int32_t hx711_get_value(hx711_t* const hx) {
          * assured we'll be getting a new value each time,
          * even if the RX FIFO is currently empty.
          */
-        const uint32_t rawVal = pio_sm_get_blocking(
+        rawVal = pio_sm_get_blocking(
             hx->_pio,
             hx->_reader_sm);
 
-    )
+    );
 
     return hx711_get_twos_comp(rawVal);
 
@@ -243,8 +245,8 @@ bool hx711_get_value_timeout(
     int32_t* const val,
     const uint timeout) {
 
-        HX711_ASSERT_INITD(hx)
-        UTIL_ASSERT_NOT_NULL(val)
+        HX711_ASSERT_INITD(hx);
+        UTIL_ASSERT_NOT_NULL(val);
 
         bool success = false;
         const absolute_time_t endTime = make_timeout_time_us(timeout);
@@ -258,7 +260,7 @@ bool hx711_get_value_timeout(
                     break;
                 }
             }
-        )
+        );
 
         if(success) {
             *val = hx711_get_twos_comp(tempVal);
@@ -272,8 +274,8 @@ bool hx711_get_value_noblock(
     hx711_t* const hx,
     int32_t* const val) {
 
-        HX711_ASSERT_INITD(hx)
-        UTIL_ASSERT_NOT_NULL(val)
+        HX711_ASSERT_INITD(hx);
+        UTIL_ASSERT_NOT_NULL(val);
 
         bool success;
         uint32_t tempVal;
@@ -283,7 +285,7 @@ bool hx711_get_value_noblock(
                 hx->_pio,
                 hx->_reader_sm,
                 &tempVal);
-        )
+        );
 
         if(success) {
             *val = hx711_get_twos_comp(tempVal);
@@ -297,12 +299,12 @@ void hx711_power_up(
     hx711_t* const hx,
     const hx711_gain_t gain) {
 
-        HX711_ASSERT_INITD(hx)
-        HX711_ASSERT_GAIN(gain)
+        HX711_ASSERT_INITD(hx);
+        HX711_ASSERT_GAIN(gain);
 
         const uint32_t gainVal = hx711__gain_to_pio_gain(gain);
 
-        HX711_ASSERT_PIO_GAIN(gainVal)
+        HX711_ASSERT_PIO_GAIN(gainVal);
 
         UTIL_MUTEX_BLOCK(hx->_mut, 
 
@@ -351,13 +353,13 @@ void hx711_power_up(
                 hx->_reader_sm,
                 true);
 
-        )
+        );
 
 }
 
 void hx711_power_down(hx711_t* const hx) {
 
-    HX711_ASSERT_INITD(hx)
+    HX711_ASSERT_INITD(hx);
 
     UTIL_MUTEX_BLOCK(hx->_mut, 
 
@@ -382,6 +384,6 @@ void hx711_power_down(hx711_t* const hx) {
             hx->_clock_pin,
             true);
 
-    )
+    );
 
 }
