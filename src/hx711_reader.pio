@@ -71,6 +71,8 @@
 ; 
 .program hx711_reader
 
+.define PUBLIC HZ                   10000000
+
 .define LOW                         0
 .define HIGH                        1
 
@@ -190,8 +192,8 @@ gainloop:
 #include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
+#include "hardware/structs/clocks.h"
 #include "hx711.h"
-#include "util.h"
 
 void hx711_reader_pio_init(hx711_t* const hx) {
 
@@ -244,12 +246,14 @@ void hx711_reader_pio_init(hx711_t* const hx) {
 void hx711_reader_program_init(hx711_t* const hx) {
 
     //set state machine to 10MHz clock speed
-    static const uint SM_HZ = 10000000;
+    //static const uint SM_HZ = 10000000;
+    static const uint SM_HZ = hx711_reader_HZ;
 
     assert(hx != NULL);
     assert(hx->_pio != NULL);
 
-    pio_sm_config cfg = hx711_reader_program_get_default_config(hx->_reader_offset);
+    pio_sm_config cfg = hx711_reader_program_get_default_config(
+        hx->_reader_offset);
 
     const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
 
