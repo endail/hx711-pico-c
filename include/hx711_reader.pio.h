@@ -15,6 +15,8 @@
 #define hx711_reader_wrap_target 3
 #define hx711_reader_wrap 13
 
+#define hx711_reader_HZ 10000000
+
 static const uint16_t hx711_reader_program_instructions[] = {
     0xe020, //  0: set    x, 0                       
     0x8080, //  1: pull   noblock                    
@@ -73,8 +75,8 @@ static inline pio_sm_config hx711_reader_program_get_default_config(uint offset)
 #include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
+#include "hardware/structs/clocks.h"
 #include "hx711.h"
-#include "util.h"
 void hx711_reader_pio_init(hx711_t* const hx) {
     assert(hx != NULL);
     assert(hx->_pio != NULL);
@@ -115,10 +117,12 @@ void hx711_reader_pio_init(hx711_t* const hx) {
 }
 void hx711_reader_program_init(hx711_t* const hx) {
     //set state machine to 10MHz clock speed
-    static const uint SM_HZ = 10000000;
+    //static const uint SM_HZ = 10000000;
+    static const uint SM_HZ = hx711_reader_HZ;
     assert(hx != NULL);
     assert(hx->_pio != NULL);
-    pio_sm_config cfg = hx711_reader_program_get_default_config(hx->_reader_offset);
+    pio_sm_config cfg = hx711_reader_program_get_default_config(
+        hx->_reader_offset);
     const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
     sm_config_set_clkdiv(
         &cfg,
