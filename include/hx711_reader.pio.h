@@ -116,14 +116,11 @@ void hx711_reader_pio_init(hx711_t* const hx) {
         false);
 }
 void hx711_reader_program_init(hx711_t* const hx) {
-    //set state machine to 10MHz clock speed
-    //static const uint SM_HZ = 10000000;
-    static const uint SM_HZ = hx711_reader_HZ;
     assert(hx != NULL);
     assert(hx->_pio != NULL);
     pio_sm_config cfg = hx711_reader_program_get_default_config(
         hx->_reader_offset);
-    const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
+    const float div = (float)(clock_get_hz(clk_sys)) / (uint)hx711_reader_HZ;
     sm_config_set_clkdiv(
         &cfg,
         div);

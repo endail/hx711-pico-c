@@ -15,6 +15,8 @@
 #define hx711_multi_reader_wrap_target 3
 #define hx711_multi_reader_wrap 18
 
+#define hx711_multi_reader_HZ 10000000
+
 #define hx711_multi_reader_offset_bitloop_in_pins_bit_count 9u
 
 static const uint16_t hx711_multi_reader_program_instructions[] = {
@@ -77,8 +79,11 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <assert.h>
+#include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
+#include "hardware/pio_instructions.h"
+#include "hardware/structs/clocks.h"
 #include "hx711_multi.h"
 #include "util.h"
 void hx711_multi_pio_init(hx711_multi_t* const hxm) {
@@ -111,15 +116,13 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         HX711_MULTI_DATA_READY_IRQ_NUM);
 }
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
-    //set state machine to 10MHz clock speed
-    static const uint SM_HZ = 10000000;
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
     hxm->_pio->instr_mem[hxm->_reader_offset + hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
     pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
         hxm->_reader_offset);
-    const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
+    const float div = (float)(clock_get_hz(clk_sys)) / (uint)hx711_multi_reader_HZ;
     sm_config_set_clkdiv(
         &cfg,
         div);

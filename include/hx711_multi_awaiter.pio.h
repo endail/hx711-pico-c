@@ -64,10 +64,10 @@ static inline pio_sm_config hx711_multi_awaiter_program_get_default_config(uint 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <assert.h>
-#include "hardware/clocks.h"
+#include <stddef.h>
 #include "hardware/pio.h"
+#include "hardware/pio_instructions.h"
 #include "hx711_multi.h"
-#include "util.h"
 void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
