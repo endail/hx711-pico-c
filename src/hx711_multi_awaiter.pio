@@ -105,10 +105,10 @@ signal_low:
 // SOFTWARE.
 
 #include <assert.h>
-#include "hardware/clocks.h"
+#include <stddef.h>
 #include "hardware/pio.h"
+#include "hardware/pio_instructions.h"
 #include "hx711_multi.h"
-#include "util.h"
 
 void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
 

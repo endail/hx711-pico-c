@@ -60,6 +60,8 @@
 
 .program hx711_multi_reader
 
+.define PUBLIC HZ                   10000000
+
 .define CONVERSION_DONE_IRQ_NUM     0
 .define DATA_READY_IRQ_NUM          4
 
@@ -146,8 +148,11 @@ gainloop:
 // SOFTWARE.
 
 #include <assert.h>
+#include <stddef.h>
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
+#include "hardware/pio_instructions.h"
+#include "hardware/structs/clocks.h"
 #include "hx711_multi.h"
 #include "util.h"
 
@@ -195,9 +200,6 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
 
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
 
-    //set state machine to 10MHz clock speed
-    static const uint SM_HZ = 10000000;
-
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
 
@@ -207,7 +209,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
         hxm->_reader_offset);
 
-    const float div = (float)(clock_get_hz(clk_sys)) / SM_HZ;
+    const float div = (float)(clock_get_hz(clk_sys)) / (uint)hx711_multi_reader_HZ;
 
     sm_config_set_clkdiv(
         &cfg,

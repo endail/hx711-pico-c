@@ -23,28 +23,27 @@
 #ifndef UTIL_H_BC9FF78B_B978_444A_8AA1_FF169B09B09E
 #define UTIL_H_BC9FF78B_B978_444A_8AA1_FF169B09B09E
 
-#include <assert.h>
 #include <stdint.h>
 #include "hardware/pio.h"
 #include "hardware/sync.h"
+#include "pico/mutex.h"
+#include "pico/types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define UTIL_ASSERT_NOT_NULL(ptr) \
-    do { \
-        assert(ptr != NULL); \
-    } while(0)
+#define UTIL_DMA_IRQ_INDEX_MIN 0u
+#define UTIL_DMA_IRQ_INDEX_MAX 1u
 
-#define UTIL_ASSERT_RANGE(val, min, max) \
-    do { \
-        _Pragma("GCC diagnostic push") \
-        _Pragma("GCC diagnostic ignored \"-Wtype-limits\"") \
-            assert(val >= min); \
-            assert(val <= max); \
-        _Pragma("GCC diagnostic pop") \
-    } while(0)
+#define UTIL_PIO_IRQ_INDEX_MIN 0u
+#define UTIL_PIO_IRQ_INDEX_MAX 1u
+
+#define UTIL_PIO_INTERRUPT_NUM_MIN 0u
+#define UTIL_PIO_INTERRUPT_NUM_MAX 7u
+
+#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN 0u
+#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX 3u
 
 #define UTIL_MUTEX_BLOCK(mut, ...) \
     do { \
@@ -59,6 +58,71 @@ extern "C" {
         __VA_ARGS__ \
         restore_interrupts(_interrupt_status); \
     } while(0)
+
+/**
+ * @brief Check whether an int32_t in within the given range.
+ * 
+ * @param val 
+ * @param min 
+ * @param max 
+ * @return true 
+ * @return false 
+ */
+bool util_int32_t_in_range(
+    const int32_t val,
+    const int32_t min,
+    const int32_t max);
+
+/**
+ * @brief Check whether a uint32_t is within the given range.
+ * 
+ * @param val 
+ * @param min 
+ * @param max 
+ * @return true 
+ * @return false 
+ */
+bool util_uint32_t_in_range(
+    const uint32_t val,
+    const uint32_t min,
+    const uint32_t max);
+
+/**
+ * @brief Check whether an int is within the given range.
+ * 
+ * @param val 
+ * @param min 
+ * @param max 
+ * @return true 
+ * @return false 
+ */
+bool util_int_in_range(
+    const int val,
+    const int min,
+    const int max);
+
+/**
+ * @brief Check whether a uint is within the given range.
+ * 
+ * @param val 
+ * @param min 
+ * @param max 
+ * @return true 
+ * @return false 
+ */
+bool util_uint_in_range(
+    const uint val,
+    const uint min,
+    const uint max);
+
+/**
+ * @brief Check whether a DMA IRQ index is valid.
+ * 
+ * @param idx 
+ * @return true 
+ * @return false 
+ */
+bool util_dma_irq_index_is_valid(const uint idx);
 
 /**
  * @brief Get the transfer count for a given DMA channel. When a
@@ -81,7 +145,7 @@ uint32_t util_dma_get_transfer_count(const uint channel);
  */
 bool util_dma_channel_wait_for_finish_timeout(
     const uint channel,
-    const absolute_time_t* end);
+    const absolute_time_t* const end);
 
 /**
  * @brief Gets the NVIC IRQ number based on the DMA IRQ
@@ -120,6 +184,15 @@ void util_gpio_set_contiguous_input_pins(
 void util_gpio_set_output(const uint gpio);
 
 /**
+ * @brief Check whether PIO IRQ index is valid
+ * 
+ * @param idx 
+ * @return true 
+ * @return false 
+ */
+bool util_pio_irq_index_is_valid(const uint idx);
+
+/**
  * @brief Gets the correct NVIC IRQ number for a PIO
  * according to the IRQ number.
  * 
@@ -130,7 +203,7 @@ void util_gpio_set_output(const uint gpio);
  * @return uint 
  */
 uint util_pion_get_irqn(
-    const PIO pio,
+    PIO const pio,
     const uint irq_num);
 
 /**
@@ -154,7 +227,7 @@ uint util_pio_get_pis(
  * @param len 
  */
 void util_pio_gpio_contiguous_init(
-    const PIO pio,
+    PIO const pio,
     const uint base,
     const uint len);
 
@@ -165,7 +238,7 @@ void util_pio_gpio_contiguous_init(
  * @param sm 
  */
 void util_pio_sm_clear_rx_fifo(
-    const PIO pio,
+    PIO const pio,
     const uint sm);
 
 /**
@@ -175,7 +248,7 @@ void util_pio_sm_clear_rx_fifo(
  * @param sm 
  */
 void util_pio_sm_clear_osr(
-    const PIO pio,
+    PIO const pio,
     const uint sm);
 
 /**
@@ -187,8 +260,14 @@ void util_pio_sm_clear_osr(
  * @return false 
  */
 bool util_pio_sm_is_enabled(
-    const PIO pio,
+    PIO const pio,
     const uint sm);
+
+bool util_pio_interrupt_num_is_valid(
+    const uint pio_interrupt_num);
+
+bool util_routable_pio_interrupt_num_is_valid(
+    const uint pio_interrupt_num);
 
 /**
  * @brief Waits for a given PIO interrupt to be set.
@@ -197,7 +276,7 @@ bool util_pio_sm_is_enabled(
  * @param pio_interrupt_num 
  */
 void util_pio_interrupt_wait(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num);
 
 /**
@@ -207,7 +286,7 @@ void util_pio_interrupt_wait(
  * @param pio_interrupt_num 
  */
 void util_pio_interrupt_wait_cleared(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num);
 
 /**
@@ -221,7 +300,7 @@ void util_pio_interrupt_wait_cleared(
  * @return false 
  */
 bool util_pio_interrupt_wait_cleared_timeout(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num,
     const absolute_time_t* const end);
 
@@ -233,7 +312,7 @@ bool util_pio_interrupt_wait_cleared_timeout(
  * @param pio_interrupt_num 
  */
 void util_pio_interrupt_wait_clear(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num);
 
 /**
@@ -247,7 +326,7 @@ void util_pio_interrupt_wait_clear(
  * @return false if the timeout was reached
  */
 bool util_pio_interrupt_wait_timeout(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num,
     const absolute_time_t* const end);
 
@@ -262,7 +341,7 @@ bool util_pio_interrupt_wait_timeout(
  * @return false if the timeout was reached
  */
 bool util_pio_interrupt_wait_clear_timeout(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num,
     const absolute_time_t* const end);
 
@@ -279,7 +358,7 @@ bool util_pio_interrupt_wait_clear_timeout(
  * the threshold
  */
 bool util_pio_sm_try_get(
-    const PIO pio,
+    PIO const pio,
     const uint sm,
     uint32_t* const word,
     const uint threshold);

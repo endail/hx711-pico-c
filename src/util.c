@@ -20,12 +20,57 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "../include/util.h"
+#include <assert.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "hardware/dma.h"
 #include "hardware/gpio.h"
+#include "hardware/irq.h"
+#include "hardware/pio.h"
+#include "hardware/pio_instructions.h"
+#include "hardware/regs/intctrl.h"
+#include "hardware/regs/pio.h"
+#include "hardware/structs/dma.h"
 #include "hardware/timer.h"
 #include "pico/platform.h"
 #include "pico/time.h"
+#include "pico/types.h"
+#include "../include/util.h"
+
+bool util_int32_t_in_range(
+    const int32_t val,
+    const int32_t min,
+    const int32_t max) {
+        return val >= min && val <= max;
+}
+
+bool util_uint32_t_in_range(
+    const uint32_t val,
+    const uint32_t min,
+    const uint32_t max) {
+        return val >= min && val <= max;
+}
+
+bool util_int_in_range(
+    const int val,
+    const int min,
+    const int max) {
+        return val >= min && val <= max;
+}
+
+bool util_uint_in_range(
+    const uint val,
+    const uint min,
+    const uint max) {
+        return val >= min && val <= max;
+}
+
+bool util_dma_irq_index_is_valid(const uint idx) {
+    return util_uint_in_range(
+        idx,
+        UTIL_DMA_IRQ_INDEX_MIN,
+        UTIL_DMA_IRQ_INDEX_MAX);
+}
 
 uint32_t util_dma_get_transfer_count(const uint channel) {
     check_dma_channel_param(channel);
@@ -34,10 +79,10 @@ uint32_t util_dma_get_transfer_count(const uint channel) {
 
 bool util_dma_channel_wait_for_finish_timeout(
     const uint channel,
-    const absolute_time_t* end) {
+    const absolute_time_t* const end) {
 
         check_dma_channel_param(channel);
-        UTIL_ASSERT_NOT_NULL(end);
+        assert(end != NULL);
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
@@ -51,8 +96,10 @@ bool util_dma_channel_wait_for_finish_timeout(
 }
 
 uint util_dma_get_irqn(const uint irq_num) {
-    UTIL_ASSERT_RANGE(irq_num, 0, 1);
-    return DMA_IRQ_0 + irq_num;
+    assert(util_uint_in_range(irq_num, 0, 1));
+    const uint irq = DMA_IRQ_0 + irq_num;
+    check_irq_param(irq);
+    return irq;
 }
 
 void util_dma_channel_set_quiet(
@@ -85,18 +132,33 @@ void util_gpio_set_output(const uint gpio) {
     gpio_set_dir(gpio, true);
 }
 
+bool util_pio_irq_index_is_valid(const uint idx) {
+    return util_uint_in_range(
+        idx,
+        UTIL_PIO_IRQ_INDEX_MIN,
+        UTIL_PIO_IRQ_INDEX_MAX);
+}
+
 uint util_pion_get_irqn(
-    const PIO pio,
+    PIO const pio,
     const uint irq_num) {
 
         check_pio_param(pio);
-        UTIL_ASSERT_RANGE(irq_num, 0, 1);
+        assert(util_uint_in_range(
+            irq_num,
+            0,
+            NUM_PIOS - 1));
 
         const uint irqn = PIO0_IRQ_0 +
-            (pio == pio0 ? 0 : 2) +
-            (irq_num == 0 ? 0 : 2);
+            (pio == pio0 ? 0 : NUM_PIOS) +
+            (irq_num == 0 ? 0 : NUM_PIOS);
 
-        UTIL_ASSERT_RANGE(irqn, PIO0_IRQ_0, PIO1_IRQ_1);
+        assert(util_uint_in_range(
+            irqn,
+            PIO0_IRQ_0,
+            PIO1_IRQ_1));
+
+        check_irq_param(irqn);
 
         return irqn;
 
@@ -104,15 +166,22 @@ uint util_pion_get_irqn(
 
 uint util_pio_get_pis(
     const uint pio_interrupt_num) {
-        UTIL_ASSERT_RANGE(pio_interrupt_num, 0, 3);
+
+        assert(util_routable_pio_interrupt_num_is_valid(
+            pio_interrupt_num));
+
         const uint basePis = pis_interrupt0;
         const uint pis = basePis + pio_interrupt_num;
-        UTIL_ASSERT_RANGE(pis, pis_interrupt0, pis_interrupt3);
+
+        assert(util_uint_in_range(
+            pis, pis_interrupt0, pis_interrupt3));
+
         return pis;
+
 }
 
 void util_pio_gpio_contiguous_init(
-    const PIO pio,
+    PIO const pio,
     const uint base,
     const uint len) {
 
@@ -129,7 +198,7 @@ void util_pio_gpio_contiguous_init(
 }
 
 void util_pio_sm_clear_rx_fifo(
-    const PIO pio,
+    PIO const pio,
     const uint sm) {
         check_pio_param(pio);
         check_sm_param(sm);
@@ -139,7 +208,7 @@ void util_pio_sm_clear_rx_fifo(
 }
 
 void util_pio_sm_clear_osr(
-    const PIO pio,
+    PIO const pio,
     const uint sm) {
         check_pio_param(pio);
         check_sm_param(sm);
@@ -150,38 +219,57 @@ void util_pio_sm_clear_osr(
 }
 
 bool util_pio_sm_is_enabled(
-    const PIO pio,
+    PIO const pio,
     const uint sm) {
         check_pio_param(pio);
         check_sm_param(sm);
         return (pio->ctrl & (1u << (PIO_CTRL_SM_ENABLE_LSB + sm))) != 0;
 }
 
+bool util_pio_interrupt_num_is_valid(
+    const uint pio_interrupt_num) {
+        return util_uint_in_range(
+            pio_interrupt_num,
+            UTIL_PIO_INTERRUPT_NUM_MIN,
+            UTIL_PIO_INTERRUPT_NUM_MAX);
+}
+
+bool util_routable_pio_interrupt_num_is_valid(
+    const uint pio_interrupt_num) {
+        return util_uint_in_range(
+            pio_interrupt_num,
+            UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN,
+            UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX);
+}
+
 void util_pio_interrupt_wait(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num) {
         check_pio_param(pio);
+        assert(util_pio_interrupt_num_is_valid(pio_interrupt_num));
         while(!pio_interrupt_get(pio, pio_interrupt_num)) {
             tight_loop_contents();
         }
 }
 
 void util_pio_interrupt_wait_cleared(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num) {
         check_pio_param(pio);
+        assert(util_pio_interrupt_num_is_valid(pio_interrupt_num));
         while(pio_interrupt_get(pio, pio_interrupt_num)) {
             tight_loop_contents();
         }
 }
 
 bool util_pio_interrupt_wait_cleared_timeout(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num,
     const absolute_time_t* const end) {
 
         check_pio_param(pio);
-        UTIL_ASSERT_NOT_NULL(end);
+        assert(util_pio_interrupt_num_is_valid(pio_interrupt_num));
+        assert(end != NULL);
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
@@ -195,19 +283,21 @@ bool util_pio_interrupt_wait_cleared_timeout(
 }
 
 void util_pio_interrupt_wait_clear(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num) {
         check_pio_param(pio);
+        assert(util_pio_interrupt_num_is_valid(pio_interrupt_num));
         util_pio_interrupt_wait(pio, pio_interrupt_num);
         pio_interrupt_clear(pio, pio_interrupt_num);
 }
 
 bool util_pio_interrupt_wait_timeout(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num,
     const absolute_time_t* const end) {
 
         check_pio_param(pio);
+        assert(util_pio_interrupt_num_is_valid(pio_interrupt_num));
         assert(end != NULL);
         assert(!is_nil_time(*end));
 
@@ -222,12 +312,13 @@ bool util_pio_interrupt_wait_timeout(
 }
 
 bool util_pio_interrupt_wait_clear_timeout(
-    const PIO pio,
+    PIO const pio,
     const uint pio_interrupt_num,
     const absolute_time_t* const end) {
 
         check_pio_param(pio);
-        UTIL_ASSERT_NOT_NULL(end);
+        assert(util_pio_interrupt_num_is_valid(pio_interrupt_num));
+        assert(end != NULL);
         assert(!is_nil_time(*end));
 
         const bool ok = util_pio_interrupt_wait_timeout(
@@ -246,14 +337,14 @@ bool util_pio_interrupt_wait_clear_timeout(
 }
 
 bool util_pio_sm_try_get(
-    const PIO pio,
+    PIO const pio,
     const uint sm,
     uint32_t* const word,
     const uint threshold) {
 
         check_pio_param(pio);
         check_sm_param(sm);
-        UTIL_ASSERT_NOT_NULL(word);
+        assert(word != NULL);
 
         if(pio_sm_get_rx_fifo_level(pio, sm) >= threshold) {
             *word = pio_sm_get(pio, sm);

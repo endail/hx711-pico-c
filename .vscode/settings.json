@@ -31,7 +31,12 @@
         "vector": "c",
         "string_view": "c",
         "initializer_list": "c",
-        "util.h": "c"
+        "util.h": "c",
+        "random": "c",
+        "limits": "c",
+        "cstddef": "c",
+        "mutex.h": "c",
+        "platform.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "enabled",
     "C_Cpp.default.intelliSenseMode": "gcc-arm",

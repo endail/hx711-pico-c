@@ -23,42 +23,23 @@
 #ifndef HX711_MULTI_H_253BF37A_8356_462B_B8F9_39E09A7193E6
 #define HX711_MULTI_H_253BF37A_8356_462B_B8F9_39E09A7193E6
 
-#include <assert.h>
-#include <stddef.h>
 #include <stdint.h>
-#include "hardware/dma.h"
+#include <strings.h>
 #include "hardware/pio.h"
 #include "pico/mutex.h"
 #include "pico/platform.h"
 #include "hx711.h"
-#include "util.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define HX711_MULTI_ASSERT_INITD(hxm) \
-    do { \
-        UTIL_ASSERT_NOT_NULL(hxm); \
-        UTIL_ASSERT_NOT_NULL(hxm->_pio); \
-        assert(pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm)); \
-        assert(pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm)); \
-        assert(dma_channel_is_claimed(hxm->_dma_channel)); \
-        assert(mutex_is_initialized(&hxm->_mut)); \
-    } while(0)
-
-#define HX711_MULTI_ASSERT_STATE_MACHINES_ENABLED(hxm) \
-    do { \
-        assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_awaiter_sm)); \
-        assert(util_pio_sm_is_enabled(hxm->_pio, hxm->_reader_sm)); \
-    } while(0)
-
-#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0
-#define HX711_MULTI_DATA_READY_IRQ_NUM          4
+#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0u
+#define HX711_MULTI_DATA_READY_IRQ_NUM          4u
 
 #define HX711_MULTI_ASYNC_REQ_COUNT             NUM_PIOS
-#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0
-#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0
+#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0u
+#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0u
 
 #define HX711_MULTI_MIN_CHIPS                   1u
 #define HX711_MULTI_MAX_CHIPS                   32u
@@ -147,9 +128,11 @@ typedef struct {
 } hx711_multi_async_request_t;
 
 /**
- * @brief Array of requests for ISR to access.
+ * @brief Array of requests for ISR to access. This is a global
+ * variable.
  */
-extern hx711_multi_async_request_t* hx711_multi__async_request_map[HX711_MULTI_ASYNC_REQ_COUNT];
+extern hx711_multi_async_request_t* hx711_multi__async_request_map[
+    HX711_MULTI_ASYNC_REQ_COUNT];
 
 /**
  * @brief Convert an array of pinvals to regular HX711
@@ -163,6 +146,26 @@ void hx711_multi_pinvals_to_values(
     const uint32_t* const pinvals,
     int32_t* const values,
     const size_t len);
+
+/**
+ * @brief Check whether the hxm struct has been initialised.
+ * 
+ * @param hxm 
+ * @return true 
+ * @return false 
+ */
+static bool hx711_multi__is_initd(hx711_multi_t* const hxm);
+
+/**
+ * @brief Check whether the hxm struct has PIO State Machines
+ * which are enabled.
+ * 
+ * @param hxm 
+ * @return true 
+ * @return false 
+ */
+static bool hx711_multi__is_state_machines_enabled(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Reads pinvals into an array.
@@ -279,7 +282,7 @@ static hx711_multi_async_request_t* const hx711_multi__async_get_pio_irq_request
  * @param req 
  */
 static void hx711_multi__async_start_dma(
-    volatile hx711_multi_async_request_t* volatile const req);
+    hx711_multi_async_request_t* const req);
 
 /**
  * @brief ISR handler for PIO IRQs.
