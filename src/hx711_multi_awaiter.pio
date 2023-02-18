@@ -112,8 +112,8 @@ signal_low:
 
 void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
 
-    UTIL_ASSERT_NOT_NULL(hxm);
-    UTIL_ASSERT_NOT_NULL(hxm->_pio);
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
     assert(hxm->_chips_len > 0);
 
     pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
