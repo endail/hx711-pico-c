@@ -82,8 +82,8 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 #include "hx711_multi.h"
 #include "util.h"
 void hx711_multi_pio_init(hx711_multi_t* const hxm) {
-    UTIL_ASSERT_NOT_NULL(hxm);
-    UTIL_ASSERT_NOT_NULL(hxm->_pio);
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
     assert(hxm->_chips_len > 0);
     pio_gpio_init(
         hxm->_pio,
@@ -92,9 +92,20 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_pio,
         hxm->_data_pin_base,
         hxm->_chips_len);
+    // make sure conversion done is valid and routable
+    assert(util_pio_interrupt_num_is_valid(
+        HX711_MULTI_CONVERSION_DONE_IRQ_NUM));
+    assert(util_routable_pio_interrupt_num_is_valid(
+        HX711_MULTI_CONVERSION_DONE_IRQ_NUM));
     pio_interrupt_clear(
         hxm->_pio,
         HX711_MULTI_CONVERSION_DONE_IRQ_NUM);
+    // make sure data ready is valid and not routable
+    // although this is not strictly necessary
+    assert(util_pio_interrupt_num_is_valid(
+        HX711_MULTI_DATA_READY_IRQ_NUM));
+    assert(!util_routable_pio_interrupt_num_is_valid(
+        HX711_MULTI_DATA_READY_IRQ_NUM));
     pio_interrupt_clear(
         hxm->_pio,
         HX711_MULTI_DATA_READY_IRQ_NUM);
@@ -102,8 +113,8 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     //set state machine to 10MHz clock speed
     static const uint SM_HZ = 10000000;
-    UTIL_ASSERT_NOT_NULL(hxm);
-    UTIL_ASSERT_NOT_NULL(hxm->_pio);
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
     hxm->_pio->instr_mem[hxm->_reader_offset + hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
     pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
