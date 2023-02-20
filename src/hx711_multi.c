@@ -316,6 +316,10 @@ void hx711_multi_init(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config) {
 
+        //TODO: split this into individual funcs
+        //ie. hx711_multi__init_assert, hx711_multi__init_pio,
+        // hx711_multi__init_dma, hx711_multi__init_irq
+
         assert(!hx711_multi__is_initd(hxm));
 
         assert(hxm != NULL);
@@ -483,7 +487,7 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
 
     mutex_enter_blocking(&hxm->_mut);
 
-    //make sure the disabling and removal or IRQs and
+    //make sure the disabling and removal of IRQs and
     //handlers is atomic
     UTIL_INTERRUPTS_OFF_BLOCK(
 

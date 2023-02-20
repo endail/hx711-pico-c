@@ -83,7 +83,7 @@ bool util_dma_channel_wait_for_finish_timeout(
 }
 
 uint util_dma_get_irqn(const uint irq_num) {
-    
+
     assert(util_uint_in_range(
         irq_num,
         UTIL_DMA_IRQ_INDEX_MIN,
