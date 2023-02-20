@@ -27,7 +27,7 @@
 #include "hx711_multi_awaiter.pio.h"
 #include "hx711_multi_reader.pio.h"
 
-const hx711_config_t HX711_DEFAULT_CONFIG = {
+static const hx711_config_t HX711__DEFAULT_CONFIG = {
     .clock_pin = 0,
     .data_pin = 0,
     .pio = pio0,
@@ -36,10 +36,12 @@ const hx711_config_t HX711_DEFAULT_CONFIG = {
     .reader_prog_init = hx711_reader_program_init
 };
 
-const hx711_multi_config_t HX711_MULTI_DEFAULT_CONFIG = {
+static const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG = {
     .clock_pin = 0,
     .data_pin_base = 0,
     .chips_len = 0,
+    .pio_irq_index = HX711_MULTI_ASYNC_PIO_IRQ_IDX,
+    .dma_irq_index = HX711_MULTI_ASYNC_DMA_IRQ_IDX,
     .pio = pio0,
     .pio_init = hx711_multi_pio_init,
     .awaiter_prog = &hx711_multi_awaiter_program,
@@ -47,3 +49,11 @@ const hx711_multi_config_t HX711_MULTI_DEFAULT_CONFIG = {
     .reader_prog = &hx711_multi_reader_program,
     .reader_prog_init = hx711_multi_reader_program_init
 };
+
+void hx711_get_default_config(hx711_config_t* const cfg) {
+    *cfg = HX711__DEFAULT_CONFIG;
+}
+
+void hx711_multi_get_default_config(hx711_multi_config_t* const cfg) {
+    *cfg = HX711__MULTI_DEFAULT_CONFIG;
+}

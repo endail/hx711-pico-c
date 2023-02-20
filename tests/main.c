@@ -91,20 +91,19 @@ int main(void) {
     printf("Closed communication with single HX711 chip\n");
 */
 
-
-    hx711_multi_t hxm;
-    hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
+    hx711_multi_config_t cfg;
+    hx711_multi_get_default_config(&cfg);
     cfg.clock_pin = 14;
     cfg.data_pin_base = 15;
     cfg.chips_len = 1;
-    const hx711_rate_t multi_rate = hx711_rate_80; //or hx711_rate_80
-    const hx711_gain_t multi_gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
+
+    hx711_multi_t hxm;
 
     // 1. initialise
     hx711_multi_init(&hxm, &cfg);
 
     // 2. Power up the HX711 chips and set gain on each chip
-    hx711_multi_power_up(&hxm, multi_gain);
+    hx711_multi_power_up(&hxm, hx711_gain_128);
 
     //3. This step is optional. Only do this if you want to
     //change the gain AND save it to each HX711 chip
@@ -115,33 +114,27 @@ int main(void) {
     //hx711_multi_power_up(&hxm, hx711_gain_64);
 
     // 4. Wait for readings to settle
-    hx711_wait_settle(multi_rate);
+    hx711_wait_settle(hx711_rate_80);
 
     // 5. Read values
     int32_t arr[cfg.chips_len];
-
-
-    hx711_multi_async_request_t req;
-
-    hx711_multi_async_get_request_defaults(&hxm, &req);
-    hx711_multi_async_open(&hxm, &req);
 
     for(uint loops = 0; loops < 5000; ++loops) {
 
         //sleep_ms(rand() % 500);
 
-        hx711_multi_async_start(&req);
+        hx711_multi_async_start(&hxm);
 
         //sleep_ms(rand() % 500);
 
-        while(!hx711_multi_async_is_done(&req)) {
+        while(!hx711_multi_async_done(&hxm)) {
             // do other stuff...
             tight_loop_contents();
         }
 
         //sleep_ms(rand() % 500);
 
-        hx711_multi_async_get_values(&req, arr);
+        hx711_multi_async_get_values(&hxm, arr);
 
         // wait (block) until a values are read
 //        hx711_multi_get_values(&hxm, arr);
@@ -164,8 +157,6 @@ int main(void) {
         }
 
     }
-
-    hx711_multi_async_close(&hxm, &req);
 
     // 6. Stop communication with all HX711 chips
     hx711_multi_close(&hxm);

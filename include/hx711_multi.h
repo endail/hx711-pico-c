@@ -44,6 +44,13 @@ extern "C" {
 #define HX711_MULTI_MIN_CHIPS                   1u
 #define HX711_MULTI_MAX_CHIPS                   32u
 
+typedef enum {
+    HX711_MULTI_ASYNC_STATE_NONE = 0,
+    HX711_MULTI_ASYNC_STATE_WAITING,
+    HX711_MULTI_ASYNC_STATE_READING,
+    HX711_MULTI_ASYNC_STATE_DONE
+} hx711_multi_async_state_t;
+
 typedef struct {
 
     uint _clock_pin;
@@ -64,6 +71,12 @@ typedef struct {
 
     int _dma_channel;
 
+    uint32_t _buffer[HX711_READ_BITS];
+
+    uint _pio_irq_index;
+    uint _dma_irq_index;
+    volatile hx711_multi_async_state_t _async_state;
+
     mutex_t _mut;
 
 } hx711_multi_t;
@@ -77,6 +90,9 @@ typedef struct {
     uint data_pin_base;
     size_t chips_len;
 
+    uint pio_irq_index;
+    uint dma_irq_index;
+
     PIO pio;
     hx711_multi_pio_init_t pio_init;
 
@@ -88,64 +104,106 @@ typedef struct {
 
 } hx711_multi_config_t;
 
-typedef enum {
-    HX711_MULTI_ASYNC_STATE_NONE = 0,
-    HX711_MULTI_ASYNC_STATE_WAITING,
-    HX711_MULTI_ASYNC_STATE_READING,
-    HX711_MULTI_ASYNC_STATE_DONE
-} hx711_multi_async_state_t;
-
-typedef struct {
-
-    /**
-     * @brief Pointer to underlying hx711_multi_t.
-     */
-    hx711_multi_t* _hxm;
-
-    /**
-     * @brief Which PIOX_IRQ_N interrupt to use, where N
-     * is either 0 or 1. 
-     */
-    uint pio_irq_index;
-
-    /**
-     * @brief Which DMA_IRQ_N interrupt to use, where N
-     * is either 0 or 1.
-     */
-    uint dma_irq_index;
-
-    /**
-     * @brief The state of the request as it moves through the
-     * read process.
-     */
-    volatile hx711_multi_async_state_t _state;
-
-    /**
-     * @brief Array of pin values read from PIO through DMA.
-     */
-    uint32_t _buffer[HX711_READ_BITS];
-
-} hx711_multi_async_request_t;
-
 /**
- * @brief Array of requests for ISR to access. This is a global
+ * @brief Array of hxm for ISR to access. This is a global
  * variable.
  */
-extern hx711_multi_async_request_t* hx711_multi__async_request_map[
+extern hx711_multi_t* hx711_multi__async_request_map[
     HX711_MULTI_ASYNC_REQ_COUNT];
 
 /**
- * @brief Convert an array of pinvals to regular HX711
- * values.
+ * @brief Whether a given hxm is the cause of the current
+ * DMA IRQ.
  * 
- * @param pinvals 
- * @param values 
- * @param len number of values to convert
+ * @param hxm 
+ * @return true 
+ * @return false 
  */
-void hx711_multi_pinvals_to_values(
-    const uint32_t* const pinvals,
-    int32_t* const values,
-    const size_t len);
+static bool hx711_multi__async_dma_irq_is_set(
+    hx711_multi_t* const hxm);
+
+/**
+ * @brief Whether a given hxm is the cause of the current
+ * PIO IRQ.
+ * 
+ * @param hxm 
+ * @return true 
+ * @return false 
+ */
+static bool hx711_multi__async_pio_irq_is_set(
+    hx711_multi_t* const hxm);
+
+/**
+ * @brief Get the hxm which caused the current DMA IRQ. Returns
+ * NULL if none found.
+ * 
+ * @return hx711_multi_t* const 
+ */
+static hx711_multi_t* const hx711_multi__async_get_dma_irq_request();
+
+/**
+ * @brief Get the hxm which caused the current PIO IRQ. Returns
+ * NULL if none found.
+ * 
+ * @return hx711_multi_t* const 
+ */
+static hx711_multi_t* const hx711_multi__async_get_pio_irq_request();
+
+/**
+ * @brief Triggers DMA reading; moves request state from WAITING to READING.
+ * 
+ * @param hxm 
+ */
+static void hx711_multi__async_start_dma(
+    hx711_multi_t* const hxm);
+
+/**
+ * @brief Check whether an async read is currently occurring.
+ * 
+ * @param hxm 
+ * @return true 
+ * @return false 
+ */
+static bool hx711_multi__async_is_running(
+    hx711_multi_t* const hxm);
+
+/**
+ * @brief Stop any current async reads and stop listening for DMA
+ * and PIO IRQs.
+ * 
+ * @param hxm 
+ */
+static void hx711_multi__async_finish(
+    hx711_multi_t* const hxm);
+
+/**
+ * @brief ISR handler for PIO IRQs.
+ */
+static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
+
+/**
+ * @brief ISR handler for DMA IRQs.
+ */
+static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
+
+/**
+ * @brief Adds hxm to the request array for ISR access. Returns false
+ * if no space.
+ * 
+ * @param hxm 
+ * @return true 
+ * @return false 
+ */
+static bool hx711_multi__async_add_request(
+    hx711_multi_t* const hxm);
+
+/**
+ * @brief Removes the given hxm from the request array.
+ * 
+ * @param hxm 
+ */
+static void hx711_multi__async_remove_request(
+    const hx711_multi_t* const hxm);
 
 /**
  * @brief Check whether the hxm struct has been initialised.
@@ -168,27 +226,17 @@ static bool hx711_multi__is_state_machines_enabled(
     hx711_multi_t* const hxm);
 
 /**
- * @brief Reads pinvals into an array.
+ * @brief Convert an array of pinvals to regular HX711
+ * values.
  * 
- * @param hxm 
+ * @param pinvals 
+ * @param values 
+ * @param len number of values to convert
  */
-static void hx711_multi__get_values_raw(
-    hx711_multi_t* const hxm,
-    uint32_t* const pinvals);
-
-/**
- * @brief Reads pinvals into an array, timing out
- * if not possible within the given period.
- * 
- * @param hxm 
- * @param timeout microseconds
- * @return true 
- * @return false 
- */
-static bool hx711_multi__get_values_timeout_raw(
-    hx711_multi_t* const hxm,
-    uint32_t* const pinvals,
-    const absolute_time_t* const end);
+void hx711_multi_pinvals_to_values(
+    const uint32_t* const pinvals,
+    int32_t* const values,
+    const size_t len);
 
 void hx711_multi_init(
     hx711_multi_t* const hxm,
@@ -239,141 +287,30 @@ bool hx711_multi_get_values_timeout(
     const uint timeout);
 
 /**
- * @brief Whether a given request is the cause of the current
- * DMA IRQ.
- * 
- * @param req 
- * @return true 
- * @return false 
- */
-static bool hx711_multi__async_dma_irq_is_set(
-    hx711_multi_async_request_t* const req);
-
-/**
- * @brief Whether a given request is the cause of the current
- * PIO IRQ.
- * 
- * @param req 
- * @return true 
- * @return false 
- */
-static bool hx711_multi__async_pio_irq_is_set(
-    hx711_multi_async_request_t* const req);
-
-/**
- * @brief Get the request which caused the current DMA IRQ. Returns
- * NULL if none found.
- * 
- * @return hx711_multi_async_request_t* const 
- */
-static hx711_multi_async_request_t* const hx711_multi__async_get_dma_irq_request();
-
-/**
- * @brief Get the request which caused the current PIO IRQ. Returns
- * NULL if none found.
- * 
- * @return hx711_multi_async_request_t* const 
- */
-static hx711_multi_async_request_t* const hx711_multi__async_get_pio_irq_request();
-
-/**
- * @brief Triggers DMA reading; moves request state from WAITING to READING.
- * 
- * @param req 
- */
-static void hx711_multi__async_start_dma(
-    hx711_multi_async_request_t* const req);
-
-/**
- * @brief ISR handler for PIO IRQs.
- */
-static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
-
-/**
- * @brief ISR handler for DMA IRQs.
- */
-static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
-
-/**
- * @brief Adds request to the request map for ISR access. Returns false
- * if no space.
- * 
- * @param req 
- * @return true 
- * @return false 
- */
-static bool hx711_multi__async_add_request(
-    hx711_multi_async_request_t* const req);
-
-/**
- * @brief Removes the given request from the request.
- * 
- * @param req 
- */
-static void hx711_multi__async_remove_request(
-    const hx711_multi_async_request_t* const req);
-
-/**
- * @brief Sets the given request to default settings.
+ * @brief Start an asynchronos read.
  * 
  * @param hxm 
- * @param req 
  */
-void hx711_multi_async_get_request_defaults(
-    hx711_multi_t* const hxm,
-    hx711_multi_async_request_t* const req);
+void hx711_multi_async_start(hx711_multi_t* const hxm);
 
 /**
- * @brief Sets up asynchronous request functions. PIO and DMA IRQs
- * are claimed.
+ * @brief Check whether an asynchronous read is complete.
  * 
  * @param hxm 
- * @param req 
- */
-void hx711_multi_async_open(
-    hx711_multi_t* const hxm,
-    hx711_multi_async_request_t* const req);
-
-/**
- * @brief Begins an asynchronous request.
- * 
- * @param req 
- */
-void hx711_multi_async_start(
-    hx711_multi_async_request_t* const req);
-
-/**
- * @brief Returns true if the given request is complete and
- * values can be read from it.
- * 
- * @param req 
  * @return true 
  * @return false 
  */
-bool hx711_multi_async_is_done(
-    hx711_multi_async_request_t* const req);
+bool hx711_multi_async_done(hx711_multi_t* const hxm);
 
 /**
- * @brief Obtains HX711 values in chip-order from the internal
- * request.
+ * @brief Get the values from the last asynchronous read.
  * 
- * @param req 
+ * @param hxm 
  * @param values 
  */
 void hx711_multi_async_get_values(
-    hx711_multi_async_request_t* const req,
-    int32_t* const values);
-
-/**
- * @brief Closes asychronous functionality. PIO and DMA IRQs are
- * released.
- * 
- * @param hxm 
- * @param req 
- */
-void hx711_multi_async_close(
     hx711_multi_t* const hxm,
-    hx711_multi_async_request_t* const req);
+    int32_t* const values);
 
 /**
  * @brief Power up each HX711 and start the internal read/write
@@ -414,7 +351,7 @@ void hx711_multi_sync(
  * @param hxm 
  * @return uint32_t 
  */
-uint32_t hx711_multi_sync_state(
+uint32_t hx711_multi_get_sync_state(
     hx711_multi_t* const hxm);
 
 /**
