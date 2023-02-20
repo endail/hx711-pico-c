@@ -23,30 +23,38 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "pico/stdio.h"
-#include "../include/common.h"
 #include "tusb.h"
+#include "../include/common.h"
+
+#define PRINT_ARR(arr, len) \
+    do { \
+        for(uint i = 0; i < len; ++i) { \
+            printf("%li\n", arr[i]); \
+        } \
+    } while(0)
 
 int main(void) {
 
     stdio_init_all();
 
-//    while (!tud_cdc_connected()) {
-//        sleep_ms(1);
-//    }
+    while (!tud_cdc_connected()) {
+        sleep_ms(1);
+    }
 
-/*
+#if 1
+    hx711_config_t hxcfg;
+    hx711_get_default_config(&hxcfg);
+
+    hxcfg.clock_pin = 14;
+    hxcfg.data_pin = 15;
+
     hx711_t hx;
-    hx711_config_t config = HX711_DEFAULT_CONFIG;
-    config.clock_pin = 14;
-    config.data_pin = 15;
-    const hx711_rate_t rate = hx711_rate_80; //or hx711_rate_80
-    const hx711_gain_t gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
 
     // 1. Initialise
-    hx711_init(&hx, &config);
+    hx711_init(&hx, &hxcfg);
 
     //2. Power up the hx711 and set gain on chip
-    hx711_power_up(&hx, gain);
+    hx711_power_up(&hx, hx711_gain_128);
 
     //3. This step is optional. Only do this if you want to
     //change the gain AND save it to the HX711 chip
@@ -57,7 +65,7 @@ int main(void) {
     //hx711_power_up(&hx, hx711_gain_64);
 
     // 4. Wait for readings to settle
-    hx711_wait_settle(rate);
+    hx711_wait_settle(hx711_rate_80);
 
     // 5. Read values
     // You can now...
@@ -89,18 +97,19 @@ int main(void) {
     hx711_close(&hx);
 
     printf("Closed communication with single HX711 chip\n");
-*/
+#endif
 
-    hx711_multi_config_t cfg;
-    hx711_multi_get_default_config(&cfg);
-    cfg.clock_pin = 14;
-    cfg.data_pin_base = 15;
-    cfg.chips_len = 1;
+#if 1
+    hx711_multi_config_t hxmcfg;
+    hx711_multi_get_default_config(&hxmcfg);
+    hxmcfg.clock_pin = 14;
+    hxmcfg.data_pin_base = 15;
+    hxmcfg.chips_len = 1;
 
     hx711_multi_t hxm;
 
     // 1. initialise
-    hx711_multi_init(&hxm, &cfg);
+    hx711_multi_init(&hxm, &hxmcfg);
 
     // 2. Power up the HX711 chips and set gain on each chip
     hx711_multi_power_up(&hxm, hx711_gain_128);
@@ -117,52 +126,35 @@ int main(void) {
     hx711_wait_settle(hx711_rate_80);
 
     // 5. Read values
-    int32_t arr[cfg.chips_len];
+    int32_t arr[hxmcfg.chips_len];
 
-    for(uint loops = 0; loops < 5000; ++loops) {
+    // wait (block) until a values are read
+    hx711_multi_get_values(&hxm, arr);
+    PRINT_ARR(arr, hxmcfg.chips_len);
 
-        //sleep_ms(rand() % 500);
-
-        hx711_multi_async_start(&hxm);
-
-        //sleep_ms(rand() % 500);
-
-        while(!hx711_multi_async_done(&hxm)) {
-            // do other stuff...
-            tight_loop_contents();
-        }
-
-        //sleep_ms(rand() % 500);
-
-        hx711_multi_async_get_values(&hxm, arr);
-
-        // wait (block) until a values are read
-//        hx711_multi_get_values(&hxm, arr);
-
-        // or use a timeout
-        
-        //printf("%lu\n", hx711_multi_sync_state(&hxm));
-
-        //if(!hx711_multi_get_values_timeout(&hxm, arr, 250000)) {
-        //    printf("Failed to obtain values within timeout\n");
-        //    continue;
-        //}
-
-        // then print the value from each chip
-        // the first value in the array is from the HX711
-        // connected to the first configured data pin and
-        // so on
-        for(uint i = 0; i < cfg.chips_len; ++i) {
-            printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
-        }
-
+    // or use a timeout
+    if(hx711_multi_get_values_timeout(&hxm, arr, 250000)) {
+        PRINT_ARR(arr, hxmcfg.chips_len);
     }
+    else {
+        printf("Failed to obtain values within timeout\n");
+    }
+
+    hx711_multi_async_start(&hxm);
+
+    while(!hx711_multi_async_done(&hxm)) {
+        // do other stuff...
+        tight_loop_contents();
+    }
+
+    hx711_multi_async_get_values(&hxm, arr);
+    PRINT_ARR(arr, hxmcfg.chips_len);
 
     // 6. Stop communication with all HX711 chips
     hx711_multi_close(&hxm);
 
     printf("Closed communication with multiple HX711 chips\n");
-    
+#endif
 
     while(1);
 

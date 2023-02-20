@@ -20,40 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "hardware/pio.h"
+#ifndef COMMON_H_D032FD58_DAFE_4AE1_8E48_54A388BFECE4
+#define COMMON_H_D032FD58_DAFE_4AE1_8E48_54A388BFECE4
+
 #include "hx711.h"
-#include "hx711_reader.pio.h"
 #include "hx711_multi.h"
-#include "hx711_multi_awaiter.pio.h"
-#include "hx711_multi_reader.pio.h"
 
-static const hx711_config_t HX711__DEFAULT_CONFIG = {
-    .clock_pin = 0,
-    .data_pin = 0,
-    .pio = pio0,
-    .pio_init = hx711_reader_pio_init,
-    .reader_prog = &hx711_reader_program,
-    .reader_prog_init = hx711_reader_program_init
-};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-static const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG = {
-    .clock_pin = 0,
-    .data_pin_base = 0,
-    .chips_len = 0,
-    .pio_irq_index = HX711_MULTI_ASYNC_PIO_IRQ_IDX,
-    .dma_irq_index = HX711_MULTI_ASYNC_DMA_IRQ_IDX,
-    .pio = pio0,
-    .pio_init = hx711_multi_pio_init,
-    .awaiter_prog = &hx711_multi_awaiter_program,
-    .awaiter_prog_init = hx711_multi_awaiter_program_init,
-    .reader_prog = &hx711_multi_reader_program,
-    .reader_prog_init = hx711_multi_reader_program_init
-};
+extern const hx711_config_t HX711__DEFAULT_CONFIG;
+extern const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG;
 
-void hx711_get_default_config(hx711_config_t* const cfg) {
-    *cfg = HX711__DEFAULT_CONFIG;
+void hx711_get_default_config(hx711_config_t* const cfg);
+void hx711_multi_get_default_config(hx711_multi_config_t* const cfg);
+
+#ifdef __cplusplus
 }
+#endif
 
-void hx711_multi_get_default_config(hx711_multi_config_t* const cfg) {
-    *cfg = HX711__MULTI_DEFAULT_CONFIG;
-}
+#endif

@@ -76,6 +76,7 @@ target_link_libraries(hx711-pico-c INTERFACE
         )
 
 target_sources(hx711-pico-c INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/src/common.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_multi.c
         ${CMAKE_CURRENT_LIST_DIR}/src/util.c
