@@ -71,6 +71,7 @@ int main(void) {
     // You can now...
 
     // wait (block) until a value is obtained
+    // cppcheck-suppress invalidPrintfArgType_sint
     printf("blocking value: %li\n", hx711_get_value(&hx));
 
     // or use a timeout
@@ -79,6 +80,7 @@ int main(void) {
     if(hx711_get_value_timeout(&hx, &val, timeout)) {
         // value was obtained within the timeout period,
         // in this case within 250 milliseconds
+        // cppcheck-suppress invalidPrintfArgType_sint
         printf("timeout value: %li\n", val);
     }
     else {
@@ -87,6 +89,7 @@ int main(void) {
 
     // or see if there's a value, but don't block if there isn't one ready
     if(hx711_get_value_noblock(&hx, &val)) {
+        // cppcheck-suppress invalidPrintfArgType_sint
         printf("noblock value: %li\n", val);
     }
     else {
