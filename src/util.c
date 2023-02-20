@@ -96,10 +96,18 @@ bool util_dma_channel_wait_for_finish_timeout(
 }
 
 uint util_dma_get_irqn(const uint irq_num) {
-    assert(util_uint_in_range(irq_num, 0, 1));
+    
+    assert(util_uint_in_range(
+        irq_num,
+        UTIL_DMA_IRQ_INDEX_MIN,
+        UTIL_DMA_IRQ_INDEX_MAX));
+
     const uint irq = DMA_IRQ_0 + irq_num;
+
     check_irq_param(irq);
+
     return irq;
+
 }
 
 void util_dma_channel_set_quiet(
