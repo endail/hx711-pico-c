@@ -59,61 +59,18 @@ extern "C" {
         restore_interrupts(_interrupt_status); \
     } while(0)
 
-/**
- * @brief Check whether an int32_t in within the given range.
- * 
- * @param val 
- * @param min 
- * @param max 
- * @return true 
- * @return false 
- */
-bool util_int32_t_in_range(
-    const int32_t val,
-    const int32_t min,
-    const int32_t max);
+#define DECL_IN_RANGE_FUNC(TYPE) \
+    bool util_ ## TYPE ##_in_range( \
+        const TYPE val, \
+        const TYPE min, \
+        const TYPE max);
 
-/**
- * @brief Check whether a uint32_t is within the given range.
- * 
- * @param val 
- * @param min 
- * @param max 
- * @return true 
- * @return false 
- */
-bool util_uint32_t_in_range(
-    const uint32_t val,
-    const uint32_t min,
-    const uint32_t max);
+DECL_IN_RANGE_FUNC(int32_t)
+DECL_IN_RANGE_FUNC(uint32_t)
+DECL_IN_RANGE_FUNC(int)
+DECL_IN_RANGE_FUNC(uint)
 
-/**
- * @brief Check whether an int is within the given range.
- * 
- * @param val 
- * @param min 
- * @param max 
- * @return true 
- * @return false 
- */
-bool util_int_in_range(
-    const int val,
-    const int min,
-    const int max);
-
-/**
- * @brief Check whether a uint is within the given range.
- * 
- * @param val 
- * @param min 
- * @param max 
- * @return true 
- * @return false 
- */
-bool util_uint_in_range(
-    const uint val,
-    const uint min,
-    const uint max);
+#undef DECL_IN_RANGE_FUNC
 
 /**
  * @brief Check whether a DMA IRQ index is valid.

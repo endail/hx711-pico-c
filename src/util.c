@@ -37,33 +37,20 @@
 #include "pico/types.h"
 #include "../include/util.h"
 
-bool util_int32_t_in_range(
-    const int32_t val,
-    const int32_t min,
-    const int32_t max) {
-        return val >= min && val <= max;
+#define DEF_IN_RANGE_FUNC(TYPE) \
+    bool util_ ## TYPE ##_in_range( \
+        const TYPE val, \
+        const TYPE min, \
+        const TYPE max) { \
+            return val >= min && val <= max; \
 }
 
-bool util_uint32_t_in_range(
-    const uint32_t val,
-    const uint32_t min,
-    const uint32_t max) {
-        return val >= min && val <= max;
-}
+DEF_IN_RANGE_FUNC(int32_t)
+DEF_IN_RANGE_FUNC(uint32_t)
+DEF_IN_RANGE_FUNC(int)
+DEF_IN_RANGE_FUNC(uint)
 
-bool util_int_in_range(
-    const int val,
-    const int min,
-    const int max) {
-        return val >= min && val <= max;
-}
-
-bool util_uint_in_range(
-    const uint val,
-    const uint min,
-    const uint max) {
-        return val >= min && val <= max;
-}
+#undef DEF_IN_RANGE_FUNC
 
 bool util_dma_irq_index_is_valid(const uint idx) {
     return util_uint_in_range(
