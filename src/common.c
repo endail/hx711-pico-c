@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include <assert.h>
+#include <stddef.h>
 #include "hardware/pio.h"
 #include "../include/common.h"
 #include "../include/hx711.h"

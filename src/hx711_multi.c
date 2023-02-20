@@ -67,11 +67,15 @@ bool hx711_multi__async_pio_irq_is_set(
 hx711_multi_t* const hx711_multi__async_get_dma_irq_request() {
 
     for(uint i = 0; i < HX711_MULTI_ASYNC_REQ_COUNT; ++i) {
-        if(hx711_multi__async_request_map[i] != NULL) {
-            if(hx711_multi__async_dma_irq_is_set(hx711_multi__async_request_map[i])) {
-                return hx711_multi__async_request_map[i];
-            }
+
+        if(hx711_multi__async_request_map[i] == NULL) {
+            continue;
         }
+        
+        if(hx711_multi__async_dma_irq_is_set(hx711_multi__async_request_map[i])) {
+            return hx711_multi__async_request_map[i];
+        }
+
     }
 
     return NULL;
@@ -81,11 +85,15 @@ hx711_multi_t* const hx711_multi__async_get_dma_irq_request() {
 hx711_multi_t* const hx711_multi__async_get_pio_irq_request() {
 
     for(uint i = 0; i < HX711_MULTI_ASYNC_REQ_COUNT; ++i) {
+
         if(hx711_multi__async_request_map[i] == NULL) {
-            if(hx711_multi__async_pio_irq_is_set(hx711_multi__async_request_map[i])) {
-                return hx711_multi__async_request_map[i];
-            }
+            continue;
         }
+
+        if(hx711_multi__async_pio_irq_is_set(hx711_multi__async_request_map[i])) {
+            return hx711_multi__async_request_map[i];
+        }
+
     }
 
     return NULL;
@@ -119,14 +127,18 @@ void hx711_multi__async_start_dma(
 
 bool hx711_multi__async_is_running(
     hx711_multi_t* const hxm) {
+
         assert(hx711_multi__is_state_machines_enabled(hxm));
+
         switch(hxm->_async_state) {
             case HX711_MULTI_ASYNC_STATE_WAITING:
             case HX711_MULTI_ASYNC_STATE_READING:
                 return true;
             default:
+                //anything else is not considered running
                 return false;
         }
+
 }
 
 static void hx711_multi__async_finish(
