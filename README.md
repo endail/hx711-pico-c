@@ -16,7 +16,7 @@ The .gif above illustrates the [current example code](tests/main.c) obtaining da
 git clone https://github.com/endail/hx711-pico-c
 ```
 
-Run CTest to build the example program. The `.uf2` file you upload to your Pico will be found under `build/tests/`.
+Run `cmake` to build the example program. The `.uf2` file you upload to your Pico will be found under `build/tests/`.
 
 Alternatively, include it as a submodule in your project and then `#include "extern/hx711-pico-c/include/common.h"`.
 

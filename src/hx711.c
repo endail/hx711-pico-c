@@ -504,7 +504,7 @@ bool hx711__try_get_value(
 
         assert(pio != NULL);
         check_sm_param(sm);
-        util_pio_sm_is_enabled(pio, sm);
+        assert(util_pio_sm_is_enabled(pio, sm));
         assert(val != NULL);
 
         static const uint byteThreshold = HX711_READ_BITS / 8;
