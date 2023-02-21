@@ -32,14 +32,14 @@
 extern "C" {
 #endif
 
-#define HX711_READ_BITS                 24u
-#define HX711_POWER_DOWN_TIMEOUT        60u //microseconds
+#define HX711_READ_BITS                 UINT8_C(24)
+#define HX711_POWER_DOWN_TIMEOUT        UINT8_C(60) //microseconds
 
-#define HX711_MIN_VALUE                 INT32_C(-0x800000)
-#define HX711_MAX_VALUE                 INT32_C(0x7fffff)
+#define HX711_MIN_VALUE                 INT32_C(-0x800000) //−8,388,608
+#define HX711_MAX_VALUE                 INT32_C(0x7fffff) //8,388,607
 
-#define HX711_PIO_MIN_GAIN              0u
-#define HX711_PIO_MAX_GAIN              2u
+#define HX711_PIO_MIN_GAIN              UINT8_C(0)
+#define HX711_PIO_MAX_GAIN              UINT8_C(2)
 
 extern const unsigned short HX711_SETTLING_TIMES[3]; //milliseconds
 extern const unsigned char HX711_SAMPLE_RATES[2];

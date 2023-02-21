@@ -34,15 +34,15 @@
 extern "C" {
 #endif
 
-#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0u
-#define HX711_MULTI_DATA_READY_IRQ_NUM          4u
+#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     UINT8_C(0)
+#define HX711_MULTI_DATA_READY_IRQ_NUM          UINT8_C(4)
 
-#define HX711_MULTI_ASYNC_REQ_COUNT             NUM_PIOS
-#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0u
-#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0u
+#define HX711_MULTI_ASYNC_REQ_COUNT             UINT8_C(NUM_PIOS)
+#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           UINT8_C(0)
+#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           UINT8_C(0)
 
-#define HX711_MULTI_MIN_CHIPS                   1u
-#define HX711_MULTI_MAX_CHIPS                   32u
+#define HX711_MULTI_MIN_CHIPS                   UINT8_C(1)
+#define HX711_MULTI_MAX_CHIPS                   UINT8_C(32)
 
 typedef enum {
     HX711_MULTI_ASYNC_STATE_NONE = 0,
@@ -110,6 +110,21 @@ typedef struct {
  */
 extern hx711_multi_t* hx711_multi__async_request_map[
     HX711_MULTI_ASYNC_REQ_COUNT];
+
+static void hx711_multi__init_asert(
+    hx711_multi_t* const hxm,
+    const hx711_multi_config_t* const config);
+
+static void hx711_multi__init_pio(
+    hx711_multi_t* const hxm,
+    const hx711_multi_config_t* const config);
+
+static void hx711_multi__init_dma(
+    hx711_multi_t* const hxm,
+    const hx711_multi_config_t* const config);
+
+static void hx711_multi__init_irq(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Whether a given hxm is the cause of the current

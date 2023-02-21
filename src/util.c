@@ -45,12 +45,22 @@
             return val >= min && val <= max; \
 }
 
+const uint8_t util_pio_to_irq_map[] = {
+    PIO0_IRQ_0,
+    PIO0_IRQ_1,
+    PIO1_IRQ_0,
+    PIO1_IRQ_1
+};
+
+const uint8_t util_dma_to_irq_map[] = {
+    DMA_IRQ_0,
+    DMA_IRQ_1
+};
+
 DEF_IN_RANGE_FUNC(int32_t)
 DEF_IN_RANGE_FUNC(uint32_t)
 DEF_IN_RANGE_FUNC(int)
 DEF_IN_RANGE_FUNC(uint)
-
-#undef DEF_IN_RANGE_FUNC
 
 bool util_dma_irq_index_is_valid(const uint idx) {
     return util_uint_in_range(
@@ -89,7 +99,8 @@ uint util_dma_get_irqn(const uint irq_num) {
         UTIL_DMA_IRQ_INDEX_MIN,
         UTIL_DMA_IRQ_INDEX_MAX));
 
-    const uint irq = DMA_IRQ_0 + irq_num;
+    const uint irq = util_dma_to_irq_map[
+        irq_num];
 
     check_irq_param(irq);
 
@@ -136,26 +147,17 @@ bool util_pio_irq_index_is_valid(const uint idx) {
 
 uint util_pion_get_irqn(
     PIO const pio,
-    const uint irq_num) {
+    const uint irq_index) {
 
         check_pio_param(pio);
-        assert(util_uint_in_range(
-            irq_num,
-            0,
-            NUM_PIOS - 1));
+        assert(util_pio_irq_index_is_valid(irq_index));
 
-        const uint irqn = PIO0_IRQ_0 +
-            (pio == pio0 ? 0 : NUM_PIOS) +
-            (irq_num == 0 ? 0 : NUM_PIOS);
+        const uint irq_num = util_pio_to_irq_map[
+            pio_get_index(pio) + irq_index];
 
-        assert(util_uint_in_range(
-            irqn,
-            PIO0_IRQ_0,
-            PIO1_IRQ_1));
+        check_irq_param(irq_num);
 
-        check_irq_param(irqn);
-
-        return irqn;
+        return irq_num;
 
 }
 
@@ -349,3 +351,5 @@ bool util_pio_sm_try_get(
         return false;
 
 }
+
+#undef DEF_IN_RANGE_FUNC

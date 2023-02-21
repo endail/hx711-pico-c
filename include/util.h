@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include "hardware/pio.h"
+#include "hardware/platform_defs.h"
 #include "hardware/sync.h"
 #include "pico/mutex.h"
 #include "pico/types.h"
@@ -33,18 +34,28 @@
 extern "C" {
 #endif
 
-#define UTIL_DMA_IRQ_INDEX_MIN 0u
-#define UTIL_DMA_IRQ_INDEX_MAX 1u
+// RP2040 sdk doesn't seem to define this
+#define UTIL_NUM_DMA_IRQS UINT8_C(2)
 
-#define UTIL_PIO_IRQ_INDEX_MIN 0u
-#define UTIL_PIO_IRQ_INDEX_MAX 1u
+#define UTIL_DMA_IRQ_INDEX_MIN UINT8_C(0)
+#define UTIL_DMA_IRQ_INDEX_MAX UINT8_C(UTIL_NUM_DMA_IRQS - 1)
 
-#define UTIL_PIO_INTERRUPT_NUM_MIN 0u
-#define UTIL_PIO_INTERRUPT_NUM_MAX 7u
+#define UTIL_PIO_IRQ_INDEX_MIN UINT8_C(0)
+#define UTIL_PIO_IRQ_INDEX_MAX UINT8_C(NUM_PIOS - 1)
 
-#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN 0u
-#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX 3u
+#define UTIL_PIO_INTERRUPT_NUM_MIN UINT8_C(0)
+#define UTIL_PIO_INTERRUPT_NUM_MAX UINT8_C(7)
 
+#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN UINT8_C(0)
+#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX UINT8_C(3)
+
+/**
+ * @brief Own a mutex for the duration of this block of
+ * code.
+ * @example UTIL_MUTEX_BLOCK(mut, 
+ *  // do something...
+ * );
+ */
 #define UTIL_MUTEX_BLOCK(mut, ...) \
     do { \
         mutex_enter_blocking(&mut); \
@@ -52,25 +63,46 @@ extern "C" {
         mutex_exit(&mut); \
     } while(0)
 
+/**
+ * @brief Disable interrupts for the duration of this block of
+ * code.
+ * @example UTIL_INTERRUPTS_OFF_BLOCK(
+ *  // do something atomically...
+ * );
+ * @note the interrupt_status var is uniquely named to avoid
+ * variable conflicts within the block.
+ */
 #define UTIL_INTERRUPTS_OFF_BLOCK(...) \
     do { \
-        const uint32_t _interrupt_status = save_and_disable_interrupts(); \
+        const uint32_t interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c = save_and_disable_interrupts(); \
         __VA_ARGS__ \
-        restore_interrupts(_interrupt_status); \
+        restore_interrupts(interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c); \
     } while(0)
 
-#define DECL_IN_RANGE_FUNC(TYPE) \
+#define UTIL_DECL_IN_RANGE_FUNC(TYPE) \
     bool util_ ## TYPE ##_in_range( \
         const TYPE val, \
         const TYPE min, \
         const TYPE max);
 
-DECL_IN_RANGE_FUNC(int32_t)
-DECL_IN_RANGE_FUNC(uint32_t)
-DECL_IN_RANGE_FUNC(int)
-DECL_IN_RANGE_FUNC(uint)
+UTIL_DECL_IN_RANGE_FUNC(int32_t)
+UTIL_DECL_IN_RANGE_FUNC(uint32_t)
+UTIL_DECL_IN_RANGE_FUNC(int)
+UTIL_DECL_IN_RANGE_FUNC(uint)
 
-#undef DECL_IN_RANGE_FUNC
+/**
+ * @brief Quick lookup for finding an NVIC IRQ number
+ * for a PIO and interrupt index number.
+ * @note Each PIO has two interrupts, hence why this
+ * array is doubled.
+ */
+extern const uint8_t util_pio_to_irq_map[NUM_PIOS * 2];
+
+/**
+ * @brief Quick lookup for finding an NVIC IRQ number
+ * for a DMA interrupt index number.
+ */
+extern const uint8_t util_dma_to_irq_map[UTIL_NUM_DMA_IRQS];
 
 /**
  * @brief Check whether a DMA IRQ index is valid.
@@ -151,17 +183,17 @@ bool util_pio_irq_index_is_valid(const uint idx);
 
 /**
  * @brief Gets the correct NVIC IRQ number for a PIO
- * according to the IRQ number.
+ * according to the IRQ index.
  * 
  * @example util_pion_get_irqn(pio1, 1); //returns PIO1_IRQ_1
  * 
  * @param pio 
- * @param irq_num 0 or 1
+ * @param irq_index 0 or 1
  * @return uint 
  */
 uint util_pion_get_irqn(
     PIO const pio,
-    const uint irq_num);
+    const uint irq_index);
 
 /**
  * @brief Gets the correct PIO interrupt source number according
@@ -220,9 +252,24 @@ bool util_pio_sm_is_enabled(
     PIO const pio,
     const uint sm);
 
+/**
+ * @brief Check whether a PIO interrupt number is valid.
+ * 
+ * @param pio_interrupt_num 
+ * @return true 
+ * @return false 
+ */
 bool util_pio_interrupt_num_is_valid(
     const uint pio_interrupt_num);
 
+/**
+ * @brief Check whether a PIO interrupt number is
+ * a valid routable interrupt number.
+ * 
+ * @param pio_interrupt_num 
+ * @return true 
+ * @return false 
+ */
 bool util_routable_pio_interrupt_num_is_valid(
     const uint pio_interrupt_num);
 
@@ -319,6 +366,8 @@ bool util_pio_sm_try_get(
     const uint sm,
     uint32_t* const word,
     const uint threshold);
+
+#undef UTIL_DECL_IN_RANGE_FUNC
 
 #ifdef __cplusplus
 }

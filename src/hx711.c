@@ -62,6 +62,8 @@ void hx711_init(
         assert(config->reader_prog != NULL);
         assert(config->reader_prog_init != NULL);
 
+        check_gpio_param(config->clock_pin);
+        check_gpio_param(config->data_pin);
         assert(config->clock_pin != config->data_pin);
 
         mutex_init(&hx->_mut);
@@ -231,26 +233,31 @@ int32_t hx711_get_twos_comp(const uint32_t raw) {
 }
 
 bool hx711_is_min_saturated(const int32_t val) {
-    return val == HX711_MIN_VALUE; //−8,388,608
+    assert(hx711_is_value_valid(val));
+    return val == HX711_MIN_VALUE;
 }
 
 bool hx711_is_max_saturated(const int32_t val) {
-    return val == HX711_MAX_VALUE; //8,388,607
+    assert(hx711_is_value_valid(val));
+    return val == HX711_MAX_VALUE;
 }
 
 unsigned short hx711_get_settling_time(const hx711_rate_t rate) {
-    assert((uint)rate <= count_of(HX711_SETTLING_TIMES) - 1);
-    return HX711_SETTLING_TIMES[(uint)rate];
+    assert(hx711_is_rate_valid(rate));
+    assert((int)rate <= count_of(HX711_SETTLING_TIMES) - 1);
+    return HX711_SETTLING_TIMES[(int)rate];
 }
 
 unsigned char hx711_get_rate_sps(const hx711_rate_t rate) {
-    assert((uint)rate <= count_of(HX711_SAMPLE_RATES) - 1);
-    return HX711_SAMPLE_RATES[(uint)rate];
+    assert(hx711_is_rate_valid(rate));
+    assert((int)rate <= count_of(HX711_SAMPLE_RATES) - 1);
+    return HX711_SAMPLE_RATES[(int)rate];
 }
 
 unsigned char hx711_get_clock_pulses(const hx711_gain_t gain) {
-    assert((uint)gain <= count_of(HX711_CLOCK_PULSES) - 1);
-    return HX711_CLOCK_PULSES[(uint)gain];
+    assert(hx711_is_gain_valid(gain));
+    assert((int)gain <= count_of(HX711_CLOCK_PULSES) - 1);
+    return HX711_CLOCK_PULSES[(int)gain];
 }
 
 int32_t hx711_get_value(hx711_t* const hx) {
@@ -363,14 +370,14 @@ bool hx711_is_pio_gain_valid(const uint32_t g) {
 
 bool hx711_is_rate_valid(const hx711_rate_t r) {
     return util_int_in_range(
-        r,
+        (int)r,
         hx711_rate_10,
         hx711_rate_80);
 }
 
 bool hx711_is_gain_valid(const hx711_gain_t g) {
     return util_int_in_range(
-        g,
+        (int)g,
         hx711_gain_128,
         hx711_gain_64);
 }
@@ -379,12 +386,12 @@ void hx711_power_up(
     hx711_t* const hx,
     const hx711_gain_t gain) {
 
-        assert(!hx711__is_state_machine_enabled(hx));
+        assert(hx711__is_initd(hx));
+        assert(hx711_is_gain_valid(gain));
 
         //state machines are not running at this point, so don't
         //check for that, only if the hx struct is initd
-        assert(hx711__is_initd(hx));
-        assert(hx711_is_gain_valid(gain));
+        assert(!hx711__is_state_machine_enabled(hx));
 
         const uint32_t gainVal = hx711_gain_to_pio_gain(gain);
 
@@ -443,7 +450,8 @@ void hx711_power_up(
 
 void hx711_power_down(hx711_t* const hx) {
 
-    assert(hx711__is_state_machine_enabled(hx));
+    //don't have to have SMs running; just check for init
+    assert(hx711__is_initd(hx));
 
     UTIL_MUTEX_BLOCK(hx->_mut, 
 
@@ -492,8 +500,12 @@ uint32_t hx711_gain_to_pio_gain(const hx711_gain_t gain) {
 
     assert(hx711_is_gain_valid(gain));
 
-    const uint32_t clockPulses = hx711_get_clock_pulses(gain);
-    return clockPulses - HX711_READ_BITS - 1;
+    const uint32_t clockPulses =
+        hx711_get_clock_pulses(gain) - HX711_READ_BITS - 1;
+
+    assert(hx711_is_pio_gain_valid(clockPulses));
+
+    return clockPulses;
 
 }
 
