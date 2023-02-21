@@ -98,8 +98,6 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
         hxm->_data_pin_base,
         hxm->_chips_len);
     // make sure conversion done is valid and routable
-    assert(util_pio_interrupt_num_is_valid(
-        HX711_MULTI_CONVERSION_DONE_IRQ_NUM));
     assert(util_routable_pio_interrupt_num_is_valid(
         HX711_MULTI_CONVERSION_DONE_IRQ_NUM));
     pio_interrupt_clear(
