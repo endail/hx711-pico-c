@@ -164,7 +164,7 @@ void hx711_reader_program_init(hx711_t* const hx) {
         HX711_READ_BITS); //autopush on 24 bits
     pio_sm_clear_fifos(
         hx->_pio,
-        hxm->_reader_sm);
+        hx->_reader_sm);
     //store a copy of the configuration for resetting the sm
     hx->_reader_prog_default_config = cfg;
 }

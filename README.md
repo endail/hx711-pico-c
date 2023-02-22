@@ -230,6 +230,10 @@ When using multiple HX711 chips, it is possible they may be desynchronised if no
 
 When using `hx711_multi_async_*` functions, two interrupts are claimed: one for a PIO interrupt and one for a DMA interrupt. By default, `PIO[N]_IRQ_0` and `DMA_IRQ_0` are used, where `[N]` is the PIO index being used (ie. initialising `hx711_multi_t` with `pio0` means the resulting interrupt is `PIO0_IRQ_0` and `pio1` results in `PIO1_IRQ_0`). If you need to change the IRQ number for either PIO or DMA, you can set a `hx711_multi_async_request_t`'s `pio_irq_index` and `dma_irq_index` to either 0 or 1. For example:
 
+### Mutex?
+
+Mutex functionality is included, but is __not__ enabled by default. If you need it, define the preprocessor flag `HX711_USE_MUTEX`. All relevant `hx711_t` and `hx711_multi_t` functions abide by mutex with the exception of `hx711_multi_async_start()`, `hx711_multi_async_done()`, and `hx711_multi_async_get_values()`. This should really only be relevant if you are using both RP2040 cores.
+
 ```c
 hx711_multi_async_request_t req;
 hx711_multi_async_get_request_defaults(&hxm, &req);

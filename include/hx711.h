@@ -32,6 +32,20 @@
 extern "C" {
 #endif
 
+#ifdef HX711_USE_MUTEX
+    #define HX711_MUTEX_BLOCK(mut, ...) \
+        do { \
+            mutex_enter_blocking(&mut); \
+            __VA_ARGS__ \
+            mutex_exit(&mut); \
+        } while(0)
+#else
+    #define HX711_MUTEX_BLOCK(mut, ...) \
+    do { \
+        __VA_ARGS__ \
+    } while(0)
+#endif
+
 #define HX711_READ_BITS                 UINT8_C(24)
 #define HX711_POWER_DOWN_TIMEOUT        UINT8_C(60) //microseconds
 
@@ -67,7 +81,9 @@ typedef struct {
     uint _reader_sm;
     uint _reader_offset;
 
+#ifdef HX711_USE_MUTEX
     mutex_t _mut;
+#endif
 
 } hx711_t;
 

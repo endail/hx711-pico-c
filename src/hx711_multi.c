@@ -80,118 +80,111 @@ void hx711_multi__init_asert(
 
 }
 
-void hx711_multi__init_pio(
-    hx711_multi_t* const hxm,
-    const hx711_multi_config_t* const config) {
+void hx711_multi__init_pio(hx711_multi_t* const hxm) {
 
-        //adding programs and claiming state machines
-        //will panic if unable
-        hxm->_awaiter_offset = pio_add_program(
-            hxm->_pio,
-            hxm->_awaiter_prog);
+    assert(!hx711_multi__is_initd(hxm));
 
-        hxm->_reader_offset = pio_add_program(
-            hxm->_pio,
-            hxm->_reader_prog);
+    //adding programs and claiming state machines
+    //will panic if unable
+    hxm->_awaiter_offset = pio_add_program(
+        hxm->_pio,
+        hxm->_awaiter_prog);
 
-        hxm->_awaiter_sm = (uint)pio_claim_unused_sm(
-            hxm->_pio,
-            true);
+    hxm->_reader_offset = pio_add_program(
+        hxm->_pio,
+        hxm->_reader_prog);
 
-        hxm->_reader_sm = (uint)pio_claim_unused_sm(
-            hxm->_pio,
-            true);
+    hxm->_awaiter_sm = (uint)pio_claim_unused_sm(
+        hxm->_pio,
+        true);
 
-        hxm->_pio_irq_index = config->pio_irq_index;
-
-        config->pio_init(hxm);
-        config->awaiter_prog_init(hxm);
-        config->reader_prog_init(hxm);
+    hxm->_reader_sm = (uint)pio_claim_unused_sm(
+        hxm->_pio,
+        true);
 
 }
 
-void hx711_multi__init_dma(
-    hx711_multi_t* const hxm,
-    const hx711_multi_config_t* const config) {
+void hx711_multi__init_dma(hx711_multi_t* const hxm) {
 
-        hxm->_dma_irq_index = config->dma_irq_index;
+    assert(!hx711_multi__is_initd(hxm));
 
-        hxm->_dma_channel = dma_claim_unused_channel(true);
+    hxm->_dma_channel = dma_claim_unused_channel(true);
 
-        dma_channel_config cfg = dma_channel_get_default_config(
-            hxm->_dma_channel);
+    dma_channel_config cfg = dma_channel_get_default_config(
+        hxm->_dma_channel);
 
-        channel_config_set_transfer_data_size(
-            &cfg,
-            DMA_SIZE_32);   //pio fifo output is 32 bits
+    channel_config_set_transfer_data_size(
+        &cfg,
+        DMA_SIZE_32);   //pio fifo output is 32 bits
 
-        channel_config_set_read_increment(
-            &cfg,
-            false);         //always read from same location
+    channel_config_set_read_increment(
+        &cfg,
+        false);         //always read from same location
 
-        channel_config_set_write_increment(
-            &cfg,
-            true);          //write to next array position
+    channel_config_set_write_increment(
+        &cfg,
+        true);          //write to next array position
 
-        /**
-         * Do not set ring buffer.
-         * ie. do not use channel_config_set_ring.
-         * If, for whatever reason, the DMA transfer
-         * fails, subsequent transfer invocations
-         * will reset the write address.
-         */
+    /**
+     * Do not set ring buffer.
+     * ie. do not use channel_config_set_ring.
+     * If, for whatever reason, the DMA transfer
+     * fails, subsequent transfer invocations
+     * will reset the write address.
+     */
 
-        channel_config_set_dreq(
-            &cfg,
-            pio_get_dreq(
-                hxm->_pio,
-                hxm->_reader_sm,
-                false));
+    channel_config_set_dreq(
+        &cfg,
+        pio_get_dreq(
+            hxm->_pio,
+            hxm->_reader_sm,
+            false));
 
-        channel_config_set_irq_quiet(
-            &cfg,
-            false);
+    channel_config_set_irq_quiet(
+        &cfg,
+        false);
 
-        dma_channel_configure(
-            hxm->_dma_channel,
-            &cfg,
-            NULL,                               //don't set a write address yet
-            &hxm->_pio->rxf[hxm->_reader_sm],   //read from reader pio program rx fifo
-            HX711_READ_BITS,                    //24 transfers; one for each HX711 bit
-            false);                             //false = don't start now
+    dma_channel_configure(
+        hxm->_dma_channel,
+        &cfg,
+        NULL,                               //don't set a write address yet
+        &hxm->_pio->rxf[hxm->_reader_sm],   //read from reader pio program rx fifo
+        HX711_READ_BITS,                    //24 transfers; one for each HX711 bit
+        false);                             //false = don't start now
 
 }
 
-void hx711_multi__init_irq(
-    hx711_multi_t* const hxm) {
+void hx711_multi__init_irq(hx711_multi_t* const hxm) {
 
-        dma_irqn_set_channel_enabled(
-            hxm->_dma_irq_index,
-            hxm->_dma_channel,
-            false); // DISABLED AT THIS POINT!
+    assert(!hx711_multi__is_initd(hxm));
 
-        irq_set_exclusive_handler(
-            util_dma_get_irqn(hxm->_dma_irq_index),
-            hx711_multi__async_dma_irq_handler);
+    dma_irqn_set_channel_enabled(
+        hxm->_dma_irq_index,
+        hxm->_dma_channel,
+        false); // DISABLED AT THIS POINT!
 
-        irq_set_enabled(
-            util_dma_get_irqn(hxm->_dma_irq_index),
-            true);
+    irq_set_exclusive_handler(
+        util_dma_get_irqn(hxm->_dma_irq_index),
+        hx711_multi__async_dma_irq_handler);
 
-        pio_set_irqn_source_enabled(
-            hxm->_pio,
-            hxm->_pio_irq_index,
-            util_pio_get_pis(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
-            false); //DISABLED AT THIS POINT!
+    irq_set_enabled(
+        util_dma_get_irqn(hxm->_dma_irq_index),
+        true);
 
-        irq_set_exclusive_handler(
-            util_pion_get_irqn(hxm->_pio, hxm->_pio_irq_index),
-            hx711_multi__async_pio_irq_handler);
+    pio_set_irqn_source_enabled(
+        hxm->_pio,
+        hxm->_pio_irq_index,
+        util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+        false); //DISABLED AT THIS POINT!
 
-        irq_set_enabled(
-            util_pion_get_irqn(hxm->_pio,
-            hxm->_pio_irq_index),
-            true);
+    irq_set_exclusive_handler(
+        util_pion_get_irqn(hxm->_pio, hxm->_pio_irq_index),
+        hx711_multi__async_pio_irq_handler);
+
+    irq_set_enabled(
+        util_pion_get_irqn(hxm->_pio,
+        hxm->_pio_irq_index),
+        true);
 
 }
 
@@ -311,7 +304,7 @@ static void hx711_multi__async_finish(
         pio_set_irqn_source_enabled(
             hxm->_pio,
             hxm->_pio_irq_index,
-            util_pio_get_pis(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+            util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
             false);
 
 }
@@ -330,7 +323,7 @@ void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)() {
     pio_set_irqn_source_enabled(
         hxm->_pio,
         hxm->_pio_irq_index,
-        util_pio_get_pis(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+        util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
         false);
 
     irq_clear(
@@ -401,7 +394,14 @@ static bool hx711_multi__is_initd(hx711_multi_t* const hxm) {
         pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm) &&
         pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm) &&
         dma_channel_is_claimed(hxm->_dma_channel) &&
-        mutex_is_initialized(&hxm->_mut);
+#ifdef HX711_USE_MUTEX
+        mutex_is_initialized(&hxm->_mut) &&
+#endif
+        irq_get_exclusive_handler(util_pion_get_irqn(
+            hxm->_pio,
+            hxm->_pio_irq_index)) == hx711_multi__async_pio_irq_handler &&
+        irq_get_exclusive_handler(util_dma_get_irqn(
+            hxm->_dma_irq_index)) == hx711_multi__async_dma_irq_handler;
 }
 
 static bool hx711_multi__is_state_machines_enabled(
@@ -471,13 +471,15 @@ void hx711_multi_init(
 
         hx711_multi__init_asert(hxm, config);
 
+#ifdef HX711_USE_MUTEX
         //this doesn't need to be an interrupts-off block
         //because the mutex will protect the hxm from reads
         //until init returns, and the source IRQs aren't
         //enabled anyway
         mutex_init(&hxm->_mut);
+#endif
 
-        UTIL_MUTEX_BLOCK(hxm->_mut, 
+        HX711_MUTEX_BLOCK(hxm->_mut, 
 
             hxm->_clock_pin = config->clock_pin;
             hxm->_data_pin_base = config->data_pin_base;
@@ -487,7 +489,11 @@ void hx711_multi_init(
             hxm->_awaiter_prog = config->awaiter_prog;
             hxm->_reader_prog = config->reader_prog;
 
+            hxm->_pio_irq_index = config->pio_irq_index;
+            hxm->_dma_irq_index = config->dma_irq_index;
+
             hxm->_async_state = HX711_MULTI_ASYNC_STATE_NONE;
+
             hx711_multi__async_add_request(hxm);
 
             util_gpio_set_output(hxm->_clock_pin);
@@ -496,8 +502,13 @@ void hx711_multi_init(
                 hxm->_data_pin_base,
                 hxm->_chips_len);
 
-            hx711_multi__init_pio(hxm, config);
-            hx711_multi__init_dma(hxm, config);
+            hx711_multi__init_pio(hxm);
+
+            config->pio_init(hxm);
+            config->awaiter_prog_init(hxm);
+            config->reader_prog_init(hxm);
+
+            hx711_multi__init_dma(hxm);
             hx711_multi__init_irq(hxm);
 
         );
@@ -508,7 +519,9 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
 
     assert(hx711_multi__is_initd(hxm));
 
+#ifdef HX711_USE_MUTEX
     mutex_enter_blocking(&hxm->_mut);
+#endif
 
     //make sure the disabling and removal of IRQs and
     //handlers is atomic
@@ -531,7 +544,7 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         pio_set_irqn_source_enabled(
             hxm->_pio,
             hxm->_pio_irq_index,
-            util_pio_get_pis(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+            util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
             false);
 
         dma_irqn_set_channel_enabled(
@@ -589,7 +602,9 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hxm->_reader_prog,
         hxm->_reader_offset);
 
+#ifdef HX711_USE_MUTEX
     mutex_exit(&hxm->_mut);
+#endif
 
 }
 
@@ -603,7 +618,7 @@ void hx711_multi_set_gain(
 
         assert(hx711_is_pio_gain_valid(gain));
 
-        UTIL_MUTEX_BLOCK(hxm->_mut, 
+        HX711_MUTEX_BLOCK(hxm->_mut, 
 
             pio_sm_drain_tx_fifo(
                 hxm->_pio,
@@ -632,7 +647,7 @@ void hx711_multi_get_values(
         assert(values != NULL);
         assert(!hx711_multi__async_is_running(hxm));
 
-        UTIL_MUTEX_BLOCK(hxm->_mut, 
+        HX711_MUTEX_BLOCK(hxm->_mut, 
             hx711_multi_async_start(hxm);
             while(!hx711_multi_async_done(hxm)) {
                 tight_loop_contents();
@@ -654,7 +669,7 @@ bool hx711_multi_get_values_timeout(
         const absolute_time_t end = make_timeout_time_us(timeout);
         bool success = false;
 
-        UTIL_MUTEX_BLOCK(hxm->_mut, 
+        HX711_MUTEX_BLOCK(hxm->_mut, 
 
             hx711_multi_async_start(hxm);
 
@@ -741,7 +756,7 @@ void hx711_multi_power_up(
 
         assert(hx711_is_pio_gain_valid(gainVal));
 
-        UTIL_MUTEX_BLOCK(hxm->_mut, 
+        HX711_MUTEX_BLOCK(hxm->_mut, 
 
             gpio_put(
                 hxm->_clock_pin,
@@ -782,7 +797,7 @@ void hx711_multi_power_down(hx711_multi_t* const hxm) {
 
     assert(hx711_multi__is_initd(hxm));
 
-    UTIL_MUTEX_BLOCK(hxm->_mut,
+    HX711_MUTEX_BLOCK(hxm->_mut,
 
         UTIL_INTERRUPTS_OFF_BLOCK(
             hx711_multi__async_finish(hxm);

@@ -77,7 +77,9 @@ typedef struct {
     uint _dma_irq_index;
     volatile hx711_multi_async_state_t _async_state;
 
+#ifdef HX711_USE_MUTEX
     mutex_t _mut;
+#endif
 
 } hx711_multi_t;
 
@@ -115,16 +117,11 @@ static void hx711_multi__init_asert(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config);
 
-static void hx711_multi__init_pio(
-    hx711_multi_t* const hxm,
-    const hx711_multi_config_t* const config);
+static void hx711_multi__init_pio(hx711_multi_t* const hxm);
 
-static void hx711_multi__init_dma(
-    hx711_multi_t* const hxm,
-    const hx711_multi_config_t* const config);
+static void hx711_multi__init_dma(hx711_multi_t* const hxm);
 
-static void hx711_multi__init_irq(
-    hx711_multi_t* const hxm);
+static void hx711_multi__init_irq(hx711_multi_t* const hxm);
 
 /**
  * @brief Whether a given hxm is the cause of the current

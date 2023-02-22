@@ -114,6 +114,21 @@ extern const uint8_t util_dma_to_irq_map[UTIL_NUM_DMA_IRQS];
 bool util_dma_irq_index_is_valid(const uint idx);
 
 /**
+ * @brief Set and enable an exclusive handler for a
+ * DMA channel.
+ * 
+ * @param irq_index 
+ * @param channel 
+ * @param handler 
+ * @param enabled 
+ */
+void util_dma_set_exclusive_channel_irq_handler(
+    const uint irq_index,
+    const uint channel,
+    const irq_handler_t handler,
+    const bool enabled);
+
+/**
  * @brief Get the transfer count for a given DMA channel. When a
  * DMA transfer is active, this count is the number of transfers
  * remaining.
@@ -140,10 +155,10 @@ bool util_dma_channel_wait_for_finish_timeout(
  * @brief Gets the NVIC IRQ number based on the DMA IRQ
  * index.
  * 
- * @param irq_num 0 or 1
+ * @param irq_index 0 or 1
  * @return uint DMA_IRQ_0 or DMA_IRQ_1
  */
-uint util_dma_get_irqn(const uint irq_num);
+uint util_dma_get_irqn(const uint irq_index);
 
 /**
  * @brief Sets a DMA channel's IRQ quiet mode.
@@ -173,6 +188,23 @@ void util_gpio_set_contiguous_input_pins(
 void util_gpio_set_output(const uint gpio);
 
 /**
+ * @brief Set and enable an exclusive interrupt handler
+ * for a given pio_interrupt_num.
+ * 
+ * @param pio 
+ * @param irq_index 
+ * @param pio_interrupt_num 
+ * @param handler 
+ * @param enabled 
+ */
+void util_irq_set_exclusive_pio_interrupt_num_handler(
+    PIO const pio,
+    const uint irq_index,
+    const uint pio_interrupt_num,
+    const irq_handler_t handler,
+    const bool enabled);
+
+/**
  * @brief Check whether PIO IRQ index is valid
  * 
  * @param idx 
@@ -199,13 +231,13 @@ uint util_pion_get_irqn(
  * @brief Gets the correct PIO interrupt source number according
  * to the raw PIO interrupt number used in a .pio file.
  * 
- * @example util_pio_get_pis(3); //returns pis_interrupt3 (11)
+ * @example util_pio_get_pis_from_pio_interrupt_num(3); //returns pis_interrupt3 (11)
  * 
  * @see pio_interrupt_source
  * @param pio_interrupt_num 
  * @return uint 
  */
-uint util_pio_get_pis(
+uint util_pio_get_pis_from_pio_interrupt_num(
     const uint pio_interrupt_num);
 
 /**

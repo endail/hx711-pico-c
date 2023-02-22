@@ -69,6 +69,33 @@ bool util_dma_irq_index_is_valid(const uint idx) {
         UTIL_DMA_IRQ_INDEX_MAX);
 }
 
+void util_dma_set_exclusive_channel_irq_handler(
+    const uint irq_index,
+    const uint channel,
+    const irq_handler_t handler,
+    const bool enabled) {
+
+        assert(util_dma_irq_index_is_valid(irq_index));
+        check_dma_channel_param(channel);
+        assert(handler != NULL);
+
+        const uint irq_num = util_dma_get_irqn(irq_index);
+
+        dma_irqn_set_channel_enabled(
+            irq_index,
+            channel,
+            enabled);
+
+        irq_set_exclusive_handler(
+            irq_num,
+            handler);
+
+        irq_set_enabled(
+            irq_num,
+            enabled);
+
+}
+
 uint32_t util_dma_get_transfer_count(const uint channel) {
     check_dma_channel_param(channel);
     return (uint32_t)dma_hw->ch[channel].transfer_count;
@@ -92,15 +119,15 @@ bool util_dma_channel_wait_for_finish_timeout(
 
 }
 
-uint util_dma_get_irqn(const uint irq_num) {
+uint util_dma_get_irqn(const uint irq_index) {
 
     assert(util_uint_in_range(
-        irq_num,
+        irq_index,
         UTIL_DMA_IRQ_INDEX_MIN,
         UTIL_DMA_IRQ_INDEX_MAX));
 
     const uint irq = util_dma_to_irq_map[
-        irq_num];
+        irq_index];
 
     check_irq_param(irq);
 
@@ -138,6 +165,41 @@ void util_gpio_set_output(const uint gpio) {
     gpio_set_dir(gpio, true);
 }
 
+void util_irq_set_exclusive_pio_interrupt_num_handler(
+    PIO const pio,
+    const uint irq_index,
+    const uint pio_interrupt_num,
+    const irq_handler_t handler,
+    const bool enabled) {
+
+        check_pio_param(pio);
+        assert(util_pio_irq_index_is_valid(irq_index));
+        assert(util_routable_pio_interrupt_num_is_valid(pio_interrupt_num));
+        assert(handler != NULL);
+
+        const uint irq_num = util_pion_get_irqn(
+            pio,
+            irq_index);
+
+        const uint pis = util_pio_get_pis_from_pio_interrupt_num(
+            pio_interrupt_num);
+
+        pio_set_irqn_source_enabled(
+            pio,
+            irq_index,
+            pis,
+            enabled);
+
+        irq_set_exclusive_handler(
+            irq_num,
+            handler);
+
+        irq_set_enabled(
+            irq_num,
+            enabled);
+
+}
+
 bool util_pio_irq_index_is_valid(const uint idx) {
     return util_uint_in_range(
         idx,
@@ -161,7 +223,7 @@ uint util_pion_get_irqn(
 
 }
 
-uint util_pio_get_pis(
+uint util_pio_get_pis_from_pio_interrupt_num(
     const uint pio_interrupt_num) {
 
         assert(util_routable_pio_interrupt_num_is_valid(

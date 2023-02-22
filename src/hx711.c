@@ -66,9 +66,11 @@ void hx711_init(
         check_gpio_param(config->data_pin);
         assert(config->clock_pin != config->data_pin);
 
+#ifdef HX711_USE_MUTEX
         mutex_init(&hx->_mut);
+#endif
 
-        UTIL_MUTEX_BLOCK(hx->_mut, 
+        HX711_MUTEX_BLOCK(hx->_mut, 
 
             hx->_clock_pin = config->clock_pin;
             hx->_data_pin = config->data_pin;
@@ -124,7 +126,7 @@ void hx711_close(hx711_t* const hx) {
     //to close
     assert(hx711__is_initd(hx));
 
-    UTIL_MUTEX_BLOCK(hx->_mut, 
+    HX711_MUTEX_BLOCK(hx->_mut, 
 
         pio_sm_set_enabled(
             hx->_pio,
@@ -153,7 +155,7 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
     assert(hx711_is_pio_gain_valid(gainVal));
 
-    UTIL_MUTEX_BLOCK(hx->_mut, 
+    HX711_MUTEX_BLOCK(hx->_mut, 
 
         /**
          * Before putting anything in the TX FIFO buffer,
@@ -266,7 +268,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
     uint32_t rawVal;
 
-    UTIL_MUTEX_BLOCK(hx->_mut, 
+    HX711_MUTEX_BLOCK(hx->_mut, 
 
         /**
          * Block until a value is available
@@ -301,7 +303,7 @@ bool hx711_get_value_timeout(
 
         assert(!is_nil_time(endTime));
 
-        UTIL_MUTEX_BLOCK(hx->_mut, 
+        HX711_MUTEX_BLOCK(hx->_mut, 
             while(!time_reached(endTime)) {
                 if((success = hx711__try_get_value(hx->_pio, hx->_reader_sm, &tempVal))) {
                     break;
@@ -327,7 +329,7 @@ bool hx711_get_value_noblock(
         bool success;
         uint32_t tempVal;
 
-        UTIL_MUTEX_BLOCK(hx->_mut, 
+        HX711_MUTEX_BLOCK(hx->_mut, 
             success = hx711__try_get_value(
                 hx->_pio,
                 hx->_reader_sm,
@@ -345,8 +347,10 @@ bool hx711_get_value_noblock(
 bool hx711__is_initd(hx711_t* const hx) {
     return hx != NULL &&
         hx->_pio != NULL &&
-        pio_sm_is_claimed(hx->_pio, hx->_reader_sm) &&
-        mutex_is_initialized(&hx->_mut);
+#ifdef HX711_USE_MUTEX
+        mutex_is_initialized(&hx->_mut) &&
+#endif
+        pio_sm_is_claimed(hx->_pio, hx->_reader_sm);
 }
 
 bool hx711__is_state_machine_enabled(hx711_t* const hx) {
@@ -397,7 +401,7 @@ void hx711_power_up(
 
         assert(hx711_is_pio_gain_valid(gainVal));
 
-        UTIL_MUTEX_BLOCK(hx->_mut, 
+        HX711_MUTEX_BLOCK(hx->_mut, 
 
             /**
              * NOTE: pio_sm_restart should not be used here.
@@ -453,7 +457,7 @@ void hx711_power_down(hx711_t* const hx) {
     //don't have to have SMs running; just check for init
     assert(hx711__is_initd(hx));
 
-    UTIL_MUTEX_BLOCK(hx->_mut, 
+    HX711_MUTEX_BLOCK(hx->_mut, 
 
         //1. stop the state machine
         pio_sm_set_enabled(
