@@ -114,6 +114,24 @@ extern const uint8_t util_dma_to_irq_map[UTIL_NUM_DMA_IRQS];
 bool util_dma_irq_index_is_valid(const uint idx);
 
 /**
+ * @brief Gets the NVIC DMA IRQ number using the DMA
+ * IRQ index.
+ * 
+ * @param idx 
+ * @return uint 
+ */
+uint util_dma_get_irq_from_index(const uint idx);
+
+/**
+ * @brief Gets the DMA IRQ index using the NVIC IRQ
+ * number.
+ * 
+ * @param irq_num 
+ * @return int -1 is returned for no match.
+ */
+int util_dma_get_index_from_irq(const uint irq_num);
+
+/**
  * @brief Set and enable an exclusive handler for a
  * DMA channel.
  * 
@@ -214,6 +232,34 @@ void util_irq_set_exclusive_pio_interrupt_num_handler(
 bool util_pio_irq_index_is_valid(const uint idx);
 
 /**
+ * @brief Gets the NVIC PIO IRQ number using a PIO
+ * pointer and PIO IRQ index.
+ * 
+ * @param idx 
+ * @return uint 
+ */
+uint util_pio_get_irq_from_index(
+    PIO const pio,
+    const uint idx);
+
+/**
+ * @brief Gets the PIO IRQ index using the NVIC IRQ
+ * number.
+ * 
+ * @param irq_num 
+ * @return int -1 is returned for no match.
+ */
+int util_pio_get_index_from_irq(const uint irq_num);
+
+/**
+ * @brief Gets the PIO using the NVIC IRQ number.
+ * 
+ * @param irq_num 
+ * @return PIO const 
+ */
+PIO const util_pio_get_pio_from_irq(const uint irq_num);
+
+/**
  * @brief Gets the correct NVIC IRQ number for a PIO
  * according to the IRQ index.
  * 
@@ -263,12 +309,22 @@ void util_pio_sm_clear_rx_fifo(
     const uint sm);
 
 /**
- * @brief Clear's a given state machine's OSR.
+ * @brief Clears a given state machine's OSR.
  * 
  * @param pio 
  * @param sm 
  */
 void util_pio_sm_clear_osr(
+    PIO const pio,
+    const uint sm);
+
+/**
+ * @brief Clears a given state machine's ISR.
+ * 
+ * @param pio 
+ * @param sm 
+ */
+void util_pio_sm_clear_isr(
     PIO const pio,
     const uint sm);
 

@@ -390,12 +390,12 @@ void hx711_power_up(
     hx711_t* const hx,
     const hx711_gain_t gain) {
 
+        //the struct should be init'd, but the state machines
+        //should not be running
         assert(hx711__is_initd(hx));
-        assert(hx711_is_gain_valid(gain));
-
-        //state machines are not running at this point, so don't
-        //check for that, only if the hx struct is initd
         assert(!hx711__is_state_machine_enabled(hx));
+
+        assert(hx711_is_gain_valid(gain));
 
         const uint32_t gainVal = hx711_gain_to_pio_gain(gain);
 

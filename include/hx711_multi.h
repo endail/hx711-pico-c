@@ -34,16 +34,54 @@
 extern "C" {
 #endif
 
+/**
+ * @brief PIO interrupt number which is set by the reader
+ * PIO State Machine when a conversion period ends. It is
+ * the period of time between a conversion ending and the
+ * next period beginning.
+ */
 #define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     UINT8_C(0)
+
+/**
+ * @brief PIO interrupt number which is used between the
+ * awaiter and reader PIO State Machines to indicate when
+ * data is ready to be retrieved. It is not used directly
+ * within the main set of code, but is used to validate
+ * that the IRQ number is properly available.
+ */
 #define HX711_MULTI_DATA_READY_IRQ_NUM          UINT8_C(4)
 
-#define HX711_MULTI_ASYNC_REQ_COUNT             UINT8_C(NUM_PIOS)
+/**
+ * @brief Only one instance of a hx711_multi can operate
+ * within a PIO. So the maximum number of concurrent
+ * asynchronous read processes is limited to the numeer of
+ * PIOs available.
+ */
+#define HX711_MULTI_ASYNC_READ_COUNT            UINT8_C(NUM_PIOS)
+
+/**
+ * @brief IRQ index defaults for PIO and DMA.
+ */
 #define HX711_MULTI_ASYNC_PIO_IRQ_IDX           UINT8_C(0)
 #define HX711_MULTI_ASYNC_DMA_IRQ_IDX           UINT8_C(0)
 
+/**
+ * @brief Minimum number of chips to connect to a hx711_multi.
+ */
 #define HX711_MULTI_MIN_CHIPS                   UINT8_C(1)
-#define HX711_MULTI_MAX_CHIPS                   UINT8_C(32)
 
+/**
+ * @brief The max number of chips could technically be the
+ * same as the number of bits output from the PIO State Machine.
+ * But this is always going to be limited by the number of GPIO
+ * input pins available on the RP2040. So we take the minimum of
+ * the two just in case it ever increases.
+ */
+#define HX711_MULTI_MAX_CHIPS                   UINT8_C(MIN(NUM_BANK0_GPIOS, 32))
+
+/**
+ * @brief State of the read as it moves through the async process.
+ */
 typedef enum {
     HX711_MULTI_ASYNC_STATE_NONE = 0,
     HX711_MULTI_ASYNC_STATE_WAITING,
@@ -69,7 +107,7 @@ typedef struct {
     uint _reader_sm;
     uint _reader_offset;
 
-    int _dma_channel;
+    uint _dma_channel;
 
     uint32_t _buffer[HX711_READ_BITS];
 
@@ -88,20 +126,71 @@ typedef void (*hx711_multi_program_init_t)(hx711_multi_t* const);
 
 typedef struct {
 
+    /**
+     * @brief GPIO pin number connected to all HX711 chips.
+     */
     uint clock_pin;
+
+    /**
+     * @brief Lowest GPIO pin number connected to a HX711 chip.
+     */
     uint data_pin_base;
+
+    /**
+     * @brief Number of HX711 chips connected.
+     */
     size_t chips_len;
 
+
+    /**
+     * @brief Which index to use for a PIO interrupt. Either 0 or 1.
+     * Corresponds to PIO[PIO_INDEX]_IRQ[IRQ_INDEX] NVIC IRQ number.
+     */
     uint pio_irq_index;
+
+    /**
+     * @brief Which index to use for a DMA interrupt. Either 0 or 1.
+     * Corresponds to DMA_IRQ[IRQ_INDEX] NVIC IRQ number.
+     */
     uint dma_irq_index;
 
+
+    /**
+     * @brief Which PIO to use. Either pio0 or pio1.
+     */
     PIO pio;
+
+    /**
+     * @brief PIO init function. This is called to set up any PIO
+     * functions (pio_*) as opposed to any State Machine functions
+     * (pio_sm_*).
+     */
     hx711_multi_pio_init_t pio_init;
 
+
+    /**
+     * @brief PIO awaiter program.
+     */
     const pio_program_t* awaiter_prog;
+
+    /**
+     * @brief PIO awaiter init function. This is called to set up
+     * the State Machine for the awaiter program. It is called once
+     * prior to the State Machine being enabled.
+     */
     hx711_multi_program_init_t awaiter_prog_init;
 
+
+    /**
+     * @brief PIO reader program.
+     */
     const pio_program_t* reader_prog;
+
+    /**
+     * @brief PIO reader init function. This is called to set up
+     * the State Machine for the reader program. It is called once
+     * prior to the State Machine being enabled.
+     */
     hx711_multi_program_init_t reader_prog_init;
 
 } hx711_multi_config_t;
@@ -110,17 +199,32 @@ typedef struct {
  * @brief Array of hxm for ISR to access. This is a global
  * variable.
  */
-extern hx711_multi_t* hx711_multi__async_request_map[
-    HX711_MULTI_ASYNC_REQ_COUNT];
+extern hx711_multi_t* hx711_multi__async_read_array[
+    HX711_MULTI_ASYNC_READ_COUNT];
 
 static void hx711_multi__init_asert(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config);
 
+/**
+ * @brief Subroutine for initialising PIO.
+ * 
+ * @param hxm 
+ */
 static void hx711_multi__init_pio(hx711_multi_t* const hxm);
 
+/**
+ * @brief Subroutine for initialising DMA.
+ * 
+ * @param hxm 
+ */
 static void hx711_multi__init_dma(hx711_multi_t* const hxm);
 
+/**
+ * @brief Subroutine for initialising IRQ.
+ * 
+ * @param hxm 
+ */
 static void hx711_multi__init_irq(hx711_multi_t* const hxm);
 
 /**
@@ -199,14 +303,14 @@ static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
 static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
 
 /**
- * @brief Adds hxm to the request array for ISR access. Returns false
+ * @brief Adds hxm to the array for ISR access. Returns false
  * if no space.
  * 
  * @param hxm 
  * @return true 
  * @return false 
  */
-static bool hx711_multi__async_add_request(
+static bool hx711_multi__async_add_reader(
     hx711_multi_t* const hxm);
 
 /**
@@ -214,7 +318,7 @@ static bool hx711_multi__async_add_request(
  * 
  * @param hxm 
  */
-static void hx711_multi__async_remove_request(
+static void hx711_multi__async_remove_reader(
     const hx711_multi_t* const hxm);
 
 /**
@@ -299,7 +403,8 @@ bool hx711_multi_get_values_timeout(
     const uint timeout);
 
 /**
- * @brief Start an asynchronos read.
+ * @brief Start an asynchronos read. This function is not
+ * mutex protected.
  * 
  * @param hxm 
  */
@@ -307,6 +412,7 @@ void hx711_multi_async_start(hx711_multi_t* const hxm);
 
 /**
  * @brief Check whether an asynchronous read is complete.
+ * This function is not mutex protected.
  * 
  * @param hxm 
  * @return true 
@@ -316,6 +422,7 @@ bool hx711_multi_async_done(hx711_multi_t* const hxm);
 
 /**
  * @brief Get the values from the last asynchronous read.
+ * This function is not mutex protected.
  * 
  * @param hxm 
  * @param values 

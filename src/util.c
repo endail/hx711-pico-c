@@ -69,6 +69,28 @@ bool util_dma_irq_index_is_valid(const uint idx) {
         UTIL_DMA_IRQ_INDEX_MAX);
 }
 
+uint util_dma_get_irq_from_index(const uint idx) {
+    assert(util_dma_irq_index_is_valid(idx));
+    assert(util_dma_to_irq_map != NULL);
+    return util_dma_to_irq_map[idx];
+}
+
+int util_dma_get_index_from_irq(const uint irq_num) {
+
+    check_irq_param(irq_num);
+    assert(util_dma_to_irq_map != NULL);
+
+    switch(irq_num) {
+        case DMA_IRQ_0:
+            return 0;
+        case DMA_IRQ_1:
+            return 1;
+        default:
+            return -1;
+    }
+
+}
+
 void util_dma_set_exclusive_channel_irq_handler(
     const uint irq_index,
     const uint channel,
@@ -121,17 +143,18 @@ bool util_dma_channel_wait_for_finish_timeout(
 
 uint util_dma_get_irqn(const uint irq_index) {
 
+    assert(util_dma_to_irq_map != NULL);
     assert(util_uint_in_range(
         irq_index,
         UTIL_DMA_IRQ_INDEX_MIN,
         UTIL_DMA_IRQ_INDEX_MAX));
 
-    const uint irq = util_dma_to_irq_map[
+    const uint irq_num = util_dma_to_irq_map[
         irq_index];
 
-    check_irq_param(irq);
+    check_irq_param(irq_num);
 
-    return irq;
+    return irq_num;
 
 }
 
@@ -177,7 +200,7 @@ void util_irq_set_exclusive_pio_interrupt_num_handler(
         assert(util_routable_pio_interrupt_num_is_valid(pio_interrupt_num));
         assert(handler != NULL);
 
-        const uint irq_num = util_pion_get_irqn(
+        const uint irq_num = util_pio_get_irq_from_index(
             pio,
             irq_index);
 
@@ -213,6 +236,7 @@ uint util_pion_get_irqn(
 
         check_pio_param(pio);
         assert(util_pio_irq_index_is_valid(irq_index));
+        assert(util_pio_to_irq_map != NULL);
 
         const uint irq_num = util_pio_to_irq_map[
             pio_get_index(pio) + irq_index];
@@ -220,6 +244,57 @@ uint util_pion_get_irqn(
         check_irq_param(irq_num);
 
         return irq_num;
+
+}
+
+uint util_pio_get_irq_from_index(
+    PIO const pio,
+    const uint idx) {
+    
+        check_pio_param(pio);
+        assert(util_pio_irq_index_is_valid(idx));
+        assert(util_pio_to_irq_map != NULL);
+
+        const uint irq_num = util_pio_to_irq_map[
+            pio_get_index(pio) + idx];
+
+        check_irq_param(irq_num);
+
+        return irq_num;
+
+}
+
+int util_pio_get_index_from_irq(const uint irq_num) {
+
+    check_irq_param(irq_num);
+
+    switch(irq_num) {
+        case PIO0_IRQ_0:
+        case PIO1_IRQ_0:
+            return 0;
+        case PIO0_IRQ_1:
+        case PIO1_IRQ_1:
+            return 1;
+        default:
+            return -1;
+    }
+
+}
+
+PIO const util_pio_get_pio_from_irq(const uint irq_num) {
+
+    check_irq_param(irq_num);
+
+    switch(irq_num) {
+        case PIO0_IRQ_0:
+        case PIO0_IRQ_1:
+            return pio0;
+        case PIO1_IRQ_0:
+        case PIO1_IRQ_1:
+            return pio1;
+        default:
+            return NULL;
+    }
 
 }
 
@@ -273,6 +348,17 @@ void util_pio_sm_clear_osr(
         check_sm_param(sm);
         const uint instr = pio_encode_push(false, false);
         while(!pio_sm_is_rx_fifo_empty(pio, sm)) {
+            pio_sm_exec(pio, sm, instr);
+        }
+}
+
+void util_pio_sm_clear_isr(
+    PIO const pio,
+    const uint sm) {
+        check_pio_param(pio);
+        check_sm_param(sm);
+        const uint instr = pio_encode_pull(false, false);
+        while(!pio_sm_is_tx_fifo_empty(pio, sm)) {
             pio_sm_exec(pio, sm, instr);
         }
 }
