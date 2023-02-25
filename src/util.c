@@ -37,7 +37,7 @@
 #include "pico/types.h"
 #include "../include/util.h"
 
-#define DEF_IN_RANGE_FUNC(TYPE) \
+#define UTIL_DEF_IN_RANGE_FUNC(TYPE) \
     bool util_ ## TYPE ##_in_range( \
         const TYPE val, \
         const TYPE min, \
@@ -57,10 +57,10 @@ const uint8_t util_dma_to_irq_map[] = {
     DMA_IRQ_1
 };
 
-DEF_IN_RANGE_FUNC(int32_t)
-DEF_IN_RANGE_FUNC(uint32_t)
-DEF_IN_RANGE_FUNC(int)
-DEF_IN_RANGE_FUNC(uint)
+UTIL_DEF_IN_RANGE_FUNC(int32_t)
+UTIL_DEF_IN_RANGE_FUNC(uint32_t)
+UTIL_DEF_IN_RANGE_FUNC(int)
+UTIL_DEF_IN_RANGE_FUNC(uint)
 
 bool util_dma_irq_index_is_valid(const uint idx) {
     return util_uint_in_range(
@@ -500,4 +500,4 @@ bool util_pio_sm_try_get(
 
 }
 
-#undef DEF_IN_RANGE_FUNC
+#undef UTIL_DEF_IN_RANGE_FUNC
