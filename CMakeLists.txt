@@ -63,6 +63,10 @@ endif()
 
 add_library(hx711-pico-c INTERFACE)
 
+target_compile_definitions(hx711-pico-c INTERFACE
+        HX711_USE_MUTEX
+        )
+
 target_link_libraries(hx711-pico-c INTERFACE
         hardware_clocks
         hardware_dma
