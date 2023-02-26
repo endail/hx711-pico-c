@@ -146,7 +146,7 @@ hx711_wait_settle(hx711_gain_128);
 // 6. Read values
 int32_t arr[hxmcfg.chips_len];
 
-// 6a. wait (block) until a values are read
+// 6a. wait (block) until values are ready
 hx711_multi_get_values(&hxm, arr);
 
 // then print the value from each chip
