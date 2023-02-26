@@ -158,7 +158,7 @@ for(uint i = 0; i < hxmcfg.chips_len; ++i) {
 }
 
 // 6b. use a timeout
-if(hx711_multi_get_values_timeout(&hxm, &arr, 250000)) {
+if(hx711_multi_get_values_timeout(&hxm, arr, 250000)) {
     // do something with arr
 }
 
@@ -170,7 +170,7 @@ hx711_multi_async_start(&hxm);
 // use hx711_multi_async_done(&hxm) to check
 // if values are ready, then...
 
-hx711_multi_async_get_values(&hxm, &arr);
+hx711_multi_async_get_values(&hxm, arr);
 
 // do something with arr
 
