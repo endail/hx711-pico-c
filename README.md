@@ -230,6 +230,30 @@ hxmcfg.dma_irq_index = 1; //DMA_IRQ_1 is claimed
 
 Mutex functionality is included and enabled by default to protect the HX711 conversion process. If you are sure you do not need it, define the preprocessor flag `HX711_NO_MUTEX` then recompile.
 
+### Custom PIO Programs
+
+`#include include/common.h` includes the PIO programs I have created for both `hx711_t` and `hx711_multi_t`. Calling `hx711_get_default_config()` and `hx711_multi_get_default_config()` will include those PIO in the configuration. If you want to change or use your own PIO programs, do the following:
+
+```c
+hx711_config_t hxcfg;
+hxcfg.pio_init = my_hx_pio_init_func; // function to setup the PIO
+hxcfg.reader_prog = my_pio_program; // pio_program_t*
+hxcfg.reader_prog_init = my_pio_program_init_func; // function to setup the PIO program
+```
+
+`hxcfg.pio_init` and `hxcfg.pio_prog_init` take a pointer to the `hx711_t` as the only parameter.
+
+```c
+hx711_multi_config_t hxmcfg;
+hxmcfg.pio_init = my_hxm_pio_init_func; // function to setup the PIO
+hxmcfg.awaiter_prog = my_pio_awaiter_program; // pio_program_t*
+hxmcfg.awaiter_prog_init = my_hxm_awaiter_init_func; // function to setup the awaiter PIO program
+hxmcfg.reader_prog = my_pio_reader_progam; // pio_program_t*
+hxmcfg.reader_prog_init = my_pio_reader_program_init; // function to setup the reader PIO progam
+```
+
+`hxmcfg.pio_init`, `hxmcfg.awaiter_prog_init`, and `hxmcfg.reader_prog_init` take a pointer to the `hx711_multi_t` as the only parameter.
+
 ## Overview of Functionality
 
 ### `hx711_t`
