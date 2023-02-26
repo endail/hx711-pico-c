@@ -1,0 +1,280 @@
+; MIT License
+; 
+; Copyright (c) 2023 Daniel Robertson
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+
+; This program functions similarly to the single HX711 reader program. However,
+; it has one important difference. Because the state machine has a limited
+; input buffer, it cannot store a full raw HX711 value for each possible chip.
+; It must also be able to be able to read the input values of each data pin
+; simultaneously and do so 24 times for each bit. The state machine must
+; therefore output the pin values for each chip it reads.
+; 
+; The program reads each pin as a bitmask. Each bit is the current state of
+; each input pin - whether it is high or low. That bitmask is pushed out of
+; the state machine as a 32 bit unsigned integer where the 0th bit (the
+; least significant bit) is the state of the HX711's data pin connected to
+; the base data pin, the 1th bit is the second HX711, the 2th bit is the
+; third HX711, and so on. This occurs 24 times. Once for each bit in a raw,
+; two's complement HX711 value.
+; 
+; After the 24 bits have been pushed out of the state machine, effectively
+; a 2D array of bits has been created. Each row represents the HX711 bit
+; number, and each column represents the all the bits for an individual
+; chip. For example:
+; 
+; [ 0, 1, 1, ... 0 ]    This is the MSB set of bits for each HX711.
+; [ 1, 1, 0, ... 1 ]    This is the next set of bits for each HX711.
+; ...
+; [ 0, 0, 1, ... 0 ]    This is the LSB set of bits for each HX711.
+; 
+; =========================================================================
+; 
+; The reader program is free-running. It constantly clocks-in data during a
+; period guarded by an IRQ flag. An application consuming data from the
+; state machine can start reading in data by waiting until the conversion
+; period IRQ flag is set and then reading in each push. After reading in
+; bits, the same gain setting procedure is followed as with a single HX711.
+; 
+; NOTE: the RX FIFO may have residual data in it at the beginning of a
+; conversion period from the previous conversion period. Application code
+; should ensure the RX FIFO is empty.
+; 
+
+.program hx711_multi_reader
+
+.define PUBLIC HZ                   10000000
+
+.define CONVERSION_DONE_IRQ_NUM     0
+.define DATA_READY_IRQ_NUM          4
+
+.define LOW                         0
+.define HIGH                        1
+
+.define PLACEHOLDER_IN              1
+
+.define READ_BITS                   23
+.define DEFAULT_GAIN                0
+.define GAIN_BITS                   32
+.define T3                          2
+.define T4                          2
+
+.side_set 1 opt
+
+set x, DEFAULT_GAIN
+pull noblock
+out x, GAIN_BITS
+
+.wrap_target
+wrap_target:
+
+set y, READ_BITS
+
+in null, 32                         ; Completely clear the ISR and RX FIFO.
+push noblock
+
+wait HIGH irq DATA_READY_IRQ_NUM    ; Wait for the IRQ from the other state machine
+                                    ; to indicate all HX711s are ready for data
+                                    ; retrieval.
+
+                                    ; At this point it is assumed all HX711 chips are
+                                    ; synchronised.
+
+irq clear CONVERSION_DONE_IRQ_NUM
+
+bitloop:
+    set pins, HIGH
+
+PUBLIC bitloop_in_pins_bit_count:   ; Set a public label to modify the following `in pins`
+                                    ; instruction.
+    in pins, PLACEHOLDER_IN
+
+    push noblock                    ; State machine is free-running, so cannot
+                                    ; allow it to block with autopush.
+
+    jmp y-- bitloop side LOW
+
+irq set CONVERSION_DONE_IRQ_NUM
+
+pull noblock side HIGH
+out x, GAIN_BITS
+jmp !x wrap_target side LOW
+mov y, x
+
+gainloop:
+    set pins, HIGH [T3 - 1]
+    jmp y-- gainloop side LOW [T4 - 1]
+
+.wrap
+
+% c-sdk {
+// MIT License
+// 
+// Copyright (c) 2023 Daniel Robertson
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#include <assert.h>
+#include <stddef.h>
+#include "hardware/clocks.h"
+#include "hardware/pio.h"
+#include "hardware/pio_instructions.h"
+#include "hardware/structs/clocks.h"
+#include "hx711_multi.h"
+#include "util.h"
+
+void hx711_multi_pio_init(hx711_multi_t* const hxm) {
+
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
+    assert(hxm->_chips_len > 0);
+
+    pio_gpio_init(
+        hxm->_pio,
+        hxm->_clock_pin);
+
+    util_pio_gpio_contiguous_init(
+        hxm->_pio,
+        hxm->_data_pin_base,
+        hxm->_chips_len);
+
+
+    // make sure conversion done is valid and routable
+    assert(util_routable_pio_interrupt_num_is_valid(
+        HX711_MULTI_CONVERSION_DONE_IRQ_NUM));
+
+    pio_interrupt_clear(
+        hxm->_pio,
+        HX711_MULTI_CONVERSION_DONE_IRQ_NUM);
+    
+
+    // make sure data ready is valid and not routable
+    // although this is not strictly necessary
+    assert(util_pio_interrupt_num_is_valid(
+        HX711_MULTI_DATA_READY_IRQ_NUM));
+
+    assert(!util_routable_pio_interrupt_num_is_valid(
+        HX711_MULTI_DATA_READY_IRQ_NUM));
+
+    pio_interrupt_clear(
+        hxm->_pio,
+        HX711_MULTI_DATA_READY_IRQ_NUM);
+
+}
+
+void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
+
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
+
+    hxm->_pio->instr_mem[hxm->_reader_offset + hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
+        pio_encode_in(pio_pins, hxm->_chips_len);
+
+    pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
+        hxm->_reader_offset);
+
+    const float div = (float)(clock_get_hz(clk_sys)) / (uint)hx711_multi_reader_HZ;
+
+    sm_config_set_clkdiv(
+        &cfg,
+        div);
+
+    //clock pin setup
+    pio_sm_set_out_pins(
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->_clock_pin,
+        1);
+
+    pio_sm_set_set_pins(
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->_clock_pin,
+        1);
+
+    pio_sm_set_consecutive_pindirs(
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->_clock_pin,
+        1,
+        true);
+
+    sm_config_set_set_pins(
+        &cfg,
+        hxm->_clock_pin,
+        1);
+
+    sm_config_set_out_pins(
+        &cfg,
+        hxm->_clock_pin,
+        1);
+
+    sm_config_set_sideset_pins(
+        &cfg,
+        hxm->_clock_pin);
+
+    //data pins
+    pio_sm_set_in_pins(
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->_data_pin_base);
+
+    pio_sm_set_consecutive_pindirs(
+        hxm->_pio,
+        hxm->_reader_sm,
+        hxm->_data_pin_base,
+        hxm->_chips_len,
+        false);                 //false = input
+
+    sm_config_set_in_pins(
+        &cfg,
+        hxm->_data_pin_base);
+
+    sm_config_set_in_shift(
+        &cfg,
+        false,                  //false = shift in left
+        false,                  //false = autopush disabled
+        hxm->_chips_len);
+
+    pio_sm_clear_fifos(
+        hxm->_pio,
+        hxm->_reader_sm);
+
+    hxm->_reader_default_config = cfg;
+
+}
+
+%}

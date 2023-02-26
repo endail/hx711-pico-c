@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2022 Daniel Robertson
+// Copyright (c) 2023 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,106 +20,102 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
-#define _HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
+#ifndef HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
+#define HX711_H_0ED0E077_8980_484C_BB94_AF52973CDC09
 
-#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "hardware/pio.h"
 #include "pico/mutex.h"
-#include "pico/time.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef DEBUG
-    #define CHECK_HX711_INITD(hx) \
-        assert(hx != NULL); \
-        assert(hx->_pio != NULL); \
-        assert(pio_sm_is_claimed(hx->_pio, hx->_state_mach)); \
-        assert(mutex_is_initialized(&hx->_mut));
+#ifndef HX711_NO_MUTEX
+    #define HX711_MUTEX_BLOCK(mut, ...) \
+        do { \
+            mutex_enter_blocking(&mut); \
+            __VA_ARGS__ \
+            mutex_exit(&mut); \
+        } while(0)
 #else
-    #define CHECK_HX711_INITD(hx)
+    #define HX711_MUTEX_BLOCK(mut, ...) \
+    do { \
+        __VA_ARGS__ \
+    } while(0)
 #endif
 
-static const uint HX711_READ_BITS = 24;
+#define HX711_READ_BITS                 UINT8_C(24)
+#define HX711_POWER_DOWN_TIMEOUT        UINT8_C(60) //microseconds
 
-static const int32_t HX711_MIN_VALUE = -0x800000; //-pow(2, HX711_READ_BITS - 1) == -8388608
+#define HX711_MIN_VALUE                 INT32_C(-0x800000) //−8,388,608
+#define HX711_MAX_VALUE                 INT32_C(0x7fffff) //8,388,607
 
-static const int32_t HX711_MAX_VALUE = 0x7fffff; //pow(2, HX711_READ_BITS - 1) - 1 == 8388607
+#define HX711_PIO_MIN_GAIN              UINT8_C(0)
+#define HX711_PIO_MAX_GAIN              UINT8_C(2)
 
-static const uint HX711_POWER_DOWN_TIMEOUT = 60; //us
-
-static const uint HX711_SETTLING_TIMES[] = { //ms
-    400,
-    50
-};
+extern const unsigned short HX711_SETTLING_TIMES[3]; //milliseconds
+extern const unsigned char HX711_SAMPLE_RATES[2];
+extern const unsigned char HX711_CLOCK_PULSES[3];
 
 typedef enum {
     hx711_rate_10 = 0,
     hx711_rate_80
 } hx711_rate_t;
 
-static const uint HX711_SAMPLE_RATES[] = {
-    10,
-    80
-};
-
 typedef enum {
-    hx711_gain_128 = 25, //clock pulse counts
-    hx711_gain_32 = 26,
-    hx711_gain_64 = 27
+    hx711_gain_128 = 0,
+    hx711_gain_32,
+    hx711_gain_64
 } hx711_gain_t;
+
+typedef struct {
+
+    uint _clock_pin;
+    uint _data_pin;
+
+    PIO _pio;
+    const pio_program_t* _reader_prog;
+    pio_sm_config _reader_prog_default_config;
+    uint _reader_sm;
+    uint _reader_offset;
+
+#ifndef HX711_NO_MUTEX
+    mutex_t _mut;
+#endif
+
+} hx711_t;
+
+typedef void (*hx711_pio_init_t)(hx711_t* const);
+typedef void (*hx711_program_init_t)(hx711_t* const);
 
 typedef struct {
 
     uint clock_pin;
     uint data_pin;
 
-    PIO _pio;
-    const pio_program_t* _prog;
-    pio_sm_config _default_config;
-    uint _state_mach;
-    uint _offset;
+    PIO pio;
+    hx711_pio_init_t pio_init;
 
-    mutex_t _mut;
+    const pio_program_t* reader_prog;
+    hx711_program_init_t reader_prog_init;
 
-} hx711_t;
+} hx711_config_t;
 
-/**
- * @brief Prototype for init function in .pio file.
- */
-typedef void (*hx711_program_init_t)(hx711_t* const);
-
-/**
- * @brief Initialise HX711.
- * 
- * @param hx Pointer to hx711_t
- * @param clk GPIO pin connected to HX711 CLK pin
- * @param dat GPIO pin connected to HX711 DAT pin
- * @param pio RP2040 PIO pio0 or pio1
- * @param prog PIO program
- * @param prog_init_func PIO initalisation function
- */
 void hx711_init(
     hx711_t* const hx,
-    const uint clk,
-    const uint dat,
-    PIO const pio,
-    const pio_program_t* const prog,
-    hx711_program_init_t prog_init_func);
+    const hx711_config_t* const config);
 
 /**
- * @brief Stop communication with HX711.
+ * @brief Stop communication with the HX711.
  * 
  * @param hx 
  */
 void hx711_close(hx711_t* const hx);
 
 /**
- * @brief Sets HX711 gain.
+ * @brief Sets the HX711 gain.
  * 
  * @param hx 
  * @param gain 
@@ -134,61 +130,52 @@ void hx711_set_gain(
  * @param raw 
  * @return int32_t 
  */
-static inline int32_t hx711_get_twos_comp(const uint32_t raw) {
-
-    const int32_t val = 
-        (int32_t)(-(raw & +HX711_MIN_VALUE)) + (int32_t)(raw & HX711_MAX_VALUE);
-
-    assert(val >= HX711_MIN_VALUE && val <= HX711_MAX_VALUE);
-
-    return val;
-
-}
+int32_t hx711_get_twos_comp(const uint32_t raw);
 
 /**
- * @brief Returns true if the load cell is saturated at its
+ * @brief Returns true if the HX711 is saturated at its
  * minimum level.
  * 
  * @param val 
  * @return true 
  * @return false 
  */
-static inline bool hx711_is_min_saturated(const int32_t val) {
-    return val == HX711_MIN_VALUE; //−8,388,608
-}
+bool hx711_is_min_saturated(const int32_t val);
 
 /**
- * @brief Returns true if the load cell is saturated at its
+ * @brief Returns true if the HX711 is saturated at its
  * maximum level.
  * 
  * @param val 
  * @return true 
  * @return false 
  */
-static inline bool hx711_is_max_saturated(const int32_t val) {
-    return val == HX711_MAX_VALUE; //8,388,607
-}
+bool hx711_is_max_saturated(const int32_t val);
 
 /**
  * @brief Returns the number of milliseconds to wait according
  * to the given HX711 sample rate to allow readings to settle.
  * 
  * @param rate 
- * @return uint 
+ * @return unsigned short 
  */
-static inline uint hx711_get_settling_time(const hx711_rate_t rate) {
-    return HX711_SETTLING_TIMES[(uint)rate];
-}
+unsigned short hx711_get_settling_time(const hx711_rate_t rate);
 
 /**
  * @brief Returns the numeric sample rate of the given rate.
  * 
  * @param rate 
- * @return uint 
+ * @return unsigned char 
  */
-static inline uint hx711_get_rate_sps(const hx711_rate_t rate) {
-    return HX711_SAMPLE_RATES[(uint)rate];
-}
+unsigned char hx711_get_rate_sps(const hx711_rate_t rate);
+
+/**
+ * @brief Returns the clock pulse count for a given gain value.
+ * 
+ * @param gain 
+ * @return unsigned char 
+ */
+unsigned char hx711_get_clock_pulses(const hx711_gain_t gain);
 
 /**
  * @brief Obtains a value from the HX711. Blocks until a value
@@ -204,15 +191,15 @@ int32_t hx711_get_value(hx711_t* const hx);
  * is available or the timeout is reached.
  * 
  * @param hx 
- * @param timeout maximum time to wait for a value in microseconds
  * @param val pointer to the value
+ * @param timeout maximum time to wait for a value in microseconds
  * @return true if a value was obtained within the timeout
  * @return false if a timeout was reached
  */
 bool hx711_get_value_timeout(
     hx711_t* const hx,
-    const uint timeout,
-    int32_t* const val);
+    int32_t* const val,
+    const uint timeout);
 
 /**
  * @brief Obtains a value from the HX711. Returns immediately if
@@ -228,18 +215,80 @@ bool hx711_get_value_noblock(
     int32_t* const val);
 
 /**
- * @brief Power up the HX711 module and start the state machine
+ * @brief Check whether the hx struct has been initalised.
+ * 
+ * @param hx 
+ * @return true 
+ * @return false 
+ */
+static bool hx711__is_initd(hx711_t* const hx);
+
+/**
+ * @brief Check whether the hx struct's state machines are
+ * running.
+ * 
+ * @param hx 
+ * @return true 
+ * @return false 
+ */
+static bool hx711__is_state_machine_enabled(hx711_t* const hx);
+
+/**
+ * @brief Check whether the given value is valid for a HX711
+ * implementation.
+ * 
+ * @param v 
+ * @return true 
+ * @return false 
+ */
+bool hx711_is_value_valid(const int32_t v);
+
+/**
+ * @brief Check whether a given value is permitted to be
+ * transmitted to a PIO State Machine to set a HX711's gain
+ * according to the PIO program implementation.
+ * 
+ * @param g 
+ * @return true 
+ * @return false 
+ */
+bool hx711_is_pio_gain_valid(const uint32_t g);
+
+/**
+ * @brief Check whether the given rate is within the range
+ * of the predefined rates.
+ * 
+ * @param r 
+ * @return true 
+ * @return false 
+ */
+bool hx711_is_rate_valid(const hx711_rate_t r);
+
+/**
+ * @brief Check whether the given gain is within the range
+ * of the predefined gains.
+ * 
+ * @param g 
+ * @return true 
+ * @return false 
+ */
+bool hx711_is_gain_valid(const hx711_gain_t g);
+
+/**
+ * @brief Power up the HX711 and start the internal read/write
+ * functionality.
  * 
  * @related hx711_wait_settle
  * @param hx 
- * @param g hx711_gain_t initial gain
+ * @param gain hx711_gain_t initial gain
  */
 void hx711_power_up(
     hx711_t* const hx,
     const hx711_gain_t gain);
 
 /**
- * @brief Power down the HX711 module and stop the state machine
+ * @brief Power down the HX711 and stop the internal read/write
+ * functionality
  * 
  * @related hx711_wait_power_down()
  * @param hx 
@@ -253,18 +302,14 @@ void hx711_power_down(hx711_t* const hx);
  * 
  * @param rate 
  */
-static inline void hx711_wait_settle(const hx711_rate_t rate) {
-    sleep_ms(hx711_get_settling_time(rate));
-}
+void hx711_wait_settle(const hx711_rate_t rate);
 
 /**
  * @brief Convenience function for sleeping for the
  * appropriate amount of time to allow the HX711 to power
  * down.
  */
-static inline void hx711_wait_power_down() {
-    sleep_us(HX711_POWER_DOWN_TIMEOUT);
-}
+void hx711_wait_power_down();
 
 /**
  * @brief Convert a hx711_gain_t to a numeric value appropriate
@@ -273,22 +318,7 @@ static inline void hx711_wait_power_down() {
  * @param gain 
  * @return uint32_t 
  */
-static uint32_t hx711__gain_to_sm_gain(const hx711_gain_t gain) {
-
-    /**
-     * gain value is 0-based and calculated by:
-     * gain = clock pulses - 24 - 1
-     * ie. gain of 128 is 25 clock pulses, so
-     * gain = 25 - 24 - 1
-     * gain = 0
-     */
-    const uint32_t gainVal = (uint32_t)gain - HX711_READ_BITS - 1;
-
-    assert(gainVal <= 2);
-
-    return gainVal;
-
-}
+uint32_t hx711_gain_to_pio_gain(const hx711_gain_t gain);
 
 /**
  * @brief Attempts to obtain a value from the PIO RX FIFO if one is available.
@@ -299,24 +329,10 @@ static uint32_t hx711__gain_to_sm_gain(const hx711_gain_t gain) {
  * @return true if value was obtained
  * @return false if value was not obtained
  */
-static inline bool hx711__try_get_value(
+static bool hx711__try_get_value(
     PIO const pio,
     const uint sm,
-    uint32_t* const val) {
-
-        assert(pio != NULL);
-        assert(val != NULL);
-
-        static const uint byteThreshold = HX711_READ_BITS / 8;
-
-        if(pio_sm_get_rx_fifo_level(pio, sm) >= byteThreshold) {
-            *val = pio_sm_get(pio, sm);
-            return true;
-        }
-
-        return false;
-
-}
+    uint32_t* const val);
 
 #ifdef __cplusplus
 }

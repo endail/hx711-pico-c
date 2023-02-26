@@ -1,12 +1,15 @@
 name: cppcheck-action
-on: [push]
+
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     name: cppcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
 
       - name: cppcheck
         uses: deep5050/cppcheck-action@main
@@ -21,4 +24,4 @@ jobs:
         uses: mikeal/publish-to-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: 'main'
+          BRANCH_NAME: ${{ github.ref_name }}

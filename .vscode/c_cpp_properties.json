@@ -1,21 +1,23 @@
 {
     "configurations": [
         {
-            "name": "ARM",
+            "name": "Pico",
             "includePath": [
                 "${workspaceFolder}/include/**",
-                "${env:ARM_TOOLCHAIN_PATH}/lib/gcc/arm-none-eabi/**",
+                "${env:PICO_TOOLCHAIN_PATH}/lib/gcc/arm-none-eabi/**",
                 "${env:PICO_SDK_PATH}/**"
             ],
-            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc",
-            "cStandard": "c11",
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.22000.0",
+            "compilerPath": "${env:PICO_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc.exe",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-arm",
-            "configurationProvider": "ms-vscode.cmake-tools",
-            "forcedInclude": [],
-            "browse": {
-                "path": []
-            }
+            "cStandard": "c11",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

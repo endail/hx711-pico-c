@@ -1,0 +1,161 @@
+; MIT License
+; 
+; Copyright (c) 2023 Daniel Robertson
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+
+; This program constantly reads the input value of each configured
+; data pin simultaneously. If and when all data pins are low, a PIO
+; IRQ is set. If any of the data pins are high, the PIO IRQ is
+; cleared.
+; 
+; The program works by reading n number of pins into the ISR as a
+; set of bits. The program, as written below, cannot know how many
+; data pins have been configured beforehand. So the `in pins`
+; instruction is given a placeholder value to be replaced with the
+; number of pins to read when the state machine is configured.
+; 
+; It is assumed the data pins could be low at any moment, so the
+; state machine is left unconfigured as to its speed to run at
+; its fastest. It is not dependent on the clock speed of the HX711
+; chip because this program does not clock-in any data. However,
+; it may be possible to set the speed to some predefined minimum
+; for any possible benefits (eg. reduced power use).
+
+.program hx711_multi_awaiter
+
+.define DATA_READY_IRQ_NUM          4   ; IRQ is set when all data pins become low.
+                                        ; If any data pins are high, the IRQ is
+                                        ; cleared.
+
+.define LOW                         0
+.define HIGH                        1
+
+.define PLACEHOLDER_IN              1
+
+.wrap_target
+wrap_target:
+
+PUBLIC wait_in_pins_bit_count:          ; Public label is set to modify the following `in`
+                                        ; instruction in the state machine init function.
+    in pins, PLACEHOLDER_IN             ; Read in a bitmask of the value of each data pin
+                                        ; into the ISR.
+
+    mov y, isr                          ; Copy the ISR value into the y register to be
+                                        ; able to test a jmp condition, as it is not
+                                        ; possible to do so directly on the ISR.
+
+    push noblock                        ; Push pinbits out.
+
+    jmp !y signal_low                   ; If all the pins are low, y will be 0. The `!y`
+                                        ; condition tests for y == 0. If any of the data
+                                        ; pins are high, y will be non-zero and execution
+                                        ; will fall through.
+
+    irq clear DATA_READY_IRQ_NUM        ; Clear the data readiness IRQ to indicate that
+                                        ; data is not or no longer ready on all HX711
+                                        ; chips.
+
+    jmp wrap_target                     ; Go back and test the pin values again.
+
+signal_low:
+    irq set DATA_READY_IRQ_NUM          ; Set the data readiness IRQ to indicate that
+                                        ; data is now ready to be obtained from all
+                                        ; HX711 chips.
+
+.wrap                                   ; Go back and test the pin values again.
+
+% c-sdk {
+// MIT License
+// 
+// Copyright (c) 2023 Daniel Robertson
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#include <assert.h>
+#include <stddef.h>
+#include "hardware/pio.h"
+#include "hardware/pio_instructions.h"
+#include "hx711_multi.h"
+
+void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
+
+    assert(hxm != NULL);
+    assert(hxm->_pio != NULL);
+    assert(hxm->_chips_len > 0);
+
+    pio_sm_config cfg = hx711_multi_awaiter_program_get_default_config(
+        hxm->_awaiter_offset);
+
+    //replace placeholder in instruction with the number of pins
+    //to read
+    hxm->_pio->instr_mem[hxm->_awaiter_offset + hx711_multi_awaiter_offset_wait_in_pins_bit_count] = 
+        pio_encode_in(pio_pins, hxm->_chips_len);
+
+    //data pins
+    pio_sm_set_in_pins(
+        hxm->_pio,
+        hxm->_awaiter_sm,
+        hxm->_data_pin_base);
+
+    pio_sm_set_consecutive_pindirs(
+        hxm->_pio,
+        hxm->_awaiter_sm,
+        hxm->_data_pin_base,
+        hxm->_chips_len,
+        false);         //false = output pins
+
+    sm_config_set_in_pins(
+        &cfg,
+        hxm->_data_pin_base);
+
+    //even though the program reads data into the ISR,
+    //it does not push any data, so make sure autopushing
+    //is disabled
+    sm_config_set_in_shift(
+        &cfg,
+        false,              //false = shift left
+        false,              //false = autopush disabled
+        hxm->_chips_len);   //autopush threshold
+
+    pio_sm_clear_fifos(
+        hxm->_pio,
+        hxm->_awaiter_sm);
+
+    hxm->_awaiter_default_config = cfg;
+
+}
+
+%}
