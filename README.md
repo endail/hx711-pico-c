@@ -130,7 +130,7 @@ hx711_multi_t hxm;
 hx711_multi_init(&hxm, &hxmcfg);
 
 // 3. Power up the HX711 chips and set gain on each chip
-hx711_multi_power_up(&hxm, multi_gain);
+hx711_multi_power_up(&hxm, hx711_gain_128);
 
 // 4. This step is optional. Only do this if you want to
 // change the gain AND save it to each HX711 chip
