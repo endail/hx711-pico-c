@@ -36,36 +36,35 @@ See [here](https://pico.pinout.xyz/) for a pinout to choose two GPIO pins on the
 ```c
 #include "include/common.h"
 
-hx711_t hx;
-hx711_config_t config = HX711_DEFAULT_CONFIG;
-config.clock_pin = 14; //GPIO pin connected to HX711 clock pin
-config.data_pin = 15; //GPIO pin connected to HX711 data pin
+// 1. Set configuration
+hx711_config_t hxcfg;
+hx711_get_default_config(&hxcfg);
+
+hxcfg.clock_pin = 14; //GPIO pin connected to HX711 clock pin
+hxcfg.data_pin = 15; //GPIO pin connected to HX711 data pin
 
 //by default, the underlying PIO program will run on pio0
 //if you need to change this, you can do:
-//config.pio = pio1;
+//hxcfg.pio = pio1;
 
-const hx711_rate_t rate = hx711_rate_10; //or hx711_rate_80
-const hx711_gain_t gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
+// 2. Initialise
+hx711_init(&hx, &hxcfg);
 
-// 1. Initialise
-hx711_init(&hx, &config);
+// 3. Power up the hx711 and set gain on chip
+hx711_power_up(&hx, hx711_gain_128);
 
-//2. Power up the hx711 and set gain on chip
-hx711_power_up(&hx, gain);
-
-//3. This step is optional. Only do this if you want to
-//change the gain AND save it to the HX711 chip
+// 4. This step is optional. Only do this if you want to
+// change the gain AND save it to the HX711 chip
 //
-//hx711_set_gain(&hx, hx711_gain_64);
-//hx711_power_down(&hx);
-//hx711_wait_power_down();
-//hx711_power_up(&hx, hx711_gain_64);
+// hx711_set_gain(&hx, hx711_gain_64);
+// hx711_power_down(&hx);
+// hx711_wait_power_down();
+// hx711_power_up(&hx, hx711_gain_64);
 
-// 4. Wait for readings to settle
+// 5. Wait for readings to settle
 hx711_wait_settle(rate);
 
-// 5. Read values
+// 6. Read values
 // You can now...
 
 // wait (block) until a value is obtained
@@ -115,80 +114,69 @@ Note: each chip should use the same sample rate. Using chips with different samp
 ```c
 #include "../include/common.h"
 
-hx711_multi_t hxm;
-hx711_multi_config_t cfg = HX711_MULTI_DEFAULT_CONFIG;
-cfg.clock_pin = 9; //GPIO pin connected to each HX711 chip
-cfg.data_pin_base = 12; //first GPIO pin used to connect to HX711 data pin
-cfg.chips_len = 4; //how many HX711 chips connected
+// 1. Set configuration
+hx711_multi_config_t hxmcfg;
+hx711_multi_get_default_config(&hxmcfg);
+hxmcfg.clock_pin = 9; //GPIO pin connected to each HX711 chip
+hxmcfg.data_pin_base = 12; //first GPIO pin used to connect to HX711 data pin
+hxmcfg.chips_len = 4; //how many HX711 chips connected
 
-//by default, the underlying PIO program will run on pio0
+//by default, the underlying PIO programs will run on pio0
 //if you need to change this, you can do:
-//cfg.pio = pio1;
+//hxmcfg.pio = pio1;
 
-const hx711_rate_t multi_rate = hx711_rate_10; //or hx711_rate_80
-const hx711_gain_t multi_gain = hx711_gain_128; //or hx711_gain_64 or hx711_gain_32
+// 2. Initialise
+hx711_multi_t hxm;
+hx711_multi_init(&hxm, &hxmcfg);
 
-// 1. initialise
-hx711_multi_init(&hxm, &cfg);
-
-// 2. Power up the HX711 chips and set gain on each chip
+// 3. Power up the HX711 chips and set gain on each chip
 hx711_multi_power_up(&hxm, multi_gain);
 
-//3. This step is optional. Only do this if you want to
-//change the gain AND save it to each HX711 chip
+// 4. This step is optional. Only do this if you want to
+// change the gain AND save it to each HX711 chip
 //
-//hx711_multi_set_gain(&hxm, hx711_gain_64);
-//hx711_multi_power_down(&hxm);
-//hx711_wait_power_down();
-//hx711_multi_power_up(&hxm, hx711_gain_64);
+// hx711_multi_set_gain(&hxm, hx711_gain_64);
+// hx711_multi_power_down(&hxm);
+// hx711_wait_power_down();
+// hx711_multi_power_up(&hxm, hx711_gain_64);
 
-// 4. Wait for readings to settle
-hx711_wait_settle(multi_rate);
+// 5. Wait for readings to settle
+hx711_wait_settle(hx711_gain_128);
 
-// 5. Read values
-int32_t arr[cfg.chips_len];
+// 6. Read values
+int32_t arr[hxmcfg.chips_len];
 
-// wait (block) until a values are read
+// 6a. wait (block) until a values are read
 hx711_multi_get_values(&hxm, arr);
 
 // then print the value from each chip
 // the first value in the array is from the HX711
 // connected to the first configured data pin and
 // so on
-for(uint i = 0; i < cfg.chips_len; ++i) {
+for(uint i = 0; i < hxmcfg.chips_len; ++i) {
     printf("hx711_multi_t chip %i: %li\n", i, arr[i]);
 }
 
-// 6. Stop communication with all HX711 chips
-hx711_multi_close(&hxm);
-```
-
-There is also an interface for asynchronous requests.
-
-```c
-hx711_multi_async_request_t req;
-
-hx711_multi_async_get_request_defaults(&hxm, &req);
-hx711_multi_async_open(&hxm, &req);
-
-hx711_multi_async_start(&req);
-
-// do other work while waiting...
-
-if(hx711_multi_async_is_done(&req)) {
-    hx711_multi_async_get_values(&req, arr);
+// 6b. use a timeout
+if(hx711_multi_get_values_timeout(&hxm, &arr, 250000)) {
+    // do something with arr
 }
 
-hx711_multi_async_close(&hxm, &req);
+// 6c. or read values asynchronously
+hx711_multi_async_start(&hxm);
+
+// do other work while waiting for values...
+
+// use hx711_multi_async_done(&hxm) to check
+// if values are ready, then...
+
+hx711_multi_async_get_values(&hxm, &arr);
+
+// do something with arr
+
+// 7. Stop communication with all HX711 chips
+hx711_multi_close(&hxm);
 ```
-
-After calling `hx711_multi_async_open()` your program flow should follow:
-
-* `hx711_multi_async_start()` to initiate an async request.
-* `hx711_multi_async_is_done()` to check if the request is complete (although this is not strictly required).
-* `hx711_multi_async_get_values()` to obtain the values from the request.
-
-You can then repeat the above loop as many times as you want. When you no longer wish to read values asynchronously, call `hx711_multi_async_close()`. Be aware that you __cannot call other `hx711_multi_*` functions between `hx711_multi_async_open()` and `hx711_multi_async_close()`__. If you want to change the gain, power down, etc... you __must__ call `hx711_multi_async_close()` first.
 
 ## Notes
 
@@ -232,7 +220,7 @@ When using `hx711_multi_async_*` functions, two interrupts are claimed: one for 
 
 ### Mutex?
 
-Mutex functionality is included, but is __not__ enabled by default. If you need it, define the preprocessor flag `HX711_USE_MUTEX`. All relevant `hx711_t` and `hx711_multi_t` functions abide by mutex with the exception of `hx711_multi_async_start()`, `hx711_multi_async_done()`, and `hx711_multi_async_get_values()`. This should really only be relevant if you are using both RP2040 cores.
+Mutex functionality is included and is enabled by default. If you are sure you do not need it, define the preprocessor flag `HX711_NO_MUTEX`. All relevant `hx711_t` and `hx711_multi_t` functions abide by mutex with the exception of `hx711_multi_async_start()`, `hx711_multi_async_done()`, and `hx711_multi_async_get_values()`. This should really only be relevant if you are using both RP2040 cores.
 
 ```c
 hx711_multi_async_request_t req;
