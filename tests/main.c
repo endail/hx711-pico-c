@@ -108,6 +108,8 @@ int main(void) {
     hxmcfg.clock_pin = 14;
     hxmcfg.data_pin_base = 15;
     hxmcfg.chips_len = 1;
+    hxmcfg.pio_irq_index = 1;
+    hxmcfg.dma_irq_index = 1;
 
     hx711_multi_t hxm;
 

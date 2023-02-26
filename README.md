@@ -216,20 +216,19 @@ When using multiple HX711 chips, it is possible they may be desynchronised if no
 
 ### PIO + DMA Interrupt Specifics
 
-When using `hx711_multi_async_*` functions, two interrupts are claimed: one for a PIO interrupt and one for a DMA interrupt. By default, `PIO[N]_IRQ_0` and `DMA_IRQ_0` are used, where `[N]` is the PIO index being used (ie. initialising `hx711_multi_t` with `pio0` means the resulting interrupt is `PIO0_IRQ_0` and `pio1` results in `PIO1_IRQ_0`). If you need to change the IRQ number for either PIO or DMA, you can set a `hx711_multi_async_request_t`'s `pio_irq_index` and `dma_irq_index` to either 0 or 1. For example:
+When using `hx711_multi_t`, two interrupts are claimed: one for a PIO interrupt and one for a DMA interrupt. By default, `PIO[N]_IRQ_0` and `DMA_IRQ_0` are used, where `[N]` is the PIO index being used (ie. configuring `hx711_multi_t` with `pio0` means the resulting interrupt is `PIO0_IRQ_0` and `pio1` results in `PIO1_IRQ_0`). If you need to change the IRQ _index_ for either PIO or DMA, you can do this when configuring.
+
+```c
+hx711_multi_config_t hxmcfg;
+hx711_multi_get_default_config(&hxmcfg);
+hxmcfg.pio = pio1;
+hxmcfg.pio_irq_index = 1; //PIO1_IRQ_1
+hxmcfg.dma_irq_index = 1; //DMA_IRQ_1
+```
 
 ### Mutex?
 
-Mutex functionality is included and is enabled by default. If you are sure you do not need it, define the preprocessor flag `HX711_NO_MUTEX`. All relevant `hx711_t` and `hx711_multi_t` functions abide by mutex with the exception of `hx711_multi_async_start()`, `hx711_multi_async_done()`, and `hx711_multi_async_get_values()`. This should really only be relevant if you are using both RP2040 cores.
-
-```c
-hx711_multi_async_request_t req;
-hx711_multi_async_get_request_defaults(&hxm, &req);
-req.pio_irq_index = 1; //PIO0_IRQ_1 will be used
-req.dma_irq_index = 1; //DMA_IRQ_1 will be used
-hx711_multi_async_open(&hxm, &req);
-//...
-```
+Mutex functionality is included and is enabled by default. If you are sure you do not need it, define the preprocessor flag `HX711_NO_MUTEX`.
 
 ## Overview of Functionality
 
@@ -239,11 +238,11 @@ The single chip `hx711_t` functions with a single RP2040 State Machine (SM) in o
 
 ### `hx711_multi_t`
 
-The multi chip `hx711_multi_t` functions with two RP2040 State Machines (SM) in one PIO. This includes setting and changing all HX711s gains. The first SM is the "awaiter". It is free-running. It constantly reads the pin state of each RP2040 GPIO pin configured as a data input pin. If and when every pin is low - indicating that every chip has data ready - an interrupt is set.
+The multi chip `hx711_multi_t` functions with two RP2040 State Machines (SM) in one PIO. This includes setting and changing all HX711s gains. The first SM is the "awaiter". It is free-running. It constantly reads the pin state of each RP2040 GPIO pin configured as a data input pin. If and when every pin is low - indicating that every chip has data ready - a PIO interrupt is set.
 
-The second SM is the "reader". It is also free-running. The reader waits for the interrupt from the awaiter and then begins the HX711 conversion period of reading in bits. The conversion period is synchronised with application code by setting and clearing an interrupt.
+The second SM is the "reader". It is also free-running. The reader waits for the data ready PIO interrupt from the awaiter and then begins the HX711 conversion period of reading in bits. The conversion period is synchronised with application code by setting and clearing an interrupt to denote when a conversion period is in progress.
 
-The reader clocks in the state of each data input pin as a bitmask and then pushes it back out of the SM into the RX FIFO. There are 24 pushes. One for each HX711 bit. Due to the size of the RX FIFO only being 32 bits, a SM is not capable of buffering all HX711 input bits when there are multiple chips. Hence why there is a `push` for each HX711 bit.
+The reader clocks in the state of each data input pin as a bitmask and then pushes it back out of the SM into the RX FIFO. There are 24 pushes; one for each HX711 bit. Due to the size of the RX FIFO only being 32 bits, a SM is not capable of buffering all HX711 input bits when there are multiple chips. Hence why there is a `push` for each HX711 bit.
 
 On the receiving end of the SM is a DMA channel which automatically reads in each bitmask of HX711 bits into an array. These bitmasks are then transformed into HX711 values for each chip and returned to application code.
 
