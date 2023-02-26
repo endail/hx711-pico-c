@@ -1,0 +1,9 @@
+tests/main.c:138:5: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
+    PRINT_ARR(arr, hxmcfg.chips_len);
+    ^
+tests/main.c:142:9: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
+        PRINT_ARR(arr, hxmcfg.chips_len);
+        ^
+tests/main.c:156:5: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
+    PRINT_ARR(arr, hxmcfg.chips_len);
+    ^
