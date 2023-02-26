@@ -28,8 +28,8 @@
 
 #define PRINT_ARR(arr, len) \
     do { \
-        for(uint i = 0; i < len; ++i) { \
-            printf("%li\n", arr[i]); \
+        for(size_t i = 0; i < len; ++i) { \
+            printf("hx711_multi_t chip %i: %li\n", i, arr[i]); \
         } \
     } while(0)
 
