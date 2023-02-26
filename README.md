@@ -232,7 +232,7 @@ Mutex functionality is included and enabled by default to protect the HX711 conv
 
 ### Custom PIO Programs
 
-`#include include/common.h` includes the PIO programs I have created for both `hx711_t` and `hx711_multi_t`. Calling `hx711_get_default_config()` and `hx711_multi_get_default_config()` will include those PIO in the configuration. If you want to change or use your own PIO programs, do the following:
+`#include include/common.h` includes the PIO programs I have created for both `hx711_t` and `hx711_multi_t`. Calling `hx711_get_default_config()` and `hx711_multi_get_default_config()` will include those PIO programs in the configurations. If you want to change or use your own PIO programs, set the relevant `hx711_*_config_t` defaults, and do the following:
 
 ```c
 hx711_config_t hxcfg;
