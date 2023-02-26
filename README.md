@@ -222,13 +222,13 @@ When using `hx711_multi_t`, two interrupts are claimed: one for a PIO interrupt 
 hx711_multi_config_t hxmcfg;
 hx711_multi_get_default_config(&hxmcfg);
 hxmcfg.pio = pio1;
-hxmcfg.pio_irq_index = 1; //PIO1_IRQ_1
-hxmcfg.dma_irq_index = 1; //DMA_IRQ_1
+hxmcfg.pio_irq_index = 0; //PIO1_IRQ_0 is claimed
+hxmcfg.dma_irq_index = 1; //DMA_IRQ_1 is claimed
 ```
 
 ### Mutex?
 
-Mutex functionality is included and is enabled by default. If you are sure you do not need it, define the preprocessor flag `HX711_NO_MUTEX`.
+Mutex functionality is included and enabled by default to protect the HX711 conversion process. If you are sure you do not need it, define the preprocessor flag `HX711_NO_MUTEX` then recompile.
 
 ## Overview of Functionality
 
