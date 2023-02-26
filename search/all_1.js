@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['check_5fhx711_5finitd_6',['CHECK_HX711_INITD',['../hx711_8h.html#a3448dba4fc5df23dc3b4f2b16615d35e',1,'hx711.h']]],
-  ['clock_5fpin_7',['clock_pin',['../structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d',1,'hx711_t']]]
+  ['awaiter_5fprog_20',['awaiter_prog',['../structhx711__multi__config__t.html#a5c2c14849efb3824aee686026f7c8318',1,'hx711_multi_config_t']]],
+  ['awaiter_5fprog_5finit_21',['awaiter_prog_init',['../structhx711__multi__config__t.html#a6ccb4149b3dbafe1ebb1301d2b5df6b9',1,'hx711_multi_config_t']]]
 ];

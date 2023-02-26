@@ -27,19 +27,24 @@ var NAVTREE =
   [ "hx711-pico-c", "index.html", [
     [ "Clone Repository", "index.html#autotoc_md1", null ],
     [ "Documentation", "index.html#autotoc_md2", null ],
-    [ "How to Use", "index.html#autotoc_md3", null ],
-    [ "Notes", "index.html#autotoc_md4", [
-      [ "Where is Channel A and Channel B?", "index.html#autotoc_md5", null ],
-      [ "What is hx711_wait_settle?", "index.html#autotoc_md6", null ],
-      [ "Save HX711 Gain to Chip", "index.html#autotoc_md7", null ],
+    [ "How to Use hx711_t", "index.html#autotoc_md3", null ],
+    [ "How to Use hx711_multi_t", "index.html#autotoc_md4", null ],
+    [ "Notes", "index.html#autotoc_md5", [
+      [ "Where is Channel A and Channel B?", "index.html#autotoc_md6", null ],
+      [ "What is hx711_wait_settle?", "index.html#autotoc_md7", null ],
       [ "What is hx711_wait_power_down?", "index.html#autotoc_md8", null ],
-      [ "hx711_close vs hx711_power_down", "index.html#autotoc_md9", null ]
+      [ "Save HX711 Gain to Chip", "index.html#autotoc_md9", null ],
+      [ "Powering up with Unknown or Incorrect Gain", "index.html#autotoc_md10", null ],
+      [ "hx711_close/hx711_multi_close vs hx711_power_down/hx711_multi_power_down", "index.html#autotoc_md11", null ],
+      [ "Synchronising Multiple Chips", "index.html#autotoc_md12", null ],
+      [ "PIO + DMA Interrupt Specifics", "index.html#autotoc_md13", null ],
+      [ "Mutex?", "index.html#autotoc_md14", null ],
+      [ "Custom PIO Programs", "index.html#autotoc_md15", null ]
     ] ],
-    [ "Custom PIO Programs", "index.html#autotoc_md10", [
-      [ "hx711_init", "index.html#autotoc_md11", null ],
-      [ "Passing HX711 Values From PIO to Code", "index.html#autotoc_md12", null ],
-      [ "Setting HX711 Gain", "index.html#autotoc_md13", null ],
-      [ "Setting HX711 Power", "index.html#autotoc_md14", null ]
+    [ "Overview of Functionality", "index.html#autotoc_md16", [
+      [ "<tt>hx711_t</tt>", "index.html#autotoc_md17", null ],
+      [ "<tt>hx711_multi_t</tt>", "index.html#autotoc_md18", null ],
+      [ "Additional Notes", "index.html#autotoc_md19", null ]
     ] ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -52,7 +57,7 @@ var NAVTREE =
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
       [ "Globals", "globals.html", [
-        [ "All", "globals.html", null ],
+        [ "All", "globals.html", "globals_dup" ],
         [ "Functions", "globals_func.html", null ],
         [ "Variables", "globals_vars.html", null ],
         [ "Typedefs", "globals_type.html", null ],
@@ -60,13 +65,15 @@ var NAVTREE =
         [ "Enumerator", "globals_eval.html", null ],
         [ "Macros", "globals_defs.html", null ]
       ] ]
-    ] ]
+    ] ],
+    [ "Examples", "examples.html", "examples" ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-"annotated.html"
+"UTIL_INTERRUPTS_OFF_BLOCK-example.html",
+"structhx711__multi__config__t.html#acfa4942a5a80a4ba2207142343c3a4b9"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

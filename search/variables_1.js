@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['clock_5fpin_82',['clock_pin',['../structhx711__t.html#a00860359bbb10538dfe45ffc0f2a2a0d',1,'hx711_t']]]
+  ['awaiter_5fprog_344',['awaiter_prog',['../structhx711__multi__config__t.html#a5c2c14849efb3824aee686026f7c8318',1,'hx711_multi_config_t']]],
+  ['awaiter_5fprog_5finit_345',['awaiter_prog_init',['../structhx711__multi__config__t.html#a6ccb4149b3dbafe1ebb1301d2b5df6b9',1,'hx711_multi_config_t']]]
 ];

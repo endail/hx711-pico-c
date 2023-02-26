@@ -1,11 +1,30 @@
 var hx711_8c =
 [
+    [ "hx711__is_initd", "hx711_8c.html#a3c8aa5b9ead6e6cecab4f906b6146c0f", null ],
+    [ "hx711__is_state_machine_enabled", "hx711_8c.html#ae55058e9cc7f4502d3f516394585d8b4", null ],
+    [ "hx711__try_get_value", "hx711_8c.html#a49eed29869c9c98dfb52dc5de00d4ad4", null ],
     [ "hx711_close", "hx711_8c.html#a430408c58853bd2ec9b4e2bacb36f055", null ],
+    [ "hx711_gain_to_pio_gain", "hx711_8c.html#ad50ae5d64b821555b8e8278dfc5aab49", null ],
+    [ "hx711_get_clock_pulses", "hx711_8c.html#afab86d04ce2473cceba61c01f87e60ea", null ],
+    [ "hx711_get_rate_sps", "hx711_8c.html#a625cbce9e6c3e61dcb8438c0bf13f7e0", null ],
+    [ "hx711_get_settling_time", "hx711_8c.html#a434b47bda2ad3ed4ed9288a450d51ecc", null ],
+    [ "hx711_get_twos_comp", "hx711_8c.html#a969d59d83bfa95ccdad9e5edd24cab22", null ],
     [ "hx711_get_value", "hx711_8c.html#a2a490345d56d3d9f06f809c07446a6e5", null ],
     [ "hx711_get_value_noblock", "hx711_8c.html#a0c8ff19b682c8518252a5d6ed67d6598", null ],
-    [ "hx711_get_value_timeout", "hx711_8c.html#a0ab1a8852812daf235cf743f530cf037", null ],
-    [ "hx711_init", "hx711_8c.html#a20c562c58345b4cb4c8922925ec0a877", null ],
+    [ "hx711_get_value_timeout", "hx711_8c.html#ac307ba11d7d4158d4efa9eb805d72522", null ],
+    [ "hx711_init", "hx711_8c.html#a15f40116872e1100286470650ed16304", null ],
+    [ "hx711_is_gain_valid", "hx711_8c.html#a5cb7d965481ae3b5c45668d0dfe44238", null ],
+    [ "hx711_is_max_saturated", "hx711_8c.html#a0a2768c20390c5698dc5b710ed138bd5", null ],
+    [ "hx711_is_min_saturated", "hx711_8c.html#a49a64470557125dbf5a6dd6afa564537", null ],
+    [ "hx711_is_pio_gain_valid", "hx711_8c.html#a9d49aa265c24f678bd120470f4c834f3", null ],
+    [ "hx711_is_rate_valid", "hx711_8c.html#a55d254be5116389c2b9622ad5ed6715a", null ],
+    [ "hx711_is_value_valid", "hx711_8c.html#a832f00021c26e9607ce0ddb717915410", null ],
     [ "hx711_power_down", "hx711_8c.html#a8e5d2a3487304a50a4bcf85ecb82ad79", null ],
     [ "hx711_power_up", "hx711_8c.html#af7b303fec0e81c0fbef875216d9f6ea6", null ],
-    [ "hx711_set_gain", "hx711_8c.html#a02e3733a8c520e26cb44caac32945c63", null ]
+    [ "hx711_set_gain", "hx711_8c.html#a02e3733a8c520e26cb44caac32945c63", null ],
+    [ "hx711_wait_power_down", "hx711_8c.html#a9704cade29e5a335769a4343e24c90b2", null ],
+    [ "hx711_wait_settle", "hx711_8c.html#a7f0fb7c53b693818f1bc7c68c47e9b1f", null ],
+    [ "HX711_CLOCK_PULSES", "hx711_8c.html#ac0a73d80a63f514533eba249cf6b7942", null ],
+    [ "HX711_SAMPLE_RATES", "hx711_8c.html#a673a5fdd0f8ac70a623896be5b30ef25", null ],
+    [ "HX711_SETTLING_TIMES", "hx711_8c.html#a15be0c4cc1275f6df967cfd61a0ff7d5", null ]
 ];
