@@ -45,8 +45,6 @@ void hx711_multi__init_asert(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config) {
 
-        assert(!hx711_multi__is_initd(hxm));
-
         assert(hxm != NULL);
         assert(config != NULL);
 
@@ -82,8 +80,6 @@ void hx711_multi__init_asert(
 
 void hx711_multi__init_pio(hx711_multi_t* const hxm) {
 
-    assert(!hx711_multi__is_initd(hxm));
-
     //adding programs and claiming state machines
     //will panic if unable; this is appropriate.
     hxm->_awaiter_offset = pio_add_program(
@@ -112,8 +108,6 @@ void hx711_multi__init_pio(hx711_multi_t* const hxm) {
 }
 
 void hx711_multi__init_dma(hx711_multi_t* const hxm) {
-
-    assert(!hx711_multi__is_initd(hxm));
 
     /**
      * Casting dma_claim_unused_channel to uint is OK in this
@@ -188,8 +182,6 @@ void hx711_multi__init_dma(hx711_multi_t* const hxm) {
 }
 
 void hx711_multi__init_irq(hx711_multi_t* const hxm) {
-
-    assert(!hx711_multi__is_initd(hxm));
 
     /**
      * The idea here is that the PIO and DMA IRQs can be

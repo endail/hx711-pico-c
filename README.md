@@ -6,9 +6,9 @@ A MicroPython port is available [here](https://github.com/endail/hx711-pico-mpy)
 
 __NOTE__: if you are looking for a method to weigh objects (ie. by using the HX711 as a scale), see [pico-scale](https://github.com/endail/pico-scale).
 
-![resources/hx711_serialout.gif](resources/hx711_serialout.gif)
+![resources/hx711_80sps_serialout.gif](resources/hx711_80sps_serialout.gif)
 
-The .gif above illustrates the [current example code](tests/main.c) obtaining data from a HX711 operating at 80 samples per second.
+The .gif above illustrates obtaining data from a single HX711 operating at 80 samples per second.
 
 ## Clone Repository
 
