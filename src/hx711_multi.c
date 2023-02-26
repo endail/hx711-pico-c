@@ -750,28 +750,28 @@ void hx711_multi_async_start(hx711_multi_t* const hxm) {
     //if starting the following statements would lead to an
     //immediate interrupt, DMA may not be properly set up,
     //so disable until it is
-    UTIL_INTERRUPTS_OFF_BLOCK(
+    const uint32_t status = save_and_disable_interrupts();
 
 #ifndef HX711_NO_MUTEX
-        mutex_enter_blocking(&hxm->_mut);
+    mutex_enter_blocking(&hxm->_mut);
 #endif
 
-        hxm->_async_state = HX711_MULTI_ASYNC_STATE_WAITING;
+    hxm->_async_state = HX711_MULTI_ASYNC_STATE_WAITING;
 
-        //if pio interrupt is already set, we can bypass the
-        //IRQ handler and immediately trigger dma
-        if(pio_interrupt_get(hxm->_pio, HX711_MULTI_CONVERSION_DONE_IRQ_NUM)) {
-            hx711_multi__async_start_dma(hxm);
-        }
-        else {
-            pio_set_irqn_source_enabled(
-                hxm->_pio,
-                hxm->_pio_irq_index,
-                util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index),
-                true);
-        }
+    //if pio interrupt is already set, we can bypass the
+    //IRQ handler and immediately trigger dma
+    if(pio_interrupt_get(hxm->_pio, HX711_MULTI_CONVERSION_DONE_IRQ_NUM)) {
+        hx711_multi__async_start_dma(hxm);
+    }
+    else {
+        pio_set_irqn_source_enabled(
+            hxm->_pio,
+            hxm->_pio_irq_index,
+            util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index),
+            true);
+    }
 
-    );
+    restore_interrupts(status);
 
 }
 
