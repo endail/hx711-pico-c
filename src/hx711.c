@@ -66,7 +66,7 @@ void hx711_init(
         check_gpio_param(config->data_pin);
         assert(config->clock_pin != config->data_pin);
 
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
         mutex_init(&hx->_mut);
 #endif
 
@@ -347,7 +347,7 @@ bool hx711_get_value_noblock(
 bool hx711__is_initd(hx711_t* const hx) {
     return hx != NULL &&
         hx->_pio != NULL &&
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
         mutex_is_initialized(&hx->_mut) &&
 #endif
         pio_sm_is_claimed(hx->_pio, hx->_reader_sm);

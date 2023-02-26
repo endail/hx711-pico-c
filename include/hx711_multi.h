@@ -115,7 +115,7 @@ typedef struct {
     uint _dma_irq_index;
     volatile hx711_multi_async_state_t _async_state;
 
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
     mutex_t _mut;
 #endif
 

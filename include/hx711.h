@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
     #define HX711_MUTEX_BLOCK(mut, ...) \
         do { \
             mutex_enter_blocking(&mut); \
@@ -81,7 +81,7 @@ typedef struct {
     uint _reader_sm;
     uint _reader_offset;
 
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
     mutex_t _mut;
 #endif
 

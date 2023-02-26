@@ -1,23 +1,6 @@
 {
     "configurations": [
         {
-            "name": "ARM",
-            "includePath": [
-                "${workspaceFolder}/include/**",
-                "${env:ARM_TOOLCHAIN_PATH}/lib/gcc/arm-none-eabi/**",
-                "${env:PICO_SDK_PATH}/**"
-            ],
-            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc",
-            "cStandard": "c11",
-            "cppStandard": "c++11",
-            "intelliSenseMode": "gcc-arm",
-            "configurationProvider": "ms-vscode.cmake-tools",
-            "forcedInclude": [],
-            "browse": {
-                "path": []
-            }
-        },
-        {
             "name": "Pico",
             "includePath": [
                 "${workspaceFolder}/include/**",

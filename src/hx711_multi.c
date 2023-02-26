@@ -362,6 +362,10 @@ static void hx711_multi__async_finish(
             util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
             false);
 
+#ifndef HX711_NO_MUTEX
+        mutex_exit(&hxm->_mut);
+#endif
+
 }
 
 void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)() {
@@ -449,7 +453,7 @@ static bool hx711_multi__is_initd(hx711_multi_t* const hxm) {
         pio_sm_is_claimed(hxm->_pio, hxm->_awaiter_sm) &&
         pio_sm_is_claimed(hxm->_pio, hxm->_reader_sm) &&
         dma_channel_is_claimed(hxm->_dma_channel) &&
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
         mutex_is_initialized(&hxm->_mut) &&
 #endif
         irq_get_exclusive_handler(util_pio_get_irq_from_index(
@@ -526,7 +530,7 @@ void hx711_multi_init(
 
         hx711_multi__init_asert(hxm, config);
 
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
         //this doesn't need to be an interrupts-off block
         //because the mutex will protect the hxm from reads
         //until init returns, and the source IRQs aren't
@@ -574,7 +578,7 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
 
     assert(hx711_multi__is_initd(hxm));
 
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
     mutex_enter_blocking(&hxm->_mut);
 #endif
 
@@ -653,7 +657,7 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hxm->_reader_prog,
         hxm->_reader_offset);
 
-#ifdef HX711_USE_MUTEX
+#ifndef HX711_NO_MUTEX
     mutex_exit(&hxm->_mut);
 #endif
 
@@ -669,24 +673,20 @@ void hx711_multi_set_gain(
 
         assert(hx711_is_pio_gain_valid(gain));
 
-        HX711_MUTEX_BLOCK(hxm->_mut, 
+        pio_sm_drain_tx_fifo(
+            hxm->_pio,
+            hxm->_reader_sm);
 
-            pio_sm_drain_tx_fifo(
-                hxm->_pio,
-                hxm->_reader_sm);
+        pio_sm_put(
+            hxm->_pio,
+            hxm->_reader_sm,
+            gainVal);
 
-            pio_sm_put(
-                hxm->_pio,
-                hxm->_reader_sm,
-                gainVal);
+        hx711_multi_async_start(hxm);
 
-            hx711_multi_async_start(hxm);
-
-            while(!hx711_multi_async_done(hxm)) {
-                tight_loop_contents();
-            }
-
-        );
+        while(!hx711_multi_async_done(hxm)) {
+            tight_loop_contents();
+        }
 
 }
 
@@ -698,13 +698,11 @@ void hx711_multi_get_values(
         assert(values != NULL);
         assert(!hx711_multi__async_is_running(hxm));
 
-        HX711_MUTEX_BLOCK(hxm->_mut, 
-            hx711_multi_async_start(hxm);
-            while(!hx711_multi_async_done(hxm)) {
-                tight_loop_contents();
-            }
-            hx711_multi_async_get_values(hxm, values);
-        );
+        hx711_multi_async_start(hxm);
+        while(!hx711_multi_async_done(hxm)) {
+            tight_loop_contents();
+        }
+        hx711_multi_async_get_values(hxm, values);
 
 }
 
@@ -720,29 +718,25 @@ bool hx711_multi_get_values_timeout(
         const absolute_time_t end = make_timeout_time_us(timeout);
         bool success = false;
 
-        HX711_MUTEX_BLOCK(hxm->_mut, 
+        hx711_multi_async_start(hxm);
 
-            hx711_multi_async_start(hxm);
-
-            while(!time_reached(end)) {
-                if(hx711_multi_async_done(hxm)) {
-                    success = true;
-                    break;
-                }
+        while(!time_reached(end)) {
+            if(hx711_multi_async_done(hxm)) {
+                success = true;
+                break;
             }
+        }
 
-            if(success) {
-                hx711_multi_async_get_values(hxm, values);
-            }
-            else {
-                //if timed out, cancel DMA and stop listening
-                //for IRQs. Do this atomically!
-                UTIL_INTERRUPTS_OFF_BLOCK(
-                    hx711_multi__async_finish(hxm);
-                );
-            }
-
-        );
+        if(success) {
+            hx711_multi_async_get_values(hxm, values);
+        }
+        else {
+            //if timed out, cancel DMA and stop listening
+            //for IRQs and exit mutex. Do this atomically!
+            UTIL_INTERRUPTS_OFF_BLOCK(
+                hx711_multi__async_finish(hxm);
+            );
+        }
 
         return success;
 
@@ -753,12 +747,14 @@ void hx711_multi_async_start(hx711_multi_t* const hxm) {
     assert(hx711_multi__is_state_machines_enabled(hxm));
     assert(!hx711_multi__async_is_running(hxm));
 
-    //THIS IS NOT MUTEX PROTECTED!
-
     //if starting the following statements would lead to an
     //immediate interrupt, DMA may not be properly set up,
     //so disable until it is
     UTIL_INTERRUPTS_OFF_BLOCK(
+
+#ifndef HX711_NO_MUTEX
+        mutex_enter_blocking(&hxm->_mut);
+#endif
 
         hxm->_async_state = HX711_MULTI_ASYNC_STATE_WAITING;
 
