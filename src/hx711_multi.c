@@ -416,7 +416,6 @@ bool hx711_multi__async_add_reader(
     hx711_multi_t* const hxm) {
 
         assert(hx711_multi__async_read_array != NULL);
-        assert(hx711_multi__is_state_machines_enabled(hxm));
 
         for(uint i = 0; i < HX711_MULTI_ASYNC_READ_COUNT; ++i) {
             if(hx711_multi__async_read_array[i] == NULL) {
