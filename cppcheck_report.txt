@@ -1,6 +1,0 @@
-src/hx711_multi.c:755:0: error: failed to expand 'UTIL_INTERRUPTS_OFF_BLOCK', it is invalid to use a preprocessor directive as macro parameter [preprocessorErrorDirective]
-#ifndef HX711_NO_MUTEX
-^
-src/hx711_multi.c:0:0: information: This file is not analyzed. Cppcheck failed to extract a valid configuration. Use -v for more details. [noValidConfiguration]
-
-^
