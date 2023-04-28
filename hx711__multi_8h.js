@@ -28,7 +28,7 @@ var hx711__multi_8h =
     [ "hx711_multi__async_pio_irq_is_set", "hx711__multi_8h.html#a4d3223e7c53f585d4cf890f4f556d267", null ],
     [ "hx711_multi__async_remove_reader", "hx711__multi_8h.html#abecced1c931531c034b6a41ed3f49c4e", null ],
     [ "hx711_multi__async_start_dma", "hx711__multi_8h.html#a71d5e7c149504254c8a61e6bdfcbed59", null ],
-    [ "hx711_multi__init_asert", "hx711__multi_8h.html#a09ae671c763818225c2953c0023c2589", null ],
+    [ "hx711_multi__init_asert", "hx711__multi_8h.html#a891aaaa44e56dea68dd52bc3f710eb31", null ],
     [ "hx711_multi__init_dma", "hx711__multi_8h.html#a6a365f78802dbdd06b3560b8ef53e056", null ],
     [ "hx711_multi__init_irq", "hx711__multi_8h.html#af30e0d90e6e53a1cd2f3a4de8c4ce471", null ],
     [ "hx711_multi__init_pio", "hx711__multi_8h.html#ade5dc215773d3ef4053e46fb1e4945d8", null ],
