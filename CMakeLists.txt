@@ -26,7 +26,7 @@ cmake_minimum_required(VERSION 3.12)
 include(pico_sdk_import.cmake)
 
 project(hx711-pico-c
-        VERSION 2.0.1
+        VERSION 2.0.2
         DESCRIPTION "Implementation of HX711 use via RP2040's state machine"
         HOMEPAGE_URL "https://github.com/endail/hx711-pico-c"
         LANGUAGES C CXX ASM
