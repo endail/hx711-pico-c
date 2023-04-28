@@ -203,7 +203,6 @@ extern hx711_multi_t* hx711_multi__async_read_array[
     HX711_MULTI_ASYNC_READ_COUNT];
 
 static void hx711_multi__init_asert(
-    hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config);
 
 /**

@@ -42,10 +42,8 @@ hx711_multi_t* hx711_multi__async_read_array[] = {
 };
 
 void hx711_multi__init_asert(
-    hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config) {
 
-        assert(hxm != NULL);
         assert(config != NULL);
 
         assert(util_uint_in_range(
@@ -519,7 +517,7 @@ void hx711_multi_init(
     hx711_multi_t* const hxm,
     const hx711_multi_config_t* const config) {
 
-        hx711_multi__init_asert(hxm, config);
+        hx711_multi__init_asert(config);
 
 #ifndef HX711_NO_MUTEX
         //this doesn't need to be an interrupts-off block
