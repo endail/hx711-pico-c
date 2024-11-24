@@ -32,6 +32,8 @@ extern "C" {
 #endif
 
 #define HX711_SPI_BAUD_RATE 1000000
+#define HX711_SPI_COMMAND_BITS 3
+#define HX711_SPI_DATA_BITS 5
 
 typedef enum {
     hx711_spi_command_none = 0,
@@ -145,6 +147,82 @@ uint8_t hx711_spi_gain_to_spi_gain(
  */
 hx711_gain_t hx711_spi_spi_gain_to_gain(
     const uint8_t spi_gain);
+
+/**
+ * @brief Combine command and data into a byte for an
+ * SPI transfer.
+ * 
+ * @param cmd 
+ * @param data 
+ * @return uint8_t 
+ */
+uint8_t hx711_spi_create_xfer(
+    const hx711_spi_command_t cmd,
+    const uint8_t data);
+
+/**
+ * @brief Extract command and data from the byte
+ * obtained via SPI transfer.
+ * 
+ * @param inbyte 
+ * @param cmd 
+ * @param data 
+ */
+void hx711_spi_parse_xfer(
+    const uint8_t inbyte,
+    hx711_spi_command_t* const cmd,
+    uint8_t* const data);
+
+/**
+ * @brief Check if command is a valid command.
+ * 
+ * @param cmd 
+ * @return true 
+ * @return false 
+ */
+bool hx711_spi_is_command_valid(
+    const hx711_spi_command_t cmd);
+
+/**
+ * @brief Extract command from transfer data.
+ * 
+ * @param xfer 
+ * @return hx711_spi_command_t 
+ */
+hx711_spi_command_t hx711_spi_get_command_from_xfer(
+    const uint8_t xfer);
+
+/**
+ * @brief Insert command into transfer data.
+ * 
+ * @param cmd 
+ * @param xfer 
+ * @return uint8_t 
+ */
+uint8_t hx711_spi_put_command_in_xfer(
+    const hx711_spi_command_t cmd,
+    const uint8_t xfer);
+
+/**
+ * @brief Extract arbitrary data from transfer
+ * data.
+ * 
+ * @param xfer 
+ * @return uint8_t 
+ */
+uint8_t hx711_spi_get_data_from_xfer(
+    const uint8_t xfer);
+
+/**
+ * @brief Put arbitrary data into transfer data.
+ * 
+ * @param data 
+ * @param xfer 
+ * @return uint8_t 
+ */
+uint8_t hx711_spi_put_data_in_xfer(
+    const uint8_t data,
+    uint8_t const xfer);
 
 #ifdef __cplusplus
 }

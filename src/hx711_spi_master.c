@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -77,14 +77,14 @@ void hx711_spi_master_set_gain(
         assert(hx_spi->_spi != NULL);
         assert(hx711_is_gain_valid(gain));
 
-        const uint8_t data = 
-            (hx711_spi_gain_to_spi_gain(gain) << 3) |
-            (uint8_t)hx711_spi_command_set_gain;
+        const uint8_t xfer = hx711_spi_create_xfer(
+            hx711_spi_command_set_gain,
+            hx711_spi_gain_to_spi_gain(gain));
 
         spi_write_blocking(
             hx_spi->_spi,
-            &data,
-            sizeof(data));
+            &xfer,
+            sizeof(xfer));
 
 }
 
@@ -114,15 +114,15 @@ void hx711_spi_master_power_up(
         assert(hx_spi->_spi != NULL);
         assert(hx711_is_gain_valid(gain));
 
-        const uint8_t data = 
-            (hx711_spi_gain_to_spi_gain(gain) << 3) |
-            (uint8_t)hx711_spi_command_set_gain;
+        const uint8_t xfer = hx711_spi_create_xfer(
+            hx711_spi_command_power_up,
+            hx711_spi_gain_to_spi_gain(gain));
 
         spi_write_read_blocking(
             hx_spi->_spi,
-            &data,
+            &xfer,
             NULL,
-            sizeof(data));
+            sizeof(xfer));
 
 }
 
@@ -132,12 +132,13 @@ void hx711_spi_master_power_down(
         assert(hx_spi != NULL);
         assert(hx_spi->_spi != NULL);
 
-        const uint8_t cmd = (uint8_t)hx711_spi_command_power_down;
+        const uint8_t xfer = hx711_spi_create_xfer(
+            hx711_spi_command_power_down, 0);
 
         spi_write_blocking(
             hx_spi->_spi,
-            &cmd,
-            sizeof(cmd));
+            &xfer,
+            sizeof(xfer));
 
 }
 
@@ -155,4 +156,62 @@ hx711_gain_t hx711_spi_spi_gain_to_gain(const uint8_t spi_gain) {
     const hx711_gain_t gain = (hx711_gain_t)HX711_CLOCK_PULSES[spi_gain];
     assert(hx711_is_gain_valid(gain));
     return gain;
+}
+
+uint8_t hx711_spi_create_xfer(
+    const hx711_spi_command_t cmd,
+    const uint8_t data) {
+        uint8_t xfer = 0;
+        xfer = hx711_spi_put_command_in_xfer(cmd, xfer);
+        xfer = hx711_spi_put_data_in_xfer(data, xfer);
+        return xfer;
+}
+
+void hx711_spi_parse_xfer(
+    const uint8_t inbyte,
+    hx711_spi_command_t* const cmd,
+    uint8_t* const data) {
+    
+        assert(cmd != NULL);
+
+        *cmd = hx711_spi_get_command_from_xfer(inbyte);
+        assert(hx711_spi_is_command_valid(*cmd));
+
+        if(data != NULL) {
+            *data = hx711_spi_get_data_from_xfer(inbyte);
+        }
+
+}
+
+bool hx711_spi_is_command_valid(
+    const hx711_spi_command_t cmd) {
+        return (uint8_t)cmd <= hx711_spi_command_get_value;
+}
+
+hx711_spi_command_t hx711_spi_get_command_from_xfer(
+    const uint8_t data) {
+        const hx711_spi_command_t cmd = 
+            (hx711_spi_command_t)(data & ((1 << HX711_SPI_COMMAND_BITS) - 1));
+        assert(hx711_spi_is_command_valid(cmd));
+        return cmd;
+}
+
+uint8_t hx711_spi_put_command_in_xfer(
+    const hx711_spi_command_t cmd,
+    const uint8_t xfer) {
+        assert(hx711_spi_is_command_valid(cmd));
+        const uint8_t mask = (1 << HX711_SPI_COMMAND_BITS) - 1;
+        const uint8_t cmdbits = ((uint8_t)cmd) & mask;
+        return xfer | cmdbits;
+}
+
+uint8_t hx711_spi_get_data_from_xfer(
+    const uint8_t xfer) {
+        return xfer >> HX711_SPI_COMMAND_BITS;
+}
+
+uint8_t hx711_spi_put_data_in_xfer(
+    const uint8_t data,
+    const uint8_t xfer) {
+        return xfer | (data << HX711_SPI_COMMAND_BITS);
 }

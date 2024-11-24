@@ -70,36 +70,48 @@ void hx711_spi_slave_close(hx711_spi_slave_t* const hx_spi) {
 
 void hx711_spi_slave_listen(hx711_spi_slave_t* const hx_spi) {
 
+    uint8_t xfer;
     hx711_spi_command_t cmd;
     uint8_t data;
     hx711_gain_t gain;
-    int32_t out;
+    int32_t val;
 
     while(true) {
 
+        // read one byte containing command
         spi_read_blocking(
             hx_spi->_spi,
-            hx711_spi_command_none,
-            &data,
-            sizeof(data));
+            0,
+            &xfer,
+            sizeof(xfer));
 
-        cmd = (hx711_spi_command_t)(data & 0b00000111);
-        data = data >> 5;
+        // parse the xfer into cmd and data
+        hx711_spi_parse_xfer(
+            xfer,
+            &cmd,
+            &data);
 
         switch(cmd) {
+
             default:
             case hx711_spi_command_get_value:
-                out = hx711_get_value(hx_spi->_hx);
-                spi_write_blocking(hx_spi->_spi, (uint8_t*)&out, sizeof(out));
+                val = hx711_get_value(hx_spi->_hx);
+                spi_write_blocking(
+                    hx_spi->_spi,
+                    (uint8_t*)&val,
+                    sizeof(val));
                 break;
+            
             case hx711_spi_command_set_gain:
                 gain = hx711_spi_spi_gain_to_gain(data);
                 hx711_set_gain(hx_spi->_hx, gain);
                 break;
+
             case hx711_spi_command_power_up:
                 gain = hx711_spi_spi_gain_to_gain(data);
                 hx711_power_up(hx_spi->_hx, gain);
                 break;
+
             case hx711_spi_command_power_down:
                 hx711_power_down(hx_spi->_hx);
                 break;

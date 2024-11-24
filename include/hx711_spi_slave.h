@@ -62,12 +62,28 @@ typedef struct {
 
 } hx711_spi_slave_config_t;
 
+/**
+ * @brief Initialise SPI slave device.
+ * 
+ * @param hx_spi 
+ * @param hx_spi_config 
+ */
 void hx711_spi_slave_init(
     hx711_spi_slave_t* const hx_spi,
     const hx711_spi_slave_config_t * const hx_spi_config);
 
+/**
+ * @brief Stop SPI communication.
+ * 
+ * @param hx_spi 
+ */
 void hx711_spi_slave_close(hx711_spi_slave_t* const hx_spi);
 
+/**
+ * @brief Listen for incoming SPI messages and respond.
+ * 
+ * @param hx_spi 
+ */
 void hx711_spi_slave_listen(hx711_spi_slave_t* const hx_spi);
 
 #ifdef __cplusplus
