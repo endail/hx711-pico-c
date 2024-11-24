@@ -1,3 +1,12 @@
+src/hx711_spi_master.c:192:19: style:inconclusive: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'. [funcArgNamesDifferent]
+    const uint8_t data) {
+                  ^
+include/hx711_spi_master.h:193:19: note: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'.
+    const uint8_t xfer);
+                  ^
+src/hx711_spi_master.c:192:19: note: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'.
+    const uint8_t data) {
+                  ^
 tests/main.c:138:5: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
     PRINT_ARR(arr, hxmcfg.chips_len);
     ^
