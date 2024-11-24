@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef COMMON_H_D032FD58_DAFE_4AE1_8E48_54A388BFECE4
-#define COMMON_H_D032FD58_DAFE_4AE1_8E48_54A388BFECE4
+#ifndef HX711_SPI_SLAVE_H_A013478A_24EE_4581_AF94_BC52198CFF1D
+#define HX711_SPI_SLAVE_H_A013478A_24EE_4581_AF94_BC52198CFF1D
 
+#include <stdint.h>
+#include "hardware/spi.h"
 #include "hx711.h"
-#include "hx711_multi.h"
 #include "hx711_spi_master.h"
-#include "hx711_spi_slave.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const hx711_config_t HX711__DEFAULT_CONFIG;
-extern const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG;
-extern const hx711_spi_master_config_t HX711__SPI_MASTER_DEFAULT_CONFIG;
-extern const hx711_spi_slave_config_t HX711__SPI_SLAVE_DEFAULT_CONFIG;
+#define HX711_SPI_BAUD_RATE 1000000
 
-void hx711_get_default_config(hx711_config_t* const cfg);
-void hx711_multi_get_default_config(hx711_multi_config_t* const cfg);
-void hx711_spi_master_get_default_config(hx711_spi_master_config_t* const cfg);
-void hx711_spi_slave_get_default_config(hx711_spi_slave_config_t* const cfg);
+typedef struct {
+
+    uint _rx_pin;
+    uint _sck_pin;
+    uint _tx_pin;
+    uint _csn_pin;
+
+    spi_inst_t* _spi;
+    uint _baud_rate;
+
+    hx711_t* _hx;
+
+} hx711_spi_slave_t;
+
+typedef struct {
+
+    uint rx_pin;
+    uint sck_pin;
+    uint tx_pin;
+    uint csn_pin;
+
+    spi_inst_t* spi;
+    uint baud_rate;
+
+    hx711_t* hx;
+
+} hx711_spi_slave_config_t;
+
+void hx711_spi_slave_init(
+    hx711_spi_slave_t* const hx_spi,
+    const hx711_spi_slave_config_t * const hx_spi_config);
+
+void hx711_spi_slave_close(hx711_spi_slave_t* const hx_spi);
+
+void hx711_spi_slave_listen(hx711_spi_slave_t* const hx_spi);
 
 #ifdef __cplusplus
 }

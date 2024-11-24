@@ -1,6 +1,6 @@
 # MIT License
 # 
-# Copyright (c) 2023 Daniel Robertson
+# Copyright (c) 2024 Daniel Robertson
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 2.0.0)
+set(toolchainVersion 13_3_Rel1)
+set(picotoolVersion 2.0.0)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+if (EXISTS ${picoVscode})
+    include(${picoVscode})
+endif()
+# ====================================================================================
+set(PICO_BOARD pico CACHE STRING "Board type")
 
 cmake_minimum_required(VERSION 3.12)
 
@@ -73,6 +89,7 @@ target_link_libraries(hx711-pico-c INTERFACE
         hardware_gpio
         hardware_irq
         hardware_pio
+        hardware_spi
         hardware_timer
         pico_platform
         pico_sync
@@ -82,6 +99,8 @@ target_link_libraries(hx711-pico-c INTERFACE
 target_sources(hx711-pico-c INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_multi.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_spi_master.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_spi_slave.c
         ${CMAKE_CURRENT_LIST_DIR}/src/common.c
         ${CMAKE_CURRENT_LIST_DIR}/src/util.c
         )

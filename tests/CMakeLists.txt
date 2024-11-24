@@ -40,7 +40,17 @@ add_executable(main
         ${CMAKE_CURRENT_LIST_DIR}/main.c
         )
 
+add_executable(spi_test
+        ${CMAKE_CURRENT_LIST_DIR}/spi_test.c
+        )
+
 target_link_libraries(main
+        hx711-pico-c
+        pico_stdlib
+        pico_stdio
+        )
+
+target_link_libraries(spi_test
         hx711-pico-c
         pico_stdlib
         pico_stdio
@@ -49,3 +59,7 @@ target_link_libraries(main
 pico_enable_stdio_usb(main 1)
 pico_enable_stdio_uart(main 1)
 pico_add_extra_outputs(main)
+
+pico_enable_stdio_usb(spi_test 1)
+pico_enable_stdio_uart(spi_test 1)
+pico_add_extra_outputs(spi_test)

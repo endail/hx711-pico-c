@@ -29,6 +29,8 @@
 #include "../include/hx711_multi.h"
 #include "../include/hx711_multi_awaiter.pio.h"
 #include "../include/hx711_multi_reader.pio.h"
+#include "../include/hx711_spi_master.h"
+#include "../include/hx711_spi_slave.h"
 
 const hx711_config_t HX711__DEFAULT_CONFIG = {
     .clock_pin = 0,
@@ -53,6 +55,25 @@ const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG = {
     .reader_prog_init = hx711_multi_reader_program_init
 };
 
+const hx711_spi_master_config_t HX711__SPI_MASTER_DEFAULT_CONFIG = {
+    .rx_pin = 0,
+    .sck_pin = 2,
+    .tx_pin = 3,
+    .csn_pin = 1,
+    .spi = spi_default,
+    .baud_rate = HX711_SPI_BAUD_RATE
+};
+
+const hx711_spi_slave_config_t HX711__SPI_SLAVE_DEFAULT_CONFIG = {
+    .rx_pin = 0,
+    .sck_pin = 2,
+    .tx_pin = 3,
+    .csn_pin = 1,
+    .spi = spi_default,
+    .baud_rate = HX711_SPI_BAUD_RATE,
+    .hx = NULL
+};
+
 void hx711_get_default_config(hx711_config_t* const cfg) {
     assert(cfg != NULL);
     *cfg = HX711__DEFAULT_CONFIG;
@@ -61,4 +82,14 @@ void hx711_get_default_config(hx711_config_t* const cfg) {
 void hx711_multi_get_default_config(hx711_multi_config_t* const cfg) {
     assert(cfg != NULL);
     *cfg = HX711__MULTI_DEFAULT_CONFIG;
+}
+
+void hx711_spi_master_get_default_config(hx711_spi_master_config_t* const cfg) {
+    assert(cfg != NULL);
+    *cfg = HX711__SPI_MASTER_DEFAULT_CONFIG;
+}
+
+void hx711_spi_slave_get_default_config(hx711_spi_slave_config_t* const cfg) {
+    assert(cfg != NULL);
+    *cfg = HX711__SPI_SLAVE_DEFAULT_CONFIG;
 }
