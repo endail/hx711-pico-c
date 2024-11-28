@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include "hardware/pio.h"
+#include "hardware/spi.h"
 #include "../include/common.h"
 #include "../include/hx711.h"
 #include "../include/hx711_reader.pio.h"

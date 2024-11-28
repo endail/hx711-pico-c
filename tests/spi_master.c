@@ -34,47 +34,39 @@ int main(void) {
         sleep_ms(1);
     }
 
-//slave
-#if 1
-    hx711_config_t hxcfg;
-    hx711_get_default_config(&hxcfg);
-
-    hxcfg.clock_pin = 14;
-    hxcfg.data_pin = 15;
-
-    hx711_t hx;
-
-    hx711_init(&hx, &hxcfg);
-
-    hx711_spi_slave_config_t spicfg;
-    hx711_spi_slave_get_default_config(&spicfg);
-
-    spicfg.hx = &hx;
-
-    hx711_spi_slave_t hxspi;
-
-    hx711_spi_slave_init(&hxspi, &spicfg);
-    hx711_spi_slave_listen(&hxspi);
-    hx711_spi_slave_close(&hxspi);
-
-    hx711_close(&hx);
-
-    printf("Closed communication with single HX711 chip\n");
-#endif
-
-//master
-#if 0
     hx711_spi_master_config_t spicfg;
     hx711_spi_master_get_default_config(&spicfg);
 
     hx711_spi_master_t hxspi;
 
     hx711_spi_master_init(&hxspi, &spicfg);
-    hx711_spi_master_power_up(&hxspi, hx711_gain_128);
-    hx711_wait_settle(hx711_rate_80);
-    printf("Value from SPI: %li\n", hx711_spi_master_get_value(&hxspi));
+    
+    //hx711_spi_master_power_up(&hxspi, hx711_gain_128);
+    //hx711_wait_settle(hx711_rate_80);
+    
+    int32_t val;
+
+    while(true) {
+        //int32_t val = hx711_spi_master_get_value(&hxspi);
+        //printf("Received value: %li -> %x %x %x %x\n",
+        //    val,
+        //    (uint8_t)(val >> 24),
+        //    (uint8_t)((val >> 16) & 0xff),
+        //    (uint8_t)((val >> 8) & 0xff),
+        //    (uint8_t)(val & 0xff));
+
+        if(hx711_spi_master_get_value(&hxspi, &val)) {
+            printf("%li\n", val);
+        }
+        //else {
+        //    printf("Checksum fail!\n");
+        //}
+
+        //printf("%li\n", hx711_spi_master_get_value(&hxspi));
+        //hx711_spi_master_get_value(&hxspi);
+        //sleep_ms(1000);
+    }
     hx711_spi_master_close(&hxspi);
-#endif
 
     while(1);
 

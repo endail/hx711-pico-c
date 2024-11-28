@@ -32,8 +32,6 @@
 extern "C" {
 #endif
 
-#define HX711_SPI_BAUD_RATE 1000000
-
 typedef struct {
 
     uint _rx_pin;

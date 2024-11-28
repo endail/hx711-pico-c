@@ -31,9 +31,16 @@
 extern "C" {
 #endif
 
-#define HX711_SPI_BAUD_RATE 1000000
+#define HX711_SPI_BAUD_RATE 4000000
 #define HX711_SPI_COMMAND_BITS 3
 #define HX711_SPI_DATA_BITS 5
+
+#define HX711_SPI_ATOMIC(hx_spi, ...) \
+    do { \
+        gpio_put(PICO_DEFAULT_SPI_CSN_PIN, false); \
+        __VA_ARGS__ \
+        gpio_put(PICO_DEFAULT_SPI_CSN_PIN, true); \
+    } while (0)
 
 typedef enum {
     hx711_spi_command_none = 0,
@@ -42,6 +49,12 @@ typedef enum {
     hx711_spi_command_set_gain = 3,
     hx711_spi_command_get_value = 4
 } hx711_spi_command_t;
+
+typedef struct {
+    uint8_t command;
+    uint8_t data[3];
+    uint8_t checksum;
+} hx711_spi_frame_t;
 
 typedef struct {
 
@@ -96,8 +109,9 @@ void hx711_spi_master_set_gain(
  * @param hx_spi 
  * @return int32_t 
  */
-int32_t hx711_spi_master_get_value(
-    hx711_spi_master_t* const hx_spi);
+bool hx711_spi_master_get_value(
+    hx711_spi_master_t* const hx_spi,
+    int32_t* const val);
 
 /**
  * @brief Power up the HX711 with an initial gain.
@@ -116,6 +130,16 @@ void hx711_spi_master_power_up(
  */
 void hx711_spi_master_power_down(
     hx711_spi_master_t* const hx_spi);
+
+void hx711_spi_value_to_array(
+    const int32_t val,
+    uint8_t* const arr);
+
+int32_t hx711_spi_array_to_value(
+    const uint8_t* const arr);
+
+uint8_t hx711_spi_generate_checksum(
+    const uint8_t* const arr, const size_t len);
 
 /**
  * @brief Checks whether the given gain value is valid for
