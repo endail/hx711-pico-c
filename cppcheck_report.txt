@@ -1,12 +1,42 @@
-src/hx711_spi_master.c:192:19: style:inconclusive: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'. [funcArgNamesDifferent]
+src/hx711_spi_master.c:226:19: warning: The address of local variable 'outframe' might be accessed at non-zero index. [objectIndex]
+        crc ^= arr[i];
+                  ^
+src/hx711_spi_master.c:135:23: note: Address of variable taken here.
+            (uint8_t*)&outframe, sizeof(outframe) - 1);
+                      ^
+src/hx711_spi_master.c:135:13: note: Calling function 'hx711_spi_generate_checksum', 1st argument '(uint8_t*)&outframe' value is lifetime=outframe
+            (uint8_t*)&outframe, sizeof(outframe) - 1);
+            ^
+src/hx711_spi_master.c:226:19: note: The address of local variable 'outframe' might be accessed at non-zero index.
+        crc ^= arr[i];
+                  ^
+src/hx711_spi_master.c:226:19: warning: The address of local variable 'inframe' might be accessed at non-zero index. [objectIndex]
+        crc ^= arr[i];
+                  ^
+src/hx711_spi_master.c:165:23: note: Address of variable taken here.
+            (uint8_t*)&inframe, sizeof(inframe) - 1);
+                      ^
+src/hx711_spi_master.c:165:13: note: Calling function 'hx711_spi_generate_checksum', 1st argument '(uint8_t*)&inframe' value is lifetime=inframe
+            (uint8_t*)&inframe, sizeof(inframe) - 1);
+            ^
+src/hx711_spi_master.c:226:19: note: The address of local variable 'inframe' might be accessed at non-zero index.
+        crc ^= arr[i];
+                  ^
+src/hx711_spi_master.c:309:19: style:inconclusive: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'. [funcArgNamesDifferent]
     const uint8_t data) {
                   ^
-include/hx711_spi_master.h:193:19: note: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'.
+include/hx711_spi_master.h:217:19: note: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'.
     const uint8_t xfer);
                   ^
-src/hx711_spi_master.c:192:19: note: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'.
+src/hx711_spi_master.c:309:19: note: Function 'hx711_spi_get_command_from_xfer' argument 1 names different: declaration 'xfer' definition 'data'.
     const uint8_t data) {
                   ^
+src/hx711_spi_slave.c:146:13: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+            printf("Sending value: %li\n", val);
+            ^
+src/hx711_spi_slave.c:176:17: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+                printf("Sending value: %li\n", val);
+                ^
 tests/main.c:138:5: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
     PRINT_ARR(arr, hxmcfg.chips_len);
     ^
@@ -16,3 +46,6 @@ tests/main.c:142:9: portability: %i in format string (no. 1) requires 'int' but 
 tests/main.c:156:5: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
     PRINT_ARR(arr, hxmcfg.chips_len);
     ^
+tests/spi_master.c:59:13: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+            printf("%li\n", val);
+            ^
