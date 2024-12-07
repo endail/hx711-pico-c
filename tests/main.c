@@ -22,8 +22,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "pico/stdio.h"
-#include "tusb.h"
+#include <pico/stdio.h>
+#include <tusb.h>
 #include "../include/common.h"
 
 #define PRINT_ARR(arr, len) \

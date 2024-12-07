@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,26 @@
 #define UTIL_H_BC9FF78B_B978_444A_8AA1_FF169B09B09E
 
 #include <stdint.h>
-#include "hardware/pio.h"
-#include "hardware/platform_defs.h"
-#include "hardware/sync.h"
-#include "pico/mutex.h"
-#include "pico/types.h"
+#include <hardware/pio.h>
+#include <hardware/platform_defs.h>
+#include <hardware/sync.h>
+#include <pico/mutex.h>
+#include <pico/types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define UTIL_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define UTIL_BYTE_TO_BINARY(byte)  \
+  ((byte) & 0x80 ? '1' : '0'), \
+  ((byte) & 0x40 ? '1' : '0'), \
+  ((byte) & 0x20 ? '1' : '0'), \
+  ((byte) & 0x10 ? '1' : '0'), \
+  ((byte) & 0x08 ? '1' : '0'), \
+  ((byte) & 0x04 ? '1' : '0'), \
+  ((byte) & 0x02 ? '1' : '0'), \
+  ((byte) & 0x01 ? '1' : '0')
 
 // RP2040 sdk doesn't seem to define this
 #define UTIL_NUM_DMA_IRQS UINT8_C(2)

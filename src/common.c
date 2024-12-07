@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,8 @@
 
 #include <assert.h>
 #include <stddef.h>
-#include "hardware/pio.h"
+#include <hardware/i2c.h>
+#include <hardware/pio.h>
 #include "../include/common.h"
 #include "../include/hx711.h"
 #include "../include/hx711_reader.pio.h"
@@ -53,12 +54,43 @@ const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG = {
     .reader_prog_init = hx711_multi_reader_program_init
 };
 
-void hx711_get_default_config(hx711_config_t* const cfg) {
-    assert(cfg != NULL);
-    *cfg = HX711__DEFAULT_CONFIG;
+const hx711_i2c_master_config_t HX711__I2C_MASTER_DEFAULT_CONFIG = {
+    .scl_pin = HX711_I2C_DEFAULT_SCL_PIN,
+    .sda_pin = HX711_I2C_DEFAULT_SDA_PIN,
+    .i2c = HX711_I2C_DEFAULT_INST,
+    .baud_rate = HX711_I2C_DEFAULT_BAUD_RATE,
+    .addr = HX711_I2C_DEFAULT_I2C_ADDR
+};
+
+const hx711_i2c_slave_config_t HX711__I2C_SLAVE_DEFAULT_CONFIG = {
+    .scl_pin = HX711_I2C_DEFAULT_SCL_PIN,
+    .sda_pin = HX711_I2C_DEFAULT_SDA_PIN,
+    .i2c = HX711_I2C_DEFAULT_INST,
+    .baud_rate = HX711_I2C_DEFAULT_BAUD_RATE,
+    .addr = HX711_I2C_DEFAULT_I2C_ADDR,
+    .hx = NULL
+};
+
+void hx711_get_default_config(
+    hx711_config_t* const cfg) {
+        assert(cfg != NULL);
+        *cfg = HX711__DEFAULT_CONFIG;
 }
 
-void hx711_multi_get_default_config(hx711_multi_config_t* const cfg) {
-    assert(cfg != NULL);
-    *cfg = HX711__MULTI_DEFAULT_CONFIG;
+void hx711_multi_get_default_config(
+    hx711_multi_config_t* const cfg) {
+        assert(cfg != NULL);
+        *cfg = HX711__MULTI_DEFAULT_CONFIG;
+}
+
+void hx711_i2c_master_get_default_config(
+    hx711_i2c_master_config_t* const cfg) {
+        assert(cfg != NULL);
+        *cfg = HX711__I2C_MASTER_DEFAULT_CONFIG;
+}
+
+void hx711_i2c_slave_get_default_config(
+    hx711_i2c_slave_config_t* const cfg) {
+        assert(cfg != NULL);
+        *cfg = HX711__I2C_SLAVE_DEFAULT_CONFIG;
 }

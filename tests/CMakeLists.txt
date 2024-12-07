@@ -40,7 +40,27 @@ add_executable(main
         ${CMAKE_CURRENT_LIST_DIR}/main.c
         )
 
+add_executable(i2c_master
+        ${CMAKE_CURRENT_LIST_DIR}/i2c_master.c
+        )
+
+        add_executable(i2c_slave
+        ${CMAKE_CURRENT_LIST_DIR}/i2c_slave.c
+        )
+
 target_link_libraries(main
+        hx711-pico-c
+        pico_stdlib
+        pico_stdio
+        )
+
+target_link_libraries(i2c_master
+        hx711-pico-c
+        pico_stdlib
+        pico_stdio
+        )
+
+target_link_libraries(i2c_slave
         hx711-pico-c
         pico_stdlib
         pico_stdio
@@ -49,3 +69,11 @@ target_link_libraries(main
 pico_enable_stdio_usb(main 1)
 pico_enable_stdio_uart(main 1)
 pico_add_extra_outputs(main)
+
+pico_enable_stdio_usb(i2c_master 1)
+pico_enable_stdio_uart(i2c_master 1)
+pico_add_extra_outputs(i2c_master)
+
+pico_enable_stdio_usb(i2c_slave 1)
+pico_enable_stdio_uart(i2c_slave 1)
+pico_add_extra_outputs(i2c_slave)

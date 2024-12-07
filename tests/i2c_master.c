@@ -20,37 +20,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef COMMON_H_D032FD58_DAFE_4AE1_8E48_54A388BFECE4
-#define COMMON_H_D032FD58_DAFE_4AE1_8E48_54A388BFECE4
+#include <stdlib.h>
+#include <stdio.h>
+#include <pico/stdio.h>
+#include <tusb.h>
+#include "../include/common.h"
 
-#include "hx711.h"
-#include "hx711_multi.h"
-#include "hx711_i2c_master.h"
-#include "hx711_i2c_slave.h"
+int main(void) {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    stdio_init_all();
 
-extern const hx711_config_t HX711__DEFAULT_CONFIG;
-extern const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG;
-extern const hx711_i2c_master_config_t HX711__I2C_MASTER_DEFAULT_CONFIG;
-extern const hx711_i2c_slave_config_t HX711__I2C_SLAVE_DEFAULT_CONFIG;
+    while (!tud_cdc_connected()) {
+        sleep_ms(1);
+    }
 
-void hx711_get_default_config(
-    hx711_config_t* const cfg);
+    hx711_i2c_master_config_t i2ccfg;
+    hx711_i2c_master_get_default_config(&i2ccfg);
 
-void hx711_multi_get_default_config(
-    hx711_multi_config_t* const cfg);
+    hx711_i2c_master_t hxi2c;
+    hx711_i2c_master_init(&hxi2c, &i2ccfg);
 
-void hx711_i2c_master_get_default_config(
-    hx711_i2c_master_config_t* const cfg);
+    int32_t val;
 
-void hx711_i2c_slave_get_default_config(
-    hx711_i2c_slave_config_t* const cfg);
+    while(true) {
+        if(hx711_i2c_master_get_value(&hxi2c, &val)) {
+            printf("\n%li\n", val);
+        }
+        else {
+            printf(".");
+        }
+        sleep_ms(1);
+    }
+    hx711_i2c_master_close(&hxi2c);
 
-#ifdef __cplusplus
+    while(1);
+
+    return EXIT_SUCCESS;
+
 }
-#endif
-
-#endif
