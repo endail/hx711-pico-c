@@ -62,6 +62,26 @@ UTIL_DEF_IN_RANGE_FUNC(uint32_t)
 UTIL_DEF_IN_RANGE_FUNC(int)
 UTIL_DEF_IN_RANGE_FUNC(uint)
 
+uint8_t util_set_bits8(
+    uint8_t value,
+    const uint8_t startbit,
+    const uint8_t len,
+    const uint8_t bits) {
+        const uint8_t mask = ((1 << len) - 1) << startbit;
+        value &= ~mask;
+        value |= (bits << startbit);
+        return value;
+}
+
+uint8_t util_get_bits8(
+    const uint8_t value,
+    const uint8_t startbit,
+    const uint8_t len) {
+        const uint8_t mask = ((1 << len) - 1) << startbit;
+        const uint8_t extracted = (value & mask) >> startbit;
+        return extracted;
+}
+
 bool util_dma_irq_index_is_valid(const uint idx) {
     return util_uint_in_range(
         idx,

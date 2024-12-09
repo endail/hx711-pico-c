@@ -43,6 +43,10 @@
         "cstdlib": "c",
         "error.h": "c",
         "tusb.h": "c",
-        "i2c_slave.h": "c"
+        "i2c_slave.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "stdint.h": "c"
     }
 }

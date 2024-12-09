@@ -36,14 +36,26 @@
 extern "C" {
 #endif
 
+#define HX711_GAIN_TO_STR(GAIN) \
+    GAIN == hx711_gain_128 ? "128" : \
+        GAIN == hx711_gain_64 ? "64" : \
+            GAIN == hx711_gain_32 ? "32" : \
+                "unknown"
+
+#define HX711_RATE_TO_STR(RATE) \
+    RATE == hx711_rate_80 ? "80" : \
+        RATE == hx711_rate_10 ? "10" : \
+            "unknown"
+
 #define HX711_I2C_PRINT_CONTROL(CTRL) \
     do { \
-        printf("==========\n"); \
-        printf("Raw: "UTIL_BYTE_TO_BINARY_PATTERN"\n", UTIL_BYTE_TO_BINARY(CTRL)); \
-        printf("Ready: %s\n", (CTRL & 0x1) == 1 ? "Yes" : "No"); \
-        printf("New: %s\n", ((CTRL >> 1) & 0x1) == 1 ? "Yes" : "No"); \
-        printf("Power: %s\n", ((CTRL >> 2) & 0x1) == 1 ? "On" : "Off"); \
-        printf("==========\n"); \
+        printf("| "UTIL_BYTE_TO_BINARY_PATTERN" | Ready: %s | Power: %s | New: %s | Gain: %s | Rate: %s |", \
+            UTIL_BYTE_TO_BINARY(CTRL), \
+            hx711_i2c_control_get_ready_state(CTRL) ? "Yes" : "No", \
+            hx711_i2c_control_get_power_state(CTRL) ? "On" : "Off", \
+            hx711_i2c_control_get_new_value_state(CTRL) ? "Yes" : "No", \
+            HX711_GAIN_TO_STR(hx711_i2c_control_get_gain(CTRL)), \
+            HX711_RATE_TO_STR(hx711_i2c_control_get_rate(CTRL))); \
     } \
     while(0)
 
@@ -56,8 +68,8 @@ extern "C" {
 /**
  * @brief Control bits structure
  * | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
- * 0th bit = ready
- * 1th bit = value is new
+ * 0th bit = ready state
+ * 1th bit = new value state
  * 2nd bit = power state
  * 3rd bit = gain
  * 4th bit = gain
@@ -69,16 +81,16 @@ extern "C" {
  */
 
 #define HX711_I2C_CONTROL_METADATA_OFFSET_BYTES     0
-#define HX711_I2C_CONTROL_READY_OFFSET              0
-#define HX711_I2C_CONTROL_NEW_VALUE_OFFSET          1
+#define HX711_I2C_CONTROL_READY_STATE_OFFSET        0
+#define HX711_I2C_CONTROL_NEW_VALUE_STATE_OFFSET    1
 #define HX711_I2C_CONTROL_POWER_STATE_OFFSET        2
 #define HX711_I2C_CONTROL_GAIN_OFFSET               3
 #define HX711_I2C_CONTROL_RATE_OFFSET               5
 #define HX711_I2C_CONTROL_DATA_OFFSET               8
 #define HX711_I2C_CONTROL_DATA_OFFSET_BYTES         1
 
-#define HX711_I2C_CONTROL_READY_SIZE                1
-#define HX711_I2C_CONTROL_NEW_VALUE_SIZE            1
+#define HX711_I2C_CONTROL_READY_STATE_SIZE          1
+#define HX711_I2C_CONTROL_NEW_VALUE_STATE_SIZE      1
 #define HX711_I2C_CONTROL_POWER_STATE_SIZE          1
 #define HX711_I2C_CONTROL_GAIN_SIZE                 2
 #define HX711_I2C_CONTROL_RATE_SIZE                 1
@@ -94,7 +106,7 @@ extern "C" {
  * | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
  * 0th bit = command bit
  * 1th bit = command bit
- * 2nd bit = power bit
+ * 2nd bit = power state bit
  * 3rd bit = gain bit
  * 4th bit = gain bit
  * 5th bit = rate bit
@@ -103,18 +115,18 @@ extern "C" {
  */
 
 #define HX711_I2C_COMMAND_COMMAND_OFFSET            0
-#define HX711_I2C_COMMAND_POWER_OFFSET              2
+#define HX711_I2C_COMMAND_POWER_STATE_OFFSET        2
 #define HX711_I2C_COMMAND_GAIN_OFFSET               3
 #define HX711_I2C_COMMAND_RATE_OFFSET               5
 
 #define HX711_I2C_COMMAND_COMMAND_SIZE              2
-#define HX711_I2C_COMMAND_POWER_SIZE                1
+#define HX711_I2C_COMMAND_POWER_STATE_SIZE          1
 #define HX711_I2C_COMMAND_GAIN_SIZE                 2
 #define HX711_I2C_COMMAND_RATE_SIZE                 1
 
 typedef enum {
     hx711_i2c_command_none =                        0,
-    hx711_i2c_command_change_power =                1,
+    hx711_i2c_command_change_power_state =          1,
     hx711_i2c_command_change_gain =                 2,
     hx711_i2c_command_get_value =                   3
 } hx711_i2c_command_t;
@@ -135,11 +147,18 @@ typedef struct {
     uint8_t addr;
 } hx711_i2c_master_config_t;
 
-void hx711_i2c_control_set_ready(
+void hx711_i2c_value_to_array(
+    const int32_t val,
+    uint8_t* const arr);
+
+int32_t hx711_i2c_array_to_value(
+    const uint8_t* const arr);
+
+void hx711_i2c_control_set_ready_state(
     const bool val,
     uint8_t* const control);
 
-void hx711_i2c_control_set_new_value(
+void hx711_i2c_control_set_new_value_state(
     const bool is_new,
     uint8_t* const control);
 
@@ -155,10 +174,10 @@ void hx711_i2c_control_set_rate(
     const hx711_rate_t rate,
     uint8_t* const control);
 
-bool hx711_i2c_control_get_ready(
+bool hx711_i2c_control_get_ready_state(
     const uint8_t control);
 
-bool hx711_i2c_control_get_new_value(
+bool hx711_i2c_control_get_new_value_state(
     const uint8_t control);
 
 bool hx711_i2c_control_get_power_state(
@@ -189,7 +208,7 @@ void hx711_i2c_command_set_rate(
 hx711_i2c_command_t hx711_i2c_command_get_command(
     const uint8_t bits);
 
-bool hx711_i2c_command_get_power(
+bool hx711_i2c_command_get_power_state(
     const uint8_t bits);
 
 hx711_gain_t hx711_i2c_command_get_gain(
@@ -203,7 +222,7 @@ bool hx711_i2c_command_is_valid(
 
 void hx711_i2c_master_init(
     hx711_i2c_master_t* const hx_i2c,
-    const hx711_i2c_master_config_t * const hx_i2c_config);
+    const hx711_i2c_master_config_t* const hx_i2c_config);
 
 /**
  * @brief Stop i2c communication.
@@ -229,11 +248,13 @@ void hx711_i2c_master_set_gain(
  * is available.
  * 
  * @param hx_i2c 
- * @return int32_t 
+ * @return int 0 if no error, < 0 if PICO_ERROR_GENERIC,
+ * PICO_ERROR_TIMEOUT, otherwise if > 0, length of bytes received
  */
-bool hx711_i2c_master_get_value(
+int hx711_i2c_master_get_value(
     hx711_i2c_master_t* const hx_i2c,
-    int32_t* const val);
+    int32_t* const val,
+    uint8_t* const control);
 
 /**
  * @brief Power up the HX711 with an initial gain.
@@ -253,57 +274,6 @@ void hx711_i2c_master_power_up(
  */
 void hx711_i2c_master_power_down(
     hx711_i2c_master_t* const hx_i2c);
-
-void hx711_i2c_value_to_array(
-    const int32_t val,
-    uint8_t* const arr);
-
-int32_t hx711_i2c_array_to_value(
-    const uint8_t* const arr);
-
-uint8_t hx711_i2c_generate_checksum(
-    const uint8_t* const arr, const size_t len);
-
-/**
- * @brief Checks whether the given gain value is valid for
- * transmissions across i2c.
- * 
- * @param i2c_gain 
- * @return true 
- * @return false 
- */
-bool hx711_i2c_is_i2c_gain_valid(
-    const uint8_t i2c_gain);
-
-/**
- * @brief Converts a hx711_gain_t to a value suitable for
- * transmission across i2c.
- * 
- * @param gain 
- * @return uint8_t 
- */
-uint8_t hx711_i2c_gain_to_i2c_gain(
-    const hx711_gain_t gain);
-
-/**
- * @brief Converts a gain value obtained via i2c to a
- * hx711_gain_t.
- * 
- * @param i2c_gain 
- * @return hx711_gain_t 
- */
-hx711_gain_t hx711_i2c_i2c_gain_to_gain(
-    const uint8_t i2c_gain);
-
-/**
- * @brief Check if command is a valid command.
- * 
- * @param cmd 
- * @return true 
- * @return false 
- */
-bool hx711_i2c_is_command_valid(
-    const hx711_i2c_command_t cmd);
 
 #ifdef __cplusplus
 }

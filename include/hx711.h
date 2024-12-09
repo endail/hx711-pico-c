@@ -61,13 +61,13 @@ extern const unsigned char HX711_CLOCK_PULSES[3];
 
 typedef enum {
     hx711_rate_10 = 0,
-    hx711_rate_80
+    hx711_rate_80 = 1
 } hx711_rate_t;
 
 typedef enum {
     hx711_gain_128 = 0,
-    hx711_gain_32,
-    hx711_gain_64
+    hx711_gain_32 = 1,
+    hx711_gain_64 = 2
 } hx711_gain_t;
 
 typedef struct {

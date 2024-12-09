@@ -23,9 +23,7 @@
 #include <assert.h>
 #include <hardware/gpio.h>
 #include <hardware/i2c.h>
-#include <pico/binary_info.h>
 #include <pico/i2c_slave.h>
-#include <pico/stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -33,11 +31,6 @@
 #include "../include/hx711.h"
 #include "../include/hx711_i2c_slave.h"
 #include "../include/util.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <pico/stdio.h>
-#include <tusb.h>
 
 hx711_i2c_slave_t* hx711_i2c__slave_map[] = {
     NULL, //...
@@ -173,21 +166,21 @@ void hx711_i2c_slave_set_control(
         hx_i2c->_memory[HX711_I2C_CONTROL_METADATA_OFFSET_BYTES] = control;
 }
 
-void hx711_i2c_slave_control_set_ready(
+void hx711_i2c_slave_control_set_ready_state(
     hx711_i2c_slave_t* const hx_i2c,
     const bool val) {
         assert(hx_i2c != NULL);
         uint8_t ctrl = hx711_i2c_slave_get_control(hx_i2c);
-        hx711_i2c_control_set_ready(val, &ctrl);
+        hx711_i2c_control_set_ready_state(val, &ctrl);
         hx711_i2c_slave_set_control(hx_i2c, ctrl);
 }
 
-void hx711_i2c_slave_control_set_new_value(
+void hx711_i2c_slave_control_set_new_value_state(
     hx711_i2c_slave_t* const hx_i2c,
     const bool is_new) {
         assert(hx_i2c != NULL);
         uint8_t ctrl = hx711_i2c_slave_get_control(hx_i2c);
-        hx711_i2c_control_set_new_value(is_new, &ctrl);
+        hx711_i2c_control_set_new_value_state(is_new, &ctrl);
         hx711_i2c_slave_set_control(hx_i2c, ctrl);
 }
 
@@ -218,18 +211,18 @@ void hx711_i2c_slave_control_set_rate(
         hx711_i2c_slave_set_control(hx_i2c, ctrl);
 }
 
-bool hx711_i2c_slave_control_get_ready(
+bool hx711_i2c_slave_control_get_ready_state(
     hx711_i2c_slave_t* const hx_i2c) {
         assert(hx_i2c != NULL);
         const uint8_t ctrl = hx711_i2c_slave_get_control(hx_i2c);
-        return hx711_i2c_control_get_ready(ctrl);
+        return hx711_i2c_control_get_ready_state(ctrl);
 }
 
-bool hx711_i2c_slave_control_get_new_value(
+bool hx711_i2c_slave_control_get_new_value_state(
     hx711_i2c_slave_t* const hx_i2c) {
         assert(hx_i2c != NULL);
         const uint8_t ctrl = hx711_i2c_slave_get_control(hx_i2c);
-        return hx711_i2c_control_get_new_value(ctrl);
+        return hx711_i2c_control_get_new_value_state(ctrl);
 }
 
 bool hx711_i2c_slave_control_get_power_state(
@@ -305,17 +298,17 @@ void hx711_i2c_slave_handler(
             i2c_write_raw_blocking(
                 i2c,
                 (const uint8_t*)hx_i2c->_memory,
-                4);
-            
+                HX711_I2C_CONTROL_TOTAL_BYTES);
+
             // then update the control
-            hx711_i2c_slave_control_set_new_value(hx_i2c, false);
+            hx711_i2c_slave_control_set_new_value_state(hx_i2c, false);
+
             break;
 
         case I2C_SLAVE_FINISH:
         default:
             // prepare for next transfer
             break;
-
         }
 
 }
@@ -323,47 +316,42 @@ void hx711_i2c_slave_handler(
 void hx711_i2c_slave_update_loop(
     hx711_i2c_slave_t* const hx_i2c) {
 
+        int32_t val;
         uint8_t valBytes[HX711_I2C_CONTROL_DATA_SIZE_BYTES] = { 0 };
         hx711_i2c_command_t cmd;
         uint8_t data;
 
         while(true) {
 
-            // get a value
-            hx711_i2c_value_to_array(
-                hx711_get_value(hx_i2c->_hx),
-                valBytes);
+            if(hx711_get_value_noblock(hx_i2c->_hx, &val)) {
+                UTIL_INTERRUPTS_OFF_BLOCK(
+                    hx711_i2c_value_to_array(val, valBytes);
+                    hx711_i2c_slave_set_data(hx_i2c, valBytes);
+                    hx711_i2c_slave_control_set_new_value_state(hx_i2c, true);
+                );
+            }
 
-            // update data atomically
-            UTIL_INTERRUPTS_OFF_BLOCK(
-                hx711_i2c_slave_set_data(hx_i2c, valBytes);
-                hx711_i2c_slave_control_set_new_value(hx_i2c, true);
-                data = hx_i2c->_indata;
-            );
-
-            cmd = (hx711_i2c_command_t)(
-                ((data >>
-                HX711_I2C_COMMAND_COMMAND_OFFSET) & 
-                HX711_I2C_COMMAND_COMMAND_SIZE));
+            data = hx_i2c->_indata;
+            cmd = hx711_i2c_command_get_command(data);
 
             switch(cmd) {
             case hx711_i2c_command_none:
             case hx711_i2c_command_get_value:
             default:
                 break;
-            
-            case hx711_i2c_command_change_power:
 
-                hx711_i2c_slave_control_set_ready(hx_i2c, false);
-                hx711_i2c_slave_control_set_new_value(hx_i2c, false);
-                hx711_i2c_slave_control_set_power_state(hx_i2c,
-                    hx711_i2c_command_get_power(data));
+            case hx711_i2c_command_change_power_state:
 
-                if(hx711_i2c_command_get_power(data)) {
+                hx711_i2c_slave_control_set_ready_state(hx_i2c, false);
+                hx711_i2c_slave_control_set_new_value_state(hx_i2c, false);
+
+                if(hx711_i2c_command_get_power_state(data)) {
 
                     hx711_power_up(
                         hx_i2c->_hx,
                         hx711_i2c_command_get_gain(data));
+
+                    hx711_i2c_slave_control_set_power_state(hx_i2c, true);
 
                     hx711_wait_settle(
                         hx711_i2c_command_get_rate(data));
@@ -371,17 +359,18 @@ void hx711_i2c_slave_update_loop(
                 }
                 else {
                     hx711_power_down(hx_i2c->_hx);
+                    hx711_i2c_slave_control_set_power_state(hx_i2c, false);
                     hx711_wait_power_down();
                 }
 
-                hx711_i2c_slave_control_set_ready(hx_i2c, true);
+                hx711_i2c_slave_control_set_ready_state(hx_i2c, true);
 
                 break;
 
             case hx711_i2c_command_change_gain:
 
-                hx711_i2c_slave_control_set_ready(hx_i2c, false);
-                hx711_i2c_slave_control_set_new_value(hx_i2c, false);
+                hx711_i2c_slave_control_set_ready_state(hx_i2c, false);
+                hx711_i2c_slave_control_set_new_value_state(hx_i2c, false);
 
                 hx711_set_gain(
                     hx_i2c->_hx,
@@ -390,7 +379,7 @@ void hx711_i2c_slave_update_loop(
                 hx711_wait_settle(
                     hx711_i2c_command_get_rate(data));
 
-                hx711_i2c_slave_control_set_ready(hx_i2c, true);
+                hx711_i2c_slave_control_set_ready_state(hx_i2c, true);
 
                 break;
 

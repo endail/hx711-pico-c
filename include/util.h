@@ -116,6 +116,34 @@ extern const uint8_t util_pio_to_irq_map[NUM_PIOS * 2];
 extern const uint8_t util_dma_to_irq_map[UTIL_NUM_DMA_IRQS];
 
 /**
+ * @brief Sets bits in value from startbit to len.
+ * 
+ * @param value 
+ * @param startbit 
+ * @param len 
+ * @param bits 
+ * @return uint8_t 
+ */
+uint8_t util_set_bits8(
+    uint8_t value,
+    const uint8_t startbit,
+    const uint8_t len,
+    const uint8_t bits);
+
+/**
+ * @brief Extract len bits from value starting at startbit.
+ * 
+ * @param value 
+ * @param startbit 
+ * @param len 
+ * @return uint8_t 
+ */
+uint8_t util_get_bits8(
+    const uint8_t value,
+    const uint8_t startbit,
+    const uint8_t len);
+
+/**
  * @brief Check whether a DMA IRQ index is valid.
  * 
  * @param idx 

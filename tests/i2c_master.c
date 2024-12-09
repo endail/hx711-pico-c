@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <pico/error.h>
 #include <pico/stdio.h>
 #include <tusb.h>
 #include "../include/common.h"
@@ -40,16 +41,24 @@ int main(void) {
     hx711_i2c_master_t hxi2c;
     hx711_i2c_master_init(&hxi2c, &i2ccfg);
 
+    hx711_i2c_master_power_up(&hxi2c, hx711_gain_128, hx711_rate_80);
+    hx711_wait_settle(hx711_rate_80);
+
     int32_t val;
+    uint8_t ctrl;
 
     while(true) {
-        if(hx711_i2c_master_get_value(&hxi2c, &val)) {
-            printf("\n%li\n", val);
+        if(hx711_i2c_master_get_value(&hxi2c, &val, &ctrl) == PICO_OK) {
+            if(hx711_i2c_control_get_new_value_state(ctrl)) {
+                printf("\n%li ", val);
+            }
+            else {
+                printf(".");
+            }
         }
         else {
-            printf(".");
+            printf("--error--\n");
         }
-        sleep_ms(1);
     }
     hx711_i2c_master_close(&hxi2c);
 

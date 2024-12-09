@@ -64,11 +64,10 @@ int main(void) {
     hx711_wait_settle(PROG_HX_RATE);
 
     // set new control bits
-    //hx711_i2c_slave_control_set_power_state(&hxi2c, true);
-    //hx711_i2c_slave_control_set_gain(&hxi2c, PROG_HX_GAIN);
-    //hx711_i2c_slave_control_set_rate(&hxi2c, PROG_HX_RATE);
-    //hx711_i2c_slave_control_set_ready(&hxi2c, true);
-    hxi2c._memory[0] = 0b00100101;
+    hx711_i2c_slave_control_set_power_state(&hxi2c, true);
+    hx711_i2c_slave_control_set_gain(&hxi2c, PROG_HX_GAIN);
+    hx711_i2c_slave_control_set_rate(&hxi2c, PROG_HX_RATE);
+    hx711_i2c_slave_control_set_ready_state(&hxi2c, true);
 
     // slave interrupt will be effective at this point
     printf("Ready\n");

@@ -39,7 +39,7 @@ extern "C" {
  */
 #define HX711_I2C_SLAVE_MAP_SIZE                        8
 #define HX711_I2C_SLAVE_MEMORY_SIZE                     HX711_I2C_CONTROL_TOTAL_BYTES
-#define HX711_I2C_SLAVE_DEFAULT_CONTROL_METADATA_BITS   UINT8_C(0b00100010)
+#define HX711_I2C_SLAVE_DEFAULT_CONTROL_METADATA_BITS   UINT8_C(0b00100000)
 
 typedef struct {
     uint _scl_pin;
@@ -94,11 +94,11 @@ void hx711_i2c_slave_set_control(
     hx711_i2c_slave_t* const hx_i2c,
     const uint8_t control);
 
-void hx711_i2c_slave_control_set_ready(
+void hx711_i2c_slave_control_set_ready_state(
     hx711_i2c_slave_t* const hx_i2c,
     const bool val);
 
-void hx711_i2c_slave_control_set_new_value(
+void hx711_i2c_slave_control_set_new_value_state(
     hx711_i2c_slave_t* const hx_i2c,
     const bool is_new);
 
@@ -114,10 +114,10 @@ void hx711_i2c_slave_control_set_rate(
     hx711_i2c_slave_t* const hx_i2c,
     const hx711_rate_t rate);
 
-bool hx711_i2c_slave_control_get_ready(
+bool hx711_i2c_slave_control_get_ready_state(
     hx711_i2c_slave_t* const hx_i2c);
 
-bool hx711_i2c_slave_control_get_new_value(
+bool hx711_i2c_slave_control_get_new_value_state(
     hx711_i2c_slave_t* const hx_i2c);
 
 bool hx711_i2c_slave_control_get_power_state(
