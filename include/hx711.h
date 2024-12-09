@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,24 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "hardware/pio.h"
-#include "pico/mutex.h"
+#include <hardware/pio.h>
+#include <pico/mutex.h>
+#include <pico/types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define HX711_GAIN_TO_STR(GAIN) \
+    (GAIN == hx711_gain_128 ? "128") : \
+        (GAIN == hx711_gain_64 ? "64") : \
+            (GAIN == hx711_gain_32 ? "32") : \
+                ""
+
+#define HX711_RATE_TO_STR(RATE) \
+    (RATE == hx711_rate_80) ? "80" : \
+        (RATE == hx711_rate_10) ? "10" : \
+            ""
 
 #ifndef HX711_NO_MUTEX
     #define HX711_MUTEX_BLOCK(mut, ...) \

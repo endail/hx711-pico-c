@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -92,7 +92,7 @@ bool hx711_i2c_slave_get_slave(
 
 void hx711_i2c_slave_init(
     hx711_i2c_slave_t* const hx_i2c,
-    const hx711_i2c_slave_config_t * const hx_i2c_config) {
+    const hx711_i2c_slave_config_t* const hx_i2c_config) {
 
         assert(hx_i2c != NULL);
         assert(hx_i2c_config != NULL);
@@ -125,6 +125,7 @@ void hx711_i2c_slave_init(
             HX711_I2C_SLAVE_DEFAULT_CONTROL_METADATA_BITS);
 
         hx_i2c->_indata = 0;
+        hx_i2c->_updating = true;
 
         hx711_i2c_slave_add_slave(hx_i2c);
 
@@ -142,13 +143,6 @@ void hx711_i2c_slave_init(
             hx_i2c->_addr,
             &hx711_i2c_slave_handler);
 
-}
-
-volatile uint8_t* hx711_i2c_slave_get_control_ptr(
-    hx711_i2c_slave_t* const hx_i2c) {
-        assert(hx_i2c != NULL);
-        assert(hx_i2c->_memory != NULL);
-        return &hx_i2c->_memory[HX711_I2C_CONTROL_METADATA_OFFSET_BYTES];
 }
 
 uint8_t hx711_i2c_slave_get_control(
@@ -252,7 +246,7 @@ void hx711_i2c_slave_get_data(
         assert(hx_i2c != NULL);
         assert(data != NULL);
         memcpy(data,
-            (uint8_t*)&hx_i2c->_memory[HX711_I2C_CONTROL_DATA_OFFSET_BYTES],
+            &hx_i2c->_memory[HX711_I2C_CONTROL_DATA_OFFSET_BYTES],
             HX711_I2C_CONTROL_DATA_SIZE_BYTES);
 }
 
@@ -261,7 +255,7 @@ void hx711_i2c_slave_set_data(
     const uint8_t* const data) {
         assert(hx_i2c != NULL);
         assert(data != NULL);
-        memcpy((uint8_t*)&hx_i2c->_memory[HX711_I2C_CONTROL_DATA_OFFSET_BYTES],
+        memcpy(&hx_i2c->_memory[HX711_I2C_CONTROL_DATA_OFFSET_BYTES],
             data,
             HX711_I2C_CONTROL_DATA_SIZE_BYTES);
 }
@@ -321,23 +315,27 @@ void hx711_i2c_slave_update_loop(
         hx711_i2c_command_t cmd;
         uint8_t data;
 
-        while(true) {
+        while(hx_i2c->_updating) {
 
             if(hx711_get_value_noblock(hx_i2c->_hx, &val)) {
+                hx711_i2c_value_to_array(val, valBytes);
                 UTIL_INTERRUPTS_OFF_BLOCK(
-                    hx711_i2c_value_to_array(val, valBytes);
                     hx711_i2c_slave_set_data(hx_i2c, valBytes);
                     hx711_i2c_slave_control_set_new_value_state(hx_i2c, true);
                 );
             }
 
             data = hx_i2c->_indata;
+            hx_i2c->_indata = 0;
+
             cmd = hx711_i2c_command_get_command(data);
 
             switch(cmd) {
             case hx711_i2c_command_none:
             case hx711_i2c_command_get_value:
             default:
+                // do nothing in these cases;
+                // slave auto-updates values from hx711
                 break;
 
             case hx711_i2c_command_change_power_state:
@@ -384,8 +382,6 @@ void hx711_i2c_slave_update_loop(
                 break;
 
             }
-
-            hx_i2c->_indata = 0;
 
         }
 }

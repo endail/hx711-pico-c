@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,13 @@
 #ifndef HX711_MULTI_H_253BF37A_8356_462B_B8F9_39E09A7193E6
 #define HX711_MULTI_H_253BF37A_8356_462B_B8F9_39E09A7193E6
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <strings.h>
-#include "hardware/pio.h"
-#include "pico/mutex.h"
-#include "pico/platform.h"
+#include <hardware/pio.h>
+#include <pico/mutex.h>
+#include <pico/platform.h>
+#include <pico/types.h>
 #include "hx711.h"
 
 #ifdef __cplusplus

@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,18 +21,18 @@
 // SOFTWARE.
 
 #include <assert.h>
+#include <hardware/dma.h>
+#include <hardware/gpio.h>
+#include <hardware/irq.h>
+#include <hardware/pio.h>
 #include <math.h>
+#include <pico/mutex.h>
+#include <pico/platform.h>
+#include <pico/time.h>
+#include <pico/types.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <strings.h>
-#include "hardware/dma.h"
-#include "hardware/gpio.h"
-#include "hardware/irq.h"
-#include "hardware/pio.h"
-#include "pico/mutex.h"
-#include "pico/platform.h"
-#include "pico/time.h"
-#include "pico/types.h"
 #include "../include/hx711.h"
 #include "../include/hx711_multi.h"
 #include "../include/util.h"

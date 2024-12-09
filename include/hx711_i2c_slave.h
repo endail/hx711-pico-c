@@ -35,9 +35,10 @@ extern "C" {
 #endif
 
 /**
- * @brief Number of slaves supported. Can be altered.
+ * @brief Number of slaves supported. Arbitrary, but exists
+ * to have a fixed sized array.
  */
-#define HX711_I2C_SLAVE_MAP_SIZE                        8
+#define HX711_I2C_SLAVE_MAP_SIZE                        4
 #define HX711_I2C_SLAVE_MEMORY_SIZE                     HX711_I2C_CONTROL_TOTAL_BYTES
 #define HX711_I2C_SLAVE_DEFAULT_CONTROL_METADATA_BITS   UINT8_C(0b00100000)
 
@@ -48,8 +49,9 @@ typedef struct {
     uint _baud_rate;
     uint8_t _addr;
     hx711_t* _hx;
-    volatile uint8_t _memory[HX711_I2C_SLAVE_MEMORY_SIZE];
+    uint8_t _memory[HX711_I2C_SLAVE_MEMORY_SIZE];
     uint8_t _indata;
+    bool _updating;
 } hx711_i2c_slave_t;
 
 typedef struct {
@@ -83,9 +85,6 @@ bool hx711_i2c_slave_get_slave(
 void hx711_i2c_slave_init(
     hx711_i2c_slave_t* const hx_i2c,
     const hx711_i2c_slave_config_t * const hx_i2c_config);
-
-volatile uint8_t* hx711_i2c_slave_get_control_ptr(
-    hx711_i2c_slave_t* const hx_i2c);
 
 uint8_t hx711_i2c_slave_get_control(
     const hx711_i2c_slave_t* const hx_i2c);
@@ -149,6 +148,12 @@ void hx711_i2c_slave_handler(
     i2c_inst_t* i2c,
     i2c_slave_event_t event);
 
+/**
+ * @brief Infinitely looping function to update
+ * slave values.
+ * 
+ * @param hx_i2c 
+ */
 void hx711_i2c_slave_update_loop(
     hx711_i2c_slave_t* const hx_i2c);
 

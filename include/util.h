@@ -34,6 +34,7 @@
 extern "C" {
 #endif
 
+// https://stackoverflow.com/a/3208376
 #define UTIL_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define UTIL_BYTE_TO_BINARY(byte)  \
   ((byte) & 0x80 ? '1' : '0'), \

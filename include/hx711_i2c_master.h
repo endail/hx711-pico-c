@@ -36,17 +36,6 @@
 extern "C" {
 #endif
 
-#define HX711_GAIN_TO_STR(GAIN) \
-    GAIN == hx711_gain_128 ? "128" : \
-        GAIN == hx711_gain_64 ? "64" : \
-            GAIN == hx711_gain_32 ? "32" : \
-                "unknown"
-
-#define HX711_RATE_TO_STR(RATE) \
-    RATE == hx711_rate_80 ? "80" : \
-        RATE == hx711_rate_10 ? "10" : \
-            "unknown"
-
 #define HX711_I2C_PRINT_CONTROL(CTRL) \
     do { \
         printf("| "UTIL_BYTE_TO_BINARY_PATTERN" | Ready: %s | Power: %s | New: %s | Gain: %s | Rate: %s |", \
@@ -77,7 +66,7 @@ extern "C" {
  * 6th bit = unused
  * 7th bit = unused
  * ---------------- (byte boundary)
- * 8th .. 23th bit = value bits
+ * 8th .. 31th bit = value bits
  */
 
 #define HX711_I2C_CONTROL_METADATA_OFFSET_BYTES     0
@@ -147,10 +136,24 @@ typedef struct {
     uint8_t addr;
 } hx711_i2c_master_config_t;
 
+/**
+ * @brief Convert a 32-bit value from a HX711 to
+ * a 3-byte array.
+ * 
+ * @param val 
+ * @param arr 
+ */
 void hx711_i2c_value_to_array(
     const int32_t val,
     uint8_t* const arr);
 
+/**
+ * @brief Convert a 3-byte array containing a HX711
+ * value to a 32-bit integer.
+ * 
+ * @param arr 
+ * @return int32_t 
+ */
 int32_t hx711_i2c_array_to_value(
     const uint8_t* const arr);
 
@@ -237,6 +240,7 @@ void hx711_i2c_master_close(
  * 
  * @param hx_i2c 
  * @param gain 
+ * @param rate 
  */
 void hx711_i2c_master_set_gain(
     hx711_i2c_master_t* const hx_i2c,
@@ -251,16 +255,28 @@ void hx711_i2c_master_set_gain(
  * @return int 0 if no error, < 0 if PICO_ERROR_GENERIC,
  * PICO_ERROR_TIMEOUT, otherwise if > 0, length of bytes received
  */
+
+/**
+ * @brief Obtains a value from the HX711. Blocks until a value
+ * is available.
+ * 
+ * @param hx_i2c 
+ * @param val 
+ * @param control control values from the master, can be NULL
+ * @return int 0 if no error, < 0 if PICO_ERROR_GENERIC,
+ * PICO_ERROR_TIMEOUT, otherwise if > 0, length of bytes received
+ */
 int hx711_i2c_master_get_value(
     hx711_i2c_master_t* const hx_i2c,
     int32_t* const val,
     uint8_t* const control);
 
 /**
- * @brief Power up the HX711 with an initial gain.
+ * @brief Power up the HX711 with an initial gain
  * 
  * @param hx_i2c 
  * @param gain 
+ * @param rate
  */
 void hx711_i2c_master_power_up(
     hx711_i2c_master_t* const hx_i2c,

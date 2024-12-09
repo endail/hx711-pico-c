@@ -141,30 +141,22 @@ bool hx711_i2c_control_get_power_state(
 
 hx711_gain_t hx711_i2c_control_get_gain(
     const uint8_t control) {
-
         const hx711_gain_t gain = (hx711_gain_t)util_get_bits8(
             control,
             HX711_I2C_CONTROL_GAIN_OFFSET,
             HX711_I2C_CONTROL_GAIN_SIZE);
-
         assert(hx711_is_gain_valid(gain));
-
         return gain;
-
 }
 
 hx711_rate_t hx711_i2c_control_get_rate(
     const uint8_t control) {
-
         const hx711_rate_t rate = (hx711_rate_t)util_get_bits8(
             control,
             HX711_I2C_CONTROL_RATE_OFFSET,
             HX711_I2C_CONTROL_RATE_SIZE);
-
         assert(hx711_is_rate_valid(rate));
-
         return rate;
-
 }
 
 void hx711_i2c_command_set_command(
@@ -193,46 +185,36 @@ void hx711_i2c_command_set_power_state(
 void hx711_i2c_command_set_gain(
     const hx711_gain_t gain,
     uint8_t* const bits) {
-
         assert(bits != NULL);
         assert(hx711_is_gain_valid(gain));
-
         *bits = util_set_bits8(
             *bits,
             HX711_I2C_COMMAND_GAIN_OFFSET,
             HX711_I2C_COMMAND_GAIN_SIZE,
             (uint8_t)gain);
-
 }
 
 void hx711_i2c_command_set_rate(
     const hx711_rate_t rate,
     uint8_t* const bits) {
-
         assert(bits != NULL);
         assert(hx711_is_rate_valid(rate));
-
         *bits = util_set_bits8(
             *bits,
             HX711_I2C_COMMAND_RATE_OFFSET,
             HX711_I2C_COMMAND_RATE_SIZE,
             (uint8_t)rate);
-
 }
 
 hx711_i2c_command_t hx711_i2c_command_get_command(
     const uint8_t bits) {
-
         const hx711_i2c_command_t cmd = (hx711_i2c_command_t)
             util_get_bits8(
                 bits,
                 HX711_I2C_COMMAND_COMMAND_OFFSET,
                 HX711_I2C_COMMAND_COMMAND_SIZE);
-
         assert(hx711_i2c_command_is_valid(cmd));
-
         return cmd;
-
 }
 
 bool hx711_i2c_command_get_power_state(
@@ -245,32 +227,24 @@ bool hx711_i2c_command_get_power_state(
 
 hx711_gain_t hx711_i2c_command_get_gain(
     const uint8_t data) {
-
         const hx711_gain_t gain = (hx711_gain_t)
             util_get_bits8(
                 data,
                 HX711_I2C_COMMAND_GAIN_OFFSET,
                 HX711_I2C_COMMAND_GAIN_SIZE);
-
         assert(hx711_is_gain_valid(gain));
-
         return gain;
-
 }
 
 hx711_rate_t hx711_i2c_command_get_rate(
     const uint8_t data) {
-
         const hx711_rate_t rate = (hx711_rate_t)
             util_get_bits8(
                 data,
                 HX711_I2C_COMMAND_RATE_OFFSET,
                 HX711_I2C_COMMAND_RATE_SIZE);
-
         assert(hx711_is_rate_valid(rate));
-
         return rate;
-
 }
 
 bool hx711_i2c_command_is_valid(
