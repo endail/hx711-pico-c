@@ -52,7 +52,7 @@ static inline pio_sm_config hx711_reader_program_get_default_config(uint offset)
 
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -72,10 +72,10 @@ static inline pio_sm_config hx711_reader_program_get_default_config(uint offset)
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 #include <assert.h>
+#include <hardware/clocks.h>
+#include <hardware/pio.h>
+#include <hardware/structs/clocks.h>
 #include <stddef.h>
-#include "hardware/clocks.h"
-#include "hardware/pio.h"
-#include "hardware/structs/clocks.h"
 #include "hx711.h"
 void hx711_reader_pio_init(hx711_t* const hx) {
     assert(hx != NULL);
