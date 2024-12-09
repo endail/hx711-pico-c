@@ -1,42 +1,45 @@
-src/hx711_i2c_master.c:249:19: style:inconclusive: Function 'hx711_i2c_command_get_power' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
+src/hx711_i2c_master.c:239:19: style:inconclusive: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
     const uint8_t data) {
                   ^
-include/hx711_i2c_master.h:193:19: note: Function 'hx711_i2c_command_get_power' argument 1 names different: declaration 'bits' definition 'data'.
+include/hx711_i2c_master.h:212:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t bits);
                   ^
-src/hx711_i2c_master.c:249:19: note: Function 'hx711_i2c_command_get_power' argument 1 names different: declaration 'bits' definition 'data'.
+src/hx711_i2c_master.c:239:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t data) {
                   ^
-src/hx711_i2c_master.c:257:19: style:inconclusive: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
+src/hx711_i2c_master.c:247:19: style:inconclusive: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
     const uint8_t data) {
                   ^
-include/hx711_i2c_master.h:196:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
+include/hx711_i2c_master.h:215:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t bits);
                   ^
-src/hx711_i2c_master.c:257:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
+src/hx711_i2c_master.c:247:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t data) {
                   ^
-src/hx711_i2c_master.c:271:19: style:inconclusive: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
+src/hx711_i2c_master.c:262:19: style:inconclusive: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
     const uint8_t data) {
                   ^
-include/hx711_i2c_master.h:199:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
+include/hx711_i2c_master.h:218:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t bits);
                   ^
-src/hx711_i2c_master.c:271:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
+src/hx711_i2c_master.c:262:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t data) {
                   ^
-src/hx711_i2c_slave.c:54:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 7, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:47:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 7, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == NULL) {
                                    ^
-src/hx711_i2c_slave.c:72:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 7, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:65:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 7, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == slave) {
                                    ^
-src/hx711_i2c_slave.c:90:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 7, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:83:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 7, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i]->_i2c == i2c) {
                                    ^
-tests/i2c_master.c:47:13: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
-            printf("\n%li\n", val);
-            ^
+src/hx711_i2c_slave.c:322:17: style: The scope of the variable 'data' can be reduced. [variableScope]
+        uint8_t data;
+                ^
+tests/i2c_master.c:53:17: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+                printf("\n%li ", val);
+                ^
 tests/main.c:138:5: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
     PRINT_ARR(arr, hxmcfg.chips_len);
     ^
