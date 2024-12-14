@@ -25,6 +25,7 @@
 
 #include <hardware/i2c.h>
 #include <pico/i2c_slave.h>
+#include <pico/platform.h>
 #include <pico/types.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -66,13 +67,13 @@ typedef struct {
 extern hx711_i2c_slave_t* hx711_i2c__slave_map[
     HX711_I2C_SLAVE_MAP_SIZE];
 
-bool hx711_i2c_slave_add_slave(
+static bool hx711_i2c_slave_add_slave(
     hx711_i2c_slave_t* const slave);
 
-void hx711_i2c_slave_remove_slave(
+static void hx711_i2c_slave_remove_slave(
     const hx711_i2c_slave_t* const slave);
 
-bool hx711_i2c_slave_get_slave(
+static bool hx711_i2c_slave_get_slave(
     const i2c_inst_t* const i2c,
     hx711_i2c_slave_t** slave);
 
@@ -144,7 +145,7 @@ void hx711_i2c_slave_set_data(
 void hx711_i2c_slave_close(
     hx711_i2c_slave_t* const hx_i2c);
 
-void hx711_i2c_slave_handler(
+static void __isr __not_in_flash_func(hx711_i2c_slave_handler)(
     i2c_inst_t* i2c,
     i2c_slave_event_t event);
 

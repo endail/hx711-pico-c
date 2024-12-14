@@ -248,16 +248,7 @@ void hx711_i2c_master_set_gain(
     const hx711_rate_t rate);
 
 /**
- * @brief Obtains a value from the HX711. Blocks until a value
- * is available.
- * 
- * @param hx_i2c 
- * @return int 0 if no error, < 0 if PICO_ERROR_GENERIC,
- * PICO_ERROR_TIMEOUT, otherwise if > 0, length of bytes received
- */
-
-/**
- * @brief Obtains a value from the HX711. Blocks until a response
+ * @brief Requests data from the HX711. Blocks until a response
  * is available.
  * 
  * @param hx_i2c 
@@ -266,7 +257,7 @@ void hx711_i2c_master_set_gain(
  * @return int 0 if no error, < 0 if PICO_ERROR_GENERIC,
  * PICO_ERROR_TIMEOUT, otherwise if > 0, length of bytes received
  */
-int hx711_i2c_master_get_value(
+int hx711_i2c_master_get_data(
     hx711_i2c_master_t* const hx_i2c,
     int32_t* const val,
     uint8_t* const control);

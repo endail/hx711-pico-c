@@ -331,7 +331,7 @@ void hx711_i2c_master_set_gain(
 
 }
 
-int hx711_i2c_master_get_value(
+int hx711_i2c_master_get_data(
     hx711_i2c_master_t* const hx_i2c,
     int32_t* const val,
     uint8_t* const control) {
@@ -376,7 +376,7 @@ int32_t hx711_i2c_master_get_value_blocking(
         int32_t val;
         uint8_t ctrl;
 
-        while(hx711_i2c_master_get_value(hx_i2c, &val, &ctrl) != PICO_OK) {
+        while(hx711_i2c_master_get_data(hx_i2c, &val, &ctrl) != PICO_OK) {
             if(!(   hx711_i2c_control_get_new_value_state(ctrl) && 
                     hx711_i2c_control_get_ready_state(ctrl) &&
                     hx711_i2c_control_get_power_state(ctrl)

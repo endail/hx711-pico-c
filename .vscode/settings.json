@@ -47,6 +47,7 @@
         "array": "c",
         "string": "c",
         "string_view": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "stdio.h": "c"
     }
 }

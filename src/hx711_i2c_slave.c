@@ -315,19 +315,30 @@ void hx711_i2c_slave_update_loop(
         hx711_i2c_command_t cmd;
         uint8_t data;
 
+        // continuing updating data while this flag is set
         while(hx_i2c->_updating) {
 
-            if(hx711_get_value_noblock(hx_i2c->_hx, &val)) {
-                hx711_i2c_value_to_array(val, valBytes);
-                UTIL_INTERRUPTS_OFF_BLOCK(
-                    hx711_i2c_slave_set_data(hx_i2c, valBytes);
-                    hx711_i2c_slave_control_set_new_value_state(hx_i2c, true);
-                );
+            // only get new hx711 values if the slave is ready and the chip
+            // is in a powered-on state
+            if(hx711_i2c_slave_control_get_ready_state(hx_i2c) && 
+                hx711_i2c_slave_control_get_power_state(hx_i2c)) {
+                if(hx711_get_value_noblock(hx_i2c->_hx, &val)) {
+                    hx711_i2c_value_to_array(val, valBytes);
+                    UTIL_INTERRUPTS_OFF_BLOCK(
+                        hx711_i2c_slave_set_data(hx_i2c, valBytes);
+                        hx711_i2c_slave_control_set_new_value_state(hx_i2c, true);
+                    );
+                }
             }
 
-            data = hx_i2c->_indata;
-            hx_i2c->_indata = 0;
+            // make a local copy of the input data, for this iteration
+            // and clear it for the next one
+            UTIL_INTERRUPTS_OFF_BLOCK(
+                data = hx_i2c->_indata;
+                hx_i2c->_indata = 0;
+            );
 
+            // determine what command has been sent
             cmd = hx711_i2c_command_get_command(data);
 
             switch(cmd) {
@@ -340,27 +351,42 @@ void hx711_i2c_slave_update_loop(
 
             case hx711_i2c_command_change_power_state:
 
-                hx711_i2c_slave_control_set_ready_state(hx_i2c, false);
-                hx711_i2c_slave_control_set_new_value_state(hx_i2c, false);
+                // changing power state either up or down so change
+                // control data to indicate the slave is not ready
+                // and no new data is available
+
+                hx711_i2c_slave_control_set_ready_state(
+                    hx_i2c,
+                    false);
+
+                hx711_i2c_slave_control_set_new_value_state(
+                    hx_i2c,
+                    false);
 
                 if(hx711_i2c_command_get_power_state(data)) {
+                    // powering up...
 
                     hx711_power_up(
                         hx_i2c->_hx,
                         hx711_i2c_command_get_gain(data));
 
-                    hx711_i2c_slave_control_set_power_state(hx_i2c, true);
+                    hx711_i2c_slave_control_set_power_state(
+                        hx_i2c,
+                        true);
 
                     hx711_wait_settle(
                         hx711_i2c_command_get_rate(data));
 
                 }
                 else {
+                    // powering down...
                     hx711_power_down(hx_i2c->_hx);
                     hx711_i2c_slave_control_set_power_state(hx_i2c, false);
                     hx711_wait_power_down();
                 }
 
+                // with the power state change over, change the control
+                // data to indicate the slave is ready for new instructions
                 hx711_i2c_slave_control_set_ready_state(hx_i2c, true);
 
                 break;

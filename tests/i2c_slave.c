@@ -79,7 +79,7 @@ int main(void) {
 
     hx711_close(&hx);
 
-    printf("Closed communication with single HX711 chip\n");
+    printf("Exiting\n");
 
     return EXIT_SUCCESS;
 

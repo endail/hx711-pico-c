@@ -70,6 +70,7 @@ target_link_libraries(hx711-pico-c INTERFACE
         hardware_pio
         hardware_timer
         pico_i2c_slave
+        pico_mem_ops
         pico_platform
         pico_stdlib
         pico_sync
