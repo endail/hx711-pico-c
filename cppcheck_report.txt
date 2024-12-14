@@ -37,9 +37,9 @@ src/hx711_i2c_slave.c:83:36: error: Array 'hx711_i2c__slave_map[1]' accessed at 
 src/hx711_i2c_slave.c:316:17: style: The scope of the variable 'data' can be reduced. [variableScope]
         uint8_t data;
                 ^
-tests/i2c_master.c:53:17: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
-                printf("\n%li ", val);
-                ^
+tests/i2c_master.c:48:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
+        printf("%li\n", hx711_i2c_master_get_value_blocking(&hxi2c));
+        ^
 tests/main.c:138:5: portability: %i in format string (no. 1) requires 'int' but the argument type is 'size_t {aka unsigned long}'. [invalidPrintfArgType_sint]
     PRINT_ARR(arr, hxmcfg.chips_len);
     ^
