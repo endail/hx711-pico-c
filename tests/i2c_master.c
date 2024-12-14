@@ -44,6 +44,11 @@ int main(void) {
     hx711_i2c_master_power_up(&hxi2c, hx711_gain_128, hx711_rate_80);
     hx711_wait_settle(hx711_rate_80);
 
+    while(true) {
+        printf("%li\n", hx711_i2c_master_get_value_blocking(&hxi2c));
+    }
+
+/*
     int32_t val;
     uint8_t ctrl;
 
@@ -60,6 +65,8 @@ int main(void) {
             printf("--error--\n");
         }
     }
+*/
+
     hx711_i2c_master_close(&hxi2c);
 
     while(1);

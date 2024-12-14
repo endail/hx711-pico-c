@@ -257,7 +257,7 @@ void hx711_i2c_master_set_gain(
  */
 
 /**
- * @brief Obtains a value from the HX711. Blocks until a value
+ * @brief Obtains a value from the HX711. Blocks until a response
  * is available.
  * 
  * @param hx_i2c 
@@ -270,6 +270,16 @@ int hx711_i2c_master_get_value(
     hx711_i2c_master_t* const hx_i2c,
     int32_t* const val,
     uint8_t* const control);
+
+/**
+ * @brief Obtains a value from the HX711. Blocks until a new
+ * value is available.
+ * 
+ * @param hx_i2c 
+ * @return int32_t 
+ */
+int32_t hx711_i2c_master_get_value_blocking(
+    hx711_i2c_master_t* const hx_i2c);
 
 /**
  * @brief Power up the HX711 with an initial gain
