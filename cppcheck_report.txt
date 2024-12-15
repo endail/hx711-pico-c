@@ -34,6 +34,45 @@ src/hx711_i2c_slave.c:65:36: error: Array 'hx711_i2c__slave_map[1]' accessed at 
 src/hx711_i2c_slave.c:83:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i]->_i2c == i2c) {
                                    ^
+src/hx711_i2c_slave.c:327:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+                    UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_i2c_slave.c:336:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+            UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_i2c_slave.c:327:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+                    UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_i2c_slave.c:336:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+            UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_multi.c:576:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+    UTIL_INTERRUPTS_OFF_BLOCK(
+    ^
+src/hx711_multi.c:725:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+            UTIL_INTERRUPTS_OFF_BLOCK(
+            ^
+src/hx711_multi.c:834:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
+    HX711_MUTEX_BLOCK(hxm->_mut,
+    ^
+src/hx711_multi.c:576:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_multi.c:725:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+            UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_multi.c:834:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HX711_MUTEX_BLOCK(hxm->_mut,
+^
+src/hx711_multi.c:576:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_multi.c:725:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+            UTIL_INTERRUPTS_OFF_BLOCK(
+^
+src/hx711_multi.c:834:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    HX711_MUTEX_BLOCK(hxm->_mut,
+^
 src/util.c:71:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
         assert(startbit >= 0 && startbit <= 7);
                         ^
