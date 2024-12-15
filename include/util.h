@@ -76,6 +76,23 @@ extern "C" {
     } while(0)
 
 /**
+ * Adapted from https://stackoverflow.com/a/17624752
+ */
+#ifndef __COUNTER__
+    #error "__COUNTER__ macro is not available; cannot continue"
+#endif
+#define UTIL__CONCAT(A, B) UTIL__CONCAT_INNER(A, B)
+#define UTIL__CONCAT_INNER(A, B) A ## B
+#define UTIL__UNIQUE_NAME(PREFIX) UTIL__CONCAT(PREFIX, __COUNTER__)
+#define UTIL__INTERRUPTS_OFF_BLOCK_INNER(VAR, CODE) \
+    do { \
+        const uint32_t VAR = save_and_disable_interrupts(); \
+        CODE \
+        restore_interrupts(VAR); \
+    } \
+    while(0)
+
+/**
  * @brief Disable interrupts for the duration of this block of
  * code.
  * @example UTIL_INTERRUPTS_OFF_BLOCK(
@@ -86,21 +103,24 @@ extern "C" {
  */
 #define UTIL_INTERRUPTS_OFF_BLOCK(...) \
     do { \
-        const uint32_t interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c = save_and_disable_interrupts(); \
-        __VA_ARGS__ \
-        restore_interrupts(interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c); \
-    } while(0)
+        UTIL__INTERRUPTS_OFF_BLOCK_INNER( \
+            UTIL__UNIQUE_NAME(interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_), \
+            __VA_ARGS__); \
+    } \
+    while(0)
 
-#define UTIL_DECL_IN_RANGE_FUNC(TYPE) \
+#define UTIL__DECL_IN_RANGE_FUNC(TYPE) \
     bool util_ ## TYPE ##_in_range( \
         const TYPE val, \
         const TYPE min, \
         const TYPE max);
 
-UTIL_DECL_IN_RANGE_FUNC(int32_t)
-UTIL_DECL_IN_RANGE_FUNC(uint32_t)
-UTIL_DECL_IN_RANGE_FUNC(int)
-UTIL_DECL_IN_RANGE_FUNC(uint)
+UTIL__DECL_IN_RANGE_FUNC(int32_t)
+UTIL__DECL_IN_RANGE_FUNC(uint32_t)
+UTIL__DECL_IN_RANGE_FUNC(int)
+UTIL__DECL_IN_RANGE_FUNC(uint)
+
+#undef UTIL__DECL_IN_RANGE_FUNC
 
 /**
  * @brief Quick lookup for finding an NVIC IRQ number
@@ -494,8 +514,6 @@ bool util_pio_sm_try_get(
     const uint sm,
     uint32_t* const word,
     const uint threshold);
-
-#undef UTIL_DECL_IN_RANGE_FUNC
 
 #ifdef __cplusplus
 }
