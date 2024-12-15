@@ -112,6 +112,7 @@ extern "C" {
 #define HX711_I2C_COMMAND_POWER_STATE_SIZE          1
 #define HX711_I2C_COMMAND_GAIN_SIZE                 2
 #define HX711_I2C_COMMAND_RATE_SIZE                 1
+#define HX711_I2C_COMMAND_TOTAL_SIZE_BYTES          1
 
 typedef enum {
     hx711_i2c_command_none =                        0,
@@ -157,6 +158,21 @@ void hx711_i2c_value_to_array(
 int32_t hx711_i2c_array_to_value(
     const uint8_t* const arr);
 
+void hx711_i2c_control_get(
+    const uint8_t control,
+    bool* ready_state,
+    bool* new_value_state,
+    bool* power_state,
+    hx711_gain_t* gain,
+    hx711_rate_t* rate);
+
+uint8_t hx711_i2c_control_set(
+    const bool ready_state,
+    const bool new_value_state,
+    const bool power_state,
+    const hx711_gain_t gain,
+    const hx711_rate_t rate);
+
 void hx711_i2c_control_set_ready_state(
     const bool val,
     uint8_t* const control);
@@ -191,6 +207,19 @@ hx711_gain_t hx711_i2c_control_get_gain(
 
 hx711_rate_t hx711_i2c_control_get_rate(
     const uint8_t control);
+
+void hx711_i2c_command_get(
+    uint8_t const bits,
+    hx711_i2c_command_t* cmd,
+    bool* power_state,
+    hx711_gain_t* gain,
+    hx711_rate_t* rate);
+
+uint8_t hx711_i2c_command_set(
+    const hx711_i2c_command_t cmd,
+    const bool power_state,
+    const hx711_gain_t gain,
+    const hx711_rate_t rate);
 
 void hx711_i2c_command_set_command(
     const hx711_i2c_command_t cmd,
@@ -253,9 +282,8 @@ void hx711_i2c_master_set_gain(
  * 
  * @param hx_i2c 
  * @param val 
- * @param control control values from the master, can be NULL
- * @return int 0 if no error, < 0 if PICO_ERROR_GENERIC,
- * PICO_ERROR_TIMEOUT, otherwise if > 0, length of bytes received
+ * @param control control values from the master
+ * @return int PICO_OK if no error, otherwise PICO_ERROR_IO
  */
 int hx711_i2c_master_get_data(
     hx711_i2c_master_t* const hx_i2c,

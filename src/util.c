@@ -67,19 +67,32 @@ uint8_t util_set_bits8(
     const uint8_t startbit,
     const uint8_t len,
     const uint8_t bits) {
+
+        assert(startbit >= 0 && startbit <= 7);
+        assert(len >= 1 && len <= 8);
+        assert((startbit + len) <= 8);
+
         const uint8_t mask = ((1 << len) - 1) << startbit;
         value &= ~mask;
         value |= (bits << startbit);
         return value;
+
 }
 
 uint8_t util_get_bits8(
     const uint8_t value,
     const uint8_t startbit,
     const uint8_t len) {
+
+        assert(startbit >= 0 && startbit <= 7);
+        assert(len >= 1 && len <= 8);
+        assert((startbit + len) <= 8);
+
         const uint8_t mask = ((1 << len) - 1) << startbit;
         const uint8_t extracted = (value & mask) >> startbit;
+
         return extracted;
+
 }
 
 bool util_dma_irq_index_is_valid(const uint idx) {

@@ -48,6 +48,8 @@
         "string": "c",
         "string_view": "c",
         "stdint.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "functional": "cpp",
+        "cstddef": "cpp"
     }
 }
