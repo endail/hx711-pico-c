@@ -1,28 +1,28 @@
-src/hx711_i2c_master.c:297:19: style:inconclusive: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
+src/hx711_i2c_master.c:311:19: style:inconclusive: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
     const uint8_t data) {
                   ^
-include/hx711_i2c_master.h:244:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
+include/hx711_i2c_master.h:247:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t bits);
                   ^
-src/hx711_i2c_master.c:297:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
+src/hx711_i2c_master.c:311:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t data) {
                   ^
-src/hx711_i2c_master.c:305:19: style:inconclusive: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
+src/hx711_i2c_master.c:319:19: style:inconclusive: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
     const uint8_t data) {
                   ^
-include/hx711_i2c_master.h:247:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
+include/hx711_i2c_master.h:250:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t bits);
                   ^
-src/hx711_i2c_master.c:305:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
+src/hx711_i2c_master.c:319:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t data) {
                   ^
-src/hx711_i2c_master.c:316:19: style:inconclusive: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
+src/hx711_i2c_master.c:330:19: style:inconclusive: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
     const uint8_t data) {
                   ^
-include/hx711_i2c_master.h:250:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
+include/hx711_i2c_master.h:253:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t bits);
                   ^
-src/hx711_i2c_master.c:316:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
+src/hx711_i2c_master.c:330:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
     const uint8_t data) {
                   ^
 src/hx711_i2c_slave.c:47:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
@@ -31,21 +31,27 @@ src/hx711_i2c_slave.c:47:36: error: Array 'hx711_i2c__slave_map[1]' accessed at 
 src/hx711_i2c_slave.c:65:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == slave) {
                                    ^
-src/hx711_i2c_slave.c:83:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:84:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i]->_i2c == i2c) {
                                    ^
-src/hx711_i2c_slave.c:327:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-                    UTIL_INTERRUPTS_OFF_BLOCK(
-^
-src/hx711_i2c_slave.c:336:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-            UTIL_INTERRUPTS_OFF_BLOCK(
-^
-src/hx711_i2c_slave.c:327:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-                    UTIL_INTERRUPTS_OFF_BLOCK(
-^
-src/hx711_i2c_slave.c:336:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-            UTIL_INTERRUPTS_OFF_BLOCK(
-^
+src/hx711_i2c_slave.c:337:42: error: Uninitialized variable: val [uninitvar]
+                hx711_i2c_value_to_array(val, valBytes);
+                                         ^
+src/hx711_i2c_slave.c:79:16: error: Uninitialized variable: *slave [uninitvar]
+        assert(*slave != NULL);
+               ^
+src/hx711_i2c_slave.c:286:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
+        hx711_i2c__slave_get_slave(i2c, &hx_i2c);
+                                        ^
+src/hx711_i2c_slave.c:79:16: note: Uninitialized variable: *slave
+        assert(*slave != NULL);
+               ^
+src/hx711_i2c_slave.c:131:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+        UTIL_INTERRUPTS_OFF_BLOCK(
+        ^
+src/hx711_i2c_slave.c:269:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+    UTIL_INTERRUPTS_OFF_BLOCK(
+    ^
 src/hx711_multi.c:576:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
     UTIL_INTERRUPTS_OFF_BLOCK(
     ^
@@ -55,30 +61,42 @@ src/hx711_multi.c:725:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:834:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
     HX711_MUTEX_BLOCK(hxm->_mut,
     ^
-src/hx711_multi.c:576:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-    UTIL_INTERRUPTS_OFF_BLOCK(
-^
-src/hx711_multi.c:725:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-            UTIL_INTERRUPTS_OFF_BLOCK(
-^
-src/hx711_multi.c:834:0: information: Skipping configuration 'HX711_NO_MUTEX;__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-    HX711_MUTEX_BLOCK(hxm->_mut,
-^
-src/hx711_multi.c:576:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-    UTIL_INTERRUPTS_OFF_BLOCK(
-^
-src/hx711_multi.c:725:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-            UTIL_INTERRUPTS_OFF_BLOCK(
-^
-src/hx711_multi.c:834:0: information: Skipping configuration '__COUNTER__' since the value of '__COUNTER__' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-    HX711_MUTEX_BLOCK(hxm->_mut,
-^
-src/util.c:71:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+src/util.c:86:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
         assert(startbit >= 0 && startbit <= 7);
                         ^
-src/util.c:87:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+src/util.c:102:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
         assert(startbit >= 0 && startbit <= 7);
                         ^
+src/util.c:65:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    DMA_IRQ_2
+^
+src/util.c:69:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    DMA_IRQ_3
+^
+src/util.c:139:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        case DMA_IRQ_3:
+^
+src/util.c:329:0: information: Skipping configuration 'PIO2_IRQ_0' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        case PIO2_IRQ_0:
+^
+src/util.c:55:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PIO2_IRQ_0,
+^
+src/util.c:329:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        case PIO2_IRQ_0:
+^
+src/util.c:56:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+    PIO2_IRQ_1
+^
+src/util.c:335:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        case PIO2_IRQ_1:
+^
+src/util.c:335:0: information: Skipping configuration 'PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+        case PIO2_IRQ_1:
+^
+src/util.c:358:0: information: Skipping configuration 'pio2' since the value of 'pio2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+            return pio2;
+^
 tests/i2c_master.c:48:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
         printf("%li\n", hx711_i2c_master_get_value_blocking(&hxi2c));
         ^
