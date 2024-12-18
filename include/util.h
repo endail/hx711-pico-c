@@ -78,9 +78,6 @@ extern "C" {
 /**
  * Adapted from https://stackoverflow.com/a/17624752
  */
-#ifndef __COUNTER__
-    #error "__COUNTER__ macro is not available; cannot continue"
-#endif
 #define UTIL__CONCAT(A, B) UTIL__CONCAT_INNER(A, B)
 #define UTIL__CONCAT_INNER(A, B) A ## B
 #define UTIL__UNIQUE_NAME(PREFIX) UTIL__CONCAT(PREFIX, __COUNTER__)
