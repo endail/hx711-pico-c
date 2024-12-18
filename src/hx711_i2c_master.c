@@ -37,6 +37,7 @@ void hx711_i2c_value_to_array(
     const int32_t val,
     uint8_t* const arr) {
         assert(arr != NULL);
+        assert(hx711_is_value_valid(val));
         const int32_t extval = (val << 8) >> 8;
         arr[0] = (uint8_t)extval;
         arr[1] = (uint8_t)(extval >> 8);
@@ -48,6 +49,7 @@ int32_t hx711_i2c_array_to_value(
         assert(arr != NULL);
         int32_t val = arr[0] | (arr[1] << 8) | (arr[2] << 16);
         val = (val << 8) >> 8;
+        assert(hx711_is_value_valid(val));
         return val;
 }
 
@@ -73,10 +75,12 @@ void hx711_i2c_control_get(
 
         if(gain != NULL) {
             *gain = hx711_i2c_control_get_gain(control);
+            assert(hx711_is_gain_valid(*gain));
         }
 
         if(rate != NULL) {
             *rate = hx711_i2c_control_get_rate(control);
+            assert(hx711_is_rate_valid(*rate));
         }
 
 }
@@ -94,6 +98,13 @@ uint8_t hx711_i2c_control_set(
         hx711_i2c_control_set_gain(gain, &control);
         hx711_i2c_control_set_rate(rate, &control);
         return control;
+}
+
+bool hx711_i2c_control_ok(
+    const uint8_t control) {
+        return hx711_i2c_control_get_ready_state(control) &&
+            hx711_i2c_control_get_power_state(control) &&
+            hx711_i2c_control_get_new_value_state(control);
 }
 
 void hx711_i2c_control_set_ready_state(
@@ -206,6 +217,7 @@ void hx711_i2c_command_get(
 
         if(cmd != NULL) {
             *cmd = hx711_i2c_command_get_command(bits);
+            assert(hx711_i2c_command_is_valid(*cmd));
         }
 
         if(power_state != NULL) {
@@ -214,10 +226,12 @@ void hx711_i2c_command_get(
 
         if(gain != NULL) {
             *gain = hx711_i2c_command_get_gain(bits);
+            assert(hx711_is_gain_valid(*gain));
         }
 
         if(rate != NULL) {
             *rate = hx711_i2c_command_get_rate(bits);
+            assert(hx711_is_rate_valid(*rate));
         }
 
 }
@@ -330,7 +344,7 @@ bool hx711_i2c_command_is_valid(
 
 void hx711_i2c_master_init(
     hx711_i2c_master_t* const hx_i2c,
-    const hx711_i2c_master_config_t * const hx_i2c_config) {
+    const hx711_i2c_master_config_t* const hx_i2c_config) {
 
         assert(hx_i2c != NULL);
         assert(hx_i2c_config != NULL);
@@ -374,7 +388,7 @@ void hx711_i2c_master_close(
         i2c_deinit(hx_i2c->_i2c);
 }
 
-void hx711_i2c_master_set_gain(
+int hx711_i2c_master_set_gain(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate) {
@@ -390,7 +404,7 @@ void hx711_i2c_master_set_gain(
             gain,
             rate);
 
-        i2c_write_blocking(
+        return i2c_write_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             &bits,
@@ -420,7 +434,7 @@ int hx711_i2c_master_get_data(
 
         if(bytesRead != HX711_I2C_CONTROL_TOTAL_BYTES) {
             // eg. incorrect number of bytes received
-            return PICO_ERROR_IO;
+            return bytesRead;
         }
 
         *control = inbuff[HX711_I2C_CONTROL_METADATA_OFFSET_BYTES];
@@ -454,7 +468,7 @@ int32_t hx711_i2c_master_get_value_blocking(
 
 }
 
-void hx711_i2c_master_power_up(
+int hx711_i2c_master_power_up(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate) {
@@ -470,7 +484,7 @@ void hx711_i2c_master_power_up(
             gain,
             rate);
 
-        i2c_write_blocking(
+        return i2c_write_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             &bits,
@@ -479,7 +493,7 @@ void hx711_i2c_master_power_up(
 
 }
 
-void hx711_i2c_master_power_down(
+int hx711_i2c_master_power_down(
     hx711_i2c_master_t* const hx_i2c) {
 
         assert(hx_i2c != NULL);
@@ -491,7 +505,7 @@ void hx711_i2c_master_power_down(
             hx711_gain_128, // ignored
             hx711_rate_80); // ignored
 
-        i2c_write_blocking(
+        return i2c_write_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             &bits,

@@ -173,6 +173,9 @@ uint8_t hx711_i2c_control_set(
     const hx711_gain_t gain,
     const hx711_rate_t rate);
 
+bool hx711_i2c_control_ok(
+    const uint8_t control);
+
 void hx711_i2c_control_set_ready_state(
     const bool val,
     uint8_t* const control);
@@ -270,8 +273,9 @@ void hx711_i2c_master_close(
  * @param hx_i2c 
  * @param gain 
  * @param rate 
+ * @return int
  */
-void hx711_i2c_master_set_gain(
+int hx711_i2c_master_set_gain(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate);
@@ -306,8 +310,9 @@ int32_t hx711_i2c_master_get_value_blocking(
  * @param hx_i2c 
  * @param gain 
  * @param rate
+ * @return int
  */
-void hx711_i2c_master_power_up(
+int hx711_i2c_master_power_up(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate);
@@ -316,8 +321,9 @@ void hx711_i2c_master_power_up(
  * @brief Power down the HX711.
  * 
  * @param hx_i2c 
+ * @return int
  */
-void hx711_i2c_master_power_down(
+int hx711_i2c_master_power_down(
     hx711_i2c_master_t* const hx_i2c);
 
 #ifdef __cplusplus

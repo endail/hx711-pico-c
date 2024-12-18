@@ -50,6 +50,7 @@
         "stdint.h": "c",
         "stdio.h": "c",
         "functional": "cpp",
-        "cstddef": "cpp"
+        "cstddef": "cpp",
+        "irq.h": "c"
     }
 }

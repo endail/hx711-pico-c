@@ -50,17 +50,32 @@ const uint8_t util_pio_to_irq_map[] = {
     PIO0_IRQ_1,
     PIO1_IRQ_0,
     PIO1_IRQ_1
+#if defined(PIO2_IRQ_0) && defined(PIO2_IRQ_1)
+              ,
+    PIO2_IRQ_0,
+    PIO2_IRQ_1
+#endif
 };
 
 const uint8_t util_dma_to_irq_map[] = {
     DMA_IRQ_0,
     DMA_IRQ_1
+#ifdef DMA_IRQ_2
+             ,
+    DMA_IRQ_2
+#endif
+#ifdef DMA_IRQ_3
+             ,
+    DMA_IRQ_3
+#endif
 };
 
 UTIL_DEF_IN_RANGE_FUNC(int32_t)
 UTIL_DEF_IN_RANGE_FUNC(uint32_t)
 UTIL_DEF_IN_RANGE_FUNC(int)
 UTIL_DEF_IN_RANGE_FUNC(uint)
+
+#undef UTIL_DEF_IN_RANGE_FUNC
 
 uint8_t util_set_bits8(
     uint8_t value,
@@ -104,20 +119,26 @@ bool util_dma_irq_index_is_valid(const uint idx) {
 
 uint util_dma_get_irq_from_index(const uint idx) {
     assert(util_dma_irq_index_is_valid(idx));
-    assert(util_dma_to_irq_map != NULL);
-    return util_dma_to_irq_map[idx];
+    return dma_get_irq_num(idx);
 }
 
 int util_dma_get_index_from_irq(const uint irq_num) {
 
     check_irq_param(irq_num);
-    assert(util_dma_to_irq_map != NULL);
 
     switch(irq_num) {
         case DMA_IRQ_0:
             return 0;
         case DMA_IRQ_1:
             return 1;
+#ifdef DMA_IRQ_2
+        case DMA_IRQ2:
+            return 2;
+#endif
+#ifdef DMA_IRQ_3
+        case DMA_IRQ_3:
+            return 3;
+#endif
         default:
             return -1;
     }
@@ -304,9 +325,15 @@ int util_pio_get_index_from_irq(const uint irq_num) {
     switch(irq_num) {
         case PIO0_IRQ_0:
         case PIO1_IRQ_0:
+#ifdef PIO2_IRQ_0
+        case PIO2_IRQ_0:
+#endif
             return 0;
         case PIO0_IRQ_1:
         case PIO1_IRQ_1:
+#ifdef PIO2_IRQ_1
+        case PIO2_IRQ_1:
+#endif
             return 1;
         default:
             return -1;
@@ -325,6 +352,11 @@ PIO const util_pio_get_pio_from_irq(const uint irq_num) {
         case PIO1_IRQ_0:
         case PIO1_IRQ_1:
             return pio1;
+#ifdef pio2
+        case PIO2_IRQ_0:
+        case PIO2_IRQ_1:
+            return pio2;
+#endif
         default:
             return NULL;
     }
@@ -337,11 +369,13 @@ uint util_pio_get_pis_from_pio_interrupt_num(
         assert(util_routable_pio_interrupt_num_is_valid(
             pio_interrupt_num));
 
-        const uint basePis = pis_interrupt0;
+        const uint basePis = UTIL_PIO_INTERRUPT_NUM_MIN;
         const uint pis = basePis + pio_interrupt_num;
 
         assert(util_uint_in_range(
-            pis, pis_interrupt0, pis_interrupt3));
+            pis,
+            UTIL_PIO_INTERRUPT_NUM_MIN,
+            UTIL_PIO_INTERRUPT_NUM_MAX));
 
         return pis;
 
@@ -532,5 +566,3 @@ bool util_pio_sm_try_get(
         return false;
 
 }
-
-#undef UTIL_DEF_IN_RANGE_FUNC

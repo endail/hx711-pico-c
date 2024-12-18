@@ -46,14 +46,20 @@ extern "C" {
   ((byte) & 0x02 ? '1' : '0'), \
   ((byte) & 0x01 ? '1' : '0')
 
-// RP2040 sdk doesn't seem to define this
-#define UTIL_NUM_DMA_IRQS UINT8_C(2)
+#define UTIL_NUM_DMA_IRQS NUM_DMA_IRQS
 
 #define UTIL_DMA_IRQ_INDEX_MIN UINT8_C(0)
 #define UTIL_DMA_IRQ_INDEX_MAX UINT8_C(UTIL_NUM_DMA_IRQS - 1)
 
 #define UTIL_PIO_IRQ_INDEX_MIN UINT8_C(0)
 #define UTIL_PIO_IRQ_INDEX_MAX UINT8_C(NUM_PIOS - 1)
+
+#define UTIL_PIO_PIS_MIN PIO_INTR_SM0_LSB
+#if PICO_PIO_VERSION == 0
+#define UTIL_PIO_PIS_MAX PIO_INTR_SM3_LSB
+#elif PICO_PIO_VERSION == 1
+#define UTIL_PIO_PIS_MAX PIO_INTR_SM7_LSB
+#endif
 
 #define UTIL_PIO_INTERRUPT_NUM_MIN UINT8_C(0)
 #define UTIL_PIO_INTERRUPT_NUM_MAX UINT8_C(7)

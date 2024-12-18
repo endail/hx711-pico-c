@@ -41,6 +41,15 @@ extern "C" {
  */
 #define HX711_I2C_SLAVE_MAP_SIZE                        4
 #define HX711_I2C_SLAVE_MEMORY_SIZE                     HX711_I2C_CONTROL_TOTAL_BYTES
+
+/**
+ * @brief Corresponds to:
+ * Ready state = false/no
+ * New value state = false/no
+ * Power state = false/off
+ * Gain = hx711_gain_128
+ * Rate = hx711_rate_10
+ */
 #define HX711_I2C_SLAVE_DEFAULT_CONTROL_METADATA_BITS   UINT8_C(0b00100000)
 
 typedef struct {
@@ -67,13 +76,13 @@ typedef struct {
 extern hx711_i2c_slave_t* hx711_i2c__slave_map[
     HX711_I2C_SLAVE_MAP_SIZE];
 
-static bool hx711_i2c_slave_add_slave(
+static bool hx711_i2c__slave_add_slave(
     hx711_i2c_slave_t* const slave);
 
-static void hx711_i2c_slave_remove_slave(
+static void hx711_i2c__slave_remove_slave(
     const hx711_i2c_slave_t* const slave);
 
-static bool hx711_i2c_slave_get_slave(
+static bool hx711_i2c__slave_get_slave(
     const i2c_inst_t* const i2c,
     hx711_i2c_slave_t** slave);
 
@@ -150,8 +159,19 @@ static void __isr __not_in_flash_func(hx711_i2c_slave_handler)(
     i2c_slave_event_t event);
 
 /**
- * @brief Infinitely looping function to update
- * slave values.
+ * @brief Change updating state. If not currently
+ * updating, call hx711_i2c_slave_update_loop after
+ * setting with this function.
+ * 
+ * @param hx_i2c 
+ * @param updating 
+ */
+void hx711_i2c_slave_set_updating(
+    hx711_i2c_slave_t* const hx_i2c,
+    const bool updating);
+
+/**
+ * @brief Looping function to update slave values.
  * 
  * @param hx_i2c 
  */

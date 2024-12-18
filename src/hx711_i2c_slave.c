@@ -36,7 +36,7 @@ hx711_i2c_slave_t* hx711_i2c__slave_map[] = {
     NULL, //...
 };
 
-bool hx711_i2c_slave_add_slave(
+bool hx711_i2c__slave_add_slave(
     hx711_i2c_slave_t* const slave) {
 
         assert(slave != NULL);
@@ -54,7 +54,7 @@ bool hx711_i2c_slave_add_slave(
 
 }
 
-void hx711_i2c_slave_remove_slave(
+void hx711_i2c__slave_remove_slave(
     const hx711_i2c_slave_t* const slave) {
 
         assert(slave != NULL);
@@ -70,12 +70,13 @@ void hx711_i2c_slave_remove_slave(
 
 }
 
-bool hx711_i2c_slave_get_slave(
+bool hx711_i2c__slave_get_slave(
     const i2c_inst_t* const i2c,
     hx711_i2c_slave_t** slave) {
 
         assert(i2c != NULL);
         assert(slave != NULL);
+        assert(*slave != NULL);
         assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
         assert(hx711_i2c__slave_map != NULL);
 
@@ -127,7 +128,9 @@ void hx711_i2c_slave_init(
         hx_i2c->_indata = 0;
         hx_i2c->_updating = true;
 
-        hx711_i2c_slave_add_slave(hx_i2c);
+        UTIL_INTERRUPTS_OFF_BLOCK(
+            hx711_i2c__slave_add_slave(hx_i2c);
+        );
 
         i2c_init(
             hx_i2c->_i2c,
@@ -263,9 +266,11 @@ void hx711_i2c_slave_set_data(
 void hx711_i2c_slave_close(hx711_i2c_slave_t* const hx_i2c) {
     assert(hx_i2c != NULL);
     assert(hx_i2c->_i2c != NULL);
-    i2c_slave_deinit(hx_i2c->_i2c);
-    i2c_deinit(hx_i2c->_i2c);
-    hx711_i2c_slave_remove_slave(hx_i2c);
+    UTIL_INTERRUPTS_OFF_BLOCK(
+        i2c_slave_deinit(hx_i2c->_i2c);
+        i2c_deinit(hx_i2c->_i2c);
+        hx711_i2c__slave_remove_slave(hx_i2c);
+    );
 }
 
 void hx711_i2c_slave_handler(
@@ -276,7 +281,9 @@ void hx711_i2c_slave_handler(
 
         hx711_i2c_slave_t* hx_i2c;
 
-        hx711_i2c_slave_get_slave(i2c, &hx_i2c);
+        // currently within an interrupt, so no need to
+        // wrap this in an off block
+        hx711_i2c__slave_get_slave(i2c, &hx_i2c);
 
         assert(hx_i2c != NULL);
         assert(i2c == hx_i2c->_i2c);
@@ -289,22 +296,28 @@ void hx711_i2c_slave_handler(
 
         case I2C_SLAVE_REQUEST:
             // send data
-            i2c_write_raw_blocking(
-                i2c,
-                (const uint8_t*)hx_i2c->_memory,
-                HX711_I2C_CONTROL_TOTAL_BYTES);
+            for(size_t i = 0; i < HX711_I2C_CONTROL_TOTAL_BYTES; ++i) {
+                i2c_write_byte_raw(i2c, hx_i2c->_memory[i]);
+            }
 
             // then update the control
             hx711_i2c_slave_control_set_new_value_state(hx_i2c, false);
-
             break;
 
         case I2C_SLAVE_FINISH:
         default:
             // prepare for next transfer
+            // nothing to do so just ignore
             break;
         }
 
+}
+
+void hx711_i2c_slave_set_updating(
+    hx711_i2c_slave_t* const hx_i2c,
+    const bool updating) {
+        assert(hx_i2c != NULL);
+        hx_i2c->_updating = updating;
 }
 
 void hx711_i2c_slave_update_loop(
@@ -320,15 +333,12 @@ void hx711_i2c_slave_update_loop(
 
             // only get new hx711 values if the slave is ready and the chip
             // is in a powered-on state
-            if(hx711_i2c_slave_control_get_ready_state(hx_i2c) && 
-                hx711_i2c_slave_control_get_power_state(hx_i2c)) {
-                if(hx711_get_value_noblock(hx_i2c->_hx, &val)) {
-                    hx711_i2c_value_to_array(val, valBytes);
-                    UTIL_INTERRUPTS_OFF_BLOCK(
-                        hx711_i2c_slave_set_data(hx_i2c, valBytes);
-                        hx711_i2c_slave_control_set_new_value_state(hx_i2c, true);
-                    );
-                }
+            if(hx711_i2c_control_ok(hx711_i2c_slave_get_control(hx_i2c))) {
+                hx711_i2c_value_to_array(val, valBytes);
+                UTIL_INTERRUPTS_OFF_BLOCK(
+                    hx711_i2c_slave_set_data(hx_i2c, valBytes);
+                    hx711_i2c_slave_control_set_new_value_state(hx_i2c, true);
+                );
             }
 
             // make a local copy of the input data, for this iteration
