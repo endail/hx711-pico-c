@@ -229,6 +229,10 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 }
 
 int32_t hx711_get_twos_comp(const uint32_t raw) {
+    /**
+     * @todo is this the best implementation?
+     * sign extention better?
+     */
     return
         (int32_t)(-(raw & +HX711_MIN_VALUE)) + 
         (int32_t)(raw & HX711_MAX_VALUE);

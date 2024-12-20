@@ -304,7 +304,10 @@ uint util_pion_get_irqn(
 uint util_pio_get_irq_from_index(
     PIO const pio,
     const uint idx) {
-    
+
+        // TODO: test this!
+        //return pio_get_irq_num(pio, idx);
+
         check_pio_param(pio);
         assert(util_pio_irq_index_is_valid(idx));
         assert(util_pio_to_irq_map != NULL);
@@ -323,18 +326,21 @@ int util_pio_get_index_from_irq(const uint irq_num) {
     check_irq_param(irq_num);
 
     switch(irq_num) {
+
         case PIO0_IRQ_0:
         case PIO1_IRQ_0:
 #ifdef PIO2_IRQ_0
         case PIO2_IRQ_0:
 #endif
             return 0;
+
         case PIO0_IRQ_1:
         case PIO1_IRQ_1:
 #ifdef PIO2_IRQ_1
         case PIO2_IRQ_1:
 #endif
             return 1;
+
         default:
             return -1;
     }
@@ -349,14 +355,17 @@ PIO const util_pio_get_pio_from_irq(const uint irq_num) {
         case PIO0_IRQ_0:
         case PIO0_IRQ_1:
             return pio0;
+
         case PIO1_IRQ_0:
         case PIO1_IRQ_1:
             return pio1;
+
 #ifdef pio2
         case PIO2_IRQ_0:
         case PIO2_IRQ_1:
             return pio2;
 #endif
+
         default:
             return NULL;
     }
