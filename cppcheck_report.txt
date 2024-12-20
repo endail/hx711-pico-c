@@ -76,25 +76,25 @@ src/util.c:69:0: information: Skipping configuration 'DMA_IRQ_3' since the value
 src/util.c:139:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
         case DMA_IRQ_3:
 ^
-src/util.c:329:0: information: Skipping configuration 'PIO2_IRQ_0' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:333:0: information: Skipping configuration 'PIO2_IRQ_0' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
         case PIO2_IRQ_0:
 ^
 src/util.c:55:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
     PIO2_IRQ_0,
 ^
-src/util.c:329:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:333:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
         case PIO2_IRQ_0:
 ^
 src/util.c:56:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
     PIO2_IRQ_1
 ^
-src/util.c:335:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:340:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
         case PIO2_IRQ_1:
 ^
-src/util.c:335:0: information: Skipping configuration 'PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:340:0: information: Skipping configuration 'PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
         case PIO2_IRQ_1:
 ^
-src/util.c:358:0: information: Skipping configuration 'pio2' since the value of 'pio2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:366:0: information: Skipping configuration 'pio2' since the value of 'pio2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
             return pio2;
 ^
 tests/i2c_master.c:48:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
