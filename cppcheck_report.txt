@@ -52,13 +52,13 @@ src/hx711_i2c_slave.c:131:9: style: Variable 'interrupt_status_cb918069_eadf_49b
 src/hx711_i2c_slave.c:269:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
     UTIL_INTERRUPTS_OFF_BLOCK(
     ^
-src/hx711_multi.c:576:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/hx711_multi.c:585:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
     UTIL_INTERRUPTS_OFF_BLOCK(
     ^
-src/hx711_multi.c:725:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+src/hx711_multi.c:739:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
             UTIL_INTERRUPTS_OFF_BLOCK(
             ^
-src/hx711_multi.c:834:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
+src/hx711_multi.c:850:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
     HX711_MUTEX_BLOCK(hxm->_mut,
     ^
 src/util.c:86:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
