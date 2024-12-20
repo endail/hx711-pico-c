@@ -505,7 +505,7 @@ void hx711_multi_pinvals_to_values(
             }
 
             //then convert to a regular ones comp
-            values[chipNum] = hx711_get_twos_comp(rawVal);
+            values[chipNum] = hx711_convert_raw(rawVal);
 
             assert(hx711_is_value_valid(values[chipNum]));
 

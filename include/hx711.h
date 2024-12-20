@@ -161,7 +161,7 @@ void hx711_set_gain(
  * @param raw 
  * @return int32_t 
  */
-int32_t hx711_get_twos_comp(
+int32_t hx711_convert_raw(
     const uint32_t raw);
 
 /**

@@ -228,14 +228,8 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
 }
 
-int32_t hx711_get_twos_comp(const uint32_t raw) {
-    /**
-     * @todo is this the best implementation?
-     * sign extention better?
-     */
-    return
-        (int32_t)(-(raw & +HX711_MIN_VALUE)) + 
-        (int32_t)(raw & HX711_MAX_VALUE);
+int32_t hx711_convert_raw(const uint32_t raw) {
+    return (int32_t)(raw << 8) >> 8;
 }
 
 bool hx711_is_min_saturated(const int32_t val) {
@@ -289,7 +283,7 @@ int32_t hx711_get_value(hx711_t* const hx) {
 
     );
 
-    return hx711_get_twos_comp(rawVal);
+    return hx711_convert_raw(rawVal);
 
 }
 
@@ -316,7 +310,7 @@ bool hx711_get_value_timeout(
         );
 
         if(success) {
-            *val = hx711_get_twos_comp(tempVal);
+            *val = hx711_convert_raw(tempVal);
         }
 
         return success;
@@ -341,7 +335,7 @@ bool hx711_get_value_noblock(
         );
 
         if(success) {
-            *val = hx711_get_twos_comp(tempVal);
+            *val = hx711_convert_raw(tempVal);
         }
 
         return success;
