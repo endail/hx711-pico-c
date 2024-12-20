@@ -220,11 +220,15 @@ void hx711_multi__init_irq(hx711_multi_t* const hxm) {
         false);
 
     irq_set_exclusive_handler(
-        util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index),
+        util_pio_get_irq_from_index(
+            hxm->_pio,
+            hxm->_pio_irq_index),
         hx711_multi__async_pio_irq_handler);
 
     irq_set_enabled(
-        util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index),
+        util_pio_get_irq_from_index(
+            hxm->_pio,
+            hxm->_pio_irq_index),
         true);
 
 }
@@ -325,6 +329,7 @@ bool hx711_multi__async_is_running(
             case HX711_MULTI_ASYNC_STATE_WAITING:
             case HX711_MULTI_ASYNC_STATE_READING:
                 return true;
+
             default:
                 //anything else is not considered running
                 return false;
@@ -349,7 +354,8 @@ static void hx711_multi__async_finish(
         pio_set_irqn_source_enabled(
             hxm->_pio,
             hxm->_pio_irq_index,
-            util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+            util_pio_get_pis_from_pio_interrupt_num(
+                HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
             false);
 
 #ifndef HX711_NO_MUTEX
@@ -372,11 +378,14 @@ void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)() {
     pio_set_irqn_source_enabled(
         hxm->_pio,
         hxm->_pio_irq_index,
-        util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+        util_pio_get_pis_from_pio_interrupt_num(
+            HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
         false);
 
     irq_clear(
-        util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index));
+        util_pio_get_irq_from_index(
+            hxm->_pio,
+            hxm->_pio_irq_index));
 
 }
 
@@ -580,7 +589,9 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         dma_channel_abort(hxm->_dma_channel);
 
         irq_set_enabled(
-            util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index),
+            util_pio_get_irq_from_index(
+                hxm->_pio,
+                hxm->_pio_irq_index),
             false);
 
         irq_set_enabled(
@@ -590,7 +601,8 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         pio_set_irqn_source_enabled(
             hxm->_pio,
             hxm->_pio_irq_index,
-            util_pio_get_pis_from_pio_interrupt_num(HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
+            util_pio_get_pis_from_pio_interrupt_num(
+                HX711_MULTI_CONVERSION_DONE_IRQ_NUM),
             false);
 
         dma_irqn_set_channel_enabled(
@@ -603,7 +615,9 @@ void hx711_multi_close(hx711_multi_t* const hxm) {
         hx711_multi__async_remove_reader(hxm);
 
         irq_remove_handler(
-            util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index),
+            util_pio_get_irq_from_index(
+                hxm->_pio,
+                hxm->_pio_irq_index),
             hx711_multi__async_pio_irq_handler);
 
         irq_remove_handler(
@@ -756,7 +770,9 @@ void hx711_multi_async_start(hx711_multi_t* const hxm) {
         pio_set_irqn_source_enabled(
             hxm->_pio,
             hxm->_pio_irq_index,
-            util_pio_get_irq_from_index(hxm->_pio, hxm->_pio_irq_index),
+            util_pio_get_irq_from_index(
+                hxm->_pio,
+                hxm->_pio_irq_index),
             true);
     }
 

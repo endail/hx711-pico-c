@@ -42,7 +42,7 @@ extern "C" {
  * the period of time between a conversion ending and the
  * next period beginning.
  */
-#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     UINT8_C(0)
+#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0
 
 /**
  * @brief PIO interrupt number which is used between the
@@ -51,26 +51,26 @@ extern "C" {
  * within the main set of code, but is used to validate
  * that the IRQ number is properly available.
  */
-#define HX711_MULTI_DATA_READY_IRQ_NUM          UINT8_C(4)
+#define HX711_MULTI_DATA_READY_IRQ_NUM          4
 
 /**
  * @brief Only one instance of a hx711_multi can operate
  * within a PIO. So the maximum number of concurrent
- * asynchronous read processes is limited to the numeer of
+ * asynchronous read processes is limited to the number of
  * PIOs available.
  */
-#define HX711_MULTI_ASYNC_READ_COUNT            UINT8_C(NUM_PIOS)
+#define HX711_MULTI_ASYNC_READ_COUNT            NUM_PIOS
 
 /**
  * @brief IRQ index defaults for PIO and DMA.
  */
-#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           UINT8_C(0)
-#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           UINT8_C(0)
+#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0
+#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0
 
 /**
  * @brief Minimum number of chips to connect to a hx711_multi.
  */
-#define HX711_MULTI_MIN_CHIPS                   UINT8_C(1)
+#define HX711_MULTI_MIN_CHIPS                   1
 
 /**
  * @brief The max number of chips could technically be the
@@ -78,17 +78,22 @@ extern "C" {
  * But this is always going to be limited by the number of GPIO
  * input pins available on the RP2040. So we take the minimum of
  * the two just in case it ever increases.
+ * 
+ * update: since the increase in number of GPIO pins available,
+ * the maximum number of chips will be limited by the maximum
+ * number of bits transmitting through GPIO to PIO to DMA. For
+ * DMA, that is DMA_SIZE_32.
  */
-#define HX711_MULTI_MAX_CHIPS                   UINT8_C(MIN(NUM_BANK0_GPIOS, 32))
+#define HX711_MULTI_MAX_CHIPS                   32
 
 /**
  * @brief State of the read as it moves through the async process.
  */
 typedef enum {
-    HX711_MULTI_ASYNC_STATE_NONE = 0,
-    HX711_MULTI_ASYNC_STATE_WAITING,
-    HX711_MULTI_ASYNC_STATE_READING,
-    HX711_MULTI_ASYNC_STATE_DONE
+    HX711_MULTI_ASYNC_STATE_NONE =          0,
+    HX711_MULTI_ASYNC_STATE_WAITING =       1,
+    HX711_MULTI_ASYNC_STATE_READING =       2,
+    HX711_MULTI_ASYNC_STATE_DONE =          3
 } hx711_multi_async_state_t;
 
 typedef struct {
@@ -212,21 +217,24 @@ static void hx711_multi__init_asert(
  * 
  * @param hxm 
  */
-static void hx711_multi__init_pio(hx711_multi_t* const hxm);
+static void hx711_multi__init_pio(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Subroutine for initialising DMA.
  * 
  * @param hxm 
  */
-static void hx711_multi__init_dma(hx711_multi_t* const hxm);
+static void hx711_multi__init_dma(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Subroutine for initialising IRQ.
  * 
  * @param hxm 
  */
-static void hx711_multi__init_irq(hx711_multi_t* const hxm);
+static void hx711_multi__init_irq(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Whether a given hxm is the cause of the current
@@ -329,7 +337,8 @@ static void hx711_multi__async_remove_reader(
  * @return true 
  * @return false 
  */
-static bool hx711_multi__is_initd(hx711_multi_t* const hxm);
+static bool hx711_multi__is_initd(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Check whether the hxm struct has PIO State Machines
@@ -364,7 +373,8 @@ void hx711_multi_init(
  * 
  * @param hxm 
  */
-void hx711_multi_close(hx711_multi_t* const hxm);
+void hx711_multi_close(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Sets the HX711s' gain.
@@ -409,7 +419,8 @@ bool hx711_multi_get_values_timeout(
  * 
  * @param hxm 
  */
-void hx711_multi_async_start(hx711_multi_t* const hxm);
+void hx711_multi_async_start(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Check whether an asynchronous read is complete.
@@ -419,7 +430,8 @@ void hx711_multi_async_start(hx711_multi_t* const hxm);
  * @return true 
  * @return false 
  */
-bool hx711_multi_async_done(hx711_multi_t* const hxm);
+bool hx711_multi_async_done(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Get the values from the last asynchronous read.
@@ -451,7 +463,8 @@ void hx711_multi_power_up(
  * @related hx711_wait_power_down()
  * @param hxm 
  */
-void hx711_multi_power_down(hx711_multi_t* const hxm);
+void hx711_multi_power_down(
+    hx711_multi_t* const hxm);
 
 /**
  * @brief Attempt to synchronise all connected chips. This
