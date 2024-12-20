@@ -44,7 +44,7 @@ static inline pio_sm_config hx711_multi_awaiter_program_get_default_config(uint 
 
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -65,8 +65,8 @@ static inline pio_sm_config hx711_multi_awaiter_program_get_default_config(uint 
 // SOFTWARE.
 #include <assert.h>
 #include <stddef.h>
-#include "hardware/pio.h"
-#include "hardware/pio_instructions.h"
+#include <hardware/pio.h>
+#include <hardware/pio_instructions.h>
 #include "hx711_multi.h"
 void hx711_multi_awaiter_program_init(hx711_multi_t* const hxm) {
     assert(hxm != NULL);
