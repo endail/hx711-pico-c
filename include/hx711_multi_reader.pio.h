@@ -59,7 +59,7 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 
 // MIT License
 // 
-// Copyright (c) 2023 Daniel Robertson
+// Copyright (c) 2024 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -80,10 +80,10 @@ static inline pio_sm_config hx711_multi_reader_program_get_default_config(uint o
 // SOFTWARE.
 #include <assert.h>
 #include <stddef.h>
-#include "hardware/clocks.h"
-#include "hardware/pio.h"
-#include "hardware/pio_instructions.h"
-#include "hardware/structs/clocks.h"
+#include <hardware/clocks.h>
+#include <hardware/pio.h>
+#include <hardware/pio_instructions.h>
+#include <hardware/structs/clocks.h>
 #include "hx711_multi.h"
 #include "util.h"
 void hx711_multi_pio_init(hx711_multi_t* const hxm) {
@@ -116,6 +116,7 @@ void hx711_multi_pio_init(hx711_multi_t* const hxm) {
 void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     assert(hxm != NULL);
     assert(hxm->_pio != NULL);
+    assert(clock_get_hz(clk_sys) >= (uint)hx711_multi_reader_HZ);
     hxm->_pio->instr_mem[hxm->_reader_offset + hx711_multi_reader_offset_bitloop_in_pins_bit_count] = 
         pio_encode_in(pio_pins, hxm->_chips_len);
     pio_sm_config cfg = hx711_multi_reader_program_get_default_config(
