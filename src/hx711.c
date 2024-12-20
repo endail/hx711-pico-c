@@ -228,20 +228,6 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
 }
 
-int32_t hx711_convert_raw(const uint32_t raw) {
-    return (int32_t)(raw << 8) >> 8;
-}
-
-bool hx711_is_min_saturated(const int32_t val) {
-    assert(hx711_is_value_valid(val));
-    return val == HX711_MIN_VALUE;
-}
-
-bool hx711_is_max_saturated(const int32_t val) {
-    assert(hx711_is_value_valid(val));
-    return val == HX711_MAX_VALUE;
-}
-
 unsigned short hx711_get_settling_time(const hx711_rate_t rate) {
     assert(hx711_is_rate_valid(rate));
     assert((int)rate <= count_of(HX711_SETTLING_TIMES) - 1);

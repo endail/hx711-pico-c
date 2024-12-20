@@ -161,8 +161,10 @@ void hx711_set_gain(
  * @param raw 
  * @return int32_t 
  */
-int32_t hx711_convert_raw(
-    const uint32_t raw);
+inline int32_t hx711_convert_raw(
+    const uint32_t raw) {
+        return (int32_t)(raw << 8) >> 8;
+}
 
 /**
  * @brief Returns true if the HX711 is saturated at its
@@ -173,8 +175,11 @@ int32_t hx711_convert_raw(
  * @return true 
  * @return false 
  */
-bool hx711_is_min_saturated(
-    const int32_t val);
+inline bool hx711_is_min_saturated(
+    const int32_t val) {
+        assert(hx711_is_value_valid(val));
+        return val == HX711_MIN_VALUE;
+}
 
 /**
  * @brief Returns true if the HX711 is saturated at its
@@ -185,8 +190,11 @@ bool hx711_is_min_saturated(
  * @return true 
  * @return false 
  */
-bool hx711_is_max_saturated(
-    const int32_t val);
+inline bool hx711_is_max_saturated(
+    const int32_t val) {
+        assert(hx711_is_value_valid(val));
+        return val == HX711_MAX_VALUE;
+}
 
 /**
  * @brief Returns the number of milliseconds to wait according
