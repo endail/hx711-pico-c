@@ -118,6 +118,7 @@ void hx711_reader_pio_init(hx711_t* const hx) {
 void hx711_reader_program_init(hx711_t* const hx) {
     assert(hx != NULL);
     assert(hx->_pio != NULL);
+    assert(clock_get_hz(clk_sys) >= (uint)hx711_reader_HZ);
     pio_sm_config cfg = hx711_reader_program_get_default_config(
         hx->_reader_offset);
     const float div = (float)(clock_get_hz(clk_sys)) / (uint)hx711_reader_HZ;
