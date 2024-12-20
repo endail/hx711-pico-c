@@ -31,17 +31,17 @@
 #include "../include/hx711.h"
 #include "../include/util.h"
 
-const unsigned short HX711_SETTLING_TIMES[] = {
+const uint HX711_SETTLING_TIMES[] = {
     400,
     50
 };
 
-const unsigned char HX711_SAMPLE_RATES[] = {
+const uint HX711_SAMPLE_RATES[] = {
     10,
     80
 };
 
-const unsigned char HX711_CLOCK_PULSES[] = {
+const uint HX711_CLOCK_PULSES[] = {
     25,
     26,
     27
@@ -228,24 +228,6 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
 
 }
 
-unsigned short hx711_get_settling_time(const hx711_rate_t rate) {
-    assert(hx711_is_rate_valid(rate));
-    assert((int)rate <= count_of(HX711_SETTLING_TIMES) - 1);
-    return HX711_SETTLING_TIMES[(int)rate];
-}
-
-unsigned char hx711_get_rate_sps(const hx711_rate_t rate) {
-    assert(hx711_is_rate_valid(rate));
-    assert((int)rate <= count_of(HX711_SAMPLE_RATES) - 1);
-    return HX711_SAMPLE_RATES[(int)rate];
-}
-
-unsigned char hx711_get_clock_pulses(const hx711_gain_t gain) {
-    assert(hx711_is_gain_valid(gain));
-    assert((int)gain <= count_of(HX711_CLOCK_PULSES) - 1);
-    return HX711_CLOCK_PULSES[(int)gain];
-}
-
 int32_t hx711_get_value(hx711_t* const hx) {
 
     assert(hx711__is_state_machine_enabled(hx));
@@ -340,34 +322,6 @@ bool hx711__is_initd(hx711_t* const hx) {
 bool hx711__is_state_machine_enabled(hx711_t* const hx) {
     return hx711__is_initd(hx) &&
         util_pio_sm_is_enabled(hx->_pio, hx->_reader_sm);
-}
-
-bool hx711_is_value_valid(const int32_t v) {
-    return util_int32_t_in_range(
-        v,
-        HX711_MIN_VALUE,
-        HX711_MAX_VALUE);
-}
-
-bool hx711_is_pio_gain_valid(const uint32_t g) {
-    return util_uint32_t_in_range(
-        g,
-        HX711_PIO_MIN_GAIN,
-        HX711_PIO_MAX_GAIN);
-}
-
-bool hx711_is_rate_valid(const hx711_rate_t r) {
-    return util_int_in_range(
-        (int)r,
-        hx711_rate_10,
-        hx711_rate_80);
-}
-
-bool hx711_is_gain_valid(const hx711_gain_t g) {
-    return util_int_in_range(
-        (int)g,
-        hx711_gain_128,
-        hx711_gain_64);
 }
 
 void hx711_power_up(
@@ -466,14 +420,6 @@ void hx711_power_down(hx711_t* const hx) {
 
     );
 
-}
-
-void hx711_wait_settle(const hx711_rate_t rate) {
-    sleep_ms(hx711_get_settling_time(rate));
-}
-
-void hx711_wait_power_down() {
-    sleep_us(HX711_POWER_DOWN_TIMEOUT);
 }
 
 uint32_t hx711_gain_to_pio_gain(const hx711_gain_t gain) {
