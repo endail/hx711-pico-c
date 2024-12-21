@@ -125,7 +125,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     sm_config_set_clkdiv(
         &cfg,
         div);
-    //clock pin setup
+    // clock pin setup
     pio_sm_set_out_pins(
         hxm->_pio,
         hxm->_reader_sm,
@@ -153,7 +153,7 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
     sm_config_set_sideset_pins(
         &cfg,
         hxm->_clock_pin);
-    //data pins
+    // data pins
     pio_sm_set_in_pins(
         hxm->_pio,
         hxm->_reader_sm,
@@ -163,14 +163,14 @@ void hx711_multi_reader_program_init(hx711_multi_t* const hxm) {
         hxm->_reader_sm,
         hxm->_data_pin_base,
         hxm->_chips_len,
-        false);                 //false = input
+        false);                 // false = input
     sm_config_set_in_pins(
         &cfg,
         hxm->_data_pin_base);
     sm_config_set_in_shift(
         &cfg,
-        false,                  //false = shift in left
-        false,                  //false = autopush disabled
+        false,                  // false = shift in left
+        false,                  // false = autopush disabled
         hxm->_chips_len);
     pio_sm_clear_fifos(
         hxm->_pio,

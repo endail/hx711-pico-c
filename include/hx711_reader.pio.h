@@ -83,7 +83,7 @@ void hx711_reader_pio_init(hx711_t* const hx) {
     pio_gpio_init(
         hx->_pio,
         hx->_clock_pin);
-    //clock pin setup
+    // clock pin setup
     pio_sm_set_out_pins(
         hx->_pio,
         hx->_reader_sm,
@@ -100,7 +100,7 @@ void hx711_reader_pio_init(hx711_t* const hx) {
         hx->_clock_pin,
         1,
         true);
-    //data pin setup
+    // data pin setup
     pio_gpio_init(
         hx->_pio,
         hx->_data_pin);
@@ -160,13 +160,13 @@ void hx711_reader_program_init(hx711_t* const hx) {
      */
     sm_config_set_in_shift(
         &cfg,
-        false,            //false = shift in left
-        true,             //true = autopush enabled
-        HX711_READ_BITS); //autopush on 24 bits
+        false,            // false = shift in left
+        true,             // true = autopush enabled
+        HX711_READ_BITS); // autopush on 24 bits
     pio_sm_clear_fifos(
         hx->_pio,
         hx->_reader_sm);
-    //store a copy of the configuration for resetting the sm
+    // store a copy of the configuration for resetting the sm
     hx->_reader_prog_default_config = cfg;
 }
 
