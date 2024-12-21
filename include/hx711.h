@@ -401,6 +401,7 @@ uint32_t hx711_gain_to_pio_gain(
 /**
  * @brief Attempts to obtain a value from the PIO RX FIFO if one is available.
  * 
+ * @todo implement timeout
  * @param pio pointer to PIO
  * @param sm state machine
  * @param val pointer to raw value from HX711 to set
