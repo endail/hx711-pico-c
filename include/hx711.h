@@ -76,6 +76,10 @@ extern const uint HX711_SETTLING_TIMES[3]; //milliseconds
 extern const uint HX711_SAMPLE_RATES[2];
 extern const uint HX711_CLOCK_PULSES[3];
 
+/**
+ * @todo introduce a custom rate identifier for external
+ * clocks like xtls
+ */
 typedef enum {
     hx711_rate_10 =             0,
     hx711_rate_80 =             1
