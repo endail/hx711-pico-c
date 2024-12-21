@@ -64,10 +64,15 @@ int main(void) {
     hx711_wait_settle(PROG_HX_RATE);
 
     // set new control bits
-    hx711_i2c_slave_control_set_power_state(&hxi2c, true);
-    hx711_i2c_slave_control_set_gain(&hxi2c, PROG_HX_GAIN);
-    hx711_i2c_slave_control_set_rate(&hxi2c, PROG_HX_RATE);
-    hx711_i2c_slave_control_set_ready_state(&hxi2c, true);
+    const hx711_i2c_control_t ctrlconf = {
+        .ready_state = true,
+        .new_value_state = false,
+        .power_state = true,
+        .gain = PROG_HX_GAIN,
+        .rate = PROG_HX_RATE
+    };
+
+    hx711_i2c_slave_set_control(&hxi2c, &ctrlconf);
 
     // slave interrupt will be effective at this point
     printf("Ready\n");
@@ -75,6 +80,7 @@ int main(void) {
     // get new values and save them
     hx711_i2c_slave_update_loop(&hxi2c);
 
+    // won't reach here without the update loop exiting
     hx711_i2c_slave_close(&hxi2c);
 
     hx711_close(&hx);

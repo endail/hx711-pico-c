@@ -30,6 +30,7 @@
 #include <pico/types.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include "hx711_i2c_master.h"
 
 #ifdef __cplusplus
@@ -86,71 +87,22 @@ void hx711_i2c_slave_init(
     hx711_i2c_slave_t* const hx_i2c,
     const hx711_i2c_slave_config_t * const hx_i2c_config);
 
-inline void hx711_i2c_slave_control_set_ready_state(
+inline void hx711_i2c_slave_get_control(
     hx711_i2c_slave_t* const hx_i2c,
-    const bool val) {
+    hx711_i2c_control_t* const ctrl) {
         assert(hx_i2c != NULL);
-        hx_i2c->_memory.ready_state = val;
+        assert(ctrl != NULL);
+        memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
 }
 
-inline void hx711_i2c_slave_control_set_new_value_state(
+inline void hx711_i2c_slave_set_control(
     hx711_i2c_slave_t* const hx_i2c,
-    const bool is_new) {
+    const hx711_i2c_control_t* const ctrl) {
         assert(hx_i2c != NULL);
-        hx_i2c->_memory.new_value_state = is_new;
-}
-
-inline void hx711_i2c_slave_control_set_power_state(
-    hx711_i2c_slave_t* const hx_i2c,
-    const bool state) {
-        assert(hx_i2c != NULL);
-        hx_i2c->_memory.power_state = state;
-}
-
-inline void hx711_i2c_slave_control_set_gain(
-    hx711_i2c_slave_t* const hx_i2c,
-    const hx711_gain_t gain) {
-        assert(hx_i2c != NULL);
-        assert(hx711_is_gain_valid(gain));
-        hx_i2c->_memory.gain = gain;
-}
-
-inline void hx711_i2c_slave_control_set_rate(
-    hx711_i2c_slave_t* const hx_i2c,
-    const hx711_rate_t rate) {
-        assert(hx_i2c != NULL);
-        assert(hx711_is_rate_valid(rate));
-        hx_i2c->_memory.rate = rate;
-}
-
-inline bool hx711_i2c_slave_control_get_ready_state(
-    hx711_i2c_slave_t* const hx_i2c) {
-        assert(hx_i2c != NULL);
-        return hx_i2c->_memory.ready_state;
-}
-
-inline bool hx711_i2c_slave_control_get_new_value_state(
-    hx711_i2c_slave_t* const hx_i2c) {
-        assert(hx_i2c != NULL);
-        return hx_i2c->_memory.new_value_state;
-}
-
-inline bool hx711_i2c_slave_control_get_power_state(
-    hx711_i2c_slave_t* const hx_i2c) {
-        assert(hx_i2c != NULL);
-        return hx_i2c->_memory.power_state;
-}
-
-inline hx711_gain_t hx711_i2c_slave_control_get_gain(
-    hx711_i2c_slave_t* const hx_i2c) {
-        assert(hx_i2c != NULL);
-        return hx_i2c->_memory.gain;
-}
-
-inline hx711_rate_t hx711_i2c_slave_control_get_rate(
-    hx711_i2c_slave_t* const hx_i2c) {
-        assert(hx_i2c != NULL);
-        return hx_i2c->_memory.rate;
+        assert(ctrl != NULL);
+        assert(hx711_is_gain_valid(ctrl->gain));
+        assert(hx711_is_rate_valid(ctrl->rate));
+        memcpy(&hx_i2c->_memory, ctrl, sizeof(hx_i2c->_memory));
 }
 
 /**
