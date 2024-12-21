@@ -37,6 +37,9 @@ src/util.c:86:25: style: Unsigned expression 'startbit' can't be negative so it 
 src/util.c:102:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
         assert(startbit >= 0 && startbit <= 7);
                         ^
+src/util.c:572:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+        UTIL_INTERRUPTS_OFF_BLOCK(
+        ^
 src/util.c:65:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
     DMA_IRQ_2
 ^
