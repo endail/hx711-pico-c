@@ -51,6 +51,7 @@
         "stdio.h": "c",
         "functional": "cpp",
         "cstddef": "cpp",
-        "irq.h": "c"
+        "irq.h": "c",
+        "dma.h": "c"
     }
 }

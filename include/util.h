@@ -23,12 +23,14 @@
 #ifndef UTIL_H_BC9FF78B_B978_444A_8AA1_FF169B09B09E
 #define UTIL_H_BC9FF78B_B978_444A_8AA1_FF169B09B09E
 
-#include <stdint.h>
+#include <assert.h>
+#include <hardware/dma.h>
 #include <hardware/pio.h>
 #include <hardware/platform_defs.h>
 #include <hardware/sync.h>
 #include <pico/mutex.h>
 #include <pico/types.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,17 +120,26 @@ extern "C" {
     while(0)
 
 #define UTIL__DECL_IN_RANGE_FUNC(TYPE) \
-    bool util_ ## TYPE ##_in_range( \
-        const TYPE val, \
-        const TYPE min, \
-        const TYPE max);
+bool util_ ## TYPE ##_in_range( \
+    const TYPE val, \
+    const TYPE min, \
+    const TYPE max);
 
-UTIL__DECL_IN_RANGE_FUNC(int32_t)
-UTIL__DECL_IN_RANGE_FUNC(uint32_t)
-UTIL__DECL_IN_RANGE_FUNC(int)
-UTIL__DECL_IN_RANGE_FUNC(uint)
+#define UTIL__DEF_IN_RANGE_FUNC(TYPE) \
+inline bool util_ ## TYPE ##_in_range( \
+    const TYPE val, \
+    const TYPE min, \
+    const TYPE max) { \
+        return val >= min && val <= max; \
+}
+
+UTIL__DEF_IN_RANGE_FUNC(int32_t)
+UTIL__DEF_IN_RANGE_FUNC(uint32_t)
+UTIL__DEF_IN_RANGE_FUNC(int)
+UTIL__DEF_IN_RANGE_FUNC(uint)
 
 #undef UTIL__DECL_IN_RANGE_FUNC
+#undef UTIL__DEF_IN_RANGE_FUNC
 
 /**
  * @brief Quick lookup for finding an NVIC IRQ number
@@ -153,11 +164,22 @@ extern const uint8_t util_dma_to_irq_map[UTIL_NUM_DMA_IRQS];
  * @param bits 
  * @return uint8_t 
  */
-uint8_t util_set_bits8(
+inline uint8_t util_set_bits8(
     uint8_t value,
     const uint8_t startbit,
     const uint8_t len,
-    const uint8_t bits);
+    const uint8_t bits) {
+
+        assert(startbit >= 0 && startbit <= 7);
+        assert(len >= 1 && len <= 8);
+        assert((startbit + len) <= 8);
+
+        const uint8_t mask = ((1 << len) - 1) << startbit;
+        value &= ~mask;
+        value |= (bits << startbit);
+        return value;
+
+}
 
 /**
  * @brief Extract len bits from value starting at startbit.
@@ -167,10 +189,21 @@ uint8_t util_set_bits8(
  * @param len 
  * @return uint8_t 
  */
-uint8_t util_get_bits8(
+inline uint8_t util_get_bits8(
     const uint8_t value,
     const uint8_t startbit,
-    const uint8_t len);
+    const uint8_t len) {
+
+        assert(startbit >= 0 && startbit <= 7);
+        assert(len >= 1 && len <= 8);
+        assert((startbit + len) <= 8);
+
+        const uint8_t mask = ((1 << len) - 1) << startbit;
+        const uint8_t extracted = (value & mask) >> startbit;
+
+        return extracted;
+
+}
 
 /**
  * @brief Check whether a DMA IRQ index is valid.
@@ -179,7 +212,13 @@ uint8_t util_get_bits8(
  * @return true 
  * @return false 
  */
-bool util_dma_irq_index_is_valid(const uint idx);
+inline bool util_dma_irq_index_is_valid(
+    const uint idx) {
+        return util_uint_in_range(
+            idx,
+            UTIL_DMA_IRQ_INDEX_MIN,
+            UTIL_DMA_IRQ_INDEX_MAX);
+}
 
 /**
  * @brief Gets the NVIC DMA IRQ number using the DMA
@@ -188,7 +227,8 @@ bool util_dma_irq_index_is_valid(const uint idx);
  * @param idx 
  * @return uint 
  */
-uint util_dma_get_irq_from_index(const uint idx);
+uint util_dma_get_irq_from_index(
+    const uint idx);
 
 /**
  * @brief Gets the DMA IRQ index using the NVIC IRQ
@@ -197,7 +237,8 @@ uint util_dma_get_irq_from_index(const uint idx);
  * @param irq_num 
  * @return int -1 is returned for no match.
  */
-int util_dma_get_index_from_irq(const uint irq_num);
+int util_dma_get_index_from_irq(
+    const uint irq_num);
 
 /**
  * @brief Set and enable an exclusive handler for a
@@ -222,7 +263,8 @@ void util_dma_set_exclusive_channel_irq_handler(
  * @param channel 
  * @return uint32_t 
  */
-uint32_t util_dma_get_transfer_count(const uint channel);
+uint32_t util_dma_get_transfer_count(
+    const uint channel);
 
 /**
  * @brief Wait until channel has completed transferring up
@@ -244,7 +286,8 @@ bool util_dma_channel_wait_for_finish_timeout(
  * @param irq_index 0 or 1
  * @return uint DMA_IRQ_0 or DMA_IRQ_1
  */
-uint util_dma_get_irqn(const uint irq_index);
+uint util_dma_get_irqn(
+    const uint irq_index);
 
 /**
  * @brief Sets a DMA channel's IRQ quiet mode.
@@ -271,7 +314,8 @@ void util_gpio_set_contiguous_input_pins(
  * 
  * @param gpio 
  */
-void util_gpio_set_output(const uint gpio);
+void util_gpio_set_output(
+    const uint gpio);
 
 /**
  * @brief Set and enable an exclusive interrupt handler
@@ -297,7 +341,13 @@ void util_irq_set_exclusive_pio_interrupt_num_handler(
  * @return true 
  * @return false 
  */
-bool util_pio_irq_index_is_valid(const uint idx);
+inline bool util_pio_irq_index_is_valid(
+    const uint idx) {
+        return util_uint_in_range(
+            idx,
+            UTIL_PIO_IRQ_INDEX_MIN,
+            UTIL_PIO_IRQ_INDEX_MAX);
+}
 
 /**
  * @brief Gets the NVIC PIO IRQ number using a PIO
@@ -317,7 +367,8 @@ uint util_pio_get_irq_from_index(
  * @param irq_num 
  * @return int -1 is returned for no match.
  */
-int util_pio_get_index_from_irq(const uint irq_num);
+int util_pio_get_index_from_irq(
+    const uint irq_num);
 
 /**
  * @brief Gets the PIO using the NVIC IRQ number.
@@ -325,7 +376,8 @@ int util_pio_get_index_from_irq(const uint irq_num);
  * @param irq_num 
  * @return PIO const 
  */
-PIO const util_pio_get_pio_from_irq(const uint irq_num);
+PIO const util_pio_get_pio_from_irq(
+    const uint irq_num);
 
 /**
  * @brief Gets the correct NVIC IRQ number for a PIO
@@ -415,8 +467,13 @@ bool util_pio_sm_is_enabled(
  * @return true 
  * @return false 
  */
-bool util_pio_interrupt_num_is_valid(
-    const uint pio_interrupt_num);
+inline bool util_pio_interrupt_num_is_valid(
+    const uint pio_interrupt_num) {
+        return util_uint_in_range(
+            pio_interrupt_num,
+            UTIL_PIO_INTERRUPT_NUM_MIN,
+            UTIL_PIO_INTERRUPT_NUM_MAX);
+}
 
 /**
  * @brief Check whether a PIO interrupt number is
@@ -426,8 +483,13 @@ bool util_pio_interrupt_num_is_valid(
  * @return true 
  * @return false 
  */
-bool util_routable_pio_interrupt_num_is_valid(
-    const uint pio_interrupt_num);
+inline bool util_routable_pio_interrupt_num_is_valid(
+    const uint pio_interrupt_num) {
+        return util_uint_in_range(
+            pio_interrupt_num,
+            UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN,
+            UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX);
+}
 
 /**
  * @brief Waits for a given PIO interrupt to be set.

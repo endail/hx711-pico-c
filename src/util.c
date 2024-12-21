@@ -37,20 +37,12 @@
 #include <pico/types.h>
 #include "../include/util.h"
 
-#define UTIL_DEF_IN_RANGE_FUNC(TYPE) \
-    bool util_ ## TYPE ##_in_range( \
-        const TYPE val, \
-        const TYPE min, \
-        const TYPE max) { \
-            return val >= min && val <= max; \
-}
-
 const uint8_t util_pio_to_irq_map[] = {
     PIO0_IRQ_0,
     PIO0_IRQ_1,
     PIO1_IRQ_0,
     PIO1_IRQ_1
-#if defined(PIO2_IRQ_0) && defined(PIO2_IRQ_1)
+#if PICO_PIO_VERSION >= 1
               ,
     PIO2_IRQ_0,
     PIO2_IRQ_1
@@ -70,79 +62,32 @@ const uint8_t util_dma_to_irq_map[] = {
 #endif
 };
 
-UTIL_DEF_IN_RANGE_FUNC(int32_t)
-UTIL_DEF_IN_RANGE_FUNC(uint32_t)
-UTIL_DEF_IN_RANGE_FUNC(int)
-UTIL_DEF_IN_RANGE_FUNC(uint)
+int util_dma_get_index_from_irq(
+    const uint irq_num) {
 
-#undef UTIL_DEF_IN_RANGE_FUNC
+        check_irq_param(irq_num);
 
-uint8_t util_set_bits8(
-    uint8_t value,
-    const uint8_t startbit,
-    const uint8_t len,
-    const uint8_t bits) {
-
-        assert(startbit >= 0 && startbit <= 7);
-        assert(len >= 1 && len <= 8);
-        assert((startbit + len) <= 8);
-
-        const uint8_t mask = ((1 << len) - 1) << startbit;
-        value &= ~mask;
-        value |= (bits << startbit);
-        return value;
-
-}
-
-uint8_t util_get_bits8(
-    const uint8_t value,
-    const uint8_t startbit,
-    const uint8_t len) {
-
-        assert(startbit >= 0 && startbit <= 7);
-        assert(len >= 1 && len <= 8);
-        assert((startbit + len) <= 8);
-
-        const uint8_t mask = ((1 << len) - 1) << startbit;
-        const uint8_t extracted = (value & mask) >> startbit;
-
-        return extracted;
-
-}
-
-bool util_dma_irq_index_is_valid(const uint idx) {
-    return util_uint_in_range(
-        idx,
-        UTIL_DMA_IRQ_INDEX_MIN,
-        UTIL_DMA_IRQ_INDEX_MAX);
-}
-
-uint util_dma_get_irq_from_index(const uint idx) {
-    assert(util_dma_irq_index_is_valid(idx));
-    return dma_get_irq_num(idx);
-}
-
-int util_dma_get_index_from_irq(const uint irq_num) {
-
-    check_irq_param(irq_num);
-
-    switch(irq_num) {
-        case DMA_IRQ_0:
-            return 0;
-        case DMA_IRQ_1:
-            return 1;
-#ifdef DMA_IRQ_2
-        case DMA_IRQ2:
-            return 2;
+        switch(irq_num) {
+            case DMA_IRQ_0:
+                return 0;
+            case DMA_IRQ_1:
+                return 1;
+#if PICO_PIO_VERSION >= 1
+            case DMA_IRQ2:
+                return 2;
+            case DMA_IRQ_3:
+                return 3;
 #endif
-#ifdef DMA_IRQ_3
-        case DMA_IRQ_3:
-            return 3;
-#endif
-        default:
-            return -1;
-    }
+            default:
+                return -1;
+        }
 
+}
+
+uint util_dma_get_irq_from_index(
+    const uint idx) {
+        assert(util_dma_irq_index_is_valid(idx));
+        return dma_get_irq_num(idx);
 }
 
 void util_dma_set_exclusive_channel_irq_handler(
@@ -172,11 +117,6 @@ void util_dma_set_exclusive_channel_irq_handler(
 
 }
 
-uint32_t util_dma_get_transfer_count(const uint channel) {
-    check_dma_channel_param(channel);
-    return (uint32_t)dma_hw->ch[channel].transfer_count;
-}
-
 bool util_dma_channel_wait_for_finish_timeout(
     const uint channel,
     const absolute_time_t* const end) {
@@ -195,21 +135,28 @@ bool util_dma_channel_wait_for_finish_timeout(
 
 }
 
-uint util_dma_get_irqn(const uint irq_index) {
+uint util_dma_get_irqn(
+    const uint irq_index) {
 
-    assert(util_dma_to_irq_map != NULL);
-    assert(util_uint_in_range(
-        irq_index,
-        UTIL_DMA_IRQ_INDEX_MIN,
-        UTIL_DMA_IRQ_INDEX_MAX));
+        assert(util_dma_to_irq_map != NULL);
+        assert(util_uint_in_range(
+            irq_index,
+            UTIL_DMA_IRQ_INDEX_MIN,
+            UTIL_DMA_IRQ_INDEX_MAX));
 
-    const uint irq_num = util_dma_to_irq_map[
-        irq_index];
+        const uint irq_num = util_dma_to_irq_map[
+            irq_index];
 
-    check_irq_param(irq_num);
+        check_irq_param(irq_num);
 
-    return irq_num;
+        return irq_num;
 
+}
+
+uint32_t util_dma_get_transfer_count(
+    const uint channel) {
+        check_dma_channel_param(channel);
+        return (uint32_t)dma_hw->ch[channel].transfer_count;
 }
 
 void util_dma_channel_set_quiet(
@@ -236,10 +183,11 @@ void util_gpio_set_contiguous_input_pins(
 
 }
 
-void util_gpio_set_output(const uint gpio) {
-    check_gpio_param(gpio);
-    gpio_init(gpio);
-    gpio_set_dir(gpio, true);
+void util_gpio_set_output(
+    const uint gpio) {
+        check_gpio_param(gpio);
+        gpio_init(gpio);
+        gpio_set_dir(gpio, true);
 }
 
 void util_irq_set_exclusive_pio_interrupt_num_handler(
@@ -275,13 +223,6 @@ void util_irq_set_exclusive_pio_interrupt_num_handler(
             irq_num,
             enabled);
 
-}
-
-bool util_pio_irq_index_is_valid(const uint idx) {
-    return util_uint_in_range(
-        idx,
-        UTIL_PIO_IRQ_INDEX_MIN,
-        UTIL_PIO_IRQ_INDEX_MAX);
 }
 
 uint util_pion_get_irqn(
@@ -321,33 +262,35 @@ uint util_pio_get_irq_from_index(
 
 }
 
-int util_pio_get_index_from_irq(const uint irq_num) {
+int util_pio_get_index_from_irq(
+    const uint irq_num) {
 
-    check_irq_param(irq_num);
+        check_irq_param(irq_num);
 
-    switch(irq_num) {
+        switch(irq_num) {
 
-        case PIO0_IRQ_0:
-        case PIO1_IRQ_0:
-#ifdef PIO2_IRQ_0
-        case PIO2_IRQ_0:
+            case PIO0_IRQ_0:
+            case PIO1_IRQ_0:
+#if PICO_PIO_VERSION >= 1
+            case PIO2_IRQ_0:
 #endif
-            return 0;
+                return 0;
 
-        case PIO0_IRQ_1:
-        case PIO1_IRQ_1:
-#ifdef PIO2_IRQ_1
-        case PIO2_IRQ_1:
+            case PIO0_IRQ_1:
+            case PIO1_IRQ_1:
+#if PICO_PIO_VERSION >= 1
+            case PIO2_IRQ_1:
 #endif
-            return 1;
+                return 1;
 
-        default:
-            return -1;
-    }
+            default:
+                return -1;
+        }
 
 }
 
-PIO const util_pio_get_pio_from_irq(const uint irq_num) {
+PIO const util_pio_get_pio_from_irq(
+    const uint irq_num) {
 
     check_irq_param(irq_num);
 
@@ -360,7 +303,7 @@ PIO const util_pio_get_pio_from_irq(const uint irq_num) {
         case PIO1_IRQ_1:
             return pio1;
 
-#ifdef pio2
+#if PICO_PIO_VERSION >= 1
         case PIO2_IRQ_0:
         case PIO2_IRQ_1:
             return pio2;
@@ -445,22 +388,6 @@ bool util_pio_sm_is_enabled(
         check_pio_param(pio);
         check_sm_param(sm);
         return (pio->ctrl & (1u << (PIO_CTRL_SM_ENABLE_LSB + sm))) != 0;
-}
-
-bool util_pio_interrupt_num_is_valid(
-    const uint pio_interrupt_num) {
-        return util_uint_in_range(
-            pio_interrupt_num,
-            UTIL_PIO_INTERRUPT_NUM_MIN,
-            UTIL_PIO_INTERRUPT_NUM_MAX);
-}
-
-bool util_routable_pio_interrupt_num_is_valid(
-    const uint pio_interrupt_num) {
-        return util_uint_in_range(
-            pio_interrupt_num,
-            UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN,
-            UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX);
 }
 
 void util_pio_interrupt_wait(
