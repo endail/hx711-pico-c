@@ -1,30 +1,3 @@
-src/hx711_i2c_master.c:311:19: style:inconclusive: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
-    const uint8_t data) {
-                  ^
-include/hx711_i2c_master.h:247:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
-    const uint8_t bits);
-                  ^
-src/hx711_i2c_master.c:311:19: note: Function 'hx711_i2c_command_get_power_state' argument 1 names different: declaration 'bits' definition 'data'.
-    const uint8_t data) {
-                  ^
-src/hx711_i2c_master.c:319:19: style:inconclusive: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
-    const uint8_t data) {
-                  ^
-include/hx711_i2c_master.h:250:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
-    const uint8_t bits);
-                  ^
-src/hx711_i2c_master.c:319:19: note: Function 'hx711_i2c_command_get_gain' argument 1 names different: declaration 'bits' definition 'data'.
-    const uint8_t data) {
-                  ^
-src/hx711_i2c_master.c:330:19: style:inconclusive: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'. [funcArgNamesDifferent]
-    const uint8_t data) {
-                  ^
-include/hx711_i2c_master.h:253:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
-    const uint8_t bits);
-                  ^
-src/hx711_i2c_master.c:330:19: note: Function 'hx711_i2c_command_get_rate' argument 1 names different: declaration 'bits' definition 'data'.
-    const uint8_t data) {
-                  ^
 src/hx711_i2c_slave.c:47:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == NULL) {
                                    ^
@@ -34,22 +7,19 @@ src/hx711_i2c_slave.c:65:36: error: Array 'hx711_i2c__slave_map[1]' accessed at 
 src/hx711_i2c_slave.c:84:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i]->_i2c == i2c) {
                                    ^
-src/hx711_i2c_slave.c:337:42: error: Uninitialized variable: val [uninitvar]
-                hx711_i2c_value_to_array(val, valBytes);
-                                         ^
 src/hx711_i2c_slave.c:79:16: error: Uninitialized variable: *slave [uninitvar]
         assert(*slave != NULL);
                ^
-src/hx711_i2c_slave.c:286:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
+src/hx711_i2c_slave.c:166:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
         hx711_i2c__slave_get_slave(i2c, &hx_i2c);
                                         ^
 src/hx711_i2c_slave.c:79:16: note: Uninitialized variable: *slave
         assert(*slave != NULL);
                ^
-src/hx711_i2c_slave.c:131:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/hx711_i2c_slave.c:127:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/hx711_i2c_slave.c:269:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+src/hx711_i2c_slave.c:152:5: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
     UTIL_INTERRUPTS_OFF_BLOCK(
     ^
 src/hx711_multi.c:590:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
