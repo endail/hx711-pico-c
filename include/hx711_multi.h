@@ -70,7 +70,7 @@ extern "C" {
 /**
  * @brief Minimum number of chips to connect to a hx711_multi.
  */
-#define HX711_MULTI_MIN_CHIPS                   1
+#define HX711_MULTI_MIN_CHIPS                   1u
 
 /**
  * @brief The max number of chips could technically be the
@@ -84,7 +84,7 @@ extern "C" {
  * number of bits transmitting through GPIO to PIO to DMA. For
  * DMA, that is DMA_SIZE_32.
  */
-#define HX711_MULTI_MAX_CHIPS                   32
+#define HX711_MULTI_MAX_CHIPS                   32u
 
 /**
  * @brief State of the read as it moves through the async process.
@@ -128,8 +128,11 @@ typedef struct {
 
 } hx711_multi_t;
 
-typedef void (*hx711_multi_pio_init_t)(hx711_multi_t* const);
-typedef void (*hx711_multi_program_init_t)(hx711_multi_t* const);
+typedef void (*hx711_multi_pio_init_t)(
+    hx711_multi_t* const);
+
+typedef void (*hx711_multi_program_init_t)(
+    hx711_multi_t* const);
 
 typedef struct {
 
@@ -148,7 +151,6 @@ typedef struct {
      */
     size_t chips_len;
 
-
     /**
      * @brief Which index to use for a PIO interrupt. Either 0 or 1.
      * Corresponds to PIO[PIO_INDEX]_IRQ[IRQ_INDEX] NVIC IRQ number.
@@ -160,7 +162,6 @@ typedef struct {
      * Corresponds to DMA_IRQ[IRQ_INDEX] NVIC IRQ number.
      */
     uint dma_irq_index;
-
 
     /**
      * @brief Which PIO to use. Either pio0 or pio1.
@@ -174,7 +175,6 @@ typedef struct {
      */
     hx711_multi_pio_init_t pio_init;
 
-
     /**
      * @brief PIO awaiter program.
      */
@@ -186,7 +186,6 @@ typedef struct {
      * prior to the State Machine being enabled.
      */
     hx711_multi_program_init_t awaiter_prog_init;
-
 
     /**
      * @brief PIO reader program.
@@ -264,7 +263,8 @@ static bool hx711_multi__async_pio_irq_is_set(
  * 
  * @return hx711_multi_t* const 
  */
-static hx711_multi_t* const hx711_multi__async_get_dma_irq_request();
+static hx711_multi_t* const hx711_multi__async_get_dma_irq_request(
+    );
 
 /**
  * @brief Get the hxm which caused the current PIO IRQ. Returns
@@ -272,7 +272,8 @@ static hx711_multi_t* const hx711_multi__async_get_dma_irq_request();
  * 
  * @return hx711_multi_t* const 
  */
-static hx711_multi_t* const hx711_multi__async_get_pio_irq_request();
+static hx711_multi_t* const hx711_multi__async_get_pio_irq_request(
+    );
 
 /**
  * @brief Triggers DMA reading; moves request state from WAITING to READING.
@@ -304,12 +305,14 @@ static void hx711_multi__async_finish(
 /**
  * @brief ISR handler for PIO IRQs.
  */
-static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)();
+static void __isr __not_in_flash_func(hx711_multi__async_pio_irq_handler)(
+    );
 
 /**
  * @brief ISR handler for DMA IRQs.
  */
-static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)();
+static void __isr __not_in_flash_func(hx711_multi__async_dma_irq_handler)(
+    );
 
 /**
  * @brief Adds hxm to the array for ISR access. Returns false
