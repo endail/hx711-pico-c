@@ -146,14 +146,15 @@ void hx711_i2c_slave_init(
 
 }
 
-void hx711_i2c_slave_close(hx711_i2c_slave_t* const hx_i2c) {
-    assert(hx_i2c != NULL);
-    assert(hx_i2c->_i2c != NULL);
-    UTIL_INTERRUPTS_OFF_BLOCK(
-        i2c_slave_deinit(hx_i2c->_i2c);
-        i2c_deinit(hx_i2c->_i2c);
-        hx711_i2c__slave_remove_slave(hx_i2c);
-    );
+void hx711_i2c_slave_close(
+    hx711_i2c_slave_t* const hx_i2c) {
+        assert(hx_i2c != NULL);
+        assert(hx_i2c->_i2c != NULL);
+        UTIL_INTERRUPTS_OFF_BLOCK(
+            i2c_slave_deinit(hx_i2c->_i2c);
+            i2c_deinit(hx_i2c->_i2c);
+            hx711_i2c__slave_remove_slave(hx_i2c);
+        );
 }
 
 void hx711_i2c_slave_handler(
@@ -171,23 +172,34 @@ void hx711_i2c_slave_handler(
         switch(event) {
         case I2C_SLAVE_RECEIVE:
             // data available from master to read
+
             uint8_t reqbuff[HX711_I2C_REQUEST_TOTAL_SIZE_BYTES];
+
             for(size_t i = 0; i < HX711_I2C_REQUEST_TOTAL_SIZE_BYTES; ++i) {
                 reqbuff[i] = i2c_read_byte_raw(hx_i2c->_i2c);
             }
-            hx711_i2c_buffer_to_request(reqbuff, &hx_i2c->_inreq);
+
+            hx711_i2c_buffer_to_request(
+                reqbuff,
+                &hx_i2c->_inreq);
+
             break;
 
         case I2C_SLAVE_REQUEST:
             // send data
+
             uint8_t ctrlbuff[HX711_I2C_CONTROL_TOTAL_BYTES];
-            hx711_i2c_control_to_buffer(&hx_i2c->_memory, ctrlbuff);
+
+            hx711_i2c_control_to_buffer(
+                &hx_i2c->_memory,
+                ctrlbuff);
+
             for(size_t i = 0; i < HX711_I2C_CONTROL_TOTAL_BYTES; ++i) {
                 i2c_write_byte_raw(i2c, ctrlbuff[i]);
             }
 
-            // then update the control
             hx_i2c->_memory.new_value_state = false;
+
             break;
 
         case I2C_SLAVE_FINISH:

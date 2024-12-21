@@ -35,17 +35,6 @@
 extern "C" {
 #endif
 
-#define HX711_GAIN_TO_STR(GAIN) \
-    (GAIN == hx711_gain_128 ? "128") : \
-        (GAIN == hx711_gain_64 ? "64") : \
-            (GAIN == hx711_gain_32 ? "32") : \
-                ""
-
-#define HX711_RATE_TO_STR(RATE) \
-    (RATE == hx711_rate_80) ? "80" : \
-        (RATE == hx711_rate_10) ? "10" : \
-            ""
-
 /**
  * @brief If HX711_NO_MUTEX is not defined, we use mutexs.
  */
@@ -63,14 +52,18 @@ extern "C" {
     } while(0)
 #endif
 
-#define HX711_READ_BITS                 24
-#define HX711_POWER_DOWN_TIMEOUT        60 //microseconds
+#define HX711_READ_BITS                 24u
+
+/**
+ * @brief Measured in microseconds
+ */
+#define HX711_POWER_DOWN_TIMEOUT        60u
 
 #define HX711_MIN_VALUE                 INT32_C(-0x800000) //−8,388,608
 #define HX711_MAX_VALUE                 INT32_C(0x7fffff) //8,388,607
 
-#define HX711_PIO_MIN_GAIN              0
-#define HX711_PIO_MAX_GAIN              2
+#define HX711_PIO_MIN_GAIN              0u
+#define HX711_PIO_MAX_GAIN              2u
 
 extern const uint HX711_SETTLING_TIMES[3]; //milliseconds
 extern const uint HX711_SAMPLE_RATES[2];

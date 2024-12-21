@@ -493,6 +493,7 @@ bool util_pio_sm_try_get(
         check_pio_param(pio);
         check_sm_param(sm);
         assert(word != NULL);
+        assert(threshold >= 1);
 
         bool success = false;
 

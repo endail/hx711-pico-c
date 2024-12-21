@@ -479,43 +479,45 @@ void hx711_multi_pinvals_to_values(
         assert(values != NULL);
         assert(len > 0);
 
-        //construct an individual chip value by OR-ing
-        //together the bits from the pinvals array.
-        //
-        //each n-th bit of the pinvals array makes up all
-        //the bits for an individual chip. ie.:
-        //
-        //pinvals[0] contains all the 24th bit HX711 values
-        //for each chip, pinvals[1] contains all the 23rd bit
-        //values, and so on...
-        //
-        //(pinvals[0] >> 0) & 1 is the 24th HX711 bit of the 0th chip
-        //(pinvals[1] >> 0) & 1 is the 23rd HX711 bit of the 0th chip
-        //(pinvals[1] >> 2) & 1 is the 23rd HX711 bit of the 3rd chip
-        //(pinvals[23] >> 0) & 1 is the 0th HX711 bit of the 0th chip
-        //
-        //eg.
-        //rawvals[0] = 
-        //    ((pinvals[0] >> 0) & 1) << 24 |
-        //    ((pinvals[1] >> 0) & 1) << 23 |
-        //    ((pinvals[2] >> 0) & 1) << 22 |
-        //...
-        //    ((pinvals[23]) >> 0) & 1) << 0;
+        /**
+         *
+         * together the bits from the pinvals array.
+         *
+         * each n-th bit of the pinvals array makes up all
+         * the bits for an individual chip. ie.:
+         * 
+         * pinvals[0] contains all the 24th bit HX711 values
+         * for each chip, pinvals[1] contains all the 23rd bit
+         * values, and so on...
+         * 
+         * (pinvals[0] >> 0) & 1 is the 24th HX711 bit of the 0th chip
+         * (pinvals[1] >> 0) & 1 is the 23rd HX711 bit of the 0th chip
+         * (pinvals[1] >> 2) & 1 is the 23rd HX711 bit of the 3rd chip
+         * (pinvals[23] >> 0) & 1 is the 0th HX711 bit of the 0th chip
+         * 
+         * eg.
+         * rawvals[0] = 
+         *     ((pinvals[0] >> 0) & 1) << 24 |
+         *     ((pinvals[1] >> 0) & 1) << 23 |
+         *     ((pinvals[2] >> 0) & 1) << 22 |
+         * ...
+         *    ((pinvals[23]) >> 0) & 1) << 0;
+         */
 
         for(size_t chipNum = 0; chipNum < len; ++chipNum) {
 
-            //reset to 0
-            //this is the raw value for an individual chip
+            // reset to 0
+            // this is the raw value for an individual chip
             uint32_t rawVal = 0;
 
-            //reconstruct an individual twos comp HX711 value from pinbits
+            // reconstruct an individual twos comp HX711 value from pinbits
             for(size_t bitPos = 0; bitPos < HX711_READ_BITS; ++bitPos) {
                 const uint shift = HX711_READ_BITS - bitPos - 1;
                 const uint32_t bit = (pinvals[bitPos] >> chipNum) & 1;
                 rawVal |= bit << shift;
             }
 
-            //then convert to a regular ones comp
+            // then convert to a regular ones comp
             values[chipNum] = hx711_convert_raw(rawVal);
 
             assert(hx711_is_value_valid(values[chipNum]));

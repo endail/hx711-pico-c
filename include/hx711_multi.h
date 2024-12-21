@@ -42,7 +42,7 @@ extern "C" {
  * the period of time between a conversion ending and the
  * next period beginning.
  */
-#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0
+#define HX711_MULTI_CONVERSION_DONE_IRQ_NUM     0u
 
 /**
  * @brief PIO interrupt number which is used between the
@@ -51,7 +51,7 @@ extern "C" {
  * within the main set of code, but is used to validate
  * that the IRQ number is properly available.
  */
-#define HX711_MULTI_DATA_READY_IRQ_NUM          4
+#define HX711_MULTI_DATA_READY_IRQ_NUM          4u
 
 /**
  * @brief Only one instance of a hx711_multi can operate
@@ -64,8 +64,8 @@ extern "C" {
 /**
  * @brief IRQ index defaults for PIO and DMA.
  */
-#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0
-#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0
+#define HX711_MULTI_ASYNC_PIO_IRQ_IDX           0u
+#define HX711_MULTI_ASYNC_DMA_IRQ_IDX           0u
 
 /**
  * @brief Minimum number of chips to connect to a hx711_multi.

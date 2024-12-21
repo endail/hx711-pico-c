@@ -101,7 +101,7 @@ void hx711_init(
              * rationale: to avoid incorrect data ready states - 
              * ie. when the data pin goes low.
              */
-            //gpio_pull_up(hx->_data_pin);
+            // gpio_pull_up(hx->_data_pin);
 
             /**
              * There was originally a call here to gpio_pull_up
@@ -129,8 +129,8 @@ void hx711_init(
 
 void hx711_close(hx711_t* const hx) {
 
-    //state machines do not have to be running in order
-    //to close
+    // state machines do not have to be running in order
+    // to close
     assert(hx711__is_initd(hx));
 
     HX711_MUTEX_BLOCK(hx->_mut, 
@@ -208,13 +208,13 @@ void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
          * to the desired gain.
          */
 
-        //1. clear the RX FIFO with the non-blocking read
+        // 1. clear the RX FIFO with the non-blocking read
         pio_sm_get(
             hx->_pio,
             hx->_reader_sm);
 
-        //2. wait until the value from the currently-set gain
-        //can be safely read and discarded
+        // 2. wait until the value from the currently-set gain
+        // can be safely read and discarded
         pio_sm_get_blocking(
             hx->_pio,
             hx->_reader_sm);
@@ -335,8 +335,8 @@ void hx711_power_up(
     hx711_t* const hx,
     const hx711_gain_t gain) {
 
-        //the struct should be init'd, but the state machines
-        //should not be running
+        // the struct should be init'd, but the state machines
+        // should not be running
         assert(hx711__is_initd(hx));
         assert(!hx711__is_state_machine_enabled(hx));
 

@@ -40,7 +40,7 @@ extern "C" {
 #define HX711_I2C_DEFAULT_SCL_PIN               PICO_DEFAULT_I2C_SCL_PIN
 #define HX711_I2C_DEFAULT_SDA_PIN               PICO_DEFAULT_I2C_SDA_PIN
 #define HX711_I2C_DEFAULT_INST                  i2c_default
-#define HX711_I2C_DEFAULT_BAUD_RATE             100000
+#define HX711_I2C_DEFAULT_BAUD_RATE             100000u
 #define HX711_I2C_DEFAULT_I2C_ADDR              0x64
 
 /**
@@ -58,26 +58,26 @@ extern "C" {
  * 8th .. 31th bit = value bits
  */
 
-#define HX711_I2C_CONTROL_METADATA_OFFSET_BYTES     0
-#define HX711_I2C_CONTROL_READY_STATE_OFFSET        0
-#define HX711_I2C_CONTROL_NEW_VALUE_STATE_OFFSET    1
-#define HX711_I2C_CONTROL_POWER_STATE_OFFSET        2
-#define HX711_I2C_CONTROL_GAIN_OFFSET               3
-#define HX711_I2C_CONTROL_RATE_OFFSET               5
-#define HX711_I2C_CONTROL_DATA_OFFSET               8
-#define HX711_I2C_CONTROL_DATA_OFFSET_BYTES         1
+#define HX711_I2C_CONTROL_METADATA_OFFSET_BYTES     0u
+#define HX711_I2C_CONTROL_READY_STATE_OFFSET        0u
+#define HX711_I2C_CONTROL_NEW_VALUE_STATE_OFFSET    1u
+#define HX711_I2C_CONTROL_POWER_STATE_OFFSET        2u
+#define HX711_I2C_CONTROL_GAIN_OFFSET               3u
+#define HX711_I2C_CONTROL_RATE_OFFSET               5u
+#define HX711_I2C_CONTROL_DATA_OFFSET               8u
+#define HX711_I2C_CONTROL_DATA_OFFSET_BYTES         1u
 
-#define HX711_I2C_CONTROL_READY_STATE_SIZE          1
-#define HX711_I2C_CONTROL_NEW_VALUE_STATE_SIZE      1
-#define HX711_I2C_CONTROL_POWER_STATE_SIZE          1
-#define HX711_I2C_CONTROL_GAIN_SIZE                 2
-#define HX711_I2C_CONTROL_RATE_SIZE                 1
+#define HX711_I2C_CONTROL_READY_STATE_SIZE          1u
+#define HX711_I2C_CONTROL_NEW_VALUE_STATE_SIZE      1u
+#define HX711_I2C_CONTROL_POWER_STATE_SIZE          1u
+#define HX711_I2C_CONTROL_GAIN_SIZE                 2u
+#define HX711_I2C_CONTROL_RATE_SIZE                 1u
 
 #define HX711_I2C_CONTROL_DATA_SIZE_BITS            HX711_READ_BITS
-#define HX711_I2C_CONTROL_DATA_SIZE_BYTES           3
-#define HX711_I2C_CONTROL_METADATA_SIZE_BITS        6
-#define HX711_I2C_CONTROL_METADATA_SIZE_BYTES       1
-#define HX711_I2C_CONTROL_TOTAL_BYTES               4
+#define HX711_I2C_CONTROL_DATA_SIZE_BYTES           3u
+#define HX711_I2C_CONTROL_METADATA_SIZE_BITS        6u
+#define HX711_I2C_CONTROL_METADATA_SIZE_BYTES       1u
+#define HX711_I2C_CONTROL_TOTAL_BYTES               4u
 
 /**
  * @brief Request bits structure
@@ -92,17 +92,17 @@ extern "C" {
  * 7th bit = unused
  */
 
-#define HX711_I2C_REQUEST_OFFSET_BYTES              0
-#define HX711_I2C_REQUEST_COMMAND_OFFSET            0
-#define HX711_I2C_REQUEST_POWER_STATE_OFFSET        2
-#define HX711_I2C_REQUEST_GAIN_OFFSET               3
-#define HX711_I2C_REQUEST_RATE_OFFSET               5
+#define HX711_I2C_REQUEST_OFFSET_BYTES              0u
+#define HX711_I2C_REQUEST_COMMAND_OFFSET            0u
+#define HX711_I2C_REQUEST_POWER_STATE_OFFSET        2u
+#define HX711_I2C_REQUEST_GAIN_OFFSET               3u
+#define HX711_I2C_REQUEST_RATE_OFFSET               5u
 
-#define HX711_I2C_REQUEST_COMMAND_SIZE              2
-#define HX711_I2C_REQUEST_POWER_STATE_SIZE          1
-#define HX711_I2C_REQUEST_GAIN_SIZE                 2
-#define HX711_I2C_REQUEST_RATE_SIZE                 1
-#define HX711_I2C_REQUEST_TOTAL_SIZE_BYTES          1
+#define HX711_I2C_REQUEST_COMMAND_SIZE              2u
+#define HX711_I2C_REQUEST_POWER_STATE_SIZE          1u
+#define HX711_I2C_REQUEST_GAIN_SIZE                 2u
+#define HX711_I2C_REQUEST_RATE_SIZE                 1u
+#define HX711_I2C_REQUEST_TOTAL_SIZE_BYTES          1u
 
 typedef enum {
     hx711_i2c_command_none =                        0,

@@ -51,11 +51,11 @@ extern "C" {
 // NUM_DMA_IRQS defined in pico sdk
 #define UTIL_NUM_DMA_IRQS                   NUM_DMA_IRQS
 
-#define UTIL_DMA_IRQ_INDEX_MIN              0
+#define UTIL_DMA_IRQ_INDEX_MIN              0u
 #define UTIL_DMA_IRQ_INDEX_MAX              (UTIL_NUM_DMA_IRQS - 1)
 
 // NUM_PIOS defined in pico sdk
-#define UTIL_PIO_IRQ_INDEX_MIN              0
+#define UTIL_PIO_IRQ_INDEX_MIN              0u
 #define UTIL_PIO_IRQ_INDEX_MAX              (NUM_PIOS - 1)
 
 // PIO interrupt source (pio.h)
@@ -68,11 +68,11 @@ extern "C" {
     #define UTIL_PIO_PIS_MAX                PIO_INTR_SM7_LSB
 #endif
 
-#define UTIL_PIO_INTERRUPT_NUM_MIN          0
-#define UTIL_PIO_INTERRUPT_NUM_MAX          7
+#define UTIL_PIO_INTERRUPT_NUM_MIN          0u
+#define UTIL_PIO_INTERRUPT_NUM_MAX          7u
 
-#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN 0
-#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX 3
+#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN 0u
+#define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX 3u
 
 /**
  * @brief Own a mutex for the duration of this block of

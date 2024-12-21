@@ -23,6 +23,7 @@
 #ifndef HX711_I2C_SLAVE_H_9F3805FC_86F8_4A24_94B6_7493F4CDAF26
 #define HX711_I2C_SLAVE_H_9F3805FC_86F8_4A24_94B6_7493F4CDAF26
 
+#include <assert.h>
 #include <hardware/i2c.h>
 #include <pico/i2c_slave.h>
 #include <pico/platform.h>
@@ -39,7 +40,7 @@ extern "C" {
  * @brief Number of slaves supported. Arbitrary, but exists
  * to have a fixed sized array.
  */
-#define HX711_I2C_SLAVE_MAP_SIZE                        4
+#define HX711_I2C_SLAVE_MAP_SIZE                        4u
 
 typedef struct {
     uint _scl_pin;
@@ -84,14 +85,6 @@ static bool hx711_i2c__slave_get_slave(
 void hx711_i2c_slave_init(
     hx711_i2c_slave_t* const hx_i2c,
     const hx711_i2c_slave_config_t * const hx_i2c_config);
-
-
-uint8_t hx711_i2c_slave_get_control(
-    const hx711_i2c_slave_t* const hx_i2c);
-
-void hx711_i2c_slave_set_control(
-    hx711_i2c_slave_t* const hx_i2c,
-    const uint8_t control);
 
 inline void hx711_i2c_slave_control_set_ready_state(
     hx711_i2c_slave_t* const hx_i2c,
