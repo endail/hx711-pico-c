@@ -77,14 +77,14 @@ extern const uint HX711_SAMPLE_RATES[2];
 extern const uint HX711_CLOCK_PULSES[3];
 
 typedef enum {
-    hx711_rate_10 =     0,
-    hx711_rate_80 =     1
+    hx711_rate_10 =             0,
+    hx711_rate_80 =             1
 } hx711_rate_t;
 
 typedef enum {
-    hx711_gain_128 =    0,
-    hx711_gain_32 =     1,
-    hx711_gain_64 =     2
+    hx711_gain_128 =            0,
+    hx711_gain_32 =             1,
+    hx711_gain_64 =             2
 } hx711_gain_t;
 
 typedef struct {
@@ -384,8 +384,9 @@ inline void hx711_wait_settle(
  * appropriate amount of time to allow the HX711 to power
  * down.
  */
-inline void hx711_wait_power_down() {
-    sleep_us(HX711_POWER_DOWN_TIMEOUT);
+inline void hx711_wait_power_down(
+    ) {
+        sleep_us(HX711_POWER_DOWN_TIMEOUT);
 }
 
 /**
@@ -401,7 +402,6 @@ uint32_t hx711_gain_to_pio_gain(
 /**
  * @brief Attempts to obtain a value from the PIO RX FIFO if one is available.
  * 
- * @todo implement timeout
  * @param pio pointer to PIO
  * @param sm state machine
  * @param val pointer to raw value from HX711 to set
