@@ -97,6 +97,13 @@ void hx711_init(
                 true);
 
             /**
+             * @todo should the data bit be pulled high?
+             * rationale: to avoid incorrect data ready states - 
+             * ie. when the data pin goes low.
+             */
+            //gpio_pull_up(hx->_data_pin);
+
+            /**
              * There was originally a call here to gpio_pull_up
              * on the data pin to prevent erroneous data ready
              * states. This was incorrect. Page 4 of the datasheet
