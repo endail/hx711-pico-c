@@ -4,6 +4,9 @@ include/util.h:173:25: style: Unsigned expression 'startbit' can't be negative s
 include/util.h:197:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
         assert(startbit >= 0 && startbit <= 7);
                         ^
+include/hx711_i2c_slave.h:95:16: warning: Size of pointer 'ctrl' used instead of size of its data. [pointerSize]
+        memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
+               ^
 src/hx711_i2c_slave.c:47:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == NULL) {
                                    ^
