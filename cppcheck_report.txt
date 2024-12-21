@@ -1,3 +1,9 @@
+include/util.h:173:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+        assert(startbit >= 0 && startbit <= 7);
+                        ^
+include/util.h:197:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+        assert(startbit >= 0 && startbit <= 7);
+                        ^
 src/hx711_i2c_slave.c:47:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == NULL) {
                                    ^
@@ -31,44 +37,14 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/util.c:86:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-        assert(startbit >= 0 && startbit <= 7);
-                        ^
-src/util.c:102:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-        assert(startbit >= 0 && startbit <= 7);
-                        ^
-src/util.c:572:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/util.c:499:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/util.c:65:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:57:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
     DMA_IRQ_2
 ^
-src/util.c:69:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:61:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
     DMA_IRQ_3
-^
-src/util.c:139:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-        case DMA_IRQ_3:
-^
-src/util.c:333:0: information: Skipping configuration 'PIO2_IRQ_0' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-        case PIO2_IRQ_0:
-^
-src/util.c:55:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-    PIO2_IRQ_0,
-^
-src/util.c:333:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_0' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-        case PIO2_IRQ_0:
-^
-src/util.c:56:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-    PIO2_IRQ_1
-^
-src/util.c:340:0: information: Skipping configuration 'PIO2_IRQ_0;PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-        case PIO2_IRQ_1:
-^
-src/util.c:340:0: information: Skipping configuration 'PIO2_IRQ_1' since the value of 'PIO2_IRQ_1' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-        case PIO2_IRQ_1:
-^
-src/util.c:366:0: information: Skipping configuration 'pio2' since the value of 'pio2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
-            return pio2;
 ^
 tests/i2c_master.c:48:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
         printf("%li\n", hx711_i2c_master_get_value_blocking(&hxi2c));
