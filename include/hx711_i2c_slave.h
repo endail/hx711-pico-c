@@ -40,17 +40,6 @@ extern "C" {
  * to have a fixed sized array.
  */
 #define HX711_I2C_SLAVE_MAP_SIZE                        4
-#define HX711_I2C_SLAVE_MEMORY_SIZE                     HX711_I2C_CONTROL_TOTAL_BYTES
-
-/**
- * @brief Corresponds to:
- * Ready state = false/no
- * New value state = false/no
- * Power state = false/off
- * Gain = hx711_gain_128
- * Rate = hx711_rate_10
- */
-#define HX711_I2C_SLAVE_DEFAULT_CONTROL_METADATA_BITS   UINT8_C(0b00100000)
 
 typedef struct {
     uint _scl_pin;
@@ -59,8 +48,8 @@ typedef struct {
     uint _baud_rate;
     uint8_t _addr;
     hx711_t* _hx;
-    uint8_t _memory[HX711_I2C_SLAVE_MEMORY_SIZE];
-    uint8_t _indata;
+    hx711_i2c_control_t _memory;
+    hx711_i2c_request_t _inreq;
     bool _updating;
 } hx711_i2c_slave_t;
 
@@ -96,6 +85,7 @@ void hx711_i2c_slave_init(
     hx711_i2c_slave_t* const hx_i2c,
     const hx711_i2c_slave_config_t * const hx_i2c_config);
 
+
 uint8_t hx711_i2c_slave_get_control(
     const hx711_i2c_slave_t* const hx_i2c);
 
@@ -103,48 +93,72 @@ void hx711_i2c_slave_set_control(
     hx711_i2c_slave_t* const hx_i2c,
     const uint8_t control);
 
-void hx711_i2c_slave_control_set_ready_state(
+inline void hx711_i2c_slave_control_set_ready_state(
     hx711_i2c_slave_t* const hx_i2c,
-    const bool val);
+    const bool val) {
+        assert(hx_i2c != NULL);
+        hx_i2c->_memory.ready_state = val;
+}
 
-void hx711_i2c_slave_control_set_new_value_state(
+inline void hx711_i2c_slave_control_set_new_value_state(
     hx711_i2c_slave_t* const hx_i2c,
-    const bool is_new);
+    const bool is_new) {
+        assert(hx_i2c != NULL);
+        hx_i2c->_memory.new_value_state = is_new;
+}
 
-void hx711_i2c_slave_control_set_power_state(
+inline void hx711_i2c_slave_control_set_power_state(
     hx711_i2c_slave_t* const hx_i2c,
-    const bool state);
+    const bool state) {
+        assert(hx_i2c != NULL);
+        hx_i2c->_memory.power_state = state;
+}
 
-void hx711_i2c_slave_control_set_gain(
+inline void hx711_i2c_slave_control_set_gain(
     hx711_i2c_slave_t* const hx_i2c,
-    const hx711_gain_t gain);
+    const hx711_gain_t gain) {
+        assert(hx_i2c != NULL);
+        assert(hx711_is_gain_valid(gain));
+        hx_i2c->_memory.gain = gain;
+}
 
-void hx711_i2c_slave_control_set_rate(
+inline void hx711_i2c_slave_control_set_rate(
     hx711_i2c_slave_t* const hx_i2c,
-    const hx711_rate_t rate);
+    const hx711_rate_t rate) {
+        assert(hx_i2c != NULL);
+        assert(hx711_is_rate_valid(rate));
+        hx_i2c->_memory.rate = rate;
+}
 
-bool hx711_i2c_slave_control_get_ready_state(
-    hx711_i2c_slave_t* const hx_i2c);
+inline bool hx711_i2c_slave_control_get_ready_state(
+    hx711_i2c_slave_t* const hx_i2c) {
+        assert(hx_i2c != NULL);
+        return hx_i2c->_memory.ready_state;
+}
 
-bool hx711_i2c_slave_control_get_new_value_state(
-    hx711_i2c_slave_t* const hx_i2c);
+inline bool hx711_i2c_slave_control_get_new_value_state(
+    hx711_i2c_slave_t* const hx_i2c) {
+        assert(hx_i2c != NULL);
+        return hx_i2c->_memory.new_value_state;
+}
 
-bool hx711_i2c_slave_control_get_power_state(
-    hx711_i2c_slave_t* const hx_i2c);
+inline bool hx711_i2c_slave_control_get_power_state(
+    hx711_i2c_slave_t* const hx_i2c) {
+        assert(hx_i2c != NULL);
+        return hx_i2c->_memory.power_state;
+}
 
-hx711_gain_t hx711_i2c_slave_control_get_gain(
-    hx711_i2c_slave_t* const hx_i2c);
+inline hx711_gain_t hx711_i2c_slave_control_get_gain(
+    hx711_i2c_slave_t* const hx_i2c) {
+        assert(hx_i2c != NULL);
+        return hx_i2c->_memory.gain;
+}
 
-hx711_rate_t hx711_i2c_slave_control_get_rate(
-    hx711_i2c_slave_t* const hx_i2c);
-
-void hx711_i2c_slave_get_data(
-    hx711_i2c_slave_t* const hx_i2c,
-    uint8_t* const data);
-
-void hx711_i2c_slave_set_data(
-    hx711_i2c_slave_t* const hx_i2c,
-    const uint8_t* const data);
+inline hx711_rate_t hx711_i2c_slave_control_get_rate(
+    hx711_i2c_slave_t* const hx_i2c) {
+        assert(hx_i2c != NULL);
+        return hx_i2c->_memory.rate;
+}
 
 /**
  * @brief Stop i2c communication.
@@ -166,9 +180,12 @@ static void __isr __not_in_flash_func(hx711_i2c_slave_handler)(
  * @param hx_i2c 
  * @param updating 
  */
-void hx711_i2c_slave_set_updating(
+inline void hx711_i2c_slave_set_updating(
     hx711_i2c_slave_t* const hx_i2c,
-    const bool updating);
+    const bool updating) {
+        assert(hx_i2c != NULL);
+        hx_i2c->_updating = updating;
+}
 
 /**
  * @brief Looping function to update slave values.

@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.12)
 include(pico_sdk_import.cmake)
 
 project(hx711-pico-c
-        VERSION 2.0.2
+        VERSION 3.0.0
         DESCRIPTION "Implementation of HX711 use via RP2040's state machine"
         HOMEPAGE_URL "https://github.com/endail/hx711-pico-c"
         LANGUAGES C CXX ASM
@@ -51,8 +51,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 # check for minimum pico sdk version
-if(PICO_SDK_VERSION_STRING VERSION_LESS "1.5.0")
-        message(FATAL_ERROR "hx711-pico-c requires Raspberry Pi Pico SDK version 1.5.0 (or later). Your version is ${PICO_SDK_VERSION_STRING}")
+if(PICO_SDK_VERSION_STRING VERSION_LESS "2.1.0")
+        message(FATAL_ERROR "hx711-pico-c requires Raspberry Pi Pico SDK version 2.1.0 (or later). Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
 add_library(hx711-pico-c INTERFACE)
