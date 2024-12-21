@@ -567,11 +567,15 @@ bool util_pio_sm_try_get(
         check_sm_param(sm);
         assert(word != NULL);
 
-        if(pio_sm_get_rx_fifo_level(pio, sm) >= threshold) {
-            *word = pio_sm_get(pio, sm);
-            return true;
-        }
+        bool success = false;
 
-        return false;
+        UTIL_INTERRUPTS_OFF_BLOCK(
+            if(pio_sm_get_rx_fifo_level(pio, sm) >= threshold) {
+                *word = pio_sm_get(pio, sm);
+                success = true;
+            }
+        );
+
+        return success;
 
 }
