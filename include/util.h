@@ -205,6 +205,38 @@ inline uint8_t util_get_bits8(
 
 }
 
+inline uint16_t util_set_bits16(
+    uint16_t value,
+    const uint8_t startbit,
+    const uint8_t len,
+    const uint16_t bits) {
+
+    assert(startbit >= 0 && startbit <= 15);
+    assert(len >= 1 && len <= 16);
+    assert((startbit + len) <= 16);
+
+    const uint16_t mask = ((1 << len) - 1) << startbit;
+    value &= ~mask;
+    value |= (bits << startbit);
+    return value;
+
+}
+
+inline uint16_t util_get_bits16(
+    const uint16_t value,
+    const uint8_t startbit,
+    const uint8_t len) {
+
+    assert(startbit >= 0 && startbit <= 15);
+    assert(len >= 1 && len <= 16);
+    assert((startbit + len) <= 16);
+
+    const uint16_t mask = ((1 << len) - 1) << startbit;
+    const uint16_t extracted = (value & mask) >> startbit;
+
+    return extracted;
+}
+
 /**
  * @brief Check whether a DMA IRQ index is valid.
  * 

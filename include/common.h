@@ -27,6 +27,8 @@
 #include "hx711_multi.h"
 #include "hx711_i2c_master.h"
 #include "hx711_i2c_slave.h"
+#include "hx711_spi_master.h"
+#include "hx711_spi_slave.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +38,8 @@ extern const hx711_config_t HX711__DEFAULT_CONFIG;
 extern const hx711_multi_config_t HX711__MULTI_DEFAULT_CONFIG;
 extern const hx711_i2c_master_config_t HX711__I2C_MASTER_DEFAULT_CONFIG;
 extern const hx711_i2c_slave_config_t HX711__I2C_SLAVE_DEFAULT_CONFIG;
+extern const hx711_spi_master_config_t HX711__SPI_MASTER_DEFAULT_CONFIG;
+extern const hx711_spi_slave_config_t HX711__SPI_SLAVE_DEFAULT_CONFIG;
 
 void hx711_get_default_config(
     hx711_config_t* const cfg);
@@ -48,6 +52,12 @@ void hx711_i2c_master_get_default_config(
 
 void hx711_i2c_slave_get_default_config(
     hx711_i2c_slave_config_t* const cfg);
+
+void hx711_spi_master_get_default_config(
+    hx711_spi_master_config_t* const cfg);
+
+void hx711_spi_slave_get_default_config(
+    hx711_spi_slave_config_t* const cfg);
 
 #ifdef __cplusplus
 }

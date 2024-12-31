@@ -30,6 +30,10 @@
 #include "../include/hx711_multi.h"
 #include "../include/hx711_multi_awaiter.pio.h"
 #include "../include/hx711_multi_reader.pio.h"
+#include "../include/hx711_i2c_master.h"
+#include "../include/hx711_i2c_slave.h"
+#include "../include/hx711_spi_master.h"
+#include "../include/hx711_spi_slave.h"
 
 const hx711_config_t HX711__DEFAULT_CONFIG = {
     .clock_pin = 0,
@@ -71,6 +75,25 @@ const hx711_i2c_slave_config_t HX711__I2C_SLAVE_DEFAULT_CONFIG = {
     .hx = NULL
 };
 
+const hx711_spi_master_config_t HX711__SPI_MASTER_DEFAULT_CONFIG = {
+    .sck_pin = HX711_SPI_DEFAULT_SCK_PIN,
+    .csn_pin = HX711_SPI_DEFAULT_CSN_PIN,
+    .rx_pin = HX711_SPI_DEFAULT_RX_PIN,
+    .tx_pin = HX711_SPI_DEFAULT_TX_PIN,
+    .spi = HX711_SPI_DEFAULT_INST,
+    .baud_rate = HX711_SPI_BAUD_RATE
+};
+
+const hx711_spi_slave_config_t HX711__SPI_SLAVE_DEFAULT_CONFIG = {
+    .sck_pin = HX711_SPI_DEFAULT_SCK_PIN,
+    .csn_pin = HX711_SPI_DEFAULT_CSN_PIN,
+    .rx_pin = HX711_SPI_DEFAULT_RX_PIN,
+    .tx_pin = HX711_SPI_DEFAULT_TX_PIN,
+    .spi = HX711_SPI_DEFAULT_INST,
+    .baud_rate = HX711_SPI_BAUD_RATE,
+    .hx = NULL
+};
+
 void hx711_get_default_config(
     hx711_config_t* const cfg) {
         assert(cfg != NULL);
@@ -93,4 +116,16 @@ void hx711_i2c_slave_get_default_config(
     hx711_i2c_slave_config_t* const cfg) {
         assert(cfg != NULL);
         *cfg = HX711__I2C_SLAVE_DEFAULT_CONFIG;
+}
+
+void hx711_spi_master_get_default_config(
+    hx711_spi_master_config_t* const cfg) {
+        assert(cfg != NULL);
+        *cfg = HX711__SPI_MASTER_DEFAULT_CONFIG;
+}
+
+void hx711_spi_slave_get_default_config(
+    hx711_spi_slave_config_t* const cfg) {
+        assert(cfg != NULL);
+        *cfg = HX711__SPI_SLAVE_DEFAULT_CONFIG;
 }

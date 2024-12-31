@@ -68,7 +68,9 @@ target_link_libraries(hx711-pico-c INTERFACE
         hardware_i2c
         hardware_irq
         hardware_pio
+        hardware_spi
         hardware_timer
+        pico_divider
         pico_i2c_slave
         pico_mem_ops
         pico_platform
@@ -82,8 +84,10 @@ target_sources(hx711-pico-c INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_multi.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_i2c_master.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_i2c_slave.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/common.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_spi_master.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_spi_slave.c
         ${CMAKE_CURRENT_LIST_DIR}/src/util.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/common.c
         )
 
 # when running the tests in this project, build the main test exe

@@ -91,7 +91,6 @@ void hx711_i2c_buffer_to_control(
             HX711_I2C_CONTROL_NEW_VALUE_STATE_OFFSET,
             HX711_I2C_CONTROL_NEW_VALUE_STATE_SIZE);
 
-
         ctrl->power_state = (bool)util_get_bits8(
             buffer[HX711_I2C_CONTROL_METADATA_OFFSET_BYTES],
             HX711_I2C_CONTROL_POWER_STATE_OFFSET,
@@ -260,7 +259,6 @@ int hx711_i2c_master_get_control(
 
         assert(hx_i2c != NULL);
         assert(hx_i2c->_i2c != NULL);
-        assert(val != NULL);
         assert(control != NULL);
 
         uint8_t buffer[HX711_I2C_CONTROL_TOTAL_BYTES];

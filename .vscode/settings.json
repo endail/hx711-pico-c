@@ -52,6 +52,7 @@
         "functional": "cpp",
         "cstddef": "cpp",
         "irq.h": "c",
-        "dma.h": "c"
+        "dma.h": "c",
+        "pio.h": "c"
     }
 }
