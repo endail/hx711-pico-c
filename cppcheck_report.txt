@@ -4,6 +4,12 @@ include/util.h:173:25: style: Unsigned expression 'startbit' can't be negative s
 include/util.h:197:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
         assert(startbit >= 0 && startbit <= 7);
                         ^
+include/util.h:214:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    assert(startbit >= 0 && startbit <= 15);
+                    ^
+include/util.h:230:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    assert(startbit >= 0 && startbit <= 15);
+                    ^
 include/hx711_i2c_slave.h:95:16: warning: Size of pointer 'ctrl' used instead of size of its data. [pointerSize]
         memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
                ^
@@ -40,6 +46,21 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
+src/hx711_spi_master.c:212:38: style:inconclusive: Function 'hx711_spi_request_to_buffer' argument 1 names different: declaration 'ctrl' definition 'req'. [funcArgNamesDifferent]
+    const hx711_spi_request_t* const req,
+                                     ^
+include/hx711_spi_master.h:232:38: note: Function 'hx711_spi_request_to_buffer' argument 1 names different: declaration 'ctrl' definition 'req'.
+    const hx711_spi_request_t* const ctrl,
+                                     ^
+src/hx711_spi_master.c:212:38: note: Function 'hx711_spi_request_to_buffer' argument 1 names different: declaration 'ctrl' definition 'req'.
+    const hx711_spi_request_t* const req,
+                                     ^
+src/hx711_spi_slave.c:176:14: style: The scope of the variable 'haveRequest' can be reduced. [variableScope]
+        bool haveRequest = false;
+             ^
+src/hx711_spi_slave.c:176:26: style: Variable 'haveRequest' is assigned a value that is never used. [unreadVariable]
+        bool haveRequest = false;
+                         ^
 src/util.c:500:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
