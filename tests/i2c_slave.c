@@ -64,7 +64,7 @@ int main(void) {
     hx711_wait_settle(PROG_HX_RATE);
 
     // set new control bits
-    const hx711_i2c_control_t ctrlconf = {
+    const hx711_remote_control_t ctrlconf = {
         .ready_state = true,
         .new_value_state = false,
         .power_state = true,

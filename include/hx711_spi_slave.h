@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <hardware/spi.h>
 #include "hx711.h"
+#include "hx711_remote.h"
 #include "hx711_spi_master.h"
 
 #ifdef __cplusplus
@@ -42,8 +43,8 @@ typedef struct {
     uint _csn_pin;
     spi_inst_t* _spi;
     uint _baud_rate;
-
-    hx711_spi_control_t _memory;
+    bool _updating;
+    hx711_remote_control_t _memory;
 
     hx711_t* _hx;
 
@@ -64,7 +65,18 @@ typedef struct {
 
 static bool hx711_spi_slave_try_get_request(
     hx711_spi_slave_t* const hx_spi,
-    hx711_spi_request_t* const req);
+    hx711_remote_request_t* const req);
+
+static void hx711_spi_slave_transmit_control(
+    hx711_spi_slave_t* const hx_spi);
+
+static void hx711_spi_slave_change_power(
+    hx711_spi_slave_t* const hx_spi,
+    const hx711_remote_request_t* const req);
+
+static void hx711_spi_slave_change_gain(
+    hx711_spi_slave_t* const hx_spi,
+    const hx711_remote_request_t* const req);
 
 /**
  * @brief Initialise SPI slave device.
@@ -83,17 +95,6 @@ void hx711_spi_slave_init(
  */
 void hx711_spi_slave_close(
     hx711_spi_slave_t* const hx_spi);
-
-static void hx711_spi_slave_transmit_control(
-    hx711_spi_slave_t* const hx_spi);
-
-static void hx711_spi_slave_change_power(
-    hx711_spi_slave_t* const hx_spi,
-    const hx711_spi_request_t* const req);
-
-static void hx711_spi_slave_change_gain(
-    hx711_spi_slave_t* const hx_spi,
-    const hx711_spi_request_t* const req);
 
 /**
  * @brief Listen for incoming SPI messages and respond.

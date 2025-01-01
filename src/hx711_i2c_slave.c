@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "../include/hx711.h"
+#include "../include/hx711_remote.h"
 #include "../include/hx711_i2c_slave.h"
 #include "../include/util.h"
 
@@ -173,13 +174,13 @@ void hx711_i2c_slave_handler(
         case I2C_SLAVE_RECEIVE:
             // data available from master to read
 
-            uint8_t reqbuff[HX711_I2C_REQUEST_TOTAL_SIZE_BYTES];
+            uint8_t reqbuff[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
 
-            for(size_t i = 0; i < HX711_I2C_REQUEST_TOTAL_SIZE_BYTES; ++i) {
+            for(size_t i = 0; i < HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES; ++i) {
                 reqbuff[i] = i2c_read_byte_raw(hx_i2c->_i2c);
             }
 
-            hx711_i2c_buffer_to_request(
+            hx711_remote_buffer_to_request(
                 reqbuff,
                 &hx_i2c->_inreq);
 
@@ -188,13 +189,13 @@ void hx711_i2c_slave_handler(
         case I2C_SLAVE_REQUEST:
             // send data
 
-            uint8_t ctrlbuff[HX711_I2C_CONTROL_TOTAL_BYTES];
+            uint8_t ctrlbuff[HX711_REMOTE_CONTROL_TOTAL_BYTES];
 
-            hx711_i2c_control_to_buffer(
+            hx711_remote_control_to_buffer(
                 &hx_i2c->_memory,
                 ctrlbuff);
 
-            for(size_t i = 0; i < HX711_I2C_CONTROL_TOTAL_BYTES; ++i) {
+            for(size_t i = 0; i < HX711_REMOTE_CONTROL_TOTAL_BYTES; ++i) {
                 i2c_write_byte_raw(i2c, ctrlbuff[i]);
             }
 
@@ -215,14 +216,14 @@ void hx711_i2c_slave_update_loop(
     hx711_i2c_slave_t* const hx_i2c) {
 
         int32_t val;
-        hx711_i2c_request_t req;
+        hx711_remote_request_t req;
 
         // continuing updating data while this flag is set
         while(hx_i2c->_updating) {
 
             // only get new hx711 values if the slave is ready and the chip
             // is in a powered-on state
-            if(hx711_i2c_control_ok(&hx_i2c->_memory)) {
+            if(hx711_remote_control_ok(&hx_i2c->_memory)) {
                 if(hx711_get_value_noblock(hx_i2c->_hx, &val)) {
                     UTIL_INTERRUPTS_OFF_BLOCK(
                         hx_i2c->_memory.value = val;
@@ -239,14 +240,14 @@ void hx711_i2c_slave_update_loop(
             );
 
             switch(req.cmd) {
-            case hx711_i2c_command_none:
-            case hx711_i2c_command_get_value:
+            case hx711_remote_command_none:
+            case hx711_remote_command_get_value:
             default:
                 // do nothing in these cases;
                 // slave auto-updates values from hx711
                 break;
 
-            case hx711_i2c_command_change_power_state:
+            case hx711_remote_command_change_power_state:
 
                 // changing power state either up or down so change
                 // control data to indicate the slave is not ready
@@ -271,7 +272,7 @@ void hx711_i2c_slave_update_loop(
                 hx_i2c->_memory.ready_state = true;
                 break;
 
-            case hx711_i2c_command_change_gain:
+            case hx711_remote_command_change_gain:
 
                 hx_i2c->_memory.ready_state = false;
                 hx_i2c->_memory.new_value_state = false;

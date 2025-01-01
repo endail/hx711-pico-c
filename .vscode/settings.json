@@ -53,6 +53,8 @@
         "cstddef": "cpp",
         "irq.h": "c",
         "dma.h": "c",
-        "pio.h": "c"
+        "pio.h": "c",
+        "compare": "c",
+        "*.inc": "c"
     }
 }

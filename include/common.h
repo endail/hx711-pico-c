@@ -25,6 +25,7 @@
 
 #include "hx711.h"
 #include "hx711_multi.h"
+#include "hx711_remote.h"
 #include "hx711_i2c_master.h"
 #include "hx711_i2c_slave.h"
 #include "hx711_spi_master.h"

@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "hx711_remote.h"
 #include "hx711_i2c_master.h"
 
 #ifdef __cplusplus
@@ -50,8 +51,8 @@ typedef struct {
     uint _baud_rate;
     uint8_t _addr;
     hx711_t* _hx;
-    hx711_i2c_control_t _memory;
-    hx711_i2c_request_t _inreq;
+    hx711_remote_control_t _memory;
+    hx711_remote_request_t _inreq;
     bool _updating;
 } hx711_i2c_slave_t;
 
@@ -89,7 +90,7 @@ void hx711_i2c_slave_init(
 
 inline void hx711_i2c_slave_get_control(
     hx711_i2c_slave_t* const hx_i2c,
-    hx711_i2c_control_t* const ctrl) {
+    hx711_remote_control_t* const ctrl) {
         assert(hx_i2c != NULL);
         assert(ctrl != NULL);
         memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
@@ -97,7 +98,7 @@ inline void hx711_i2c_slave_get_control(
 
 inline void hx711_i2c_slave_set_control(
     hx711_i2c_slave_t* const hx_i2c,
-    const hx711_i2c_control_t* const ctrl) {
+    const hx711_remote_control_t* const ctrl) {
         assert(hx_i2c != NULL);
         assert(ctrl != NULL);
         assert(hx711_is_gain_valid(ctrl->gain));

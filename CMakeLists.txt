@@ -82,6 +82,7 @@ target_link_libraries(hx711-pico-c INTERFACE
 target_sources(hx711-pico-c INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_multi.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/hx711_remote.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_i2c_master.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_i2c_slave.c
         ${CMAKE_CURRENT_LIST_DIR}/src/hx711_spi_master.c

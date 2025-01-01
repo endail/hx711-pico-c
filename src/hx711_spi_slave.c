@@ -30,25 +30,92 @@
 #include <stdint.h>
 #include <string.h>
 #include "../include/hx711.h"
+#include "../include/hx711_remote.h"
 #include "../include/hx711_spi_slave.h"
 #include "../include/util.h"
 
-static bool hx711_spi_slave_try_get_request(
+bool hx711_spi_slave_try_get_request(
     hx711_spi_slave_t* const hx_spi,
-    hx711_spi_request_t* const req) {
+    hx711_remote_request_t* const req) {
 
-        uint8_t data[HX711_SPI_REQUEST_TOTAL_SIZE_BYTES];
+        assert(hx_spi != NULL);
+        assert(hx_spi->_spi != NULL);
+        assert(req != NULL);
+
+        uint8_t data[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
 
         const bool success = hx711_spi_try_receive_data(
             hx_spi->_spi,
             data,
-            HX711_SPI_REQUEST_TOTAL_SIZE_BYTES);
+            HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES);
 
         if(success) {
-            hx711_spi_buffer_to_request(data, req);
+            hx711_remote_buffer_to_request(data, req);
         }
 
         return success;
+
+}
+
+void hx711_spi_slave_transmit_control(
+    hx711_spi_slave_t* const hx_spi) {
+
+        assert(hx_spi != NULL);
+        assert(hx_spi->_spi != NULL);
+
+        uint8_t buffer[HX711_REMOTE_CONTROL_TOTAL_BYTES];
+
+        hx711_remote_control_to_buffer(
+            &hx_spi->_memory,
+            buffer);
+
+        hx711_spi_send_data_chunked(
+            hx_spi->_spi,
+            buffer,
+            HX711_REMOTE_CONTROL_TOTAL_BYTES);
+
+}
+
+void hx711_spi_slave_change_power(
+    hx711_spi_slave_t* const hx_spi,
+    const hx711_remote_request_t* const req) {
+
+        assert(hx_spi != NULL);
+        assert(hx_spi->_spi != NULL);
+        assert(req != NULL);
+
+        hx_spi->_memory.ready_state = false;
+        hx_spi->_memory.new_value_state = false;
+
+        if(req->power_state) {
+            hx711_power_up(hx_spi->_hx, req->gain);
+            hx_spi->_memory.power_state = true;
+            hx711_wait_settle(req->rate);
+        }
+        else {
+            hx711_power_down(hx_spi->_hx);
+            hx_spi->_memory.power_state = false;
+            hx711_wait_power_down();
+        }
+
+        hx_spi->_memory.ready_state = true;
+
+}
+
+static void hx711_spi_slave_change_gain(
+    hx711_spi_slave_t* const hx_spi,
+    const hx711_remote_request_t* const req) {
+
+        assert(hx_spi != NULL);
+        assert(req != NULL);
+
+        hx_spi->_memory.ready_state = false;
+        hx_spi->_memory.new_value_state = false;
+
+        hx711_set_gain(hx_spi->_hx, req->gain);
+        hx711_wait_settle(req->rate);
+
+        hx_spi->_memory.ready_state = true;
 
 }
 
@@ -90,6 +157,8 @@ void hx711_spi_slave_init(
 
         gpio_pull_up(hx_spi->_csn_pin);
 
+        hx_spi->_updating = true;
+
         spi_init(
             hx_spi->_spi,
             hx_spi->_baud_rate);
@@ -114,74 +183,19 @@ void hx711_spi_slave_close(
         spi_deinit(hx_spi->_spi);
 }
 
-void hx711_spi_slave_transmit_control(
+void hx711_spi_slave_listen(
     hx711_spi_slave_t* const hx_spi) {
 
         assert(hx_spi != NULL);
         assert(hx_spi->_spi != NULL);
 
-        uint8_t buffer[HX711_SPI_CONTROL_TOTAL_BYTES];
-
-        hx711_spi_control_to_buffer(
-            &hx_spi->_memory,
-            buffer);
-
-        hx711_spi_send_data_chunked(
-            hx_spi->_spi,
-            buffer,
-            HX711_SPI_CONTROL_TOTAL_BYTES);
-
-}
-
-void hx711_spi_slave_change_power(
-    hx711_spi_slave_t* const hx_spi,
-    const hx711_spi_request_t* const req) {
-
-        hx_spi->_memory.ready_state = false;
-        hx_spi->_memory.new_value_state = false;
-
-        if(req->power_state) {
-            hx711_power_up(hx_spi->_hx, req->gain);
-            hx_spi->_memory.power_state = true;
-            hx711_wait_settle(req->rate);
-        }
-        else {
-            hx711_power_down(hx_spi->_hx);
-            hx_spi->_memory.power_state = false;
-            hx711_wait_power_down();
-        }
-
-        hx_spi->_memory.ready_state = true;
-
-}
-
-static void hx711_spi_slave_change_gain(
-    hx711_spi_slave_t* const hx_spi,
-    const hx711_spi_request_t* const req) {
-
-        hx_spi->_memory.ready_state = false;
-        hx_spi->_memory.new_value_state = false;
-
-        hx711_set_gain(hx_spi->_hx, req->gain);
-        hx711_wait_settle(req->rate);
-
-        hx_spi->_memory.ready_state = true;
-
-}
-
-void hx711_spi_slave_listen(
-    hx711_spi_slave_t* const hx_spi) {
-
         int32_t val;
         bool haveRequest = false;
-        hx711_spi_request_t req;
+        hx711_remote_request_t req;
 
-        while(true) {
+        while(hx_spi->_updating) {
 
-            memset(&req, 0, sizeof(req));
-            haveRequest = hx711_spi_slave_try_get_request(hx_spi, &req);
-
-            if(hx711_spi_control_ok(&hx_spi->_memory)) {
+            if(hx711_remote_control_ok(&hx_spi->_memory)) {
                 if(hx711_get_value_noblock(hx_spi->_hx, &val)) {
                     hx_spi->_memory.value = val;
                     hx_spi->_memory.new_value_state = true;
@@ -190,21 +204,24 @@ void hx711_spi_slave_listen(
                 }
             }
 
+            memset(&req, 0, sizeof(req));
+            haveRequest = hx711_spi_slave_try_get_request(hx_spi, &req);
+
             if(haveRequest) {
                 switch(req.cmd) {
-                case hx711_spi_command_none:
+                case hx711_remote_command_none:
                 default:
                     break;
 
-                case hx711_spi_command_get_value:
+                case hx711_remote_command_get_value:
                     hx711_spi_slave_transmit_control(hx_spi);
                     break;
 
-                case hx711_spi_command_change_power_state:
+                case hx711_remote_command_change_power_state:
                     hx711_spi_slave_change_power(hx_spi, &req);
                     break;
 
-                case hx711_spi_command_change_gain:
+                case hx711_remote_command_change_gain:
                 hx711_spi_slave_change_gain(hx_spi, &req);
                     break;
                 }
