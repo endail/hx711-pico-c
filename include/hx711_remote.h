@@ -116,6 +116,8 @@ typedef struct {
     hx711_rate_t rate;
 } hx711_remote_request_t;
 
+extern const hx711_remote_control_t HX711_REMOTE_CONTROL_DEFAULTS;
+
 /**
  * @brief Convert a 32-bit value from a HX711 to
  * a 3-byte array.
@@ -150,6 +152,9 @@ inline int32_t hx711_remote_array_to_value(
         return val;
 }
 
+void hx711_remote_control_get_defaults(
+    hx711_remote_control_t* const ctrl);
+
 void hx711_remote_control_to_buffer(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer);
@@ -168,6 +173,7 @@ void hx711_remote_buffer_to_request(
 
 inline bool hx711_remote_control_ok(
     const hx711_remote_control_t* const ctrl) {
+        assert(ctrl != NULL);
         return ctrl->ready_state &&
             ctrl->power_state &&
             ctrl->new_value_state;

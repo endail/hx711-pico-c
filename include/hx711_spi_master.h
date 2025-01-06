@@ -88,10 +88,10 @@ typedef struct {
     bool is_first;
     bool is_last;
     bool is_continuing;
-    bool unused_4;
+/*  bool unused_4;
     bool unused_5;
     bool unused_6;
-    bool unused_7;
+    bool unused_7; */
     uint8_t data;
 } hx711_spi_frame_t;
 

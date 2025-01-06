@@ -39,10 +39,10 @@ const hx711_spi_frame_t HX711_SPI_NULL_FRAME = {
     .is_first =         false,
     .is_last =          false,
     .is_continuing =    false,
-    .unused_4 =         false,
+/*  .unused_4 =         false,
     .unused_5 =         false,
     .unused_6 =         false,
-    .unused_7 =         false,
+    .unused_7 =         false, */
     .data =             0
 };
 
@@ -266,7 +266,7 @@ void hx711_spi_receive_first_frame_blocking(
         do {
             hx711_spi_receive_frame_blocking(spi, &f);
         }
-        while(!f.is_first);
+        while(f.not_null && !f.is_first);
 
         *frame = f;
 

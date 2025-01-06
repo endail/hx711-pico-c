@@ -129,6 +129,8 @@ void hx711_i2c_slave_init(
             hx711_i2c__slave_add_slave(hx_i2c);
         );
 
+        hx711_remote_control_get_defaults(&hx_i2c->_memory);
+
         hx_i2c->_updating = true;
 
         i2c_init(

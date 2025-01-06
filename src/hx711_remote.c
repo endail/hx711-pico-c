@@ -25,8 +25,24 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../include/hx711.h"
 #include "../include/hx711_remote.h"
 #include "../include/util.h"
+
+const hx711_remote_control_t HX711_REMOTE_CONTROL_DEFAULTS = {
+    .ready_state = false,
+    .new_value_state = false,
+    .power_state = false,
+    .gain = hx711_gain_128,
+    .rate = hx711_rate_10,
+    .value = 0
+};
+
+void hx711_remote_control_get_defaults(
+    hx711_remote_control_t* const ctrl) {
+        assert(ctrl != NULL);
+        *ctrl = HX711_REMOTE_CONTROL_DEFAULTS;
+}
 
 void hx711_remote_control_to_buffer(
     const hx711_remote_control_t* const ctrl,

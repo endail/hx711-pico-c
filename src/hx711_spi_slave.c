@@ -157,6 +157,8 @@ void hx711_spi_slave_init(
 
         gpio_pull_up(hx_spi->_csn_pin);
 
+        hx711_remote_control_get_defaults(&hx_spi->_memory);
+
         hx_spi->_updating = true;
 
         spi_init(
@@ -190,12 +192,12 @@ void hx711_spi_slave_listen(
         assert(hx_spi->_spi != NULL);
 
         int32_t val;
-        bool haveRequest = false;
         hx711_remote_request_t req;
 
         while(hx_spi->_updating) {
 
-            if(hx711_remote_control_ok(&hx_spi->_memory)) {
+            // only check for new values if ready and powered on
+            if(hx_spi->_memory.ready_state && hx_spi->_memory.power_state) {
                 if(hx711_get_value_noblock(hx_spi->_hx, &val)) {
                     hx_spi->_memory.value = val;
                     hx_spi->_memory.new_value_state = true;
@@ -204,28 +206,29 @@ void hx711_spi_slave_listen(
                 }
             }
 
-            memset(&req, 0, sizeof(req));
-            haveRequest = hx711_spi_slave_try_get_request(hx_spi, &req);
-
-            if(haveRequest) {
-                switch(req.cmd) {
-                case hx711_remote_command_none:
-                default:
-                    break;
-
-                case hx711_remote_command_get_value:
-                    hx711_spi_slave_transmit_control(hx_spi);
-                    break;
-
-                case hx711_remote_command_change_power_state:
-                    hx711_spi_slave_change_power(hx_spi, &req);
-                    break;
-
-                case hx711_remote_command_change_gain:
-                hx711_spi_slave_change_gain(hx_spi, &req);
-                    break;
-                }
+            if(!hx711_spi_slave_try_get_request(hx_spi, &req)) {
+                continue;
             }
+
+            switch(req.cmd) {
+            case hx711_remote_command_get_value:
+                hx711_spi_slave_transmit_control(hx_spi);
+                break;
+
+            case hx711_remote_command_change_power_state:
+                hx711_spi_slave_change_power(hx_spi, &req);
+                break;
+
+            case hx711_remote_command_change_gain:
+                hx711_spi_slave_change_gain(hx_spi, &req);
+                break;
+
+            case hx711_remote_command_none:
+            default:
+                break;
+            }
+
+            memset(&req, 0, sizeof(req));
 
         }
 
