@@ -25,7 +25,7 @@ src/hx711_i2c_slave.c:85:36: error: Array 'hx711_i2c__slave_map[1]' accessed at 
 src/hx711_i2c_slave.c:80:16: error: Uninitialized variable: *slave [uninitvar]
         assert(*slave != NULL);
                ^
-src/hx711_i2c_slave.c:168:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
+src/hx711_i2c_slave.c:170:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
         hx711_i2c__slave_get_slave(i2c, &hx_i2c);
                                         ^
 src/hx711_i2c_slave.c:80:16: note: Uninitialized variable: *slave
@@ -34,7 +34,7 @@ src/hx711_i2c_slave.c:80:16: note: Uninitialized variable: *slave
 src/hx711_i2c_slave.c:128:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/hx711_i2c_slave.c:154:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+src/hx711_i2c_slave.c:156:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
 src/hx711_multi.c:590:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
@@ -46,12 +46,6 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/hx711_spi_slave.c:193:14: style: The scope of the variable 'haveRequest' can be reduced. [variableScope]
-        bool haveRequest = false;
-             ^
-src/hx711_spi_slave.c:193:26: style: Variable 'haveRequest' is assigned a value that is never used. [unreadVariable]
-        bool haveRequest = false;
-                         ^
 src/util.c:500:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
