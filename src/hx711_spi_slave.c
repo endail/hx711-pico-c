@@ -121,7 +121,7 @@ static void hx711_spi_slave_change_gain(
 
 void hx711_spi_slave_init(
     hx711_spi_slave_t* const hx_spi,
-    const hx711_spi_slave_config_t * const hx_spi_config) {
+    const hx711_spi_slave_config_t* const hx_spi_config) {
 
         assert(hx_spi != NULL);
         assert(hx_spi_config != NULL);
