@@ -34,6 +34,108 @@
 #include "../include/hx711_i2c_master.h"
 #include "../include/util.h"
 
+void hx711_i2c_remote_request_to_buffer(
+    const hx711_remote_request_t* const req,
+    uint8_t* const buffer) {
+
+        assert(req != NULL);
+        assert(buffer != NULL);
+
+        uint8_t* ptr = buffer;
+
+        // set request data at start of buffer
+        hx711_remote_request_to_buffer(req, ptr);
+
+        // calculate crc based on data currently in buffer
+        const uint8_t crc = util_crc8(*ptr, HX711_I2C_CRC8_POLYNOMIAL);
+
+        // now increment the pointer to the next address after
+        // request data
+        ptr += HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES;
+
+        // and set the crc
+        *ptr = crc;
+
+}
+
+void hx711_i2c_remote_control_to_buffer(
+    const hx711_remote_control_t* const ctrl,
+    uint8_t* const buffer) {
+
+        assert(ctrl != NULL);
+        assert(buffer != NULL);
+
+        uint8_t* ptr = buffer;
+
+        // set control data at start of buffer
+        hx711_remote_control_to_buffer(ctrl, ptr);
+
+        // calculate crc based on data currently in buffer
+        const uint32_t crc = util_crc32(
+            ptr,
+            HX711_REMOTE_CONTROL_TOTAL_BYTES,
+            HX711_I2C_CRC32_POLYNOMIAL);
+
+        // now increment the pointer to the next address after
+        // control data
+        ptr += HX711_REMOTE_CONTROL_TOTAL_BYTES;
+
+        // and set the crc
+        memcpy(ptr, &crc, HX711_I2C_REMOTE_CONTROL_CRC_SIZE_BYTES);
+
+}
+
+bool hx711_i2c_buffer_to_remote_request(
+    const uint8_t* const buffer,
+    hx711_remote_request_t* const req) {
+
+        assert(buffer != NULL);
+        assert(req != NULL);
+
+        uint8_t* ptr = (uint8_t*)buffer;
+
+        // parse out the request data
+        hx711_remote_buffer_to_request(ptr, req);
+
+        // calculate the crc of the request data
+        const uint8_t calcd_crc = util_crc8(*ptr, HX711_I2C_CRC8_POLYNOMIAL);
+
+        // increment the pointer to the transmitted crc
+        ptr += HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES;
+        const uint8_t raw_crc = *ptr;
+
+        // and check if crcs match
+        return calcd_crc == raw_crc;
+
+}
+
+bool hx711_i2c_buffer_to_remote_control(
+    const uint8_t* const buffer,
+    hx711_remote_control_t* const ctrl) {
+
+        assert(buffer != NULL);
+        assert(ctrl != NULL);
+
+        uint8_t* ptr = (uint8_t*)buffer;
+
+        // parse out the control data
+        hx711_remote_buffer_to_control(ptr, ctrl);
+
+        // calculate the crc of the control data
+        const uint32_t calcd_crc = util_crc32(
+            ptr,
+            HX711_I2C_REMOTE_CONTROL_CRC_SIZE_BYTES,
+            HX711_I2C_CRC32_POLYNOMIAL);
+
+        // increment the pointer to the transmitted crc
+        ptr += HX711_REMOTE_CONTROL_TOTAL_BYTES;
+        const uint32_t raw_crc = (uint32_t)*ptr;
+
+        // and check if crcs match
+        return calcd_crc == raw_crc;
+
+}
+
 void hx711_i2c_master_init(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_i2c_master_config_t* const hx_i2c_config) {
@@ -90,17 +192,15 @@ int hx711_i2c_master_set_gain(
         assert(hx711_is_gain_valid(gain));
         assert(hx711_is_rate_valid(rate));
 
+        uint8_t buffer[HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES];
+
         const hx711_remote_request_t req = {
             .cmd = hx711_remote_command_change_gain,
             .gain = gain,
             .rate = rate
         };
 
-        uint8_t buffer[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
-
-        hx711_remote_request_to_buffer(
-            &req,
-            buffer);
+        hx711_i2c_remote_request_to_buffer(&req, buffer);
 
         return i2c_write_blocking(
             hx_i2c->_i2c,
@@ -119,25 +219,26 @@ int hx711_i2c_master_get_control(
         assert(hx_i2c->_i2c != NULL);
         assert(control != NULL);
 
-        uint8_t buffer[HX711_REMOTE_CONTROL_TOTAL_BYTES];
+        uint8_t buffer[HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES];
 
         const int bytesRead = i2c_read_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             buffer,
-            HX711_REMOTE_CONTROL_TOTAL_BYTES,
+            HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES,
             true);
 
-        if(bytesRead != HX711_REMOTE_CONTROL_TOTAL_BYTES) {
+        // TODO: probably change this
+        if(bytesRead != HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES) {
             // eg. incorrect number of bytes received
             return bytesRead;
         }
 
-        hx711_remote_buffer_to_control(
+        const bool success = hx711_i2c_buffer_to_remote_control(
             buffer,
             ctrl);
 
-        return PICO_OK;
+        return success ? PICO_OK : PICO_ERROR_IO;
 
 }
 
@@ -176,9 +277,9 @@ int hx711_i2c_master_power_up(
             .rate = rate
         };
 
-        uint8_t buffer[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
+        uint8_t buffer[HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES];
 
-        hx711_remote_request_to_buffer(
+        hx711_i2c_remote_request_to_buffer(
             &req,
             buffer);
 
@@ -202,9 +303,9 @@ int hx711_i2c_master_power_down(
             .power_state = false
         };
 
-        uint8_t buffer[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
+        uint8_t buffer[HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES];
 
-        hx711_remote_request_to_buffer(
+        hx711_i2c_remote_request_to_buffer(
             &req,
             buffer);
 

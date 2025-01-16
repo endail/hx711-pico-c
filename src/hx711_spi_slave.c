@@ -42,15 +42,15 @@ bool hx711_spi_slave_try_get_request(
         assert(hx_spi->_spi != NULL);
         assert(req != NULL);
 
-        uint8_t data[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
+        uint8_t data[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        const bool success = hx711_spi_try_receive_data(
+        const bool success = spifixedframe_recv_bytes(
             hx_spi->_spi,
             data,
-            HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES);
+            HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
 
         if(success) {
-            hx711_remote_buffer_to_request(data, req);
+            return hx711_spi_buffer_to_remote_request(data, req);
         }
 
         return success;
@@ -63,16 +63,16 @@ void hx711_spi_slave_transmit_control(
         assert(hx_spi != NULL);
         assert(hx_spi->_spi != NULL);
 
-        uint8_t buffer[HX711_REMOTE_CONTROL_TOTAL_BYTES];
+        uint8_t buffer[HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES];
 
-        hx711_remote_control_to_buffer(
+        hx711_spi_remote_control_to_buffer(
             &hx_spi->_memory,
             buffer);
 
-        hx711_spi_send_data_chunked(
+        spifixedframe_send_bytes(
             hx_spi->_spi,
             buffer,
-            HX711_REMOTE_CONTROL_TOTAL_BYTES);
+            HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES);
 
 }
 
@@ -167,7 +167,7 @@ void hx711_spi_slave_init(
 
         spi_set_format(
             hx_spi->_spi,
-            HX711_SPI_BITS_PER_TRANSFER,
+            SPIFIXEDFRAME_TOTAL_BITS,
             SPI_CPOL_0,
             SPI_CPHA_0,
             SPI_MSB_FIRST);

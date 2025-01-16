@@ -34,6 +34,7 @@
 #include <pico/types.h>
 #include "hx711.h"
 #include "hx711_remote.h"
+#include "spifixedframe.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,22 +46,15 @@ extern "C" {
 #define HX711_SPI_DEFAULT_TX_PIN                    PICO_DEFAULT_SPI_TX_PIN
 #define HX711_SPI_DEFAULT_INST                      spi_default
 #define HX711_SPI_BAUD_RATE                         4000000u
-#define HX711_SPI_BITS_PER_TRANSFER                 16u
 
-#define HX711_SPI_FRAME_FLAGS_OFFSET                0u
-#define HX711_SPI_FRAME_FLAGS_NOT_NULL_OFFSET       0u
-#define HX711_SPI_FRAME_FLAGS_FIRST_OFFSET          1u
-#define HX711_SPI_FRAME_FLAGS_LAST_OFFSET           2u
-#define HX711_SPI_FRAME_FLAGS_CONTINUING_OFFSET     3u
-#define HX711_SPI_FRAME_DATA_OFFSET                 7u
+#define HX711_SPI_REMOTE_REQUEST_CRC_SIZE_BYTES     sizeof(uint8_t)
+#define HX711_SPI_REMOTE_CONTROL_CRC_SIZE_BYTES     sizeof(uint32_t)
 
-#define HX711_SPI_FRAME_SIZE                        HX711_SPI_BITS_PER_TRANSFER
-#define HX711_SPI_FRAME_FLAGS_SIZE                  8u
-#define HX711_SPI_FRAME_FLAGS_NOT_NULL_SIZE         1u
-#define HX711_SPI_FRAME_FLAGS_FIRST_SIZE            1u
-#define HX711_SPI_FRAME_FLAGS_LAST_SIZE             1u
-#define HX711_SPI_FRAME_FLAGS_CONTINUING_SIZE       1u
-#define HX711_SPI_FRAME_DATA_SIZE                   8u
+#define HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES        ((HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES) + (HX711_SPI_REMOTE_REQUEST_CRC_SIZE_BYTES))
+#define HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES        ((HX711_REMOTE_CONTROL_TOTAL_BYTES) + (HX711_SPI_REMOTE_CONTROL_CRC_SIZE_BYTES))
+
+#define HX711_SPI_CRC8_POLYNOMIAL                   0x07u
+#define HX711_SPI_CRC32_POLYNOMIAL                  0xEDB88320u
 
 #define HX711_SPI_ATOMIC(CSN_PIN, ...) \
     do { \
@@ -68,32 +62,6 @@ extern "C" {
         __VA_ARGS__ \
         gpio_put(CSN_PIN, true); \
     } while (0)
-
-// ensure each buffer type is using 16 bit type
-typedef uint16_t hx711_spi_buffer_t;
-
-/**
- * SPI Frame Structure (16 bits)
- * | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
- * 0th = not null frame
- * 1th = first frame
- * 2nd = last frame
- * 3rd = continuing frame
- * 4-7 = unused
- * 8-15 = data
- */
-
-typedef struct {
-    bool not_null;
-    bool is_first;
-    bool is_last;
-    bool is_continuing;
-/*  bool unused_4;
-    bool unused_5;
-    bool unused_6;
-    bool unused_7; */
-    uint8_t data;
-} hx711_spi_frame_t;
 
 typedef struct {
 
@@ -119,53 +87,21 @@ typedef struct {
 
 } hx711_spi_master_config_t;
 
-extern const hx711_spi_frame_t HX711_SPI_NULL_FRAME;
+void hx711_spi_remote_request_to_buffer(
+    const hx711_remote_request_t* const req,
+    uint8_t* const buffer);
 
-void hx711_spi_frame_to_buffer(
-    const hx711_spi_frame_t* const frame,
-    hx711_spi_buffer_t* const buffer);
+void hx711_spi_remote_control_to_buffer(
+    const hx711_remote_control_t* const ctrl,
+    uint8_t* const buffer);
 
-void hx711_spi_buffer_to_frame(
-    const hx711_spi_buffer_t* const buffer,
-    hx711_spi_frame_t* const frame);
+bool hx711_spi_buffer_to_remote_request(
+    const uint8_t* const buffer,
+    hx711_remote_request_t* const req);
 
-size_t hx711_spi_calculate_frame_count(
-    const size_t bitsLen);
-
-void hx711_spi_send_data_chunked(
-    spi_inst_t* const spi,
-    const uint8_t* const data,
-    const size_t dataLenBytes);
-
-bool hx711_spi_try_receive_frame(
-    spi_inst_t* const spi,
-    hx711_spi_frame_t* const frame);
-
-void hx711_spi_receive_frame_blocking(
-    spi_inst_t* const spi,
-    hx711_spi_frame_t* const frame);
-
-void hx711_spi_receive_first_frame_blocking(
-    spi_inst_t* const spi,
-    hx711_spi_frame_t* const frame);
-
-bool hx711_spi_try_receive_data(
-    spi_inst_t* const spi,
-    uint8_t* const data,
-    const size_t dataLenBytes);
-
-/**
- * @brief 
- * 
- * @param spi 
- * @param data 
- * @param dataLenBytes 
- * @return size_t number of bytes received
- */
-size_t hx711_spi_receive_data_chunked(
-    spi_inst_t* const spi,
-    uint8_t* const data,
-    const size_t dataLenBytes);
+bool hx711_spi_buffer_to_remote_control(
+    const uint8_t* const buffer,
+    hx711_remote_control_t* const ctrl);
 
 void hx711_spi_master_init(
     hx711_spi_master_t* const hx_spi,

@@ -237,6 +237,15 @@ inline uint16_t util_get_bits16(
     return extracted;
 }
 
+uint8_t util_crc8(
+    uint8_t data,
+    const uint8_t polynomial);
+
+uint32_t util_crc32(
+    const uint8_t* const data,
+    const size_t len,
+    const uint32_t polynomial);
+
 /**
  * @brief Check whether a DMA IRQ index is valid.
  * 

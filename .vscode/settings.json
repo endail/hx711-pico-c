@@ -55,6 +55,8 @@
         "dma.h": "c",
         "pio.h": "c",
         "compare": "c",
-        "*.inc": "c"
+        "*.inc": "c",
+        "spifixedframe.h": "c",
+        "stdlib.h": "c"
     }
 }

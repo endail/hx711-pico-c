@@ -38,11 +38,20 @@
 extern "C" {
 #endif
 
-#define HX711_I2C_DEFAULT_SCL_PIN               PICO_DEFAULT_I2C_SCL_PIN
-#define HX711_I2C_DEFAULT_SDA_PIN               PICO_DEFAULT_I2C_SDA_PIN
-#define HX711_I2C_DEFAULT_INST                  i2c_default
-#define HX711_I2C_DEFAULT_BAUD_RATE             100000u
-#define HX711_I2C_DEFAULT_I2C_ADDR              0x64
+#define HX711_I2C_DEFAULT_SCL_PIN                   PICO_DEFAULT_I2C_SCL_PIN
+#define HX711_I2C_DEFAULT_SDA_PIN                   PICO_DEFAULT_I2C_SDA_PIN
+#define HX711_I2C_DEFAULT_INST                      i2c_default
+#define HX711_I2C_DEFAULT_BAUD_RATE                 100000u
+#define HX711_I2C_DEFAULT_I2C_ADDR                  0x64
+
+#define HX711_I2C_REMOTE_REQUEST_CRC_SIZE_BYTES     sizeof(uint8_t)
+#define HX711_I2C_REMOTE_CONTROL_CRC_SIZE_BYTES     sizeof(uint32_t)
+
+#define HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES        ((HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES) + (HX711_I2C_REMOTE_REQUEST_CRC_SIZE_BYTES))
+#define HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES        ((HX711_REMOTE_CONTROL_TOTAL_BYTES) + (HX711_I2C_REMOTE_CONTROL_CRC_SIZE_BYTES))
+
+#define HX711_I2C_CRC8_POLYNOMIAL                   0x07u
+#define HX711_I2C_CRC32_POLYNOMIAL                  0xEDB88320u
 
 typedef struct {
     uint _scl_pin;
@@ -59,6 +68,22 @@ typedef struct {
     uint baud_rate;
     uint8_t addr;
 } hx711_i2c_master_config_t;
+
+void hx711_i2c_remote_request_to_buffer(
+    const hx711_remote_request_t* const req,
+    uint8_t* const buffer);
+
+void hx711_i2c_remote_control_to_buffer(
+    const hx711_remote_control_t* const ctrl,
+    uint8_t* const buffer);
+
+bool hx711_i2c_buffer_to_remote_request(
+    const uint8_t* const buffer,
+    hx711_remote_request_t* const req);
+
+bool hx711_i2c_buffer_to_remote_control(
+    const uint8_t* const buffer,
+    hx711_remote_control_t* const ctrl);
 
 void hx711_i2c_master_init(
     hx711_i2c_master_t* const hx_i2c,

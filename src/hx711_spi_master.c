@@ -32,326 +32,108 @@
 #include "../include/hx711.h"
 #include "../include/hx711_remote.h"
 #include "../include/hx711_spi_master.h"
+#include "../include/spifixedframe.h"
 #include "../include/util.h"
 
-const hx711_spi_frame_t HX711_SPI_NULL_FRAME = {
-    .not_null =         false,
-    .is_first =         false,
-    .is_last =          false,
-    .is_continuing =    false,
-/*  .unused_4 =         false,
-    .unused_5 =         false,
-    .unused_6 =         false,
-    .unused_7 =         false, */
-    .data =             0
-};
+void hx711_spi_remote_request_to_buffer(
+    const hx711_remote_request_t* const req,
+    uint8_t* const buffer) {
 
-void hx711_spi_frame_to_buffer(
-    const hx711_spi_frame_t* const frame,
-    hx711_spi_buffer_t* const buffer) {
-
-        assert(frame != NULL);
+        assert(req != NULL);
         assert(buffer != NULL);
-        assert(hx711_spi_buffer_t == uint16_t);
 
-        // avoid repeated ptr deref
-        hx711_spi_buffer_t temp = 0;
+        uint8_t* ptr = buffer;
 
-        temp = util_set_bits16(
-            temp,
-            HX711_SPI_FRAME_FLAGS_NOT_NULL_OFFSET,
-            HX711_SPI_FRAME_FLAGS_NOT_NULL_SIZE,
-            frame->not_null);
+        // set request data at start of buffer
+        hx711_remote_request_to_buffer(req, ptr);
 
-        temp = util_set_bits16(
-            temp,
-            HX711_SPI_FRAME_FLAGS_FIRST_OFFSET,
-            HX711_SPI_FRAME_FLAGS_FIRST_SIZE,
-            frame->is_first);
+        // calculate crc based on data currently in buffer
+        const uint8_t crc = util_crc8(*ptr, HX711_SPI_CRC8_POLYNOMIAL);
 
-        temp = util_set_bits16(
-            temp,
-            HX711_SPI_FRAME_FLAGS_LAST_OFFSET,
-            HX711_SPI_FRAME_FLAGS_LAST_SIZE,
-            frame->is_last);
+        // now increment the pointer to the next address after
+        // request data
+        ptr += HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES;
 
-        temp = util_set_bits16(
-            temp,
-            HX711_SPI_FRAME_FLAGS_CONTINUING_OFFSET,
-            HX711_SPI_FRAME_FLAGS_CONTINUING_SIZE,
-            frame->is_continuing);
-
-        temp = util_set_bits16(
-            temp,
-            HX711_SPI_FRAME_DATA_OFFSET,
-            HX711_SPI_FRAME_DATA_SIZE,
-            frame->data);
-
-        *buffer = temp;
+        // and set the crc
+        *ptr = crc;
 
 }
 
-void hx711_spi_buffer_to_frame(
-    const hx711_spi_buffer_t* const buffer,
-    hx711_spi_frame_t* const frame) {
+void hx711_spi_remote_control_to_buffer(
+    const hx711_remote_control_t* const ctrl,
+    uint8_t* const buffer) {
+
+        assert(ctrl != NULL);
+        assert(buffer != NULL);
+
+        uint8_t* ptr = buffer;
+
+        // set control data at start of buffer
+        hx711_remote_control_to_buffer(ctrl, ptr);
+
+        // calculate crc based on data currently in buffer
+        const uint32_t crc = util_crc32(
+            ptr,
+            HX711_REMOTE_CONTROL_TOTAL_BYTES,
+            HX711_SPI_CRC32_POLYNOMIAL);
+
+        // now increment the pointer to the next address after
+        // control data
+        ptr += HX711_REMOTE_CONTROL_TOTAL_BYTES;
+
+        // and set the crc
+        memcpy(ptr, &crc, HX711_SPI_REMOTE_CONTROL_CRC_SIZE_BYTES);
+
+}
+
+bool hx711_spi_buffer_to_remote_request(
+    const uint8_t* const buffer,
+    hx711_remote_request_t* const req) {
 
         assert(buffer != NULL);
-        assert(frame != NULL);
-        assert(hx711_spi_buffer_t == uint16_t);
+        assert(req != NULL);
 
-        // avoid repeated ptr deref
-        const hx711_spi_buffer_t buff = *buffer;
-        hx711_spi_frame_t fr = { 0 };
+        uint8_t* ptr = (uint8_t*)buffer;
 
-        fr.not_null = (bool)util_get_bits16(
-            buff,
-            HX711_SPI_FRAME_FLAGS_NOT_NULL_OFFSET,
-            HX711_SPI_FRAME_FLAGS_NOT_NULL_SIZE);
+        // parse out the request data
+        hx711_remote_buffer_to_request(ptr, req);
 
-        fr.is_first = (bool)util_get_bits16(
-            buff,
-            HX711_SPI_FRAME_FLAGS_FIRST_OFFSET,
-            HX711_SPI_FRAME_FLAGS_FIRST_SIZE);
+        // calculate the crc of the request data
+        const uint8_t calcd_crc = util_crc8(*ptr, HX711_SPI_CRC8_POLYNOMIAL);
 
-        fr.is_last = (bool)util_get_bits16(
-            buff,
-            HX711_SPI_FRAME_FLAGS_LAST_OFFSET,
-            HX711_SPI_FRAME_FLAGS_LAST_SIZE);
+        // increment the pointer to the transmitted crc
+        ptr += HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES;
+        const uint8_t raw_crc = *ptr;
 
-        fr.is_continuing = util_get_bits16(
-            buff,
-            HX711_SPI_FRAME_FLAGS_CONTINUING_OFFSET,
-            HX711_SPI_FRAME_FLAGS_CONTINUING_SIZE);
-
-        fr.data = util_get_bits16(
-            buff,
-            HX711_SPI_FRAME_DATA_OFFSET,
-            HX711_SPI_FRAME_DATA_SIZE);
-
-        *frame = fr;
+        // and check if crcs match
+        return calcd_crc == raw_crc;
 
 }
 
-size_t hx711_spi_calculate_frame_count(
-    const size_t bitsLen) {
+bool hx711_spi_buffer_to_remote_control(
+    const uint8_t* const buffer,
+    hx711_remote_control_t* const ctrl) {
 
-        uint32_t rem;
-        uint32_t result;
+        assert(buffer != NULL);
+        assert(ctrl != NULL);
 
-        result = divmod_u32u32_rem(
-            bitsLen,
-            HX711_SPI_FRAME_DATA_SIZE,
-            &rem);
+        uint8_t* ptr = (uint8_t*)buffer;
 
-        if(rem > 0) {
-            result++;
-        }
+        // parse out the control data
+        hx711_remote_buffer_to_control(ptr, ctrl);
 
-        return (size_t)result;
+        // calculate the crc of the control data
+        const uint32_t calcd_crc = util_crc32(
+            ptr,
+            HX711_SPI_REMOTE_CONTROL_CRC_SIZE_BYTES,
+            HX711_SPI_CRC32_POLYNOMIAL);
 
-}
+        // increment the pointer to the transmitted crc
+        ptr += HX711_REMOTE_CONTROL_TOTAL_BYTES;
+        const uint32_t raw_crc = (uint32_t)*ptr;
 
-void hx711_spi_send_data_chunked(
-    spi_inst_t* const spi,
-    const uint8_t* const data,
-    const size_t dataLenBytes) {
-
-        assert(spi != NULL);
-        assert(data != NULL);
-        assert(dataLenBytes > 0);
-        assert(HX711_SPI_BITS_PER_TRANSFER == 16);
-        assert(hx711_spi_buffer_t == uint16_t);
-        assert(spi_is_writable(spi));
-
-        hx711_spi_frame_t frame;
-        hx711_spi_buffer_t outbuffer;
-        const size_t numFrames = hx711_spi_calculate_frame_count(
-            dataLenBytes * 8);
-
-        for(size_t i = 0; i < numFrames; ++i) {
-
-            // reset memory
-            memset(&frame, 0, sizeof(frame));
-
-            frame.not_null = true;
-
-            // flag the first frame
-            if(i == 0) {
-                frame.is_first = true;
-            }
-
-            // flag any frame which isn't the first and isn't the last
-            if(i > 0 && i < (numFrames - 1)) {
-                frame.is_continuing = true;
-            }
-
-            // flag the last frame
-            if(i == (numFrames - 1)) {
-                frame.is_last = true;
-            }
-
-            frame.data = data[i];
-
-            hx711_spi_frame_to_buffer(
-                &frame,
-                &outbuffer);
-
-            spi_write16_blocking(
-                spi,
-                &outbuffer,
-                1);
-
-        }
-
-}
-
-bool hx711_spi_try_receive_frame(
-    spi_inst_t* const spi,
-    hx711_spi_frame_t* const frame) {
-
-        assert(spi != NULL);
-        assert(frame != NULL);
-        assert(HX711_SPI_BITS_PER_TRANSFER == 16);
-        assert(hx711_spi_buffer_t == uint16_t);
-        assert(spi_is_readable(spi));
-
-        if(!spi_is_readable(spi)) {
-            return false;
-        }
-
-        hx711_spi_receive_frame_blocking(spi, frame);
-
-        return true;
-
-}
-
-void hx711_spi_receive_frame_blocking(
-    spi_inst_t* const spi,
-    hx711_spi_frame_t* const frame) {
-
-        assert(spi != NULL);
-        assert(frame != NULL);
-        assert(HX711_SPI_BITS_PER_TRANSFER == 16);
-        assert(hx711_spi_buffer_t == uint16_t);
-
-        hx711_spi_buffer_t inbuffer = 0;
-        hx711_spi_buffer_t outbuffer = 0;
-
-        hx711_spi_frame_to_buffer(
-            &HX711_SPI_NULL_FRAME,
-            &outbuffer);
-
-        // transmit a null frame while receiving
-        spi_read16_blocking(
-            spi,
-            outbuffer,
-            &inbuffer,
-            1);
-
-        hx711_spi_buffer_to_frame(
-            &inbuffer,
-            frame);
-
-}
-
-void hx711_spi_receive_first_frame_blocking(
-    spi_inst_t* const spi,
-    hx711_spi_frame_t* const frame) {
-
-        assert(spi != NULL);
-        assert(frame != NULL);
-
-        hx711_spi_frame_t f;
-
-        do {
-            hx711_spi_receive_frame_blocking(spi, &f);
-        }
-        while(f.not_null && !f.is_first);
-
-        *frame = f;
-
-}
-
-bool hx711_spi_try_receive_data(
-    spi_inst_t* const spi,
-    uint8_t* const data,
-    const size_t dataLenBytes) {
-
-        assert(spi != NULL);
-        assert(data != NULL);
-        assert(dataLenBytes > 0);
-
-        if(!spi_is_readable(spi)) {
-            return false;
-        }
-
-        size_t receivedFrames = 0;
-        hx711_spi_frame_t frame = { 0 };
-        const size_t expectedFrames = hx711_spi_calculate_frame_count(
-            dataLenBytes * 8);
-
-        hx711_spi_receive_frame_blocking(spi, &frame);
-
-        // failed to sync
-        if(!frame.is_first) {
-            return false;
-        }
-
-        // extract the first frame's data
-        data[receivedFrames] = frame.data;
-        receivedFrames++;
-
-        // extract the rest of the frames' data
-        while(!frame.is_last && receivedFrames <= expectedFrames) {
-            hx711_spi_receive_frame_blocking(spi, &frame);
-            data[receivedFrames] = frame.data;
-            receivedFrames++;
-        }
-
-        return true;
-
-}
-
-size_t hx711_spi_receive_data_chunked(
-    spi_inst_t* const spi,
-    uint8_t* const data,
-    const size_t dataLenBytes) {
-
-        assert(spi != NULL);
-        assert(data != NULL);
-        assert(dataLenBytes > 0);
-
-        hx711_spi_frame_t inframe;
-        size_t frameCount = 0;
-        const size_t maxFrameCount = hx711_spi_calculate_frame_count(
-            dataLenBytes * 8);
-
-        // get (sync) and process first frame
-        hx711_spi_receive_first_frame_blocking(
-            spi,
-            &inframe);
-
-        data[frameCount] = inframe.data;
-        frameCount++;
-
-        // now get and process any remaining frames
-        while(!inframe.is_last) {
-
-            hx711_spi_receive_frame_blocking(
-                spi,
-                &inframe);
-
-            data[frameCount] = inframe.data;
-            frameCount++;
-
-            // and stop if more frames than expected
-            if(frameCount >= maxFrameCount) {
-                break;
-            }
-
-        }
-
-        return frameCount * 8;
+        // and check if crcs match
+        return calcd_crc == raw_crc;
 
 }
 
@@ -401,7 +183,7 @@ void hx711_spi_master_init(
         
         spi_set_format(
             hx_spi->_spi,
-            HX711_SPI_BITS_PER_TRANSFER,
+            SPIFIXEDFRAME_TOTAL_BITS,
             SPI_CPOL_0,
             SPI_CPHA_0,
             SPI_MSB_FIRST);
@@ -435,17 +217,17 @@ void hx711_spi_master_set_gain(
             .rate = rate
         };
 
-        uint8_t buffer[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
+        uint8_t buffer[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        hx711_remote_request_to_buffer(
+        hx711_spi_remote_request_to_buffer(
             &req,
             buffer);
 
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            hx711_spi_send_data_chunked(
+            spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES);
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
 }
@@ -458,26 +240,26 @@ int hx711_spi_master_get_control(
         assert(hx_spi->_spi != NULL);
         assert(ctrl != NULL);
 
-        uint8_t buffer[HX711_REMOTE_CONTROL_TOTAL_BYTES];
+        uint8_t buffer[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
         size_t bytesRead = 0;
 
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            bytesRead = hx711_spi_receive_data_chunked(
+            bytesRead = spifixedframe_recv_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_REMOTE_CONTROL_TOTAL_BYTES);
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
-        if(bytesRead != HX711_REMOTE_CONTROL_TOTAL_BYTES) {
+        if(bytesRead != HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES) {
             return PICO_ERROR_IO;
         }
 
-        hx711_remote_buffer_to_control(
+        const bool success = hx711_spi_buffer_to_remote_control(
             buffer,
             ctrl);
 
-        return PICO_OK;
+        return success ? PICO_OK : PICO_ERROR_IO;
 
 }
 
@@ -516,17 +298,17 @@ void hx711_spi_master_power_up(
             .rate = rate
         };
 
-        uint8_t buffer[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
+        uint8_t buffer[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        hx711_remote_request_to_buffer(
+        hx711_spi_remote_request_to_buffer(
             &req,
             buffer);
 
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            hx711_spi_send_data_chunked(
+            spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES);
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
 }
@@ -542,17 +324,17 @@ void hx711_spi_master_power_down(
             .power_state = false
         };
 
-        uint8_t buffer[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
+        uint8_t buffer[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        hx711_remote_request_to_buffer(
+        hx711_spi_remote_request_to_buffer(
             &req,
             buffer);
 
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            hx711_spi_send_data_chunked(
+            spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES);
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
 }

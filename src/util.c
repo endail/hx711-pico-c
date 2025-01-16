@@ -62,6 +62,57 @@ const uint8_t util_dma_to_irq_map[] = {
 #endif
 };
 
+uint8_t util_crc8(
+    uint8_t data,
+    const uint8_t polynomial) {
+
+        uint8_t crc = 0;
+
+        for(size_t i = 0; i < 8; ++i) {
+
+            if((crc ^ data) & 0x80) {
+                crc = (crc << 1) ^ polynomial;
+            }
+            else {
+                crc <<= 1;
+            }
+
+            data <<= 1;
+
+        }
+
+        return crc;
+
+}
+
+uint32_t util_crc32(
+    const uint8_t* const data,
+    const size_t len,
+    const uint32_t polynomial) {
+
+        assert(data != NULL);
+        assert(len > 0);
+
+        uint32_t crc = 0xFFFFFFFF;
+
+        for(size_t i = 0; i < len; ++i) {
+
+            crc ^= (uint32_t)data[i] << 24;
+
+            for(size_t j = 0; j < 8; ++j) {
+                if (crc & 0x80000000) {
+                    crc = (crc << 1) ^ polynomial;
+                }
+                else {
+                    crc <<= 1;
+                }
+            }
+        }
+
+        return ~crc;
+
+}
+
 int util_dma_get_index_from_irq(
     const uint irq_num) {
 

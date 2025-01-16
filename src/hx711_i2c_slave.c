@@ -176,28 +176,31 @@ void hx711_i2c_slave_handler(
         case I2C_SLAVE_RECEIVE:
             // data available from master to read
 
-            uint8_t reqbuff[HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES];
+            uint8_t reqbuff[HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES];
 
-            for(size_t i = 0; i < HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES; ++i) {
+            for(size_t i = 0; i < HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES; ++i) {
                 reqbuff[i] = i2c_read_byte_raw(hx_i2c->_i2c);
             }
 
-            hx711_remote_buffer_to_request(
+            // if crc fails, clear request
+            if(!hx711_i2c_buffer_to_remote_request(
                 reqbuff,
-                &hx_i2c->_inreq);
+                &hx_i2c->_inreq)) {
+                    memset(&hx_i2c->_inreq, 0, sizeof(hx_i2c->_inreq));
+            }
 
             break;
 
         case I2C_SLAVE_REQUEST:
             // send data
 
-            uint8_t ctrlbuff[HX711_REMOTE_CONTROL_TOTAL_BYTES];
+            uint8_t ctrlbuff[HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES];
 
-            hx711_remote_control_to_buffer(
+            hx711_i2c_remote_control_to_buffer(
                 &hx_i2c->_memory,
                 ctrlbuff);
 
-            for(size_t i = 0; i < HX711_REMOTE_CONTROL_TOTAL_BYTES; ++i) {
+            for(size_t i = 0; i < HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES; ++i) {
                 i2c_write_byte_raw(i2c, ctrlbuff[i]);
             }
 
