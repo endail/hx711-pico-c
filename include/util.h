@@ -48,6 +48,20 @@ extern "C" {
   ((byte) & 0x02 ? '1' : '0'), \
   ((byte) & 0x01 ? '1' : '0')
 
+// define these since they're not included by default
+// and they're helpful
+#ifndef UINT8_WIDTH
+#define UINT8_WIDTH 8u
+#endif
+
+#ifndef UINT16_WIDTH
+#define UINT16_WIDTH 16u
+#endif
+
+#ifndef UINT32_WIDTH
+#define UINT32_WIDTH 32u
+#endif
+
 // NUM_DMA_IRQS defined in pico sdk
 #define UTIL_NUM_DMA_IRQS                   NUM_DMA_IRQS
 
@@ -170,9 +184,9 @@ inline uint8_t util_set_bits8(
     const uint8_t len,
     const uint8_t bits) {
 
-        assert(startbit >= 0 && startbit <= 7);
-        assert(len >= 1 && len <= 8);
-        assert((startbit + len) <= 8);
+        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
+        assert(len >= 1 && len <= UINT8_WIDTH);
+        assert((startbit + len) <= UINT8_WIDTH);
 
         const uint8_t mask = ((1 << len) - 1) << startbit;
         value &= ~mask;
@@ -194,9 +208,9 @@ inline uint8_t util_get_bits8(
     const uint8_t startbit,
     const uint8_t len) {
 
-        assert(startbit >= 0 && startbit <= 7);
-        assert(len >= 1 && len <= 8);
-        assert((startbit + len) <= 8);
+        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
+        assert(len >= 1 && len <= UINT8_WIDTH);
+        assert((startbit + len) <= UINT8_WIDTH);
 
         const uint8_t mask = ((1 << len) - 1) << startbit;
         const uint8_t extracted = (value & mask) >> startbit;
@@ -211,9 +225,9 @@ inline uint16_t util_set_bits16(
     const uint8_t len,
     const uint16_t bits) {
 
-    assert(startbit >= 0 && startbit <= 15);
-    assert(len >= 1 && len <= 16);
-    assert((startbit + len) <= 16);
+    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
+    assert(len >= 1 && len <= UINT16_WIDTH);
+    assert((startbit + len) <= UINT16_WIDTH);
 
     const uint16_t mask = ((1 << len) - 1) << startbit;
     value &= ~mask;
@@ -227,9 +241,9 @@ inline uint16_t util_get_bits16(
     const uint8_t startbit,
     const uint8_t len) {
 
-    assert(startbit >= 0 && startbit <= 15);
-    assert(len >= 1 && len <= 16);
-    assert((startbit + len) <= 16);
+    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
+    assert(len >= 1 && len <= UINT16_WIDTH);
+    assert((startbit + len) <= UINT16_WIDTH);
 
     const uint16_t mask = ((1 << len) - 1) << startbit;
     const uint16_t extracted = (value & mask) >> startbit;

@@ -68,7 +68,7 @@ uint8_t util_crc8(
 
         uint8_t crc = 0;
 
-        for(size_t i = 0; i < 8; ++i) {
+        for(size_t i = 0; i < UINT8_WIDTH; ++i) {
 
             if((crc ^ data) & 0x80) {
                 crc = (crc << 1) ^ polynomial;
