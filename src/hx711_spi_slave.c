@@ -32,6 +32,7 @@
 #include "../include/hx711.h"
 #include "../include/hx711_remote.h"
 #include "../include/hx711_spi_slave.h"
+#include "../include/spifixedframe.h"
 #include "../include/util.h"
 
 bool hx711_spi_slave_try_get_request(
@@ -167,10 +168,10 @@ void hx711_spi_slave_init(
 
         spi_set_format(
             hx_spi->_spi,
-            SPIFIXEDFRAME_TOTAL_BITS,
-            SPI_CPOL_0,
-            SPI_CPHA_0,
-            SPI_MSB_FIRST);
+            HX711_SPI_SPI_DATA_BITS,
+            HX711_SPI_SPI_POLARITY,
+            HX711_SPI_SPI_PHASE,
+            HX711_SPI_SPI_ORDER);
 
         spi_set_slave(
             hx_spi->_spi,

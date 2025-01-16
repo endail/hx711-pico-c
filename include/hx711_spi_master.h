@@ -46,6 +46,10 @@ extern "C" {
 #define HX711_SPI_DEFAULT_TX_PIN                    PICO_DEFAULT_SPI_TX_PIN
 #define HX711_SPI_DEFAULT_INST                      spi_default
 #define HX711_SPI_BAUD_RATE                         4000000u
+#define HX711_SPI_SPI_DATA_BITS                     SPIFIXEDFRAME_TOTAL_BITS
+#define HX711_SPI_SPI_POLARITY                      SPI_CPOL_0
+#define HX711_SPI_SPI_PHASE                         SPI_CPHA_0
+#define HX711_SPI_SPI_ORDER                         SPI_MSB_FIRST
 
 #define HX711_SPI_REMOTE_REQUEST_CRC_SIZE_BYTES     sizeof(uint8_t)
 #define HX711_SPI_REMOTE_CONTROL_CRC_SIZE_BYTES     sizeof(uint32_t)
@@ -54,14 +58,14 @@ extern "C" {
 #define HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES        ((HX711_REMOTE_CONTROL_TOTAL_BYTES) + (HX711_SPI_REMOTE_CONTROL_CRC_SIZE_BYTES))
 
 #define HX711_SPI_CRC8_POLYNOMIAL                   0x07u
-#define HX711_SPI_CRC32_POLYNOMIAL                  0xEDB88320u
+#define HX711_SPI_CRC32_POLYNOMIAL                  0xedb88320u
 
 #define HX711_SPI_ATOMIC(CSN_PIN, ...) \
     do { \
         gpio_put(CSN_PIN, false); \
         __VA_ARGS__ \
         gpio_put(CSN_PIN, true); \
-    } while (0)
+    } while(0)
 
 typedef struct {
 

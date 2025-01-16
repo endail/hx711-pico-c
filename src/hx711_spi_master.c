@@ -180,13 +180,13 @@ void hx711_spi_master_init(
         spi_init(
             hx_spi->_spi,
             hx_spi->_baud_rate);
-        
+
         spi_set_format(
             hx_spi->_spi,
-            SPIFIXEDFRAME_TOTAL_BITS,
-            SPI_CPOL_0,
-            SPI_CPHA_0,
-            SPI_MSB_FIRST);
+            HX711_SPI_SPI_DATA_BITS,
+            HX711_SPI_SPI_POLARITY,
+            HX711_SPI_SPI_PHASE,
+            HX711_SPI_SPI_ORDER);
 
         spi_set_slave(
             hx_spi->_spi,
@@ -242,20 +242,20 @@ int hx711_spi_master_get_control(
 
         uint8_t buffer[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        size_t bytesRead = 0;
+        bool success = false;
 
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            bytesRead = spifixedframe_recv_bytes(
+            success = spifixedframe_recv_bytes(
                 hx_spi->_spi,
                 buffer,
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
-        if(bytesRead != HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES) {
+        if(!success) {
             return PICO_ERROR_IO;
         }
 
-        const bool success = hx711_spi_buffer_to_remote_control(
+        success = hx711_spi_buffer_to_remote_control(
             buffer,
             ctrl);
 

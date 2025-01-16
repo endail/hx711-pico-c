@@ -51,7 +51,7 @@ extern "C" {
 #define HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES        ((HX711_REMOTE_CONTROL_TOTAL_BYTES) + (HX711_I2C_REMOTE_CONTROL_CRC_SIZE_BYTES))
 
 #define HX711_I2C_CRC8_POLYNOMIAL                   0x07u
-#define HX711_I2C_CRC32_POLYNOMIAL                  0xEDB88320u
+#define HX711_I2C_CRC32_POLYNOMIAL                  0xedb88320u
 
 typedef struct {
     uint _scl_pin;
