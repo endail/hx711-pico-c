@@ -46,13 +46,13 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/hx711_spi_slave.c:56:16: warning: Identical condition and return expression 'success', return value is always false [identicalConditionAfterEarlyExit]
+src/hx711_spi_slave.c:57:16: warning: Identical condition and return expression 'success', return value is always false [identicalConditionAfterEarlyExit]
         return success;
                ^
-src/hx711_spi_slave.c:52:12: note: If condition 'success' is true, the function will return/exit
+src/hx711_spi_slave.c:53:12: note: If condition 'success' is true, the function will return/exit
         if(success) {
            ^
-src/hx711_spi_slave.c:56:16: note: Returning identical expression 'success'
+src/hx711_spi_slave.c:57:16: note: Returning identical expression 'success'
         return success;
                ^
 src/spifixedframe.c:252:32: style: The scope of the variable 'current_frame' can be reduced. [variableScope]
