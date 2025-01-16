@@ -1,14 +1,14 @@
-include/util.h:173:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-        assert(startbit >= 0 && startbit <= 7);
+include/util.h:187:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
                         ^
-include/util.h:197:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-        assert(startbit >= 0 && startbit <= 7);
+include/util.h:211:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
                         ^
-include/util.h:214:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-    assert(startbit >= 0 && startbit <= 15);
+include/util.h:228:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
                     ^
-include/util.h:230:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-    assert(startbit >= 0 && startbit <= 15);
+include/util.h:244:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
                     ^
 include/hx711_i2c_slave.h:96:16: warning: Size of pointer 'ctrl' used instead of size of its data. [pointerSize]
         memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
@@ -55,13 +55,13 @@ src/hx711_spi_slave.c:52:12: note: If condition 'success' is true, the function 
 src/hx711_spi_slave.c:56:16: note: Returning identical expression 'success'
         return success;
                ^
-src/spifixedframe.c:245:32: style: The scope of the variable 'current_frame' can be reduced. [variableScope]
+src/spifixedframe.c:252:32: style: The scope of the variable 'current_frame' can be reduced. [variableScope]
         spifixedframe_buffer_t current_frame = 0;
                                ^
-src/spifixedframe.c:226:24: style: Variable 'chunk_index' is assigned a value that is never used. [unreadVariable]
+src/spifixedframe.c:233:24: style: Variable 'chunk_index' is assigned a value that is never used. [unreadVariable]
             chunk_index++;
                        ^
-src/spifixedframe.c:245:46: style: Variable 'current_frame' is assigned a value that is never used. [unreadVariable]
+src/spifixedframe.c:252:46: style: Variable 'current_frame' is assigned a value that is never used. [unreadVariable]
         spifixedframe_buffer_t current_frame = 0;
                                              ^
 src/util.c:551:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
