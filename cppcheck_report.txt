@@ -46,7 +46,25 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/util.c:500:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/hx711_spi_slave.c:56:16: warning: Identical condition and return expression 'success', return value is always false [identicalConditionAfterEarlyExit]
+        return success;
+               ^
+src/hx711_spi_slave.c:52:12: note: If condition 'success' is true, the function will return/exit
+        if(success) {
+           ^
+src/hx711_spi_slave.c:56:16: note: Returning identical expression 'success'
+        return success;
+               ^
+src/spifixedframe.c:245:32: style: The scope of the variable 'current_frame' can be reduced. [variableScope]
+        spifixedframe_buffer_t current_frame = 0;
+                               ^
+src/spifixedframe.c:226:24: style: Variable 'chunk_index' is assigned a value that is never used. [unreadVariable]
+            chunk_index++;
+                       ^
+src/spifixedframe.c:245:46: style: Variable 'current_frame' is assigned a value that is never used. [unreadVariable]
+        spifixedframe_buffer_t current_frame = 0;
+                                             ^
+src/util.c:551:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
 src/util.c:57:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
