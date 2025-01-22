@@ -69,19 +69,19 @@ typedef struct {
     uint8_t addr;
 } hx711_i2c_master_config_t;
 
-void hx711_i2c_remote_request_to_buffer(
+void hx711_i2c_serialise_request(
     const hx711_remote_request_t* const req,
     uint8_t* const buffer);
 
-void hx711_i2c_remote_control_to_buffer(
+void hx711_i2c_serialise_control(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer);
 
-bool hx711_i2c_buffer_to_remote_request(
+bool hx711_i2c_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req);
 
-bool hx711_i2c_buffer_to_remote_control(
+bool hx711_i2c_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl);
 

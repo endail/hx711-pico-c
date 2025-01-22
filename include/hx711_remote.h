@@ -157,19 +157,19 @@ inline int32_t hx711_remote_array_to_value(
 void hx711_remote_control_get_defaults(
     hx711_remote_control_t* const ctrl);
 
-void hx711_remote_control_to_buffer(
+void hx711_remote_serialise_control(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer);
 
-void hx711_remote_buffer_to_control(
+void hx711_remote_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl);
 
-void hx711_remote_request_to_buffer(
+void hx711_remote_serialise_request(
     const hx711_remote_request_t* const req,
     uint8_t* const buffer);
 
-void hx711_remote_buffer_to_request(
+void hx711_remote_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req);
 

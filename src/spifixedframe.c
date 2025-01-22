@@ -28,6 +28,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include "../include/spifixedframe.h"
 #include "../include/util.h"
 
@@ -36,7 +37,7 @@ const spifixedframe_t SPIFIXEDFRAME_NULL_FRAME = {
     .data = 0
 };
 
- void spifixedframe_get_null_frame(
+void spifixedframe_get_null_frame(
     spifixedframe_t* const frame) {
         assert(frame != NULL);
         *frame = SPIFIXEDFRAME_NULL_FRAME;
@@ -45,14 +46,17 @@ const spifixedframe_t SPIFIXEDFRAME_NULL_FRAME = {
 size_t spifixedframe_calc_frame_count(
     const size_t byte_len) {
 
-        assert(SPIFIXEDFRAME_DATA_BITS_PER_FRAME > 0);
+        static_assert(SPIFIXEDFRAME_DATA_SIZE_BITS > 0);
+        assert(byte_len > 0);
+        assert(byte_len <= SPIFIXEDFRAME_MAX_BYTES);
 
         uint32_t remainder;
+        const uint32_t bitLen = byte_len * UINT8_WIDTH;
 
         // divide number of bits by the frame length
-        size_t quotient = divmod_u32u32_rem(
-            byte_len * UINT8_WIDTH,
-            SPIFIXEDFRAME_DATA_BITS_PER_FRAME,
+        uint32_t quotient = divmod_u32u32_rem(
+            bitLen,
+            SPIFIXEDFRAME_DATA_SIZE_BITS,
             &remainder);
 
         // if there is a remainder, an extra frame is needed
@@ -64,11 +68,10 @@ size_t spifixedframe_calc_frame_count(
 
 }
 
-spifixedframe_buffer_t spifixedframe_to_buffer(
+spifixedframe_buffer_t spifixedframe_serialise(
     const spifixedframe_t* const frame) {
 
         assert(frame != NULL);
-        assert(bytes != NULL);
 
         spifixedframe_buffer_t buff = 0;
 
@@ -88,7 +91,33 @@ spifixedframe_buffer_t spifixedframe_to_buffer(
 
 }
 
-void spifixedframe_from_buffer(
+void spifixedframe_bulk_serialise(
+    const spifixedframe_t* const frames,
+    spifixedframe_buffer_t* const buffers,
+    const size_t frames_len) {
+
+        assert(frames != NULL);
+        assert(buffers != NULL);
+
+        for(size_t i = 0; i < frames_len; ++i) {
+
+            buffers[i] = util_set_bits16(
+                0,
+                SPIFIXEDFRAME_IS_FIRST_OFFSET,
+                SPIFIXEDFRAME_IS_FIRST_SIZE_BITS,
+                (uint8_t)frames[i].is_first);
+
+            buffers[i] = util_set_bits16(
+                buffers[i],
+                SPIFIXEDFRAME_DATA_OFFSET,
+                SPIFIXEDFRAME_DATA_SIZE_BITS,
+                frames[i].data);
+
+        }
+
+}
+
+void spifixedframe_deserialise(
     spifixedframe_t* const frame,
     const spifixedframe_buffer_t buffer) {
 
@@ -113,30 +142,30 @@ bool spifixedframe_send_bytes(
 
         assert(spi != NULL);
         assert(bytes != NULL);
-        assert(byte_len > 0);
+        assert(byte_len <= SPIFIXEDFRAME_MAX_BYTES);
+
+        if(byte_len > SPIFIXEDFRAME_MAX_BYTES) {
+            return false;
+        }
 
         bool success = false;
-
         const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
-        const size_t allocBytes = sizeof(spifixedframe_t) * frameCount;
-        spifixedframe_t* const frames = malloc(allocBytes);
+        const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
+        spifixedframe_t* restrict const frames = malloc(allocBytes);
 
         if(frames == NULL) {
             return false;
         }
 
-        success = spifixedframe_fragment_bytes(
+        spifixedframe_fragment_bytes(
             bytes,
             byte_len,
-            frameCount,
             frames);
 
-        if(success) {
-            success = spifixedframe_chain_write_blocking(
-                spi,
-                frames,
-                frameCount);
-        }
+        success = spifixedframe_chain_write_blocking(
+            spi,
+            frames,
+            frameCount);
 
         free(frames);
 
@@ -151,14 +180,12 @@ bool spifixedframe_recv_bytes(
 
         assert(spi != NULL);
         assert(bytes != NULL);
-        assert(byte_len > 0);
+        assert(byte_len <= SPIFIXEDFRAME_MAX_BYTES);
 
-        size_t __unused out_bytes_len;
         bool success = false;
-
         const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
-        const size_t allocBytes = sizeof(spifixedframe_t) * frameCount;
-        spifixedframe_t* frames = malloc(allocBytes);
+        const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
+        spifixedframe_t* const restrict frames = malloc(allocBytes);
 
         if(frames == NULL) {
             return false;
@@ -174,7 +201,7 @@ bool spifixedframe_recv_bytes(
                 frames,
                 frameCount,
                 bytes,
-                &out_bytes_len);
+                byte_len);
         }
 
         free(frames);
@@ -183,57 +210,49 @@ bool spifixedframe_recv_bytes(
 
 }
 
-bool spifixedframe_fragment_bytes(
+void spifixedframe_fragment_bytes(
     const uint8_t* const bytes,
     const size_t byte_len,
-    const size_t frame_count,
     spifixedframe_t* const frames) {
 
         assert(bytes != NULL);
         assert(byte_len > 0);
-        assert(frame_count > 0);
         assert(frames != NULL);
 
-        size_t chunk_index = 0;
-        spifixedframe_buffer_t current_chunk = 0;
-        uint8_t bits_remaining = 0;
+        spifixedframe_buffer_t currentChunk = 0;
+        size_t chunkIndex = 0;
+        size_t bitsRemaining = 0;
 
-        for(size_t i = 0; i < byte_len; ++i) {
-            for(int j = UINT8_WIDTH - 1; j >= 0; --j) {
+        // iterate over each byte
+        for(size_t byteNum = 0; byteNum < byte_len; ++byteNum) {
 
-                // accumulate bits into chunk
-                if(bits_remaining < SPIFIXEDFRAME_DATA_BITS_PER_FRAME) {
-                    current_chunk |= ((bytes[i] >> j) & 1) << bits_remaining;
-                    bits_remaining++;
+            // iterate over each bit in the byte
+            for(ssize_t bitPos = UINT8_WIDTH - 1; bitPos >= 0; --bitPos) {
+
+                // if the current chunk isn't completely filled, add another bit
+                if(bitsRemaining < SPIFIXEDFRAME_DATA_SIZE_BITS) {
+                    currentChunk |= ((bytes[byteNum] >> bitPos) & 1) << bitsRemaining;
+                    bitsRemaining++;
                 }
 
-                // when chunk reaches frame bit length, put in frame
-                if(bits_remaining == SPIFIXEDFRAME_DATA_BITS_PER_FRAME) {
-
-                    frames[chunk_index].is_first = (current_chunk == 0);
-                    frames[chunk_index].data = current_chunk;
-                    chunk_index++;
-                    current_chunk = 0;
-                    bits_remaining = 0;
-
-                    // exceeded calculated number of frames
-                    if(chunk_index >= frame_count) {
-                        return false;
-                    }
-
+                // when current chunk is filled, set the data to the frame
+                // and reset the other vars
+                if(bitsRemaining == SPIFIXEDFRAME_DATA_SIZE_BITS) {
+                    frames[chunkIndex].is_first = (chunkIndex == 0);
+                    frames[chunkIndex].data = currentChunk;
+                    chunkIndex++;
+                    bitsRemaining = 0;
+                    currentChunk = 0;
                 }
 
             }
         }
 
-        // handle any remaining bits in the last chunk
-        if(bits_remaining > 0) {
-            frames[chunk_index].is_first = (chunk_index == 0);
-            frames[chunk_index].data = current_chunk;
-            chunk_index++;
+        // if there are any bits remaining, add them to the last frame
+        if(bitsRemaining > 0) {
+            frames[chunkIndex].is_first = (chunkIndex == 0);
+            frames[chunkIndex].data = currentChunk;
         }
-
-        return true;
 
 }
 
@@ -241,17 +260,18 @@ bool spifixedframe_defragment_frames(
     const spifixedframe_t* const frames,
     const size_t frame_count,
     uint8_t* const bytes,
-    size_t* const byte_len) {
+    const size_t expected_bytes_len) {
 
         assert(frames != NULL);
         assert(frame_count > 0);
+        assert(frame_count <= SPIFIXEDFRAME_MAX_FRAMES);
         assert(bytes != NULL);
-        assert(bytes_len > 0); 
+        assert(expected_bytes_len > 0);
+        assert(expected_bytes_len <= SPIFIXEDFRAME_MAX_BYTES);
 
-        size_t data_index = 0;
-        spifixedframe_buffer_t current_frame = 0;
-        uint8_t current_byte = 0;
-        uint8_t bits_filled = 0;
+        size_t bitsFilled = 0;
+        uint8_t currentByte = 0;
+        size_t byteIndex = 0;
 
         // check first frame is flagged as first
         if(!frames[0].is_first) {
@@ -265,32 +285,50 @@ bool spifixedframe_defragment_frames(
             }
         }
 
-        for(size_t i = 0; i < frame_count; ++i) {
+        // iterate over each frame
+        for(size_t frameIndex = 0; frameIndex < frame_count; ++frameIndex) {
 
-            current_frame = frames[i].data;
+            // iterate over each bit in the frame
+            for(ssize_t bitPos = SPIFIXEDFRAME_DATA_SIZE_BITS - 1; bitPos >= 0; --bitPos) {
 
-            for(int j = SPIFIXEDFRAME_DATA_BITS_PER_FRAME - 1; j >= 0; --j) { 
-
-                if(bits_filled < UINT8_WIDTH) {
-                    current_byte |= ((current_frame >> j) & 1) << (7 - bits_filled);
-                    bits_filled++;
+                // if all bytes have been processed, skip processing any more bits
+                // and fall through to the end
+                if(byteIndex >= expected_bytes_len) {
+                    bitsFilled++;
+                    continue;
                 }
 
-                if(bits_filled == UINT8_WIDTH) {
-                    bytes[data_index++] = current_byte;
-                    current_byte = 0;
-                    bits_filled = 0;
+                // if the current byte is unfilled, add a bit to it
+                if(bitsFilled < UINT8_WIDTH) {
+                    currentByte |= ((frames[frameIndex].data >> bitPos) & 1) << ((UINT8_WIDTH - 1) - bitsFilled);
+                    bitsFilled++;
+                }
+
+                // if the number of bits has equalled a full byte, add it to the buffer
+                if(bitsFilled == UINT8_WIDTH) {
+
+                    if(byteIndex < expected_bytes_len) {
+                        bytes[byteIndex] = currentByte;
+                        byteIndex++;
+                    }
+                    else {
+                        return true;
+                    }
+
+                    currentByte = 0;
+                    bitsFilled = 0;
+
                 }
 
             }
+
         }
 
-        // handle any remaining bits in the last byte
-        if (bits_filled > 0) {
-            bytes[data_index++] = current_byte;
+        // for any leftovers, add them if more bytes expected
+        if(bitsFilled > 0 && byteIndex < expected_bytes_len) {
+            bytes[byteIndex] = currentByte;
+            // byteIndex++;
         }
-
-        *byte_len = data_index;
 
         return true;
 
@@ -303,7 +341,7 @@ bool spifixedframe_write_frame_blocking(
         assert(spi != NULL);
         assert(frame != NULL);
 
-        const spifixedframe_buffer_t buffer = spifixedframe_to_buffer(frame);
+        const spifixedframe_buffer_t buffer = spifixedframe_serialise(frame);
 
         while(!spi_is_writable(spi)) {
             tight_loop_contents();
@@ -322,25 +360,23 @@ bool spifixedframe_read_frame_blocking(
         assert(spi != NULL);
         assert(frame != NULL);
 
-        bool success = false;
         spifixedframe_buffer_t inbuffer;
-        spifixedframe_buffer_t outbuffer = 
-            spifixedframe_to_buffer(&SPIFIXEDFRAME_NULL_FRAME);
+        spifixedframe_buffer_t outbuffer = spifixedframe_serialise(
+            &SPIFIXEDFRAME_NULL_FRAME);
 
         while(!spi_is_readable(spi)) {
             tight_loop_contents();
         }
 
-        success = (spi_read16_blocking(
-            spi,
-            outbuffer,
-            &inbuffer, 1) == 1);
-
-        if(success) {
-            spifixedframe_from_buffer(frame, inbuffer);
+        // outbuffer contains a null-frame as this function
+        // requires a value to transmit
+        if(spi_read16_blocking(spi, outbuffer, &inbuffer, 1) != 1) {
+            return false;
         }
 
-        return success;
+        spifixedframe_deserialise(frame, inbuffer);
+
+        return true;
 
 }
 
@@ -351,11 +387,11 @@ bool spifixedframe_bulk_write_frames_blocking(
 
         assert(spi != NULL);
         assert(frames != NULL);
-        assert(frames_len > 0);
+        assert(frames_len <= SPIFIXEDFRAME_MAX_FRAMES);
 
         bool success = false;
-        const size_t allocBytes = SPIFIXEDFRAME_TOTAL_BITS * frames_len;
-        spifixedframe_buffer_t* const buffer = malloc(allocBytes);
+        const size_t allocBytes = (sizeof(spifixedframe_buffer_t) * frames_len);
+        spifixedframe_buffer_t* restrict const buffer = malloc(allocBytes);
 
         // note: all 16 bits in each frame are set to 0 if not used,
         // so malloc is OK instead of calloc
@@ -364,10 +400,10 @@ bool spifixedframe_bulk_write_frames_blocking(
             return false;
         }
 
-        // convert each frame to 16 bits
-        for(size_t i = 0; i < frames_len; ++i) {
-            buffer[i] = spifixedframe_to_buffer(&frames[i]);
-        }
+        spifixedframe_bulk_serialise(
+            frames,
+            buffer,
+            frames_len);
 
         while(!spi_is_writable(spi)) {
             tight_loop_contents();
@@ -391,14 +427,14 @@ bool spifixedframe_bulk_read_frames_blocking(
 
         assert(spi != NULL);
         assert(frames != NULL);
-        assert(frames_len > 0);
+        assert(frames_len <= SPIFIXEDFRAME_MAX_FRAMES);
 
         bool success = false;
         const spifixedframe_buffer_t outbuffer = 
-            spifixedframe_to_buffer(&SPIFIXEDFRAME_NULL_FRAME);
+            spifixedframe_serialise(&SPIFIXEDFRAME_NULL_FRAME);
 
-        const size_t allocBytes = sizeof(spifixedframe_t) * frames_len;
-        spifixedframe_buffer_t* const inbuffer = malloc(allocBytes);
+        const size_t allocBytes = (sizeof(spifixedframe_buffer_t) * frames_len);
+        spifixedframe_buffer_t* restrict const inbuffer = malloc(allocBytes);
 
         if(inbuffer == NULL) {
             return false;
@@ -413,7 +449,7 @@ bool spifixedframe_bulk_read_frames_blocking(
         // if read succeeded, create the frames from the buffer
         if(success) {
             for(size_t i = 0; i < frames_len; ++i) {
-                spifixedframe_from_buffer(&frames[i], inbuffer[i]);
+                spifixedframe_deserialise(&frames[i], inbuffer[i]);
             }
         }
 
@@ -430,7 +466,7 @@ bool spifixedframe_chain_write_blocking(
 
         assert(spi != NULL);
         assert(frames != NULL);
-        assert(frames_to_write > 0);
+        assert(frames_to_write <= SPIFIXEDFRAME_MAX_FRAMES);
         assert(frames[0].is_first);
 
         return spifixedframe_bulk_write_frames_blocking(
@@ -446,12 +482,12 @@ bool spifixedframe_chain_read_blocking(
     spifixedframe_t* const frames) {
 
         assert(spi != NULL);
-        assert(frames_to_read > 0);
+        assert(frames_to_read <= SPIFIXEDFRAME_MAX_FRAMES);
         assert(frames != NULL);
 
         bool success = false;
 
-        success = spifixedframe_chain_wait_first(
+        success = spifixedframe_chain_wait_first_frame_blocking(
             spi,
             &frames[0]);
 
@@ -470,7 +506,7 @@ bool spifixedframe_chain_read_blocking(
 
 }
 
-bool spifixedframe_chain_wait_first(
+bool spifixedframe_chain_wait_first_frame_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const first_frame) {
 
@@ -481,8 +517,11 @@ bool spifixedframe_chain_wait_first(
         spifixedframe_get_null_frame(&temp);
 
         do {
-            // ignore fails(?)
-            spifixedframe_read_frame_blocking(spi, &temp);
+            // if reading fails, there's an IO error
+            // so consider this as a fail
+            if(!spifixedframe_read_frame_blocking(spi, &temp)) {
+                return false;
+            }
         }
         while(!temp.is_first);
 

@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2024 Daniel Robertson
+// Copyright (c) 2025 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -91,19 +91,19 @@ typedef struct {
 
 } hx711_spi_master_config_t;
 
-void hx711_spi_remote_request_to_buffer(
+void hx711_spi_serialise_request(
     const hx711_remote_request_t* const req,
     uint8_t* const buffer);
 
-void hx711_spi_remote_control_to_buffer(
+void hx711_spi_serialise_control(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer);
 
-bool hx711_spi_buffer_to_remote_request(
+bool hx711_spi_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req);
 
-bool hx711_spi_buffer_to_remote_control(
+bool hx711_spi_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl);
 

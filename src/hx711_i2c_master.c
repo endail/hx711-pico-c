@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2024 Daniel Robertson
+// Copyright (c) 2025 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@
 #include "../include/hx711_i2c_master.h"
 #include "../include/util.h"
 
-void hx711_i2c_remote_request_to_buffer(
+void hx711_i2c_serialise_request(
     const hx711_remote_request_t* const req,
     uint8_t* const buffer) {
 
@@ -44,7 +44,7 @@ void hx711_i2c_remote_request_to_buffer(
         uint8_t* ptr = buffer;
 
         // set request data at start of buffer
-        hx711_remote_request_to_buffer(req, ptr);
+        hx711_remote_serialise_request(req, ptr);
 
         // calculate crc based on data currently in buffer
         const uint8_t crc = util_crc8(*ptr, HX711_I2C_CRC8_POLYNOMIAL);
@@ -58,7 +58,7 @@ void hx711_i2c_remote_request_to_buffer(
 
 }
 
-void hx711_i2c_remote_control_to_buffer(
+void hx711_i2c_serialise_control(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer) {
 
@@ -68,7 +68,7 @@ void hx711_i2c_remote_control_to_buffer(
         uint8_t* ptr = buffer;
 
         // set control data at start of buffer
-        hx711_remote_control_to_buffer(ctrl, ptr);
+        hx711_remote_serialise_control(ctrl, ptr);
 
         // calculate crc based on data currently in buffer
         const uint32_t crc = util_crc32(
@@ -85,7 +85,7 @@ void hx711_i2c_remote_control_to_buffer(
 
 }
 
-bool hx711_i2c_buffer_to_remote_request(
+bool hx711_i2c_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req) {
 
@@ -95,7 +95,7 @@ bool hx711_i2c_buffer_to_remote_request(
         uint8_t* ptr = (uint8_t*)buffer;
 
         // parse out the request data
-        hx711_remote_buffer_to_request(ptr, req);
+        hx711_remote_deserialise_request(ptr, req);
 
         // calculate the crc of the request data
         const uint8_t calcd_crc = util_crc8(*ptr, HX711_I2C_CRC8_POLYNOMIAL);
@@ -109,7 +109,7 @@ bool hx711_i2c_buffer_to_remote_request(
 
 }
 
-bool hx711_i2c_buffer_to_remote_control(
+bool hx711_i2c_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl) {
 
@@ -119,7 +119,7 @@ bool hx711_i2c_buffer_to_remote_control(
         uint8_t* ptr = (uint8_t*)buffer;
 
         // parse out the control data
-        hx711_remote_buffer_to_control(ptr, ctrl);
+        hx711_remote_deserialise_control(ptr, ctrl);
 
         // calculate the crc of the control data
         const uint32_t calcd_crc = util_crc32(
@@ -200,7 +200,7 @@ int hx711_i2c_master_set_gain(
             .rate = rate
         };
 
-        hx711_i2c_remote_request_to_buffer(&req, buffer);
+        hx711_i2c_serialise_request(&req, buffer);
 
         return i2c_write_blocking(
             hx_i2c->_i2c,
@@ -234,7 +234,7 @@ int hx711_i2c_master_get_control(
             return bytesRead;
         }
 
-        const bool success = hx711_i2c_buffer_to_remote_control(
+        const bool success = hx711_i2c_deserialise_control(
             buffer,
             ctrl);
 
@@ -279,7 +279,7 @@ int hx711_i2c_master_power_up(
 
         uint8_t buffer[HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES];
 
-        hx711_i2c_remote_request_to_buffer(
+        hx711_i2c_serialise_request(
             &req,
             buffer);
 
@@ -305,7 +305,7 @@ int hx711_i2c_master_power_down(
 
         uint8_t buffer[HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES];
 
-        hx711_i2c_remote_request_to_buffer(
+        hx711_i2c_serialise_request(
             &req,
             buffer);
 

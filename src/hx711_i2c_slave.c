@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2024 Daniel Robertson
+// Copyright (c) 2025 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 #include <hardware/gpio.h>
 #include <hardware/i2c.h>
 #include <pico/i2c_slave.h>
+#include <pico/mutex.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -37,6 +38,8 @@ hx711_i2c_slave_t* hx711_i2c__slave_map[] = {
     NULL, //...
 };
 
+auto_init_mutex(hx711_i2c__slave_mutex);
+
 bool hx711_i2c__slave_add_slave(
     hx711_i2c_slave_t* const slave) {
 
@@ -44,14 +47,21 @@ bool hx711_i2c__slave_add_slave(
         assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
         assert(hx711_i2c__slave_map != NULL);
 
+        bool success = false;
+
+        mutex_enter_blocking(&hx711_i2c__slave_mutex);
+
         for(size_t i = 0; i < HX711_I2C_SLAVE_MAP_SIZE; ++i) {
             if(hx711_i2c__slave_map[i] == NULL) {
                 hx711_i2c__slave_map[i] = slave;
-                return true;
+                success = true;
+                break;
             }
         }
 
-        return false;
+        mutex_exit(&hx711_i2c__slave_mutex);
+
+        return success;
 
 }
 
@@ -62,12 +72,16 @@ void hx711_i2c__slave_remove_slave(
         assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
         assert(hx711_i2c__slave_map != NULL);
 
+        mutex_enter_blocking(&hx711_i2c__slave_mutex);
+
         for(size_t i = 0; i < HX711_I2C_SLAVE_MAP_SIZE; ++i) {
             if(hx711_i2c__slave_map[i] == slave) {
                 hx711_i2c__slave_map[i] = NULL;
-                return;
+                break;
             }
         }
+
+        mutex_exit(&hx711_i2c__slave_mutex);
 
 }
 
@@ -81,14 +95,21 @@ bool hx711_i2c__slave_get_slave(
         assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
         assert(hx711_i2c__slave_map != NULL);
 
+        bool success = false;
+
+        mutex_enter_blocking(&hx711_i2c__slave_mutex);
+
         for(size_t i = 0; i < HX711_I2C_SLAVE_MAP_SIZE; ++i) {
             if(hx711_i2c__slave_map[i]->_i2c == i2c) {
                 *slave = hx711_i2c__slave_map[i];
-                return true;
+                success = true;
+                break;
             }
         }
 
-        return false;
+        mutex_exit(&hx711_i2c__slave_mutex);
+
+        return success;
 
 }
 
@@ -102,6 +123,8 @@ void hx711_i2c_slave_init(
         assert(hx_i2c_config->i2c != NULL);
         assert(hx_i2c_config->baud_rate > 0);
         assert(hx_i2c_config->hx != NULL);
+
+        mutex_enter_blocking(&hx711_i2c__slave_mutex);
 
         hx_i2c->_scl_pin = hx_i2c_config->scl_pin;
         hx_i2c->_sda_pin = hx_i2c_config->sda_pin;
@@ -183,7 +206,7 @@ void hx711_i2c_slave_handler(
             }
 
             // if crc fails, clear request
-            if(!hx711_i2c_buffer_to_remote_request(
+            if(!hx711_i2c_deserialise_request(
                 reqbuff,
                 &hx_i2c->_inreq)) {
                     memset(&hx_i2c->_inreq, 0, sizeof(hx_i2c->_inreq));
@@ -196,7 +219,7 @@ void hx711_i2c_slave_handler(
 
             uint8_t ctrlbuff[HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES];
 
-            hx711_i2c_remote_control_to_buffer(
+            hx711_i2c_serialise_control(
                 &hx_i2c->_memory,
                 ctrlbuff);
 

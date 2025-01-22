@@ -29,7 +29,7 @@ project(hx711-pico-c
 # only do this when this project is the one being built
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
-        set(CMAKE_C_STANDARD 11)
+        set(CMAKE_C_STANDARD 17)
         set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
         include(CTest)

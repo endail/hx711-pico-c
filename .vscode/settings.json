@@ -57,6 +57,11 @@
         "compare": "c",
         "*.inc": "c",
         "spifixedframe.h": "c",
-        "stdlib.h": "c"
-    }
+        "stdlib.h": "c",
+        "typeinfo": "cpp",
+        "types.h": "c",
+        "malloc.h": "c"
+    },
+    "C_Cpp.default.cppStandard": "",
+    "C_Cpp.default.cStandard": ""
 }

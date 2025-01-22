@@ -39,19 +39,23 @@ extern "C" {
 
 #define SPIFIXEDFRAME_TOTAL_BITS                    16u
 
-#define SPIFIXEDFRAME_DATA_BITS_PER_FRAME           15u
-
 #define SPIFIXEDFRAME_IS_FIRST_OFFSET               0u
 #define SPIFIXEDFRAME_DATA_OFFSET                   1u
 
 #define SPIFIXEDFRAME_IS_FIRST_SIZE_BITS            1u
-#define SPIFIXEDFRAME_DATA_SIZE_BITS                SPIFIXEDFRAME_DATA_BITS_PER_FRAME
+#define SPIFIXEDFRAME_DATA_SIZE_BITS                15u
+
+/**
+ * These limits are completely arbitrary
+ */
+#define SPIFIXEDFRAME_MAX_BYTES                     16000
+#define SPIFIXEDFRAME_MAX_FRAMES                    1000
 
 typedef uint16_t spifixedframe_buffer_t;
 
 typedef struct {
-    bool is_first;
-    spifixedframe_buffer_t data;
+    bool is_first: SPIFIXEDFRAME_IS_FIRST_SIZE_BITS;
+    spifixedframe_buffer_t data: SPIFIXEDFRAME_DATA_SIZE_BITS;
 } spifixedframe_t;
 
 extern const spifixedframe_t SPIFIXEDFRAME_NULL_FRAME;
@@ -80,8 +84,20 @@ size_t spifixedframe_calc_frame_count(
  * @param frame 
  * @return spifixedframe_buffer_t 
  */
-spifixedframe_buffer_t spifixedframe_to_buffer(
+spifixedframe_buffer_t spifixedframe_serialise(
     const spifixedframe_t* const frame);
+
+/**
+ * @brief Serialise a series of frames.
+ * 
+ * @param frames 
+ * @param buffers 
+ * @param frames_len 
+ */
+void spifixedframe_bulk_serialise(
+    const spifixedframe_t* const frames,
+    spifixedframe_buffer_t* const buffers,
+    const size_t frames_len);
 
 /**
  * @brief Deserialise bytes to a frame.
@@ -89,7 +105,7 @@ spifixedframe_buffer_t spifixedframe_to_buffer(
  * @param frame 
  * @param buffer 
  */
-void spifixedframe_from_buffer(
+void spifixedframe_deserialise(
     spifixedframe_t* const frame,
     const spifixedframe_buffer_t buffer);
 
@@ -129,15 +145,11 @@ bool spifixedframe_recv_bytes(
  * @see spifixedframe_calc_frame_count
  * @param bytes 
  * @param byte_len 
- * @param frame_count 
  * @param frames 
- * @return true 
- * @return false 
  */
-bool spifixedframe_fragment_bytes(
+void spifixedframe_fragment_bytes(
     const uint8_t* const bytes,
     const size_t byte_len,
-    const size_t frame_count,
     spifixedframe_t* const frames);
 
 /**
@@ -146,7 +158,6 @@ bool spifixedframe_fragment_bytes(
  * @param frames 
  * @param frame_count 
  * @param bytes 
- * @param byte_len 
  * @return true 
  * @return false 
  */
@@ -154,7 +165,7 @@ bool spifixedframe_defragment_frames(
     const spifixedframe_t* const frames,
     const size_t frame_count,
     uint8_t* const bytes,
-    size_t* const byte_len);
+    const size_t expected_bytes_len);
 
 /**
  * @brief Write a single frame to SPI.
@@ -249,7 +260,7 @@ bool spifixedframe_chain_read_blocking(
  * @return true 
  * @return false 
  */
-bool spifixedframe_chain_wait_first(
+bool spifixedframe_chain_wait_first_frame_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const first_frame);
 

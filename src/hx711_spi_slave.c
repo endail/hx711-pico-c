@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2024 Daniel Robertson
+// Copyright (c) 2025 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,16 +45,18 @@ bool hx711_spi_slave_try_get_request(
 
         uint8_t data[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        const bool success = spifixedframe_recv_bytes(
+        if(!spifixedframe_recv_bytes(
             hx_spi->_spi,
             data,
-            HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
-
-        if(success) {
-            return hx711_spi_buffer_to_remote_request(data, req);
+            HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES)) {
+                return false;
         }
 
-        return success;
+        if(!hx711_spi_deserialise_request(data, req)) {
+            return false;
+        }
+
+        return true;
 
 }
 
@@ -66,7 +68,7 @@ void hx711_spi_slave_transmit_control(
 
         uint8_t buffer[HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES];
 
-        hx711_spi_remote_control_to_buffer(
+        hx711_spi_serialise_control(
             &hx_spi->_memory,
             buffer);
 
