@@ -13,28 +13,28 @@ include/util.h:244:21: style: Unsigned expression 'startbit' can't be negative s
 include/hx711_i2c_slave.h:96:16: warning: Size of pointer 'ctrl' used instead of size of its data. [pointerSize]
         memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
                ^
-src/hx711_i2c_slave.c:48:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:55:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == NULL) {
                                    ^
-src/hx711_i2c_slave.c:66:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:78:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == slave) {
                                    ^
-src/hx711_i2c_slave.c:85:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:103:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i]->_i2c == i2c) {
                                    ^
-src/hx711_i2c_slave.c:80:16: error: Uninitialized variable: *slave [uninitvar]
+src/hx711_i2c_slave.c:94:16: error: Uninitialized variable: *slave [uninitvar]
         assert(*slave != NULL);
                ^
-src/hx711_i2c_slave.c:170:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
+src/hx711_i2c_slave.c:193:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
         hx711_i2c__slave_get_slave(i2c, &hx_i2c);
                                         ^
-src/hx711_i2c_slave.c:80:16: note: Uninitialized variable: *slave
+src/hx711_i2c_slave.c:94:16: note: Uninitialized variable: *slave
         assert(*slave != NULL);
                ^
-src/hx711_i2c_slave.c:128:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/hx711_i2c_slave.c:151:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/hx711_i2c_slave.c:156:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+src/hx711_i2c_slave.c:179:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
 src/hx711_multi.c:590:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
@@ -46,24 +46,15 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/hx711_spi_slave.c:57:16: warning: Identical condition and return expression 'success', return value is always false [identicalConditionAfterEarlyExit]
-        return success;
-               ^
-src/hx711_spi_slave.c:53:12: note: If condition 'success' is true, the function will return/exit
-        if(success) {
-           ^
-src/hx711_spi_slave.c:57:16: note: Returning identical expression 'success'
-        return success;
-               ^
-src/spifixedframe.c:252:32: style: The scope of the variable 'current_frame' can be reduced. [variableScope]
-        spifixedframe_buffer_t current_frame = 0;
-                               ^
-src/spifixedframe.c:233:24: style: Variable 'chunk_index' is assigned a value that is never used. [unreadVariable]
-            chunk_index++;
-                       ^
-src/spifixedframe.c:252:46: style: Variable 'current_frame' is assigned a value that is never used. [unreadVariable]
-        spifixedframe_buffer_t current_frame = 0;
-                                             ^
+src/spifixedframe.c:310:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
+                    if(byteIndex < expected_bytes_len) {
+                                 ^
+src/spifixedframe.c:296:30: note: Assuming condition 'byteIndex>=expected_bytes_len' is false
+                if(byteIndex >= expected_bytes_len) {
+                             ^
+src/spifixedframe.c:310:34: note: Condition 'byteIndex<expected_bytes_len' is always true
+                    if(byteIndex < expected_bytes_len) {
+                                 ^
 src/util.c:551:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
