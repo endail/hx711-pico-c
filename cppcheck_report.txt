@@ -46,13 +46,13 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/spifixedframe.c:310:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
+src/spifixedframe.c:294:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
                     if(byteIndex < expected_bytes_len) {
                                  ^
-src/spifixedframe.c:296:30: note: Assuming condition 'byteIndex>=expected_bytes_len' is false
+src/spifixedframe.c:280:30: note: Assuming condition 'byteIndex>=expected_bytes_len' is false
                 if(byteIndex >= expected_bytes_len) {
                              ^
-src/spifixedframe.c:310:34: note: Condition 'byteIndex<expected_bytes_len' is always true
+src/spifixedframe.c:294:34: note: Condition 'byteIndex<expected_bytes_len' is always true
                     if(byteIndex < expected_bytes_len) {
                                  ^
 src/util.c:551:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
