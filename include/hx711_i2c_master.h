@@ -117,9 +117,8 @@ int hx711_i2c_master_set_gain(
  * @param hx_i2c 
  * @param val 
  * @param control control values from the master
- * @return int PICO_OK if no error, otherwise PICO_ERROR_IO
  */
-int hx711_i2c_master_get_control(
+bool hx711_i2c_master_get_control(
     hx711_i2c_master_t* const hx_i2c,
     hx711_remote_control_t* const ctrl);
 

@@ -118,6 +118,22 @@ typedef struct {
     uint8_t crc;
 } hx711_remote_request_t;
 
+/*
+typedef void (*hx711_remote_init_handler)();
+typedef void (*hx711_remote_close_handler)();
+typedef void (*hx711_remote_set_gain_handler)();
+typedef void (*hx711_remote_get_control_handler)();
+typedef void (*hx711_remote_set_power_handler)();
+
+typedef struct {
+    hx711_remote_init_handler init;
+    hx711_remote_close_handler close;
+    hx711_remote_set_gain_handler set_gain;
+    hx711_remote_get_control_handler get_control;
+    hx711_remote_set_power_handler power_up;
+} hx711_remote_manager;
+*/
+
 extern const hx711_remote_control_t HX711_REMOTE_CONTROL_DEFAULTS;
 
 /**
@@ -127,16 +143,9 @@ extern const hx711_remote_control_t HX711_REMOTE_CONTROL_DEFAULTS;
  * @param val 
  * @param arr 
  */
-inline void hx711_remote_value_to_array(
+void hx711_remote_value_to_array(
     const int32_t val,
-    uint8_t* const arr) {
-        assert(arr != NULL);
-        assert(hx711_is_value_valid(val));
-        const int32_t extval = (val << 8) >> 8;
-        arr[0] = (uint8_t)extval;
-        arr[1] = (uint8_t)(extval >> 8);
-        arr[2] = (uint8_t)(extval >> 16);
-}
+    uint8_t* const arr);
 
 /**
  * @brief Convert a 3-byte array containing a HX711
@@ -145,14 +154,8 @@ inline void hx711_remote_value_to_array(
  * @param arr 
  * @return int32_t 
  */
-inline int32_t hx711_remote_array_to_value(
-    const uint8_t* const arr) {
-        assert(arr != NULL);
-        int32_t val = arr[0] | (arr[1] << 8) | (arr[2] << 16);
-        val = (val << 8) >> 8;
-        assert(hx711_is_value_valid(val));
-        return val;
-}
+int32_t hx711_remote_array_to_value(
+    const uint8_t* const arr);
 
 void hx711_remote_control_get_defaults(
     hx711_remote_control_t* const ctrl);

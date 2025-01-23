@@ -38,6 +38,26 @@ const hx711_remote_control_t HX711_REMOTE_CONTROL_DEFAULTS = {
     .value = 0
 };
 
+void hx711_remote_value_to_array(
+    const int32_t val,
+    uint8_t* const arr) {
+        assert(arr != NULL);
+        assert(hx711_is_value_valid(val));
+        const int32_t extval = (val << 8) >> 8;
+        arr[0] = (uint8_t)extval;
+        arr[1] = (uint8_t)(extval >> 8);
+        arr[2] = (uint8_t)(extval >> 16);
+}
+
+int32_t hx711_remote_array_to_value(
+    const uint8_t* const arr) {
+        assert(arr != NULL);
+        int32_t val = arr[0] | (arr[1] << 8) | (arr[2] << 16);
+        val = (val << 8) >> 8;
+        assert(hx711_is_value_valid(val));
+        return val;
+}
+
 void hx711_remote_control_get_defaults(
     hx711_remote_control_t* const ctrl) {
         assert(ctrl != NULL);

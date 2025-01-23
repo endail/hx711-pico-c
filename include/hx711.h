@@ -381,9 +381,8 @@ inline void hx711_wait_settle(
  * appropriate amount of time to allow the HX711 to power
  * down.
  */
-inline void hx711_wait_power_down(
-    ) {
-        sleep_us(HX711_POWER_DOWN_TIMEOUT);
+inline void hx711_wait_power_down() {
+    sleep_us(HX711_POWER_DOWN_TIMEOUT);
 }
 
 /**

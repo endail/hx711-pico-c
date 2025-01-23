@@ -48,8 +48,70 @@ extern "C" {
 /**
  * These limits are completely arbitrary
  */
-#define SPIFIXEDFRAME_MAX_BYTES                     16000
-#define SPIFIXEDFRAME_MAX_FRAMES                    1000
+#define SPIFIXEDFRAME_MAX_BYTES                     16000u
+#define SPIFIXEDFRAME_MAX_FRAMES                    1000u
+
+typedef enum {
+    SPIFIXEDFRAME_ERROR_OK =                        0,
+    SPIFIXEDFRAME_ERROR_GENERIC =                   -1,
+    SPIFIXEDFRAME_ERROR_UNKNOWN =                   -2,
+    SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED =       -3,
+    SPIFIXEDFRAME_ERROR_FRAME_LIMIT_EXCEEDED =      -4,
+    SPIFIXEDFRAME_ERROR_CHAIN_NO_FIRST =            -5,
+    SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST =       -6,
+    SPIFIXEDFRAME_ERROR_TIMEOUT =                   -7,
+    SPIFIXEDFRAME_ERROR_TRY_LIMIT_EXCEEDED =        -8,
+    SPIFIXEDFRAME_ERROR_SPI_GENERIC =               -9,
+    SPIFIXEDFRAME_ERROR_SPI_WRITE_FAIL =            -10,
+    SPIFIXEDFRAME_ERROR_SPI_READ_FAIL =             -11,
+    SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL =       -12,
+    SPIFIXEDFRAME_ERROR_TOO_FEW_FRAMES =            -13,
+    SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES =             -14
+} spifixedframe_error_t;
+
+#define SPIFIXEDFRAME_CHECK_FRAME_COUNT(COUNT) \
+    do { \
+        \
+        if(COUNT == 0) { \
+            return SPIFIXEDFRAME_ERROR_TOO_FEW_FRAMES; \
+        } \
+        \
+        if(COUNT > SPIFIXEDFRAME_MAX_FRAMES) { \
+            return SPIFIXEDFRAME_ERROR_FRAME_LIMIT_EXCEEDED; \
+        } \
+        \
+    } \
+    while(0)
+
+#define SPIFIXEDFRAME_CHECK_BYTE_COUNT(COUNT) \
+    do { \
+        \
+        if(COUNT == 0) { \
+            return SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES; \
+        } \
+        \
+        if(COUNT > SPIFIXEDFRAME_MAX_BYTES) { \
+            return SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED; \
+        } \
+        \
+    } \
+    while(0)
+
+#define SPIFIXEDFRAME_CHECK_CHAIN(FRAMES, FRAME_LEN) \
+    do { \
+        \
+        if(!FRAMES[0].is_first) { \
+            return SPIFIXEDFRAME_ERROR_CHAIN_NO_FIRST; \
+        } \
+        \
+        for(size_t i = 1; i < FRAME_LEN; ++i) { \
+            if(FRAMES[i].is_first) { \
+                return SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST; \
+            } \
+        } \
+        \
+    } \
+    while(0)
 
 typedef uint16_t spifixedframe_buffer_t;
 
@@ -118,7 +180,7 @@ void spifixedframe_deserialise(
  * @return true 
  * @return false 
  */
-bool spifixedframe_send_bytes(
+spifixedframe_error_t spifixedframe_send_bytes(
     spi_inst_t* const spi,
     const uint8_t* const bytes,
     const size_t byte_len);
@@ -132,7 +194,7 @@ bool spifixedframe_send_bytes(
  * @return true 
  * @return false 
  */
-bool spifixedframe_recv_bytes(
+spifixedframe_error_t spifixedframe_recv_bytes(
     spi_inst_t* const spi,
     uint8_t* const bytes,
     const size_t byte_len);
@@ -147,7 +209,7 @@ bool spifixedframe_recv_bytes(
  * @param byte_len 
  * @param frames 
  */
-void spifixedframe_fragment_bytes(
+spifixedframe_error_t spifixedframe_fragment_bytes(
     const uint8_t* const bytes,
     const size_t byte_len,
     spifixedframe_t* const frames);
@@ -161,7 +223,7 @@ void spifixedframe_fragment_bytes(
  * @return true 
  * @return false 
  */
-bool spifixedframe_defragment_frames(
+spifixedframe_error_t spifixedframe_defragment_frames(
     const spifixedframe_t* const frames,
     const size_t frame_count,
     uint8_t* const bytes,
@@ -175,7 +237,7 @@ bool spifixedframe_defragment_frames(
  * @return true 
  * @return false 
  */
-bool spifixedframe_write_frame_blocking(
+spifixedframe_error_t spifixedframe_write_frame_blocking(
     spi_inst_t* const spi,
     const spifixedframe_t* const frame);
 
@@ -187,7 +249,7 @@ bool spifixedframe_write_frame_blocking(
  * @return true 
  * @return false 
  */
-bool spifixedframe_read_frame_blocking(
+spifixedframe_error_t spifixedframe_read_frame_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const frame);
 
@@ -200,7 +262,7 @@ bool spifixedframe_read_frame_blocking(
  * @return true 
  * @return false 
  */
-bool spifixedframe_bulk_write_frames_blocking(
+spifixedframe_error_t spifixedframe_bulk_write_frames_blocking(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
     const size_t frames_len);
@@ -214,7 +276,7 @@ bool spifixedframe_bulk_write_frames_blocking(
  * @return true 
  * @return false 
  */
-bool spifixedframe_bulk_read_frames_blocking(
+spifixedframe_error_t spifixedframe_bulk_read_frames_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const frames,
     const size_t frames_len);
@@ -229,7 +291,7 @@ bool spifixedframe_bulk_read_frames_blocking(
  * @return true 
  * @return false 
  */
-bool spifixedframe_chain_write_blocking(
+spifixedframe_error_t spifixedframe_chain_write_blocking(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
     const size_t frames_to_write);
@@ -246,7 +308,7 @@ bool spifixedframe_chain_write_blocking(
  * @return true 
  * @return false 
  */
-bool spifixedframe_chain_read_blocking(
+spifixedframe_error_t spifixedframe_chain_read_blocking(
     spi_inst_t* const spi,
     const size_t frames_to_read,
     spifixedframe_t* const frames);
@@ -260,7 +322,7 @@ bool spifixedframe_chain_read_blocking(
  * @return true 
  * @return false 
  */
-bool spifixedframe_chain_wait_first_frame_blocking(
+spifixedframe_error_t spifixedframe_chain_wait_first_frame_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const first_frame);
 

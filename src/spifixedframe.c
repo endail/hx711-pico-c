@@ -135,26 +135,21 @@ void spifixedframe_deserialise(
 
 }
 
-bool spifixedframe_send_bytes(
+spifixedframe_error_t spifixedframe_send_bytes(
     spi_inst_t* const spi,
     const uint8_t* const bytes,
     const size_t byte_len) {
 
         assert(spi != NULL);
         assert(bytes != NULL);
-        assert(byte_len <= SPIFIXEDFRAME_MAX_BYTES);
+        SPIFIXEDFRAME_CHECK_BYTE_COUNT(byte_len);
 
-        if(byte_len > SPIFIXEDFRAME_MAX_BYTES) {
-            return false;
-        }
-
-        bool success = false;
         const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
         const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
         spifixedframe_t* restrict const frames = malloc(allocBytes);
 
         if(frames == NULL) {
-            return false;
+            return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
         }
 
         spifixedframe_fragment_bytes(
@@ -162,42 +157,42 @@ bool spifixedframe_send_bytes(
             byte_len,
             frames);
 
-        success = spifixedframe_chain_write_blocking(
+        const spifixedframe_error_t code = spifixedframe_chain_write_blocking(
             spi,
             frames,
             frameCount);
 
         free(frames);
 
-        return success;
+        return code;
 
 }
 
-bool spifixedframe_recv_bytes(
+spifixedframe_error_t spifixedframe_recv_bytes(
     spi_inst_t* const spi,
     uint8_t* const bytes,
     const size_t byte_len) {
 
         assert(spi != NULL);
         assert(bytes != NULL);
-        assert(byte_len <= SPIFIXEDFRAME_MAX_BYTES);
+        SPIFIXEDFRAME_CHECK_BYTE_COUNT(byte_len);
 
-        bool success = false;
+        spifixedframe_error_t code;
         const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
         const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
         spifixedframe_t* const restrict frames = malloc(allocBytes);
 
         if(frames == NULL) {
-            return false;
+            return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
         }
 
-        success = spifixedframe_chain_read_blocking(
+        code = spifixedframe_chain_read_blocking(
             spi,
             frameCount,
             frames);
 
-        if(success) {
-            success = spifixedframe_defragment_frames(
+        if(code == SPIFIXEDFRAME_ERROR_OK) {
+            code = spifixedframe_defragment_frames(
                 frames,
                 frameCount,
                 bytes,
@@ -206,18 +201,18 @@ bool spifixedframe_recv_bytes(
 
         free(frames);
 
-        return success;
+        return code;
 
 }
 
-void spifixedframe_fragment_bytes(
+spifixedframe_error_t spifixedframe_fragment_bytes(
     const uint8_t* const bytes,
     const size_t byte_len,
     spifixedframe_t* const frames) {
 
         assert(bytes != NULL);
-        assert(byte_len > 0);
         assert(frames != NULL);
+        SPIFIXEDFRAME_CHECK_BYTE_COUNT(byte_len);
 
         spifixedframe_buffer_t currentChunk = 0;
         size_t chunkIndex = 0;
@@ -254,36 +249,25 @@ void spifixedframe_fragment_bytes(
             frames[chunkIndex].data = currentChunk;
         }
 
+        return SPIFIXEDFRAME_ERROR_OK;
+
 }
 
-bool spifixedframe_defragment_frames(
+spifixedframe_error_t spifixedframe_defragment_frames(
     const spifixedframe_t* const frames,
     const size_t frame_count,
     uint8_t* const bytes,
     const size_t expected_bytes_len) {
 
         assert(frames != NULL);
-        assert(frame_count > 0);
-        assert(frame_count <= SPIFIXEDFRAME_MAX_FRAMES);
         assert(bytes != NULL);
-        assert(expected_bytes_len > 0);
-        assert(expected_bytes_len <= SPIFIXEDFRAME_MAX_BYTES);
+        SPIFIXEDFRAME_CHECK_FRAME_COUNT(frame_count);
+        SPIFIXEDFRAME_CHECK_BYTE_COUNT(expected_bytes_len);
+        SPIFIXEDFRAME_CHECK_CHAIN(frames, frame_count);
 
         size_t bitsFilled = 0;
         uint8_t currentByte = 0;
         size_t byteIndex = 0;
-
-        // check first frame is flagged as first
-        if(!frames[0].is_first) {
-            return false;
-        }
-
-        // check all remaining frames are not flagged as first
-        for(size_t i = 1; i < frame_count; ++i) {
-            if(frames[i].is_first) {
-                return false;
-            }
-        }
 
         // iterate over each frame
         for(size_t frameIndex = 0; frameIndex < frame_count; ++frameIndex) {
@@ -312,7 +296,7 @@ bool spifixedframe_defragment_frames(
                         byteIndex++;
                     }
                     else {
-                        return true;
+                        return SPIFIXEDFRAME_ERROR_OK;
                     }
 
                     currentByte = 0;
@@ -330,36 +314,49 @@ bool spifixedframe_defragment_frames(
             // byteIndex++;
         }
 
-        return true;
+        return SPIFIXEDFRAME_ERROR_OK;
 
 }
 
-bool spifixedframe_write_frame_blocking(
+spifixedframe_error_t spifixedframe_write_frame_blocking(
     spi_inst_t* const spi,
     const spifixedframe_t* const frame) {
 
         assert(spi != NULL);
         assert(frame != NULL);
 
+        const size_t writeLen = 1;
         const spifixedframe_buffer_t buffer = spifixedframe_serialise(frame);
 
         while(!spi_is_writable(spi)) {
             tight_loop_contents();
         }
 
-        return spi_write16_blocking(
+        const int spiCode = spi_write16_blocking(
             spi,
-            &buffer, 1) == 1;
+            &buffer,
+            writeLen);
+
+        switch(spiCode) {
+        case writeLen:
+            return SPIFIXEDFRAME_ERROR_OK;
+        case PICO_ERROR_IO:
+        case PICO_ERROR_GENERIC:
+            return SPIFIXEDFRAME_ERROR_SPI_WRITE_FAIL;
+        default:
+            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
+        }
 
 }
 
-bool spifixedframe_read_frame_blocking(
+spifixedframe_error_t spifixedframe_read_frame_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const frame) {
 
         assert(spi != NULL);
         assert(frame != NULL);
 
+        const size_t readLen = 1;
         spifixedframe_buffer_t inbuffer;
         spifixedframe_buffer_t outbuffer = spifixedframe_serialise(
             &SPIFIXEDFRAME_NULL_FRAME);
@@ -370,26 +367,37 @@ bool spifixedframe_read_frame_blocking(
 
         // outbuffer contains a null-frame as this function
         // requires a value to transmit
-        if(spi_read16_blocking(spi, outbuffer, &inbuffer, 1) != 1) {
-            return false;
+        const int spiCode = spi_read16_blocking(
+            spi,
+            outbuffer,
+            &inbuffer,
+            readLen);
+
+        switch(spiCode) {
+        case readLen:
+            break;
+        case PICO_ERROR_IO:
+        case PICO_ERROR_GENERIC:
+            return SPIFIXEDFRAME_ERROR_SPI_READ_FAIL;
+        default:
+            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
         }
 
         spifixedframe_deserialise(frame, inbuffer);
 
-        return true;
+        return SPIFIXEDFRAME_ERROR_OK;
 
 }
 
-bool spifixedframe_bulk_write_frames_blocking(
+spifixedframe_error_t spifixedframe_bulk_write_frames_blocking(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
     const size_t frames_len) {
 
         assert(spi != NULL);
         assert(frames != NULL);
-        assert(frames_len <= SPIFIXEDFRAME_MAX_FRAMES);
+        SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_len);
 
-        bool success = false;
         const size_t allocBytes = (sizeof(spifixedframe_buffer_t) * frames_len);
         spifixedframe_buffer_t* restrict const buffer = malloc(allocBytes);
 
@@ -397,7 +405,7 @@ bool spifixedframe_bulk_write_frames_blocking(
         // so malloc is OK instead of calloc
 
         if(buffer == NULL) {
-            return false;
+            return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
         }
 
         spifixedframe_bulk_serialise(
@@ -409,27 +417,36 @@ bool spifixedframe_bulk_write_frames_blocking(
             tight_loop_contents();
         }
 
-        success = ((size_t)spi_write16_blocking(
+        const int spiCode = spi_write16_blocking(
             spi,
             buffer,
-            frames_len) == frames_len);
+            frames_len);
 
         free(buffer);
 
-        return success;
+        if(spiCode > 0 && (size_t)spiCode == frames_len) {
+            return SPIFIXEDFRAME_ERROR_OK;
+        }
+
+        switch(spiCode) {
+        case PICO_ERROR_IO:
+        case PICO_ERROR_GENERIC:
+            return SPIFIXEDFRAME_ERROR_SPI_WRITE_FAIL;
+        default:
+            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
+        }
 
 }
 
-bool spifixedframe_bulk_read_frames_blocking(
+spifixedframe_error_t spifixedframe_bulk_read_frames_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const frames,
     const size_t frames_len) {
 
         assert(spi != NULL);
         assert(frames != NULL);
-        assert(frames_len <= SPIFIXEDFRAME_MAX_FRAMES);
+        SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_len);
 
-        bool success = false;
         const spifixedframe_buffer_t outbuffer = 
             spifixedframe_serialise(&SPIFIXEDFRAME_NULL_FRAME);
 
@@ -437,17 +454,17 @@ bool spifixedframe_bulk_read_frames_blocking(
         spifixedframe_buffer_t* restrict const inbuffer = malloc(allocBytes);
 
         if(inbuffer == NULL) {
-            return false;
+            return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
         }
 
-        success = ((size_t)spi_read16_blocking(
+        const int spiCode = spi_read16_blocking(
             spi,
             outbuffer,
             inbuffer,
-            frames_len) == frames_len);
+            frames_len);
 
         // if read succeeded, create the frames from the buffer
-        if(success) {
+        if(spiCode > 0 && (size_t)spiCode == frames_len) {
             for(size_t i = 0; i < frames_len; ++i) {
                 spifixedframe_deserialise(&frames[i], inbuffer[i]);
             }
@@ -455,19 +472,29 @@ bool spifixedframe_bulk_read_frames_blocking(
 
         free(inbuffer);
 
-        return success;
+        if(spiCode > 0 && (size_t)spiCode == frames_len) {
+            return SPIFIXEDFRAME_ERROR_OK;
+        }
+
+        switch(spiCode) {
+        case PICO_ERROR_IO:
+        case PICO_ERROR_GENERIC:
+            return SPIFIXEDFRAME_ERROR_SPI_READ_FAIL;
+        default:
+            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
+        }
 
 }
 
-bool spifixedframe_chain_write_blocking(
+spifixedframe_error_t spifixedframe_chain_write_blocking(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
     const size_t frames_to_write) {
 
         assert(spi != NULL);
         assert(frames != NULL);
-        assert(frames_to_write <= SPIFIXEDFRAME_MAX_FRAMES);
-        assert(frames[0].is_first);
+        SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_to_write);
+        SPIFIXEDFRAME_CHECK_CHAIN(frames, frames_to_write);
 
         return spifixedframe_bulk_write_frames_blocking(
             spi,
@@ -476,27 +503,26 @@ bool spifixedframe_chain_write_blocking(
 
 }
 
-bool spifixedframe_chain_read_blocking(
+spifixedframe_error_t spifixedframe_chain_read_blocking(
     spi_inst_t* const spi,
     const size_t frames_to_read,
     spifixedframe_t* const frames) {
 
         assert(spi != NULL);
-        assert(frames_to_read <= SPIFIXEDFRAME_MAX_FRAMES);
         assert(frames != NULL);
+        SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_to_read);
 
-        bool success = false;
+        const spifixedframe_error_t code = 
+            spifixedframe_chain_wait_first_frame_blocking(
+                spi,
+                &frames[0]);
 
-        success = spifixedframe_chain_wait_first_frame_blocking(
-            spi,
-            &frames[0]);
-
-        if(!success) {
-            return false;
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return code;
         }
 
         if(frames_to_read == 1) {
-            return true;
+            return SPIFIXEDFRAME_ERROR_OK;
         }
 
         return spifixedframe_bulk_read_frames_blocking(
@@ -506,27 +532,30 @@ bool spifixedframe_chain_read_blocking(
 
 }
 
-bool spifixedframe_chain_wait_first_frame_blocking(
+spifixedframe_error_t spifixedframe_chain_wait_first_frame_blocking(
     spi_inst_t* const spi,
     spifixedframe_t* const first_frame) {
 
         assert(spi != NULL);
         assert(first_frame != NULL);
 
+        spifixedframe_error_t code;
         spifixedframe_t temp;
         spifixedframe_get_null_frame(&temp);
 
         do {
-            // if reading fails, there's an IO error
-            // so consider this as a fail
-            if(!spifixedframe_read_frame_blocking(spi, &temp)) {
-                return false;
+
+            code = spifixedframe_read_frame_blocking(spi, &temp);
+
+            if(code != SPIFIXEDFRAME_ERROR_OK) {
+                return code;
             }
+
         }
         while(!temp.is_first);
 
         *first_frame = temp;
 
-        return true;
+        return SPIFIXEDFRAME_ERROR_OK;
 
 }

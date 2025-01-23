@@ -39,6 +39,9 @@ void hx711_spi_serialise_request(
     const hx711_remote_request_t* const req,
     uint8_t* const buffer) {
 
+        // buffer is guaranteed to be of sufficient size by
+        // the calling function
+
         assert(req != NULL);
         assert(buffer != NULL);
 
@@ -62,6 +65,9 @@ void hx711_spi_serialise_request(
 void hx711_spi_serialise_control(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer) {
+
+        // buffer is guaranteed to be of sufficient size by
+        // the calling function
 
         assert(ctrl != NULL);
         assert(buffer != NULL);
@@ -93,17 +99,22 @@ bool hx711_spi_deserialise_request(
         assert(buffer != NULL);
         assert(req != NULL);
 
+        // buffer is guaranteed to be of sufficient size by
+        // the calling function
+
         uint8_t* ptr = (uint8_t*)buffer;
+        uint8_t calcd_crc;
+        uint8_t raw_crc;
 
         // parse out the request data
         hx711_remote_deserialise_request(ptr, req);
 
         // calculate the crc of the request data
-        const uint8_t calcd_crc = util_crc8(*ptr, HX711_SPI_CRC8_POLYNOMIAL);
+        calcd_crc = util_crc8(*ptr, HX711_SPI_CRC8_POLYNOMIAL);
 
         // increment the pointer to the transmitted crc
         ptr += HX711_REMOTE_REQUEST_TOTAL_SIZE_BYTES;
-        const uint8_t raw_crc = *ptr;
+        raw_crc = *ptr;
 
         // and check if crcs match
         return calcd_crc == raw_crc;
@@ -117,20 +128,25 @@ bool hx711_spi_deserialise_control(
         assert(buffer != NULL);
         assert(ctrl != NULL);
 
+        // buffer is guaranteed to be of sufficient size by
+        // the calling function
+
         uint8_t* ptr = (uint8_t*)buffer;
+        uint32_t calcd_crc;
+        uint32_t raw_crc;
 
         // parse out the control data
         hx711_remote_deserialise_control(ptr, ctrl);
 
         // calculate the crc of the control data
-        const uint32_t calcd_crc = util_crc32(
+        calcd_crc = util_crc32(
             ptr,
             HX711_SPI_REMOTE_CONTROL_CRC_SIZE_BYTES,
             HX711_SPI_CRC32_POLYNOMIAL);
 
         // increment the pointer to the transmitted crc
         ptr += HX711_REMOTE_CONTROL_TOTAL_BYTES;
-        const uint32_t raw_crc = (uint32_t)*ptr;
+        memcpy(&raw_crc, ptr, sizeof(raw_crc));
 
         // and check if crcs match
         return calcd_crc == raw_crc;
@@ -240,7 +256,7 @@ int hx711_spi_master_get_control(
         assert(hx_spi->_spi != NULL);
         assert(ctrl != NULL);
 
-        uint8_t buffer[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
+        uint8_t buffer[HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES];
 
         bool success = false;
 
@@ -248,7 +264,7 @@ int hx711_spi_master_get_control(
             success = spifixedframe_recv_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
+                HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES);
         );
 
         if(!success) {
@@ -269,7 +285,7 @@ int32_t hx711_spi_master_get_value_blocking(
         assert(hx_spi != NULL);
         assert(hx_spi->_spi != NULL);
 
-        hx711_remote_control_t ctrl = { 0 };
+        hx711_remote_control_t ctrl;
 
         while(hx711_spi_master_get_control(hx_spi, &ctrl) != PICO_OK) {
             if(!hx711_remote_control_ok(&ctrl)) {

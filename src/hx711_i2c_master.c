@@ -117,6 +117,7 @@ bool hx711_i2c_deserialise_control(
         assert(ctrl != NULL);
 
         uint8_t* ptr = (uint8_t*)buffer;
+        uint32_t raw_crc;
 
         // parse out the control data
         hx711_remote_deserialise_control(ptr, ctrl);
@@ -129,7 +130,8 @@ bool hx711_i2c_deserialise_control(
 
         // increment the pointer to the transmitted crc
         ptr += HX711_REMOTE_CONTROL_TOTAL_BYTES;
-        const uint32_t raw_crc = (uint32_t)*ptr;
+
+        memcpy(&raw_crc, ptr, sizeof(raw_crc));
 
         // and check if crcs match
         return calcd_crc == raw_crc;
@@ -211,7 +213,7 @@ int hx711_i2c_master_set_gain(
 
 }
 
-int hx711_i2c_master_get_control(
+bool hx711_i2c_master_get_control(
     hx711_i2c_master_t* const hx_i2c,
     hx711_remote_control_t* const ctrl) {
 
@@ -228,17 +230,22 @@ int hx711_i2c_master_get_control(
             HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES,
             true);
 
-        // TODO: probably change this
-        if(bytesRead != HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES) {
-            // eg. incorrect number of bytes received
-            return bytesRead;
+        switch(bytesRead) {
+        case PICO_ERROR_IO:
+        case PICO_ERROR_GENERIC:
+            // I2C errors
+            return false;
+        case HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES:
+            // correct number of bytes, so continue
+            break;
+        default:
+            // any other number of bytes is a fail
+            return false;
         }
 
-        const bool success = hx711_i2c_deserialise_control(
+        return hx711_i2c_deserialise_control(
             buffer,
             ctrl);
-
-        return success ? PICO_OK : PICO_ERROR_IO;
 
 }
 
@@ -250,7 +257,7 @@ int32_t hx711_i2c_master_get_value_blocking(
 
         hx711_remote_control_t ctrl;
 
-        while(hx711_i2c_master_get_control(hx_i2c, &ctrl) != PICO_OK) {
+        while(!hx711_i2c_master_get_control(hx_i2c, &ctrl)) {
             if(!hx711_remote_control_ok(&ctrl)) {
                 continue;
             }
