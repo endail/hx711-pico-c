@@ -1,15 +1,3 @@
-include/util.h:187:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
-                        ^
-include/util.h:211:25: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
-                        ^
-include/util.h:228:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
-                    ^
-include/util.h:244:21: style: Unsigned expression 'startbit' can't be negative so it is unnecessary to test it. [unsignedPositive]
-    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
-                    ^
 include/hx711_i2c_slave.h:96:16: warning: Size of pointer 'ctrl' used instead of size of its data. [pointerSize]
         memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
                ^
@@ -46,16 +34,16 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/spifixedframe.c:294:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
+src/spifixedframe.c:346:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
                     if(byteIndex < expected_bytes_len) {
                                  ^
-src/spifixedframe.c:280:30: note: Assuming condition 'byteIndex>=expected_bytes_len' is false
+src/spifixedframe.c:332:30: note: Assuming condition 'byteIndex>=expected_bytes_len' is false
                 if(byteIndex >= expected_bytes_len) {
                              ^
-src/spifixedframe.c:294:34: note: Condition 'byteIndex<expected_bytes_len' is always true
+src/spifixedframe.c:346:34: note: Condition 'byteIndex<expected_bytes_len' is always true
                     if(byteIndex < expected_bytes_len) {
                                  ^
-src/util.c:551:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/util.c:545:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
 src/util.c:57:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
