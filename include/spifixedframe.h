@@ -69,12 +69,6 @@ typedef enum {
     SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES =             -14
 } spifixedframe_error_t;
 
-typedef struct spifixedframe_buffer_node_t {
-    struct spifixedframe_buffer_node_t* next;
-    uint8_t* bytes;
-    size_t len;
-} spifixedframe_buffer_node_t;
-
 #define SPIFIXEDFRAME_CHECK_FRAME_COUNT(COUNT) \
     do { \
         UTIL_RETURNIF(COUNT == 0, SPIFIXEDFRAME_ERROR_TOO_FEW_FRAMES); \
@@ -169,18 +163,7 @@ spifixedframe_error_t spifixedframe_send_bytes(
     const uint8_t* const bytes,
     const size_t byte_len);
 
-/**
- * @brief Send a fixed number of bytes with error correction.
- * 
- * @param spi 
- * @param bytes 
- * @param byte_len 
- * @return spifixedframe_error_t 
- */
-spifixedframe_error_t spifixedframe_send_bytes_ec(
-    spi_inst_t* const spi,
-    const uint8_t* const bytes,
-    const size_t byte_len);
+
 
 /**
  * @brief Receive a fixed number of bytes.

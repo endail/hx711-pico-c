@@ -28,7 +28,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include "../include/spifixedframe.h"
 #include "../include/util.h"
@@ -162,56 +161,6 @@ spifixedframe_error_t spifixedframe_send_bytes(
             frameCount);
 
         free(frames);
-
-        return code;
-
-}
-
-spifixedframe_error_t spifixedframe_send_bytes_ec(
-    spi_inst_t* const spi,
-    const uint8_t* const bytes,
-    const size_t byte_len) {
-
-        assert(spi != NULL);
-        assert(bytes != NULL);
-
-        size_t newLen;
-
-        if(byte_len <= UINT8_WIDTH) {
-            newLen = byte_len + UINT8_WIDTH;
-        }
-        else if(byte_len <= UINT16_WIDTH) {
-            newLen = byte_len + UINT16_WIDTH;
-        }
-        else {
-            newLen = byte_len + UINT32_WIDTH;
-        }
-
-        uint8_t* const newBuf = malloc(newLen);
-
-        if(newBuf == NULL) {
-            return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
-        }
-
-        memcpy(newBuf, bytes, byte_len);
-
-        if(byte_len <= UINT8_WIDTH) {
-            newBuf[byte_len] = util_crc8(*bytes, 1);
-        }
-        //else if(byte_len <= UINT16_WIDTH) {
-            // not implemented
-        //}
-        else {
-            const uint32_t crc32 = util_crc32(bytes, byte_len, 1);
-            memcpy(&newBuf[byte_len], &crc32, sizeof(crc32));
-        }
-
-        const spifixedframe_error_t code = spifixedframe_send_bytes(
-            spi,
-            newBuf,
-            newLen);
-
-        free(newBuf);
 
         return code;
 
