@@ -35,7 +35,7 @@
 #include "../include/spifixedframe.h"
 #include "../include/util.h"
 
-bool hx711_spi_slave_try_get_request(
+hx711_spi_error_t hx711_spi_slave_try_get_request(
     hx711_spi_slave_t* const hx_spi,
     hx711_remote_request_t* const req) {
 
@@ -45,20 +45,21 @@ bool hx711_spi_slave_try_get_request(
 
         uint8_t data[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        if(!spifixedframe_recv_bytes(
+        if(spifixedframe_recv_bytes(
             hx_spi->_spi,
             data,
-            HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES)) {
-                return false;
+            HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES) != SPIFIXEDFRAME_ERROR_OK) {
+                return HX711_SPI_ERROR_SPI_RECV_FAIL;
         }
 
-        UTIL_RETURNIF(!hx711_spi_deserialise_request(data, req), false);
+        UTIL_RETURNIF(!hx711_spi_deserialise_request(data, req),
+            HX711_SPI_ERROR_CRC_FAIL);
 
-        return true;
+        return HX711_SPI_ERROR_OK;
 
 }
 
-void hx711_spi_slave_transmit_control(
+hx711_spi_error_t hx711_spi_slave_transmit_control(
     hx711_spi_slave_t* const hx_spi) {
 
         assert(hx_spi != NULL);
@@ -70,14 +71,18 @@ void hx711_spi_slave_transmit_control(
             &hx_spi->_memory,
             buffer);
 
-        spifixedframe_send_bytes(
+        if(spifixedframe_send_bytes(
             hx_spi->_spi,
             buffer,
-            HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES);
+            HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES) != SPIFIXEDFRAME_ERROR_OK) {
+                return HX711_SPI_ERROR_SPI_SEND_FAIL;
+        }
+
+        return HX711_SPI_ERROR_OK;
 
 }
 
-void hx711_spi_slave_change_power(
+hx711_spi_error_t hx711_spi_slave_change_power(
     hx711_spi_slave_t* const hx_spi,
     const hx711_remote_request_t* const req) {
 
@@ -101,9 +106,11 @@ void hx711_spi_slave_change_power(
 
         hx_spi->_memory.ready_state = true;
 
+        return HX711_SPI_ERROR_OK;
+
 }
 
-static void hx711_spi_slave_change_gain(
+static hx711_spi_error_t hx711_spi_slave_change_gain(
     hx711_spi_slave_t* const hx_spi,
     const hx711_remote_request_t* const req) {
 
@@ -117,6 +124,8 @@ static void hx711_spi_slave_change_gain(
         hx711_wait_settle(req->rate);
 
         hx_spi->_memory.ready_state = true;
+
+        return HX711_SPI_ERROR_OK;
 
 }
 
@@ -207,7 +216,7 @@ void hx711_spi_slave_listen(
                 }
             }
 
-            if(!hx711_spi_slave_try_get_request(hx_spi, &req)) {
+            if(hx711_spi_slave_try_get_request(hx_spi, &req) != HX711_SPI_ERROR_OK) {
                 continue;
             }
 

@@ -94,7 +94,7 @@ void hx711_spi_serialise_control(
 
 }
 
-bool hx711_spi_deserialise_request(
+hx711_spi_error_t hx711_spi_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req) {
 
@@ -104,7 +104,7 @@ bool hx711_spi_deserialise_request(
         // buffer is guaranteed to be of sufficient size by
         // the calling function
 
-        uint8_t* ptr = (uint8_t*)buffer;
+        const uint8_t* ptr = (const uint8_t*)buffer;
         uint8_t calcd_crc;
         uint8_t raw_crc;
 
@@ -119,11 +119,13 @@ bool hx711_spi_deserialise_request(
         raw_crc = *ptr;
 
         // and check if crcs match
-        return calcd_crc == raw_crc;
+        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_SPI_ERROR_CRC_FAIL);
+
+        return HX711_SPI_ERROR_OK;
 
 }
 
-bool hx711_spi_deserialise_control(
+hx711_spi_error_t hx711_spi_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl) {
 
@@ -133,7 +135,7 @@ bool hx711_spi_deserialise_control(
         // buffer is guaranteed to be of sufficient size by
         // the calling function
 
-        uint8_t* ptr = (uint8_t*)buffer;
+        const uint8_t* ptr = (const uint8_t*)buffer;
         uint32_t calcd_crc;
         uint32_t raw_crc;
 
@@ -151,7 +153,9 @@ bool hx711_spi_deserialise_control(
         memcpy(&raw_crc, ptr, sizeof(raw_crc));
 
         // and check if crcs match
-        return calcd_crc == raw_crc;
+        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_SPI_ERROR_CRC_FAIL);
+
+        return HX711_SPI_ERROR_OK;
 
 }
 
@@ -219,7 +223,7 @@ void hx711_spi_master_close(
         spi_deinit(hx_spi->_spi);
 }
 
-void hx711_spi_master_set_gain(
+hx711_spi_error_t hx711_spi_master_set_gain(
     hx711_spi_master_t* const hx_spi,
     const hx711_gain_t gain,
     const hx711_rate_t rate) {
@@ -241,16 +245,23 @@ void hx711_spi_master_set_gain(
             &req,
             buffer);
 
+        spifixedframe_error_t code;
+
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            spifixedframe_send_bytes(
+            code = spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
+        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
+            HX711_SPI_ERROR_SPI_SEND_FAIL);
+
+        return HX711_SPI_ERROR_OK;
+
 }
 
-int hx711_spi_master_get_control(
+hx711_spi_error_t hx711_spi_master_get_control(
     hx711_spi_master_t* const hx_spi,
     hx711_remote_control_t* const ctrl) {
 
@@ -260,22 +271,21 @@ int hx711_spi_master_get_control(
 
         uint8_t buffer[HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES];
 
-        bool success = false;
+        spifixedframe_error_t code;
 
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            success = spifixedframe_recv_bytes(
+            code = spifixedframe_recv_bytes(
                 hx_spi->_spi,
                 buffer,
                 HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES);
         );
 
-        UTIL_RETURNIF(!success, PICO_ERROR_IO);
+        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
+            HX711_SPI_ERROR_SPI_RECV_FAIL);
 
-        success = hx711_spi_deserialise_control(
+        return hx711_spi_deserialise_control(
             buffer,
             ctrl);
-
-        return success ? PICO_OK : PICO_ERROR_IO;
 
 }
 
@@ -287,7 +297,7 @@ int32_t hx711_spi_master_get_value_blocking(
 
         hx711_remote_control_t ctrl;
 
-        while(hx711_spi_master_get_control(hx_spi, &ctrl) != PICO_OK) {
+        while(hx711_spi_master_get_control(hx_spi, &ctrl) != HX711_SPI_ERROR_OK) {
             if(!hx711_remote_control_ok(&ctrl)) {
                 continue;
             }
@@ -297,7 +307,7 @@ int32_t hx711_spi_master_get_value_blocking(
 
 }
 
-void hx711_spi_master_power_up(
+hx711_spi_error_t hx711_spi_master_power_up(
     hx711_spi_master_t* const hx_spi,
     const hx711_gain_t gain,
     const hx711_rate_t rate) {
@@ -320,16 +330,23 @@ void hx711_spi_master_power_up(
             &req,
             buffer);
 
+        spifixedframe_error_t code;
+
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            spifixedframe_send_bytes(
+            code = spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
+        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
+            HX711_SPI_ERROR_SPI_SEND_FAIL);
+
+        return HX711_SPI_ERROR_OK;
+
 }
 
-void hx711_spi_master_power_down(
+hx711_spi_error_t hx711_spi_master_power_down(
     hx711_spi_master_t* const hx_spi) {
 
         assert(hx_spi != NULL);
@@ -346,11 +363,18 @@ void hx711_spi_master_power_down(
             &req,
             buffer);
 
+        spifixedframe_error_t code;
+
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            spifixedframe_send_bytes(
+            code = spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
+
+        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
+            HX711_SPI_ERROR_SPI_SEND_FAIL);
+
+        return HX711_SPI_ERROR_OK;
 
 }

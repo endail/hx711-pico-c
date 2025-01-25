@@ -67,6 +67,15 @@ extern "C" {
         gpio_put(CSN_PIN, true); \
     } while(0)
 
+typedef enum {
+    HX711_SPI_ERROR_OK =                    0,
+    HX711_SPI_ERROR_GENERIC =               1,
+    HX711_SPI_ERROR_UNKNOWN =               2,
+    HX711_SPI_ERROR_CRC_FAIL =              3,
+    HX711_SPI_ERROR_SPI_SEND_FAIL =         4,
+    HX711_SPI_ERROR_SPI_RECV_FAIL =         5
+} hx711_spi_error_t;
+
 typedef struct {
 
     uint _rx_pin;
@@ -99,11 +108,11 @@ void hx711_spi_serialise_control(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer);
 
-bool hx711_spi_deserialise_request(
+hx711_spi_error_t hx711_spi_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req);
 
-bool hx711_spi_deserialise_control(
+hx711_spi_error_t hx711_spi_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl);
 
@@ -125,12 +134,12 @@ void hx711_spi_master_close(
  * @param hx_spi 
  * @param gain 
  */
-void hx711_spi_master_set_gain(
+hx711_spi_error_t hx711_spi_master_set_gain(
     hx711_spi_master_t* const hx_spi,
     const hx711_gain_t gain,
     const hx711_rate_t rate);
 
-int hx711_spi_master_get_control(
+hx711_spi_error_t hx711_spi_master_get_control(
     hx711_spi_master_t* const hx_spi,
     hx711_remote_control_t* const ctrl);
 
@@ -143,7 +152,7 @@ int32_t hx711_spi_master_get_value_blocking(
  * @param hx_spi 
  * @param gain 
  */
-void hx711_spi_master_power_up(
+hx711_spi_error_t hx711_spi_master_power_up(
     hx711_spi_master_t* const hx_spi,
     const hx711_gain_t gain,
     const hx711_rate_t rate);
@@ -153,7 +162,7 @@ void hx711_spi_master_power_up(
  * 
  * @param hx_spi 
  */
-void hx711_spi_master_power_down(
+hx711_spi_error_t hx711_spi_master_power_down(
     hx711_spi_master_t* const hx_spi);
 
 #ifdef __cplusplus

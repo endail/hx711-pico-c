@@ -63,18 +63,18 @@ typedef struct {
 
 } hx711_spi_slave_config_t;
 
-static bool hx711_spi_slave_try_get_request(
+static hx711_spi_error_t hx711_spi_slave_try_get_request(
     hx711_spi_slave_t* const hx_spi,
     hx711_remote_request_t* const req);
 
-static void hx711_spi_slave_transmit_control(
+static hx711_spi_error_t hx711_spi_slave_transmit_control(
     hx711_spi_slave_t* const hx_spi);
 
-static void hx711_spi_slave_change_power(
+static hx711_spi_error_t hx711_spi_slave_change_power(
     hx711_spi_slave_t* const hx_spi,
     const hx711_remote_request_t* const req);
 
-static void hx711_spi_slave_change_gain(
+static hx711_spi_error_t hx711_spi_slave_change_gain(
     hx711_spi_slave_t* const hx_spi,
     const hx711_remote_request_t* const req);
 

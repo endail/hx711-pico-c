@@ -118,22 +118,6 @@ typedef struct {
     uint8_t crc;
 } hx711_remote_request_t;
 
-/*
-typedef void (*hx711_remote_init_handler)();
-typedef void (*hx711_remote_close_handler)();
-typedef void (*hx711_remote_set_gain_handler)();
-typedef void (*hx711_remote_get_control_handler)();
-typedef void (*hx711_remote_set_power_handler)();
-
-typedef struct {
-    hx711_remote_init_handler init;
-    hx711_remote_close_handler close;
-    hx711_remote_set_gain_handler set_gain;
-    hx711_remote_get_control_handler get_control;
-    hx711_remote_set_power_handler power_up;
-} hx711_remote_manager;
-*/
-
 extern const hx711_remote_control_t HX711_REMOTE_CONTROL_DEFAULTS;
 
 /**

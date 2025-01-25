@@ -60,7 +60,8 @@
         "stdlib.h": "c",
         "typeinfo": "cpp",
         "types.h": "c",
-        "malloc.h": "c"
+        "malloc.h": "c",
+        "system_error": "c"
     },
     "C_Cpp.default.cppStandard": "",
     "C_Cpp.default.cStandard": ""
