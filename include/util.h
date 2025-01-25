@@ -88,6 +88,10 @@ extern "C" {
 #define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN 0u
 #define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX 3u
 
+#define UTIL_RETURNIF(COND, VALUE) if(COND) return (VALUE)
+#define UTIL_BREAKIF(COND) if(COND) break
+#define UTIL_CONTINUEIF(COND) if(COND) continue
+
 /**
  * @brief Own a mutex for the duration of this block of
  * code.
@@ -151,6 +155,7 @@ UTIL__DEF_IN_RANGE_FUNC(int32_t)
 UTIL__DEF_IN_RANGE_FUNC(uint32_t)
 UTIL__DEF_IN_RANGE_FUNC(int)
 UTIL__DEF_IN_RANGE_FUNC(uint)
+UTIL__DEF_IN_RANGE_FUNC(size_t)
 
 #undef UTIL__DECL_IN_RANGE_FUNC
 #undef UTIL__DEF_IN_RANGE_FUNC
@@ -184,9 +189,13 @@ inline uint8_t util_set_bits8(
     const uint8_t len,
     const uint8_t bits) {
 
-        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
-        assert(len >= 1 && len <= UINT8_WIDTH);
+        assert(util_uint_in_range(startbit, 0, UINT8_WIDTH - 1));
+        assert(util_uint_in_range(len, 1, UINT8_WIDTH));
         assert((startbit + len) <= UINT8_WIDTH);
+
+        //assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
+        //assert(len >= 1 && len <= UINT8_WIDTH);
+        //assert((startbit + len) <= UINT8_WIDTH);
 
         const uint8_t mask = ((1 << len) - 1) << startbit;
         value &= ~mask;
@@ -208,9 +217,13 @@ inline uint8_t util_get_bits8(
     const uint8_t startbit,
     const uint8_t len) {
 
-        assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
-        assert(len >= 1 && len <= UINT8_WIDTH);
+        assert(util_uint_in_range(startbit, 0, UINT8_WIDTH - 1));
+        assert(util_uint_in_range(len, 1, UINT8_WIDTH));
         assert((startbit + len) <= UINT8_WIDTH);
+
+        //assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
+        //assert(len >= 1 && len <= UINT8_WIDTH);
+        //assert((startbit + len) <= UINT8_WIDTH);
 
         const uint8_t mask = ((1 << len) - 1) << startbit;
         const uint8_t extracted = (value & mask) >> startbit;
@@ -225,9 +238,13 @@ inline uint16_t util_set_bits16(
     const uint8_t len,
     const uint16_t bits) {
 
-    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
-    assert(len >= 1 && len <= UINT16_WIDTH);
+    assert(util_uint_in_range(startbit, 0, UINT16_WIDTH - 1));
+    assert(util_uint_in_range(len, 1, UINT16_WIDTH));
     assert((startbit + len) <= UINT16_WIDTH);
+
+    //assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
+    //assert(len >= 1 && len <= UINT16_WIDTH);
+    //assert((startbit + len) <= UINT16_WIDTH);
 
     const uint16_t mask = ((1 << len) - 1) << startbit;
     value &= ~mask;
@@ -241,9 +258,13 @@ inline uint16_t util_get_bits16(
     const uint8_t startbit,
     const uint8_t len) {
 
-    assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
-    assert(len >= 1 && len <= UINT16_WIDTH);
+    assert(util_uint_in_range(startbit, 0, UINT16_WIDTH - 1));
+    assert(util_uint_in_range(len, 1, UINT16_WIDTH));
     assert((startbit + len) <= UINT16_WIDTH);
+
+    //assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
+    //assert(len >= 1 && len <= UINT16_WIDTH);
+    //assert((startbit + len) <= UINT16_WIDTH);
 
     const uint16_t mask = ((1 << len) - 1) << startbit;
     const uint16_t extracted = (value & mask) >> startbit;

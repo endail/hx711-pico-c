@@ -69,6 +69,8 @@ typedef struct {
     uint8_t addr;
 } hx711_i2c_master_config_t;
 
+// TODO: add error codes2
+
 void hx711_i2c_serialise_request(
     const hx711_remote_request_t* const req,
     uint8_t* const buffer);

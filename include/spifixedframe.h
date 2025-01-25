@@ -58,7 +58,7 @@ typedef enum {
     SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED =       -3,
     SPIFIXEDFRAME_ERROR_FRAME_LIMIT_EXCEEDED =      -4,
     SPIFIXEDFRAME_ERROR_CHAIN_NO_FIRST =            -5,
-    SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST =       -6,
+    SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST =      -6,
     SPIFIXEDFRAME_ERROR_TIMEOUT =                   -7,
     SPIFIXEDFRAME_ERROR_TRY_LIMIT_EXCEEDED =        -8,
     SPIFIXEDFRAME_ERROR_SPI_GENERIC =               -9,
@@ -69,47 +69,32 @@ typedef enum {
     SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES =             -14
 } spifixedframe_error_t;
 
+typedef struct spifixedframe_buffer_node_t {
+    struct spifixedframe_buffer_node_t* next;
+    uint8_t* bytes;
+    size_t len;
+} spifixedframe_buffer_node_t;
+
 #define SPIFIXEDFRAME_CHECK_FRAME_COUNT(COUNT) \
     do { \
-        \
-        if(COUNT == 0) { \
-            return SPIFIXEDFRAME_ERROR_TOO_FEW_FRAMES; \
-        } \
-        \
-        if(COUNT > SPIFIXEDFRAME_MAX_FRAMES) { \
-            return SPIFIXEDFRAME_ERROR_FRAME_LIMIT_EXCEEDED; \
-        } \
-        \
+        UTIL_RETURNIF(COUNT == 0, SPIFIXEDFRAME_ERROR_TOO_FEW_FRAMES); \
+        UTIL_RETURNIF(COUNT > SPIFIXEDFRAME_MAX_FRAMES, SPIFIXEDFRAME_ERROR_FRAME_LIMIT_EXCEEDED); \
     } \
     while(0)
 
 #define SPIFIXEDFRAME_CHECK_BYTE_COUNT(COUNT) \
     do { \
-        \
-        if(COUNT == 0) { \
-            return SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES; \
-        } \
-        \
-        if(COUNT > SPIFIXEDFRAME_MAX_BYTES) { \
-            return SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED; \
-        } \
-        \
+        UTIL_RETURNIF(COUNT == 0, SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES); \
+        UTIL_RETURNIF(COUNT > SPIFIXEDFRAME_MAX_BYTES, SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED); \
     } \
     while(0)
 
 #define SPIFIXEDFRAME_CHECK_CHAIN(FRAMES, FRAME_LEN) \
     do { \
-        \
-        if(!FRAMES[0].is_first) { \
-            return SPIFIXEDFRAME_ERROR_CHAIN_NO_FIRST; \
+        UTIL_RETURNIF(!FRAMES[0].is_first, SPIFIXEDFRAME_ERROR_CHAIN_NO_FIRST); \
+        for(size_t _spifixedframe_check_chain_i = 1; _spifixedframe_check_chain_i < FRAME_LEN; ++_spifixedframe_check_chain_i) { \
+            UTIL_RETURNIF(FRAMES[_spifixedframe_check_chain_i].is_first, SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST); \
         } \
-        \
-        for(size_t i = 1; i < FRAME_LEN; ++i) { \
-            if(FRAMES[i].is_first) { \
-                return SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST; \
-            } \
-        } \
-        \
     } \
     while(0)
 
@@ -177,10 +162,22 @@ void spifixedframe_deserialise(
  * @param spi 
  * @param bytes 
  * @param byte_len 
- * @return true 
- * @return false 
+ * @return spifixedframe_error_t 
  */
 spifixedframe_error_t spifixedframe_send_bytes(
+    spi_inst_t* const spi,
+    const uint8_t* const bytes,
+    const size_t byte_len);
+
+/**
+ * @brief Send a fixed number of bytes with error correction.
+ * 
+ * @param spi 
+ * @param bytes 
+ * @param byte_len 
+ * @return spifixedframe_error_t 
+ */
+spifixedframe_error_t spifixedframe_send_bytes_ec(
     spi_inst_t* const spi,
     const uint8_t* const bytes,
     const size_t byte_len);

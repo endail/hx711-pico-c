@@ -267,9 +267,7 @@ int hx711_spi_master_get_control(
                 HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES);
         );
 
-        if(!success) {
-            return PICO_ERROR_IO;
-        }
+        UTIL_RETURNIF(!success, PICO_ERROR_IO);
 
         success = hx711_spi_deserialise_control(
             buffer,

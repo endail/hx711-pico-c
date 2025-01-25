@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2024 Daniel Robertson
+// Copyright (c) 2025 Daniel Robertson
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -177,9 +177,7 @@ bool util_dma_channel_wait_for_finish_timeout(
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
-            if(!dma_channel_is_busy(channel)) {
-                return true;
-            }
+            UTIL_RETURNIF(!dma_channel_is_busy(channel), true);
         }
 
         return false;
@@ -472,9 +470,7 @@ bool util_pio_interrupt_wait_cleared_timeout(
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
-            if(!pio_interrupt_get(pio, pio_interrupt_num)) {
-                return true;
-            }
+            UTIL_RETURNIF(!pio_interrupt_get(pio, pio_interrupt_num), true);
         }
 
         return false;
@@ -501,9 +497,7 @@ bool util_pio_interrupt_wait_timeout(
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
-            if(pio_interrupt_get(pio, pio_interrupt_num)) {
-                return true;
-            }
+            UTIL_RETURNIF(pio_interrupt_get(pio, pio_interrupt_num), true);
         }
 
         return false;

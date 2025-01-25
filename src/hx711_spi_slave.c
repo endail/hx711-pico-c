@@ -52,9 +52,7 @@ bool hx711_spi_slave_try_get_request(
                 return false;
         }
 
-        if(!hx711_spi_deserialise_request(data, req)) {
-            return false;
-        }
+        UTIL_RETURNIF(!hx711_spi_deserialise_request(data, req), false);
 
         return true;
 
