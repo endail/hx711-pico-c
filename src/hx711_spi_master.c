@@ -46,12 +46,13 @@ void hx711_spi_serialise_request(
         assert(buffer != NULL);
 
         uint8_t* ptr = buffer;
+        uint8_t crc;
 
         // set request data at start of buffer
         hx711_remote_serialise_request(req, ptr);
 
         // calculate crc based on data currently in buffer
-        const uint8_t crc = util_crc8(*ptr, HX711_SPI_CRC8_POLYNOMIAL);
+        crc = util_crc8(*ptr, HX711_SPI_CRC8_POLYNOMIAL);
 
         // now increment the pointer to the next address after
         // request data
@@ -73,12 +74,13 @@ void hx711_spi_serialise_control(
         assert(buffer != NULL);
 
         uint8_t* ptr = buffer;
+        uint32_t crc;
 
         // set control data at start of buffer
         hx711_remote_serialise_control(ctrl, ptr);
 
         // calculate crc based on data currently in buffer
-        const uint32_t crc = util_crc32(
+        crc = util_crc32(
             ptr,
             HX711_REMOTE_CONTROL_TOTAL_BYTES,
             HX711_SPI_CRC32_POLYNOMIAL);

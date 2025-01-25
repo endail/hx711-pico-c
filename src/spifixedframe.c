@@ -337,15 +337,17 @@ spifixedframe_error_t spifixedframe_write_frame_blocking(
             &buffer,
             writeLen);
 
-        switch(spiCode) {
-        case writeLen:
-            return SPIFIXEDFRAME_ERROR_OK;
-        case PICO_ERROR_IO:
-        case PICO_ERROR_GENERIC:
-            return SPIFIXEDFRAME_ERROR_SPI_WRITE_FAIL;
-        default:
+        if(spiCode < 0) {
+            if(spiCode == PICO_ERROR_IO || spiCode == PICO_ERROR_GENERIC) {
+                return SPIFIXEDFRAME_ERROR_SPI_WRITE_FAIL;
+            }
             return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
         }
+        else if(spiCode != writeLen) {
+            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
+        }
+
+        return SPIFIXEDFRAME_ERROR_OK;
 
 }
 
@@ -373,13 +375,13 @@ spifixedframe_error_t spifixedframe_read_frame_blocking(
             &inbuffer,
             readLen);
 
-        switch(spiCode) {
-        case readLen:
-            break;
-        case PICO_ERROR_IO:
-        case PICO_ERROR_GENERIC:
-            return SPIFIXEDFRAME_ERROR_SPI_READ_FAIL;
-        default:
+        if(spiCode < 0) {
+            if(spiCode == PICO_ERROR_IO || spiCode == PICO_ERROR_GENERIC) {
+                return SPIFIXEDFRAME_ERROR_SPI_READ_FAIL;
+            }
+            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
+        }
+        else if(spiCode != readLen) {
             return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
         }
 

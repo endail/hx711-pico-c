@@ -35,6 +35,8 @@ extern "C" {
  * An individual frame is a spifixedframe_t
  * A series of frames where the first frame is flagged is_first is a chain
  * A frame where all bits are 0 is a NULL frame
+ * 
+ * WARNING: this is very memory inefficient due to allocations and copying
  */
 
 #define SPIFIXEDFRAME_TOTAL_BITS                    16u
