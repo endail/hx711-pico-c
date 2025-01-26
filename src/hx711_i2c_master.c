@@ -42,12 +42,13 @@ void hx711_i2c_serialise_request(
         assert(buffer != NULL);
 
         uint8_t* ptr = buffer;
+        uint8_t crc;
 
         // set request data at start of buffer
         hx711_remote_serialise_request(req, ptr);
 
         // calculate crc based on data currently in buffer
-        const uint8_t crc = util_crc8(*ptr, HX711_I2C_CRC8_POLYNOMIAL);
+        crc = util_crc8(*ptr, HX711_I2C_CRC8_POLYNOMIAL);
 
         // now increment the pointer to the next address after
         // request data
@@ -66,12 +67,13 @@ void hx711_i2c_serialise_control(
         assert(buffer != NULL);
 
         uint8_t* ptr = buffer;
+        uint32_t crc;
 
         // set control data at start of buffer
         hx711_remote_serialise_control(ctrl, ptr);
 
         // calculate crc based on data currently in buffer
-        const uint32_t crc = util_crc32(
+        crc = util_crc32(
             ptr,
             HX711_REMOTE_CONTROL_TOTAL_BYTES,
             HX711_I2C_CRC32_POLYNOMIAL);
@@ -85,14 +87,14 @@ void hx711_i2c_serialise_control(
 
 }
 
-bool hx711_i2c_deserialise_request(
+hx711_i2c_error_t hx711_i2c_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req) {
 
         assert(buffer != NULL);
         assert(req != NULL);
 
-        uint8_t* ptr = (uint8_t*)buffer;
+        const uint8_t* ptr = (const uint8_t*)buffer;
 
         // parse out the request data
         hx711_remote_deserialise_request(ptr, req);
@@ -105,18 +107,20 @@ bool hx711_i2c_deserialise_request(
         const uint8_t raw_crc = *ptr;
 
         // and check if crcs match
-        return calcd_crc == raw_crc;
+        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_I2C_ERROR_CRC_FAIL);
+
+        return HX711_I2C_ERROR_OK;
 
 }
 
-bool hx711_i2c_deserialise_control(
+hx711_i2c_error_t hx711_i2c_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl) {
 
         assert(buffer != NULL);
         assert(ctrl != NULL);
 
-        uint8_t* ptr = (uint8_t*)buffer;
+        const uint8_t* ptr = (const uint8_t*)buffer;
         uint32_t raw_crc;
 
         // parse out the control data
@@ -134,7 +138,9 @@ bool hx711_i2c_deserialise_control(
         memcpy(&raw_crc, ptr, sizeof(raw_crc));
 
         // and check if crcs match
-        return calcd_crc == raw_crc;
+        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_I2C_ERROR_CRC_FAIL);
+
+        return HX711_I2C_ERROR_OK;
 
 }
 
@@ -184,7 +190,7 @@ void hx711_i2c_master_close(
         i2c_deinit(hx_i2c->_i2c);
 }
 
-int hx711_i2c_master_set_gain(
+hx711_i2c_error_t hx711_i2c_master_set_gain(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate) {
@@ -204,16 +210,27 @@ int hx711_i2c_master_set_gain(
 
         hx711_i2c_serialise_request(&req, buffer);
 
-        return i2c_write_blocking(
+        const int code = i2c_write_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             buffer,
             sizeof(buffer),
             true);
 
+        switch(code) {
+        case HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES:
+            return HX711_I2C_ERROR_OK;
+        case PICO_ERROR_IO:
+        case PICO_ERROR_TIMEOUT:
+        case PICO_ERROR_GENERIC:
+            return HX711_I2C_ERROR_I2C_SEND_FAIL;
+        default:
+            return HX711_I2C_ERROR_GENERIC;
+        }
+
 }
 
-bool hx711_i2c_master_get_control(
+hx711_i2c_error_t hx711_i2c_master_get_control(
     hx711_i2c_master_t* const hx_i2c,
     hx711_remote_control_t* const ctrl) {
 
@@ -223,24 +240,22 @@ bool hx711_i2c_master_get_control(
 
         uint8_t buffer[HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES];
 
-        const int bytesRead = i2c_read_blocking(
+        const int code = i2c_read_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             buffer,
             HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES,
             true);
 
-        switch(bytesRead) {
-        case PICO_ERROR_IO:
-        case PICO_ERROR_GENERIC:
-            // I2C errors
-            return false;
+        switch(code) {
         case HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES:
-            // correct number of bytes, so continue
             break;
+        case PICO_ERROR_IO:
+        case PICO_ERROR_TIMEOUT:
+        case PICO_ERROR_GENERIC:
+            return HX711_I2C_ERROR_I2C_RECV_FAIL;
         default:
-            // any other number of bytes is a fail
-            return false;
+            return HX711_I2C_ERROR_GENERIC;
         }
 
         return hx711_i2c_deserialise_control(
@@ -257,7 +272,7 @@ int32_t hx711_i2c_master_get_value_blocking(
 
         hx711_remote_control_t ctrl;
 
-        while(!hx711_i2c_master_get_control(hx_i2c, &ctrl)) {
+        while(hx711_i2c_master_get_control(hx_i2c, &ctrl) != HX711_I2C_ERROR_OK) {
             if(!hx711_remote_control_ok(&ctrl)) {
                 continue;
             }
@@ -267,7 +282,7 @@ int32_t hx711_i2c_master_get_value_blocking(
 
 }
 
-int hx711_i2c_master_power_up(
+hx711_i2c_error_t hx711_i2c_master_power_up(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate) {
@@ -290,16 +305,27 @@ int hx711_i2c_master_power_up(
             &req,
             buffer);
 
-        return i2c_write_blocking(
+        const int code = i2c_write_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             buffer,
             sizeof(buffer),
             true);
 
+        switch(code) {
+        case HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES:
+            return HX711_I2C_ERROR_OK;
+        case PICO_ERROR_IO:
+        case PICO_ERROR_TIMEOUT:
+        case PICO_ERROR_GENERIC:
+            return HX711_I2C_ERROR_I2C_SEND_FAIL;
+        default:
+            return HX711_I2C_ERROR_GENERIC;
+        }
+
 }
 
-int hx711_i2c_master_power_down(
+hx711_i2c_error_t hx711_i2c_master_power_down(
     hx711_i2c_master_t* const hx_i2c) {
 
         assert(hx_i2c != NULL);
@@ -316,11 +342,22 @@ int hx711_i2c_master_power_down(
             &req,
             buffer);
 
-        return i2c_write_blocking(
+        const int code = i2c_write_blocking(
             hx_i2c->_i2c,
             hx_i2c->_addr,
             buffer,
             sizeof(buffer),
             true);
+
+        switch(code) {
+        case HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES:
+            return HX711_I2C_ERROR_OK;
+        case PICO_ERROR_IO:
+        case PICO_ERROR_TIMEOUT:
+        case PICO_ERROR_GENERIC:
+            return HX711_I2C_ERROR_I2C_SEND_FAIL;
+        default:
+            return HX711_I2C_ERROR_GENERIC;
+        }
 
 }

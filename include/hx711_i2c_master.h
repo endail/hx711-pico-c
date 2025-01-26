@@ -53,6 +53,15 @@ extern "C" {
 #define HX711_I2C_CRC8_POLYNOMIAL                   0x07u
 #define HX711_I2C_CRC32_POLYNOMIAL                  0xedb88320u
 
+typedef enum {
+    HX711_I2C_ERROR_OK =                    0,
+    HX711_I2C_ERROR_GENERIC =               1,
+    HX711_I2C_ERROR_UNKNOWN =               2,
+    HX711_I2C_ERROR_CRC_FAIL =              3,
+    HX711_I2C_ERROR_I2C_SEND_FAIL =         4,
+    HX711_I2C_ERROR_I2C_RECV_FAIL =         5
+} hx711_i2c_error_t;
+
 typedef struct {
     uint _scl_pin;
     uint _sda_pin;
@@ -69,8 +78,6 @@ typedef struct {
     uint8_t addr;
 } hx711_i2c_master_config_t;
 
-// TODO: add error codes2
-
 void hx711_i2c_serialise_request(
     const hx711_remote_request_t* const req,
     uint8_t* const buffer);
@@ -79,11 +86,11 @@ void hx711_i2c_serialise_control(
     const hx711_remote_control_t* const ctrl,
     uint8_t* const buffer);
 
-bool hx711_i2c_deserialise_request(
+hx711_i2c_error_t hx711_i2c_deserialise_request(
     const uint8_t* const buffer,
     hx711_remote_request_t* const req);
 
-bool hx711_i2c_deserialise_control(
+hx711_i2c_error_t hx711_i2c_deserialise_control(
     const uint8_t* const buffer,
     hx711_remote_control_t* const ctrl);
 
@@ -107,7 +114,7 @@ void hx711_i2c_master_close(
  * @param rate 
  * @return int
  */
-int hx711_i2c_master_set_gain(
+hx711_i2c_error_t hx711_i2c_master_set_gain(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate);
@@ -120,7 +127,7 @@ int hx711_i2c_master_set_gain(
  * @param val 
  * @param control control values from the master
  */
-bool hx711_i2c_master_get_control(
+hx711_i2c_error_t hx711_i2c_master_get_control(
     hx711_i2c_master_t* const hx_i2c,
     hx711_remote_control_t* const ctrl);
 
@@ -142,7 +149,7 @@ int32_t hx711_i2c_master_get_value_blocking(
  * @param rate
  * @return int
  */
-int hx711_i2c_master_power_up(
+hx711_i2c_error_t hx711_i2c_master_power_up(
     hx711_i2c_master_t* const hx_i2c,
     const hx711_gain_t gain,
     const hx711_rate_t rate);
@@ -153,7 +160,7 @@ int hx711_i2c_master_power_up(
  * @param hx_i2c 
  * @return int
  */
-int hx711_i2c_master_power_down(
+hx711_i2c_error_t hx711_i2c_master_power_down(
     hx711_i2c_master_t* const hx_i2c);
 
 #ifdef __cplusplus
