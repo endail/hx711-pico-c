@@ -269,22 +269,32 @@ hx711_spi_error_t hx711_spi_master_get_control(
         assert(hx_spi->_spi != NULL);
         assert(ctrl != NULL);
 
-        uint8_t buffer[HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES];
-
         spifixedframe_error_t code;
 
+        uint8_t reqBuffer[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
+        uint8_t respBuffer[HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES];
+
+        const hx711_remote_request_t req = {
+            .cmd = hx711_remote_command_get_control
+        };
+
+        hx711_remote_serialise_request(&req, reqBuffer);
+
         HX711_SPI_ATOMIC(hx_spi->_csn_pin, 
-            code = spifixedframe_recv_bytes(
+            code = spifixedframe_req_resp(
                 hx_spi->_spi,
-                buffer,
+                reqBuffer,
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES,
+                respBuffer,
                 HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES);
         );
 
-        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
-            HX711_SPI_ERROR_SPI_RECV_FAIL);
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return HX711_SPI_ERROR_GENERIC;
+        }
 
         return hx711_spi_deserialise_control(
-            buffer,
+            respBuffer,
             ctrl);
 
 }

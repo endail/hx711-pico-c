@@ -204,6 +204,38 @@ spifixedframe_error_t spifixedframe_recv_bytes(
 
 }
 
+spifixedframe_error_t spifixedframe_req_resp(
+    spi_inst_t* const spi,
+    const uint8_t* const req_bytes,
+    const size_t req_len,
+    uint8_t* const resp_bytes,
+    const size_t resp_len) {
+
+        assert(spi != NULL);
+        assert(req_bytes != NULL);
+        assert(resp_bytes != NULL);
+
+        SPIFIXEDFRAME_CHECK_BYTE_COUNT(req_len);
+        SPIFIXEDFRAME_CHECK_BYTE_COUNT(resp_len);
+
+        spifixedframe_error_t code;
+
+        code = spifixedframe_send_bytes(
+            spi,
+            req_bytes,
+            req_len);
+
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return code;
+        }
+
+        return spifixedframe_recv_bytes(
+            spi,
+            resp_bytes,
+            resp_len);
+
+}
+
 spifixedframe_error_t spifixedframe_fragment_bytes(
     const uint8_t* const bytes,
     const size_t byte_len,

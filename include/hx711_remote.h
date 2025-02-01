@@ -97,7 +97,7 @@ typedef enum {
     hx711_remote_command_none =                         0u,
     hx711_remote_command_change_power_state =           1u,
     hx711_remote_command_change_gain =                  2u,
-    hx711_remote_command_get_value =                    3u
+    hx711_remote_command_get_control =                    3u
 } hx711_remote_command_t;
 
 typedef struct {
@@ -170,7 +170,7 @@ inline bool hx711_remote_control_ok(
 
 inline bool hx711_remote_command_is_valid(
     const hx711_remote_command_t cmd) {
-        return (uint8_t)cmd <= hx711_remote_command_get_value;
+        return (uint8_t)cmd <= hx711_remote_command_get_control;
 }
 
 #ifdef __cplusplus

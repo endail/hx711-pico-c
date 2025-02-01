@@ -221,7 +221,7 @@ void hx711_spi_slave_listen(
             }
 
             switch(req.cmd) {
-            case hx711_remote_command_get_value:
+            case hx711_remote_command_get_control:
                 hx711_spi_slave_transmit_control(hx_spi);
                 break;
 

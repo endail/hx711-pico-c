@@ -269,7 +269,7 @@ void hx711_i2c_slave_update_loop(
 
             switch(req.cmd) {
             case hx711_remote_command_none:
-            case hx711_remote_command_get_value:
+            case hx711_remote_command_get_control:
             default:
                 // do nothing in these cases;
                 // slave auto-updates values from hx711

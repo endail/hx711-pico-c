@@ -165,8 +165,6 @@ spifixedframe_error_t spifixedframe_send_bytes(
     const uint8_t* const bytes,
     const size_t byte_len);
 
-
-
 /**
  * @brief Receive a fixed number of bytes.
  * 
@@ -180,6 +178,13 @@ spifixedframe_error_t spifixedframe_recv_bytes(
     spi_inst_t* const spi,
     uint8_t* const bytes,
     const size_t byte_len);
+
+spifixedframe_error_t spifixedframe_req_resp(
+    spi_inst_t* const spi,
+    const uint8_t* const req,
+    const size_t req_len,
+    uint8_t* const resp,
+    const size_t resp_len);
 
 /**
  * @brief Fragment an array of bytes into an array of frames.
