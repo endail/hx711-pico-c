@@ -78,6 +78,8 @@ hx711_spi_error_t hx711_spi_slave_transmit_control(
                 return HX711_SPI_ERROR_SPI_SEND_FAIL;
         }
 
+        hx_spi->_memory.new_value_state = false;
+
         return HX711_SPI_ERROR_OK;
 
 }
@@ -211,11 +213,10 @@ void hx711_spi_slave_listen(
                 if(hx711_get_value_noblock(hx_spi->_hx, &val)) {
                     hx_spi->_memory.value = val;
                     hx_spi->_memory.new_value_state = true;
-                    hx711_spi_slave_transmit_control(hx_spi);
-                    hx_spi->_memory.new_value_state = false;
                 }
             }
 
+            // see if there's an incoming request from the master
             if(hx711_spi_slave_try_get_request(hx_spi, &req) != HX711_SPI_ERROR_OK) {
                 continue;
             }

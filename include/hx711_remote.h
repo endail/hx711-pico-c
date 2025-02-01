@@ -97,7 +97,7 @@ typedef enum {
     hx711_remote_command_none =                         0u,
     hx711_remote_command_change_power_state =           1u,
     hx711_remote_command_change_gain =                  2u,
-    hx711_remote_command_get_control =                    3u
+    hx711_remote_command_get_control =                  3u
 } hx711_remote_command_t;
 
 typedef struct {
