@@ -35,6 +35,8 @@
 extern "C" {
 #endif
 
+#define HX711_SPI_SLAVE_SPI_TIMEOUT_US          1000000u
+
 typedef struct {
 
     uint _rx_pin;

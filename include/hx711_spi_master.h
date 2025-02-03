@@ -67,6 +67,8 @@ extern "C" {
         gpio_put(CSN_PIN, true); \
     } while(0)
 
+#define HX711_SPI_MASTER_SPI_TIMEOUT_US             1000000u
+
 typedef enum {
     HX711_SPI_ERROR_OK =                    0,
     HX711_SPI_ERROR_GENERIC =               1,

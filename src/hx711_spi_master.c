@@ -255,7 +255,8 @@ hx711_spi_error_t hx711_spi_master_set_gain(
             code = spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES,
+                HX711_SPI_MASTER_SPI_TIMEOUT_US);
         );
 
         if(code != SPIFIXEDFRAME_ERROR_OK) {
@@ -291,7 +292,8 @@ hx711_spi_error_t hx711_spi_master_get_control(
                 reqBuffer,
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES,
                 respBuffer,
-                HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES);
+                HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES,
+                HX711_SPI_MASTER_SPI_TIMEOUT_US);
         );
 
         if(code != SPIFIXEDFRAME_ERROR_OK) {
@@ -351,7 +353,8 @@ hx711_spi_error_t hx711_spi_master_power_up(
             code = spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES,
+                HX711_SPI_MASTER_SPI_TIMEOUT_US);
         );
 
         if(code != SPIFIXEDFRAME_ERROR_OK) {
@@ -385,7 +388,8 @@ hx711_spi_error_t hx711_spi_master_power_down(
             code = spifixedframe_send_bytes(
                 hx_spi->_spi,
                 buffer,
-                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
+                HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES,
+                HX711_SPI_MASTER_SPI_TIMEOUT_US);
         );
 
         if(code != SPIFIXEDFRAME_ERROR_OK) {

@@ -45,15 +45,19 @@ hx711_spi_error_t hx711_spi_slave_try_get_request(
 
         uint8_t data[HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES];
 
-        if(spifixedframe_recv_bytes(
+        const spifixedframe_error_t code = spifixedframe_recv_bytes(
             hx_spi->_spi,
             data,
-            HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES) != SPIFIXEDFRAME_ERROR_OK) {
-                return HX711_SPI_ERROR_SPI_RECV_FAIL;
+            HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES,
+            HX711_SPI_SLAVE_SPI_TIMEOUT_US);
+
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return HX711_SPI_ERROR_SPI_RECV_FAIL;
         }
 
-        UTIL_RETURNIF(!hx711_spi_deserialise_request(data, req),
-            HX711_SPI_ERROR_CRC_FAIL);
+        if(!hx711_spi_deserialise_request(data, req)) {
+            return HX711_SPI_ERROR_CRC_FAIL;
+        }
 
         return HX711_SPI_ERROR_OK;
 
@@ -71,11 +75,14 @@ hx711_spi_error_t hx711_spi_slave_transmit_control(
             &hx_spi->_memory,
             buffer);
 
-        if(spifixedframe_send_bytes(
+        const spifixedframe_error_t code = spifixedframe_send_bytes(
             hx_spi->_spi,
             buffer,
-            HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES) != SPIFIXEDFRAME_ERROR_OK) {
-                return HX711_SPI_ERROR_SPI_SEND_FAIL;
+            HX711_SPI_REMOTE_CONTROL_TOTAL_BYTES,
+            HX711_SPI_SLAVE_SPI_TIMEOUT_US);
+
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return HX711_SPI_ERROR_SPI_SEND_FAIL;
         }
 
         hx_spi->_memory.new_value_state = false;
