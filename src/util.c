@@ -30,6 +30,7 @@
 #include <hardware/pio_instructions.h>
 #include <hardware/regs/intctrl.h>
 #include <hardware/regs/pio.h>
+#include <hardware/spi.h>
 #include <hardware/structs/dma.h>
 #include <hardware/timer.h>
 #include <pico/platform.h>
@@ -550,5 +551,41 @@ bool util_pio_sm_try_get(
         );
 
         return success;
+
+}
+
+bool util_spi_is_readable_timeout(
+    const spi_inst_t* const spi,
+    const absolute_time_t* timeout) {
+
+        assert(spi != NULL);
+        assert(timeout != NULL);
+        assert(!is_nil_time(timeout));
+
+        while(!time_reached(timeout)) {
+            if(spi_is_readable(spi)) {
+                return true;
+            }
+        }
+
+        return false;
+
+}
+
+bool util_spi_is_writable_timeout(
+    const spi_inst_t* const spi,
+    const absolute_time_t* timeout) {
+
+        assert(spi != NULL);
+        assert(timeout != NULL);
+        assert(!is_nil_time(timeout));
+
+        while(!time_reached(timeout)) {
+            if(spi_is_writable(spi)) {
+                return true;
+            }
+        }
+
+        return false;
 
 }

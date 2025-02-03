@@ -27,6 +27,7 @@
 #include <hardware/dma.h>
 #include <hardware/pio.h>
 #include <hardware/platform_defs.h>
+#include <hardware/spi.h>
 #include <hardware/sync.h>
 #include <pico/mutex.h>
 #include <pico/types.h>
@@ -193,10 +194,6 @@ inline uint8_t util_set_bits8(
         assert(util_uint_in_range(len, 1, UINT8_WIDTH));
         assert((startbit + len) <= UINT8_WIDTH);
 
-        //assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
-        //assert(len >= 1 && len <= UINT8_WIDTH);
-        //assert((startbit + len) <= UINT8_WIDTH);
-
         const uint8_t mask = ((1 << len) - 1) << startbit;
         value &= ~mask;
         value |= (bits << startbit);
@@ -221,10 +218,6 @@ inline uint8_t util_get_bits8(
         assert(util_uint_in_range(len, 1, UINT8_WIDTH));
         assert((startbit + len) <= UINT8_WIDTH);
 
-        //assert(startbit >= 0 && startbit <= (UINT8_WIDTH - 1));
-        //assert(len >= 1 && len <= UINT8_WIDTH);
-        //assert((startbit + len) <= UINT8_WIDTH);
-
         const uint8_t mask = ((1 << len) - 1) << startbit;
         const uint8_t extracted = (value & mask) >> startbit;
 
@@ -242,10 +235,6 @@ inline uint16_t util_set_bits16(
     assert(util_uint_in_range(len, 1, UINT16_WIDTH));
     assert((startbit + len) <= UINT16_WIDTH);
 
-    //assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
-    //assert(len >= 1 && len <= UINT16_WIDTH);
-    //assert((startbit + len) <= UINT16_WIDTH);
-
     const uint16_t mask = ((1 << len) - 1) << startbit;
     value &= ~mask;
     value |= (bits << startbit);
@@ -261,10 +250,6 @@ inline uint16_t util_get_bits16(
     assert(util_uint_in_range(startbit, 0, UINT16_WIDTH - 1));
     assert(util_uint_in_range(len, 1, UINT16_WIDTH));
     assert((startbit + len) <= UINT16_WIDTH);
-
-    //assert(startbit >= 0 && startbit <= (UINT16_WIDTH - 1));
-    //assert(len >= 1 && len <= UINT16_WIDTH);
-    //assert((startbit + len) <= UINT16_WIDTH);
 
     const uint16_t mask = ((1 << len) - 1) << startbit;
     const uint16_t extracted = (value & mask) >> startbit;
@@ -660,6 +645,14 @@ bool util_pio_sm_try_get(
     const uint sm,
     uint32_t* const word,
     const uint threshold);
+
+bool util_spi_is_readable_timeout(
+    const spi_inst_t* const spi,
+    const absolute_time_t* timeout);
+
+bool util_spi_is_writable_timeout(
+    const spi_inst_t* const spi,
+    const absolute_time_t* timeout);
 
 #ifdef __cplusplus
 }

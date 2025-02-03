@@ -70,6 +70,30 @@ size_t spifixedframe_calc_frame_count(
 
 }
 
+spifixedframe_t* spifixedframe_create_frames(
+    const size_t byte_len,
+    size_t* frame_count) {
+
+        assert(byte_len > 0);
+
+        const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
+        const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
+
+        if(frame_count != NULL) {
+            *frame_count = frameCount;
+        }
+
+        return malloc(allocBytes);
+
+}
+
+spifixedframe_buffer_t* spifixedframe_create_buffers(
+    const size_t frames_len) {
+        assert(frames_len > 0);
+        const size_t allocBytes = (sizeof(spifixedframe_buffer_t) * frames_len);
+        return malloc(allocBytes);
+}
+
 spifixedframe_buffer_t spifixedframe_serialise(
     const spifixedframe_t* const frame) {
 
@@ -146,9 +170,10 @@ spifixedframe_error_t spifixedframe_send_bytes(
 
         SPIFIXEDFRAME_CHECK_BYTE_COUNT(byte_len);
 
-        const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
-        const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
-        spifixedframe_t* restrict const frames = malloc(allocBytes);
+        size_t frameCount;
+        spifixedframe_t* const frames = spifixedframe_create_frames(
+            byte_len,
+            &frameCount);
 
         if(frames == NULL) {
             return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
@@ -183,9 +208,11 @@ spifixedframe_error_t spifixedframe_recv_bytes(
         SPIFIXEDFRAME_CHECK_BYTE_COUNT(byte_len);
 
         spifixedframe_error_t code;
-        const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
-        const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
-        spifixedframe_t* const restrict frames = malloc(allocBytes);
+        size_t frameCount;
+
+        spifixedframe_t* const frames = spifixedframe_create_frames(
+            byte_len,
+            &frameCount);
 
         if(frames == NULL) {
             return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
@@ -360,88 +387,7 @@ spifixedframe_error_t spifixedframe_defragment_frames(
 
 }
 
-spifixedframe_error_t spifixedframe_write_frame(
-    spi_inst_t* const spi,
-    const spifixedframe_t* const frame,
-    const uint timeout_us) {
-
-        assert(spi != NULL);
-        assert(frame != NULL);
-
-        const size_t writeLen = 1;
-        const spifixedframe_buffer_t buffer = spifixedframe_serialise(frame);
-        const absolute_time_t timeout = make_timeout_time_us(timeout_us);
-
-        while(!spi_is_writable(spi)) {
-            if(!is_nil_time(timeout) && time_reached(timeout)) {
-                return SPIFIXEDFRAME_ERROR_TIMEOUT;
-            }
-        }
-
-        const int spiCode = spi_write16_blocking(
-            spi,
-            &buffer,
-            writeLen);
-
-        if(spiCode < 0) {
-            if(spiCode == PICO_ERROR_IO || spiCode == PICO_ERROR_GENERIC) {
-                return SPIFIXEDFRAME_ERROR_SPI_WRITE_FAIL;
-            }
-            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
-        }
-        else if(spiCode != writeLen) {
-            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
-        }
-
-        return SPIFIXEDFRAME_ERROR_OK;
-
-}
-
-spifixedframe_error_t spifixedframe_read_frame(
-    spi_inst_t* const spi,
-    spifixedframe_t* const frame,
-    const uint timeout_us) {
-
-        assert(spi != NULL);
-        assert(frame != NULL);
-
-        const size_t readLen = 1;
-        spifixedframe_buffer_t inbuffer;
-        spifixedframe_buffer_t outbuffer = spifixedframe_serialise(
-            &SPIFIXEDFRAME_NULL_FRAME);
-        const absolute_time_t timeout = make_timeout_time_us(timeout_us);
-
-        while(!spi_is_readable(spi)) {
-            if(!is_nil_time(timeout) && time_reached(timeout)) {
-                return SPIFIXEDFRAME_ERROR_TIMEOUT;
-            }
-        }
-
-        // outbuffer contains a null-frame as this function
-        // requires a value to transmit
-        const int spiCode = spi_read16_blocking(
-            spi,
-            outbuffer,
-            &inbuffer,
-            readLen);
-
-        if(spiCode < 0) {
-            if(spiCode == PICO_ERROR_IO || spiCode == PICO_ERROR_GENERIC) {
-                return SPIFIXEDFRAME_ERROR_SPI_READ_FAIL;
-            }
-            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
-        }
-        else if(spiCode != readLen) {
-            return SPIFIXEDFRAME_ERROR_SPI_GENERIC;
-        }
-
-        spifixedframe_deserialise(frame, inbuffer);
-
-        return SPIFIXEDFRAME_ERROR_OK;
-
-}
-
-spifixedframe_error_t spifixedframe_bulk_write_frames(
+spifixedframe_error_t spifixedframe_write_frames(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
     const size_t frames_len,
@@ -453,8 +399,7 @@ spifixedframe_error_t spifixedframe_bulk_write_frames(
         SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_len);
 
         const absolute_time_t timeout = make_timeout_time_us(timeout_us);
-        const size_t allocBytes = (sizeof(spifixedframe_buffer_t) * frames_len);
-        spifixedframe_buffer_t* restrict const buffer = malloc(allocBytes);
+        spifixedframe_buffer_t* const buffer = spifixedframe_create_buffers(frames_len);
 
         // note: all 16 bits in each frame are set to 0 if not used,
         // so malloc is OK instead of calloc
@@ -468,11 +413,9 @@ spifixedframe_error_t spifixedframe_bulk_write_frames(
             buffer,
             frames_len);
 
-        while(!spi_is_writable(spi)) {
-            if(!is_nil_time(timeout) && time_reached(timeout)) {
-                free(buffer);
-                return SPIFIXEDFRAME_ERROR_TIMEOUT;
-            }
+        if(!util_spi_is_writable_timeout(spi, timeout)) {
+            free(buffer);
+            return SPIFIXEDFRAME_ERROR_TIMEOUT;
         }
 
         const int spiCode = spi_write16_blocking(
@@ -496,7 +439,7 @@ spifixedframe_error_t spifixedframe_bulk_write_frames(
 
 }
 
-spifixedframe_error_t spifixedframe_bulk_read_frames(
+spifixedframe_error_t spifixedframe_read_frames(
     spi_inst_t* const spi,
     spifixedframe_t* const frames,
     const size_t frames_len,
@@ -508,21 +451,17 @@ spifixedframe_error_t spifixedframe_bulk_read_frames(
         SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_len);
 
         const absolute_time_t timeout = make_timeout_time_us(timeout_us);
+        spifixedframe_buffer_t* const inbuffer = spifixedframe_create_buffers(frames_len);
         const spifixedframe_buffer_t outbuffer = 
             spifixedframe_serialise(&SPIFIXEDFRAME_NULL_FRAME);
-
-        const size_t allocBytes = (sizeof(spifixedframe_buffer_t) * frames_len);
-        spifixedframe_buffer_t* restrict const inbuffer = malloc(allocBytes);
 
         if(inbuffer == NULL) {
             return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
         }
 
-        while(!spi_is_readable(spi)) {
-            if(!is_nil_time(timeout) && time_reached(timeout)) {
-                free(inbuffer);
-                return SPIFIXEDFRAME_ERROR_TIMEOUT;
-            }
+        if(!util_spi_is_readable_timeout(spi, timeout)) {
+            free(inbuffer);
+            return SPIFIXEDFRAME_ERROR_TIMEOUT;
         }
 
         const int spiCode = spi_read16_blocking(
@@ -566,7 +505,7 @@ spifixedframe_error_t spifixedframe_chain_write(
         SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_to_write);
         SPIFIXEDFRAME_CHECK_CHAIN(frames, frames_to_write);
 
-        return spifixedframe_bulk_write_frames(
+        return spifixedframe_write_frames(
             spi,
             frames,
             frames_to_write,
@@ -599,7 +538,7 @@ spifixedframe_error_t spifixedframe_chain_read(
             return SPIFIXEDFRAME_ERROR_OK;
         }
 
-        return spifixedframe_bulk_read_frames(
+        return spifixedframe_read_frames(
             spi,
             &frames[1],
             frames_to_read - 1,
@@ -621,9 +560,10 @@ spifixedframe_error_t spifixedframe_chain_wait_first_frame(
 
         do {
 
-            code = spifixedframe_read_frame(
+            code = spifixedframe_read_frames(
                 spi,
                 &temp,
+                1,
                 timeout_us);
 
             if(code != SPIFIXEDFRAME_ERROR_OK) {

@@ -123,6 +123,26 @@ size_t spifixedframe_calc_frame_count(
     const size_t byte_len);
 
 /**
+ * @brief Dynamically allocate frames.
+ * 
+ * @param byte_len 
+ * @param frame_count pass NULL to ignore
+ * @return spifixedframe_t* 
+ */
+spifixedframe_t* spifixedframe_create_frames(
+    const size_t byte_len,
+    size_t* frame_count);
+
+/**
+ * @brief Dynamically allocate buffers.
+ * 
+ * @param frames_len 
+ * @return spifixedframe_buffer_t* 
+ */
+spifixedframe_buffer_t* spifixedframe_create_buffers(
+    const size_t frames_len);
+
+/**
  * @brief Serialise a frame to bytes.
  * 
  * @param frame 
@@ -235,34 +255,6 @@ spifixedframe_error_t spifixedframe_defragment_frames(
     const size_t expected_bytes_len);
 
 /**
- * @brief Write a single frame to SPI.
- * 
- * @param spi 
- * @param frame 
- * @param timeout_us pass 0 to block
- * @return true 
- * @return false 
- */
-spifixedframe_error_t spifixedframe_write_frame(
-    spi_inst_t* const spi,
-    const spifixedframe_t* const frame,
-    const uint timeout_us);
-
-/**
- * @brief Read a single frame from SPI.
- * 
- * @param spi 
- * @param frame 
- * @param timeout_us pass 0 to block
- * @return true 
- * @return false 
- */
-spifixedframe_error_t spifixedframe_read_frame(
-    spi_inst_t* const spi,
-    spifixedframe_t* const frame,
-    const uint timeout_us);
-
-/**
  * @brief Write an array of frames to SPI.
  * 
  * @param spi 
@@ -272,7 +264,7 @@ spifixedframe_error_t spifixedframe_read_frame(
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_bulk_write_frames(
+spifixedframe_error_t spifixedframe_write_frames(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
     const size_t frames_len,
@@ -288,7 +280,7 @@ spifixedframe_error_t spifixedframe_bulk_write_frames(
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_bulk_read_frames(
+spifixedframe_error_t spifixedframe_read_frames(
     spi_inst_t* const spi,
     spifixedframe_t* const frames,
     const size_t frames_len,
