@@ -94,28 +94,7 @@ spifixedframe_buffer_t* spifixedframe_create_buffers(
         return malloc(allocBytes);
 }
 
-spifixedframe_buffer_t spifixedframe_serialise(
-    const spifixedframe_t* const frame) {
-
-        assert(frame != NULL);
-
-        spifixedframe_buffer_t buff = util_set_bits16(
-            0,
-            SPIFIXEDFRAME_IS_FIRST_OFFSET,
-            SPIFIXEDFRAME_IS_FIRST_SIZE_BITS,
-            (uint8_t)frame->is_first);
-
-        buff = util_set_bits16(
-            buff,
-            SPIFIXEDFRAME_DATA_OFFSET,
-            SPIFIXEDFRAME_DATA_SIZE_BITS,
-            frame->data);
-
-        return buff;
-
-}
-
-void spifixedframe_bulk_serialise(
+void spifixedframe_serialise_frames(
     const spifixedframe_t* const frames,
     spifixedframe_buffer_t* const buffers,
     const size_t frames_len) {
@@ -141,21 +120,27 @@ void spifixedframe_bulk_serialise(
 
 }
 
-void spifixedframe_deserialise(
-    spifixedframe_t* const frame,
-    const spifixedframe_buffer_t buffer) {
+void spifixedframe_deserialise_frames(
+    const spifixedframe_buffer_t* const buffers,
+    spifixedframe_t* const frames,
+    const size_t frames_len) {
 
-        assert(frame != NULL);
+        assert(buffers != NULL);
+        assert(frames != NULL);
 
-        frame->is_first = (bool)util_get_bits16(
-            buffer,
-            SPIFIXEDFRAME_IS_FIRST_OFFSET,
-            SPIFIXEDFRAME_IS_FIRST_SIZE_BITS);
+        for(size_t i = 0; i < frames_len; ++i) {
 
-        frame->data = util_get_bits16(
-            buffer,
-            SPIFIXEDFRAME_DATA_OFFSET,
-            SPIFIXEDFRAME_DATA_SIZE_BITS);
+            frames[i].is_first = (bool)util_get_bits16(
+                buffers[i],
+                SPIFIXEDFRAME_IS_FIRST_OFFSET,
+                SPIFIXEDFRAME_IS_FIRST_SIZE_BITS);
+
+            frames[i].data = util_get_bits16(
+                buffers[i],
+                SPIFIXEDFRAME_DATA_OFFSET,
+                SPIFIXEDFRAME_DATA_SIZE_BITS);
+
+        }
 
 }
 
@@ -408,12 +393,12 @@ spifixedframe_error_t spifixedframe_write_frames(
             return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
         }
 
-        spifixedframe_bulk_serialise(
+        spifixedframe_serialise_frames(
             frames,
             buffer,
             frames_len);
 
-        if(!util_spi_is_writable_timeout(spi, timeout)) {
+        if(!util_spi_is_writable_timeout(spi, &timeout)) {
             free(buffer);
             return SPIFIXEDFRAME_ERROR_TIMEOUT;
         }
@@ -452,14 +437,18 @@ spifixedframe_error_t spifixedframe_read_frames(
 
         const absolute_time_t timeout = make_timeout_time_us(timeout_us);
         spifixedframe_buffer_t* const inbuffer = spifixedframe_create_buffers(frames_len);
-        const spifixedframe_buffer_t outbuffer = 
-            spifixedframe_serialise(&SPIFIXEDFRAME_NULL_FRAME);
+        spifixedframe_buffer_t outbuffer;
+
+        spifixedframe_serialise_frames(
+            &SPIFIXEDFRAME_NULL_FRAME,
+            &outbuffer,
+            1);
 
         if(inbuffer == NULL) {
             return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
         }
 
-        if(!util_spi_is_readable_timeout(spi, timeout)) {
+        if(!util_spi_is_readable_timeout(spi, &timeout)) {
             free(inbuffer);
             return SPIFIXEDFRAME_ERROR_TIMEOUT;
         }
@@ -472,9 +461,7 @@ spifixedframe_error_t spifixedframe_read_frames(
 
         // if read succeeded, create the frames from the buffer
         if(spiCode > 0 && (size_t)spiCode == frames_len) {
-            for(size_t i = 0; i < frames_len; ++i) {
-                spifixedframe_deserialise(&frames[i], inbuffer[i]);
-            }
+            spifixedframe_deserialise_frames(inbuffer, frames, frames_len);
         }
 
         free(inbuffer);

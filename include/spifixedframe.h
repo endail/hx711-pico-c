@@ -143,35 +143,28 @@ spifixedframe_buffer_t* spifixedframe_create_buffers(
     const size_t frames_len);
 
 /**
- * @brief Serialise a frame to bytes.
- * 
- * @param frame 
- * @return spifixedframe_buffer_t 
- */
-spifixedframe_buffer_t spifixedframe_serialise(
-    const spifixedframe_t* const frame);
-
-/**
  * @brief Serialise a series of frames.
  * 
  * @param frames 
  * @param buffers 
  * @param frames_len 
  */
-void spifixedframe_bulk_serialise(
+void spifixedframe_serialise_frames(
     const spifixedframe_t* const frames,
     spifixedframe_buffer_t* const buffers,
     const size_t frames_len);
 
 /**
- * @brief Deserialise bytes to a frame.
+ * @brief Deserialise a series of frames.
  * 
- * @param frame 
- * @param buffer 
+ * @param buffers 
+ * @param frames 
+ * @param frames_len 
  */
-void spifixedframe_deserialise(
-    spifixedframe_t* const frame,
-    const spifixedframe_buffer_t buffer);
+void spifixedframe_deserialise_frames(
+    const spifixedframe_buffer_t* const buffers,
+    spifixedframe_t* const frames,
+    const size_t frames_len);
 
 /**
  * @brief Send a fixed number of bytes.

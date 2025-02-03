@@ -648,11 +648,14 @@ bool util_pio_sm_try_get(
 
 bool util_spi_is_readable_timeout(
     const spi_inst_t* const spi,
-    const absolute_time_t* timeout);
+    const absolute_time_t* const timeout);
 
 bool util_spi_is_writable_timeout(
     const spi_inst_t* const spi,
-    const absolute_time_t* timeout);
+    const absolute_time_t* const timeout);
+
+bool util_time_reached_us(
+    const uint64_t* timeout_us);
 
 #ifdef __cplusplus
 }

@@ -556,13 +556,13 @@ bool util_pio_sm_try_get(
 
 bool util_spi_is_readable_timeout(
     const spi_inst_t* const spi,
-    const absolute_time_t* timeout) {
+    const absolute_time_t* const timeout) {
 
         assert(spi != NULL);
         assert(timeout != NULL);
         assert(!is_nil_time(timeout));
 
-        while(!time_reached(timeout)) {
+        while(!time_reached(*timeout)) {
             if(spi_is_readable(spi)) {
                 return true;
             }
@@ -574,18 +574,33 @@ bool util_spi_is_readable_timeout(
 
 bool util_spi_is_writable_timeout(
     const spi_inst_t* const spi,
-    const absolute_time_t* timeout) {
+    const absolute_time_t* const timeout) {
 
         assert(spi != NULL);
         assert(timeout != NULL);
         assert(!is_nil_time(timeout));
 
-        while(!time_reached(timeout)) {
+        while(!time_reached(*timeout)) {
             if(spi_is_writable(spi)) {
                 return true;
             }
         }
 
         return false;
+
+}
+
+bool util_time_reached_us(
+    const uint64_t* timeout_us) {
+
+        timer_hw_t* const timer = PICO_DEFAULT_TIMER_INSTANCE();
+        const absolute_time_t timeout = make_timeout_time_us(*timeout_us);
+        const uint64_t target = to_us_since_boot(timeout);
+        uint32_t hi_target = (uint32_t)(target >> 32u);
+        uint32_t hi = timer->timerawh;
+    
+        // ??????
+
+        return (hi >= hi_target && (timer->timerawl >= (uint32_t) target || hi != hi_target));
 
 }
