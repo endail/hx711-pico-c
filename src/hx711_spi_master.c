@@ -119,7 +119,9 @@ hx711_spi_error_t hx711_spi_deserialise_request(
         raw_crc = *ptr;
 
         // and check if crcs match
-        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_SPI_ERROR_CRC_FAIL);
+        if(calcd_crc != raw_crc) {
+            return HX711_SPI_ERROR_CRC_FAIL;
+        }
 
         return HX711_SPI_ERROR_OK;
 
@@ -153,7 +155,9 @@ hx711_spi_error_t hx711_spi_deserialise_control(
         memcpy(&raw_crc, ptr, sizeof(raw_crc));
 
         // and check if crcs match
-        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_SPI_ERROR_CRC_FAIL);
+        if(calcd_crc != raw_crc) {
+            return HX711_SPI_ERROR_CRC_FAIL;
+        }
 
         return HX711_SPI_ERROR_OK;
 
@@ -254,8 +258,9 @@ hx711_spi_error_t hx711_spi_master_set_gain(
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
-        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
-            HX711_SPI_ERROR_SPI_SEND_FAIL);
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return HX711_SPI_ERROR_SPI_SEND_FAIL;
+        }
 
         return HX711_SPI_ERROR_OK;
 
@@ -349,8 +354,9 @@ hx711_spi_error_t hx711_spi_master_power_up(
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
-        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
-            HX711_SPI_ERROR_SPI_SEND_FAIL);
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return HX711_SPI_ERROR_SPI_SEND_FAIL;
+        }
 
         return HX711_SPI_ERROR_OK;
 
@@ -382,8 +388,9 @@ hx711_spi_error_t hx711_spi_master_power_down(
                 HX711_SPI_REMOTE_REQUEST_TOTAL_BYTES);
         );
 
-        UTIL_RETURNIF(code != SPIFIXEDFRAME_ERROR_OK,
-            HX711_SPI_ERROR_SPI_SEND_FAIL);
+        if(code != SPIFIXEDFRAME_ERROR_OK) {
+            return HX711_SPI_ERROR_SPI_SEND_FAIL;
+        }
 
         return HX711_SPI_ERROR_OK;
 

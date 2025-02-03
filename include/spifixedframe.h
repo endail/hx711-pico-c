@@ -24,6 +24,7 @@
 #define SPIFIXEDFRAME_H_E10C5828_E3DE_493A_9DD3_C0D58B0166CD
 
 #include <hardware/spi.h>
+#include <pico/types.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -158,12 +159,14 @@ void spifixedframe_deserialise(
  * @param spi 
  * @param bytes 
  * @param byte_len 
+ * @param timeout_us pass 0 to block
  * @return spifixedframe_error_t 
  */
 spifixedframe_error_t spifixedframe_send_bytes(
     spi_inst_t* const spi,
     const uint8_t* const bytes,
-    const size_t byte_len);
+    const size_t byte_len,
+    const uint timeout_us);
 
 /**
  * @brief Receive a fixed number of bytes.
@@ -171,20 +174,35 @@ spifixedframe_error_t spifixedframe_send_bytes(
  * @param spi 
  * @param bytes 
  * @param byte_len 
+ * @param timeout_us pass 0 to block
  * @return true 
  * @return false 
  */
 spifixedframe_error_t spifixedframe_recv_bytes(
     spi_inst_t* const spi,
     uint8_t* const bytes,
-    const size_t byte_len);
+    const size_t byte_len,
+    const uint timeout_us);
 
+/**
+ * @brief Send and receive fixed numbers of bytes. The same
+ * timeout length is used for both sending and receiving.
+ * 
+ * @param spi 
+ * @param req 
+ * @param req_len 
+ * @param resp 
+ * @param resp_len 
+ * @param timeout_us pass 0 to block
+ * @return spifixedframe_error_t 
+ */
 spifixedframe_error_t spifixedframe_req_resp(
     spi_inst_t* const spi,
     const uint8_t* const req,
     const size_t req_len,
     uint8_t* const resp,
-    const size_t resp_len);
+    const size_t resp_len,
+    const uint timeout_us);
 
 /**
  * @brief Fragment an array of bytes into an array of frames.
@@ -221,24 +239,28 @@ spifixedframe_error_t spifixedframe_defragment_frames(
  * 
  * @param spi 
  * @param frame 
+ * @param timeout_us pass 0 to block
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_write_frame_blocking(
+spifixedframe_error_t spifixedframe_write_frame(
     spi_inst_t* const spi,
-    const spifixedframe_t* const frame);
+    const spifixedframe_t* const frame,
+    const uint timeout_us);
 
 /**
  * @brief Read a single frame from SPI.
  * 
  * @param spi 
  * @param frame 
+ * @param timeout_us pass 0 to block
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_read_frame_blocking(
+spifixedframe_error_t spifixedframe_read_frame(
     spi_inst_t* const spi,
-    spifixedframe_t* const frame);
+    spifixedframe_t* const frame,
+    const uint timeout_us);
 
 /**
  * @brief Write an array of frames to SPI.
@@ -246,13 +268,15 @@ spifixedframe_error_t spifixedframe_read_frame_blocking(
  * @param spi 
  * @param frames 
  * @param frames_len 
+ * @param timeout_us pass 0 to block
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_bulk_write_frames_blocking(
+spifixedframe_error_t spifixedframe_bulk_write_frames(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
-    const size_t frames_len);
+    const size_t frames_len,
+    const uint timeout_us);
 
 /**
  * @brief Read an array of frames from SPI.
@@ -260,13 +284,15 @@ spifixedframe_error_t spifixedframe_bulk_write_frames_blocking(
  * @param spi 
  * @param frames 
  * @param frames_len 
+ * @param timeout_us pass 0 to block
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_bulk_read_frames_blocking(
+spifixedframe_error_t spifixedframe_bulk_read_frames(
     spi_inst_t* const spi,
     spifixedframe_t* const frames,
-    const size_t frames_len);
+    const size_t frames_len,
+    const uint timeout_us);
 
 /**
  * @brief Write a chain of frames to SPI. A chain is an array
@@ -275,30 +301,35 @@ spifixedframe_error_t spifixedframe_bulk_read_frames_blocking(
  * @param spi 
  * @param frames 
  * @param frames_to_write 
+ * @param timeout_us
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_chain_write_blocking(
+spifixedframe_error_t spifixedframe_chain_write(
     spi_inst_t* const spi,
     const spifixedframe_t* const frames,
-    const size_t frames_to_write);
+    const size_t frames_to_write,
+    const uint timeout_us);
 
 /**
  * @brief Read a chain of frames from SPI. A chain is an array
  * of frames where the first and only the first is flagged. This
  * function will wait until it receives a chain from beginning to
- * {frames_to_read} number of frames.
+ * {frames_to_read} number of frames. The same timeout is used
+ * for reading the first frame and any remaining frames.
  * 
  * @param spi 
  * @param frames_to_read 
  * @param frames 
+ * @param timeout_us
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_chain_read_blocking(
+spifixedframe_error_t spifixedframe_chain_read(
     spi_inst_t* const spi,
     const size_t frames_to_read,
-    spifixedframe_t* const frames);
+    spifixedframe_t* const frames,
+    const uint timeout_us);
 
 /**
  * @brief Blocks until the first frame in a chain of frames is
@@ -306,12 +337,14 @@ spifixedframe_error_t spifixedframe_chain_read_blocking(
  * 
  * @param spi 
  * @param first_frame 
+ * @param timeout_us
  * @return true 
  * @return false 
  */
-spifixedframe_error_t spifixedframe_chain_wait_first_frame_blocking(
+spifixedframe_error_t spifixedframe_chain_wait_first_frame(
     spi_inst_t* const spi,
-    spifixedframe_t* const first_frame);
+    spifixedframe_t* const first_frame,
+    const uint timeout_us);
 
 #ifdef __cplusplus
 }
