@@ -77,7 +77,7 @@ spifixedframe_t* spifixedframe_create_frames(
         assert(byte_len > 0);
 
         const size_t frameCount = spifixedframe_calc_frame_count(byte_len);
-        const size_t allocBytes = (sizeof(spifixedframe_t) * frameCount);
+        const size_t allocBytes = sizeof(spifixedframe_t) * frameCount;
 
         if(frame_count != NULL) {
             *frame_count = frameCount;
@@ -90,7 +90,7 @@ spifixedframe_t* spifixedframe_create_frames(
 spifixedframe_buffer_t* spifixedframe_create_buffers(
     const size_t frames_len) {
         assert(frames_len > 0);
-        const size_t allocBytes = (sizeof(spifixedframe_buffer_t) * frames_len);
+        const size_t allocBytes = sizeof(spifixedframe_buffer_t) * frames_len;
         return malloc(allocBytes);
 }
 

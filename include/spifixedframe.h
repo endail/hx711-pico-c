@@ -55,7 +55,7 @@ extern "C" {
 #define SPIFIXEDFRAME_MAX_FRAMES                    1000u
 
 typedef enum {
-    SPIFIXEDFRAME_ERROR_OK =                        0,
+    SPIFIXEDFRAME_ERROR_OK =                         0,
     SPIFIXEDFRAME_ERROR_GENERIC =                   -1,
     SPIFIXEDFRAME_ERROR_UNKNOWN =                   -2,
     SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED =       -3,
@@ -72,29 +72,47 @@ typedef enum {
     SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES =             -14
 } spifixedframe_error_t;
 
+/**
+ * @brief Checks if the given frame count is within limits
+ * and if not, function-returns an appropriate spifixedframe_error_t.
+ */
 #define SPIFIXEDFRAME_CHECK_FRAME_COUNT(COUNT) \
     do { \
-        UTIL_RETURNIF(COUNT == 0, SPIFIXEDFRAME_ERROR_TOO_FEW_FRAMES); \
-        UTIL_RETURNIF(COUNT > SPIFIXEDFRAME_MAX_FRAMES, SPIFIXEDFRAME_ERROR_FRAME_LIMIT_EXCEEDED); \
+        UTIL_RETURNIF((COUNT) == 0, SPIFIXEDFRAME_ERROR_TOO_FEW_FRAMES); \
+        UTIL_RETURNIF((COUNT) > (SPIFIXEDFRAME_MAX_FRAMES), SPIFIXEDFRAME_ERROR_FRAME_LIMIT_EXCEEDED); \
     } \
     while(0)
 
+/**
+ * @brief Checks if the given byte count is within limits
+ * and if not, function-returns an appropriate spifixedframe_error_t.
+ */
 #define SPIFIXEDFRAME_CHECK_BYTE_COUNT(COUNT) \
     do { \
-        UTIL_RETURNIF(COUNT == 0, SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES); \
-        UTIL_RETURNIF(COUNT > SPIFIXEDFRAME_MAX_BYTES, SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED); \
+        UTIL_RETURNIF((COUNT) == 0, SPIFIXEDFRAME_ERROR_TOO_FEW_BYTES); \
+        UTIL_RETURNIF((COUNT) > (SPIFIXEDFRAME_MAX_BYTES), SPIFIXEDFRAME_ERROR_BYTE_LIMIT_EXCEEDED); \
     } \
     while(0)
 
+/**
+ * @brief Check if the given array of frames is valid (ie. the 0th
+ * array element contains the "first frame" and no other frames are
+ * marked as the first frame. If invalid, an appropriate
+ * spifixedframe_error_t is function-returned.
+ */
 #define SPIFIXEDFRAME_CHECK_CHAIN(FRAMES, FRAME_LEN) \
     do { \
-        UTIL_RETURNIF(!FRAMES[0].is_first, SPIFIXEDFRAME_ERROR_CHAIN_NO_FIRST); \
-        for(size_t _spifixedframe_check_chain_i = 1; _spifixedframe_check_chain_i < FRAME_LEN; ++_spifixedframe_check_chain_i) { \
-            UTIL_RETURNIF(FRAMES[_spifixedframe_check_chain_i].is_first, SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST); \
+        UTIL_RETURNIF(!(FRAMES)[0].is_first, SPIFIXEDFRAME_ERROR_CHAIN_NO_FIRST); \
+        for(size_t (_spifixedframe_check_chain_i) = 1; (_spifixedframe_check_chain_i) < (FRAME_LEN); ++(_spifixedframe_check_chain_i)) { \
+            UTIL_RETURNIF(((FRAMES)[_spifixedframe_check_chain_i].is_first), SPIFIXEDFRAME_ERROR_CHAIN_MULTIPLE_FIRST); \
         } \
     } \
     while(0)
 
+/**
+ * @brief a numeric type of sufficient size to hold frame
+ * metadata and data.
+ */
 typedef uint16_t spifixedframe_buffer_t;
 
 typedef struct {

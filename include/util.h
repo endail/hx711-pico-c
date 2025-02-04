@@ -37,6 +37,91 @@
 extern "C" {
 #endif
 
+#define UTIL_RETURNIF(COND, VALUE) if(COND) return (VALUE)
+#define UTIL_BREAKIF(COND) if(COND) break
+#define UTIL_CONTINUEIF(COND) if(COND) continue
+
+#define UTIL__DECL_IN_RANGE_FUNC(TYPE) \
+bool util_ ## TYPE ##_in_range( \
+    const TYPE val, \
+    const TYPE min, \
+    const TYPE max);
+
+#define UTIL__DEF_IN_RANGE_FUNC(TYPE) \
+inline bool util_ ## TYPE ##_in_range( \
+    const TYPE val, \
+    const TYPE min, \
+    const TYPE max) { \
+        return val >= min && val <= max; \
+}
+
+UTIL__DEF_IN_RANGE_FUNC(int32_t)
+UTIL__DEF_IN_RANGE_FUNC(uint32_t)
+UTIL__DEF_IN_RANGE_FUNC(int)
+UTIL__DEF_IN_RANGE_FUNC(uint)
+UTIL__DEF_IN_RANGE_FUNC(size_t)
+
+#undef UTIL__DECL_IN_RANGE_FUNC
+#undef UTIL__DEF_IN_RANGE_FUNC
+
+#define UTIL__DECL_GET_BITS_FUNC(BIT_COUNT) \
+uint ## BIT_COUNT ##_t util_get_bits ## BIT_COUNT ( \
+    const uint ## BIT_COUNT ##_t value, \
+    const uint ## BIT_COUNT ##_t startbit, \
+    const uint ## BIT_COUNT ##_t len);
+
+#define UTIL__DECL_SET_BITS_FUNC(BIT_COUNT) \
+uint ## BIT_COUNT ##_t util_set_bits ## BIT_COUNT ( \
+    uint ## BIT_COUNT ##_t value, \
+    const uint ## BIT_COUNT ##_t startbit, \
+    const uint ## BIT_COUNT ##_t len, \
+    const uint ## BIT_COUNT ##_t bits);
+
+#define UTIL__DEF_GET_BITS_FUNC(BIT_COUNT) \
+inline uint ## BIT_COUNT ##_t util_get_bits ## BIT_COUNT ( \
+    const uint ## BIT_COUNT ##_t value, \
+    const uint ## BIT_COUNT ##_t startbit, \
+    const uint ## BIT_COUNT ##_t len) { \
+        \
+        assert(util_uint_in_range(startbit, 0, UINT ## BIT_COUNT ##_WIDTH - 1)); \
+        assert(util_uint_in_range(len, 1, UINT ## BIT_COUNT ##_WIDTH)); \
+        assert((startbit + len) <= UINT ## BIT_COUNT ##_WIDTH); \
+        \
+        const uint ## BIT_COUNT ##_t mask = ((1 << len) - 1) << startbit; \
+        const uint ## BIT_COUNT ##_t extracted = (value & mask) >> startbit; \
+        \
+        return extracted; \
+        \
+}
+
+#define UTIL__DEF_SET_BITS_FUNC(BIT_COUNT) \
+inline uint ## BIT_COUNT ##_t util_set_bits ## BIT_COUNT ( \
+    uint ## BIT_COUNT ##_t value, \
+    const uint ## BIT_COUNT ##_t startbit, \
+    const uint ## BIT_COUNT ##_t len, \
+    const uint ## BIT_COUNT ##_t bits) { \
+        \
+        assert(util_uint_in_range(startbit, 0, UINT ## BIT_COUNT ##_WIDTH - 1)); \
+        assert(util_uint_in_range(len, 1, UINT ## BIT_COUNT ##_WIDTH)); \
+        assert((startbit + len) <= UINT ## BIT_COUNT ##_WIDTH); \
+        \
+        const uint ## BIT_COUNT ##_t mask = ((1 << len) - 1) << startbit; \
+        value &= ~mask; \
+        value |= (bits << startbit); \
+        return value; \
+        \
+}
+
+UTIL__DEF_GET_BITS_FUNC(8)
+UTIL__DEF_GET_BITS_FUNC(16)
+UTIL__DEF_GET_BITS_FUNC(32)
+#undef UTIL__DEF_GET_BITS_FUNC
+
+UTIL__DEF_SET_BITS_FUNC(8)
+UTIL__DEF_SET_BITS_FUNC(16)
+UTIL__DEF_SET_BITS_FUNC(32)
+#undef UTIL__DEF_SET_BITS_FUNC
+
 // https://stackoverflow.com/a/3208376
 #define UTIL_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define UTIL_BYTE_TO_BINARY(byte)  \
@@ -52,15 +137,15 @@ extern "C" {
 // define these since they're not included by default
 // and they're helpful
 #ifndef UINT8_WIDTH
-#define UINT8_WIDTH 8u
+#define UINT8_WIDTH                         8u
 #endif
 
 #ifndef UINT16_WIDTH
-#define UINT16_WIDTH 16u
+#define UINT16_WIDTH                        16u
 #endif
 
 #ifndef UINT32_WIDTH
-#define UINT32_WIDTH 32u
+#define UINT32_WIDTH                        32u
 #endif
 
 // NUM_DMA_IRQS defined in pico sdk
@@ -88,10 +173,6 @@ extern "C" {
 
 #define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MIN 0u
 #define UTIL_ROUTABLE_PIO_INTERRUPT_NUM_MAX 3u
-
-#define UTIL_RETURNIF(COND, VALUE) if(COND) return (VALUE)
-#define UTIL_BREAKIF(COND) if(COND) break
-#define UTIL_CONTINUEIF(COND) if(COND) continue
 
 /**
  * @brief Own a mutex for the duration of this block of
@@ -138,29 +219,6 @@ extern "C" {
     } \
     while(0)
 
-#define UTIL__DECL_IN_RANGE_FUNC(TYPE) \
-bool util_ ## TYPE ##_in_range( \
-    const TYPE val, \
-    const TYPE min, \
-    const TYPE max);
-
-#define UTIL__DEF_IN_RANGE_FUNC(TYPE) \
-inline bool util_ ## TYPE ##_in_range( \
-    const TYPE val, \
-    const TYPE min, \
-    const TYPE max) { \
-        return val >= min && val <= max; \
-}
-
-UTIL__DEF_IN_RANGE_FUNC(int32_t)
-UTIL__DEF_IN_RANGE_FUNC(uint32_t)
-UTIL__DEF_IN_RANGE_FUNC(int)
-UTIL__DEF_IN_RANGE_FUNC(uint)
-UTIL__DEF_IN_RANGE_FUNC(size_t)
-
-#undef UTIL__DECL_IN_RANGE_FUNC
-#undef UTIL__DEF_IN_RANGE_FUNC
-
 /**
  * @brief Quick lookup for finding an NVIC IRQ number
  * for a PIO and interrupt index number.
@@ -174,88 +232,6 @@ extern const uint8_t util_pio_to_irq_map[NUM_PIOS * 2];
  * for a DMA interrupt index number.
  */
 extern const uint8_t util_dma_to_irq_map[UTIL_NUM_DMA_IRQS];
-
-/**
- * @brief Sets bits in value from startbit to len.
- * 
- * @param value 
- * @param startbit 
- * @param len 
- * @param bits 
- * @return uint8_t 
- */
-inline uint8_t util_set_bits8(
-    uint8_t value,
-    const uint8_t startbit,
-    const uint8_t len,
-    const uint8_t bits) {
-
-        assert(util_uint_in_range(startbit, 0, UINT8_WIDTH - 1));
-        assert(util_uint_in_range(len, 1, UINT8_WIDTH));
-        assert((startbit + len) <= UINT8_WIDTH);
-
-        const uint8_t mask = ((1 << len) - 1) << startbit;
-        value &= ~mask;
-        value |= (bits << startbit);
-        return value;
-
-}
-
-/**
- * @brief Extract len bits from value starting at startbit.
- * 
- * @param value 
- * @param startbit 
- * @param len 
- * @return uint8_t 
- */
-inline uint8_t util_get_bits8(
-    const uint8_t value,
-    const uint8_t startbit,
-    const uint8_t len) {
-
-        assert(util_uint_in_range(startbit, 0, UINT8_WIDTH - 1));
-        assert(util_uint_in_range(len, 1, UINT8_WIDTH));
-        assert((startbit + len) <= UINT8_WIDTH);
-
-        const uint8_t mask = ((1 << len) - 1) << startbit;
-        const uint8_t extracted = (value & mask) >> startbit;
-
-        return extracted;
-
-}
-
-inline uint16_t util_set_bits16(
-    uint16_t value,
-    const uint8_t startbit,
-    const uint8_t len,
-    const uint16_t bits) {
-
-    assert(util_uint_in_range(startbit, 0, UINT16_WIDTH - 1));
-    assert(util_uint_in_range(len, 1, UINT16_WIDTH));
-    assert((startbit + len) <= UINT16_WIDTH);
-
-    const uint16_t mask = ((1 << len) - 1) << startbit;
-    value &= ~mask;
-    value |= (bits << startbit);
-    return value;
-
-}
-
-inline uint16_t util_get_bits16(
-    const uint16_t value,
-    const uint8_t startbit,
-    const uint8_t len) {
-
-    assert(util_uint_in_range(startbit, 0, UINT16_WIDTH - 1));
-    assert(util_uint_in_range(len, 1, UINT16_WIDTH));
-    assert((startbit + len) <= UINT16_WIDTH);
-
-    const uint16_t mask = ((1 << len) - 1) << startbit;
-    const uint16_t extracted = (value & mask) >> startbit;
-
-    return extracted;
-}
 
 uint8_t util_crc8(
     uint8_t data,
@@ -653,9 +629,6 @@ bool util_spi_is_readable_timeout(
 bool util_spi_is_writable_timeout(
     const spi_inst_t* const spi,
     const absolute_time_t* const timeout);
-
-bool util_time_reached_us(
-    const uint64_t* timeout_us);
 
 #ifdef __cplusplus
 }

@@ -589,18 +589,3 @@ bool util_spi_is_writable_timeout(
         return false;
 
 }
-
-bool util_time_reached_us(
-    const uint64_t* timeout_us) {
-
-        timer_hw_t* const timer = PICO_DEFAULT_TIMER_INSTANCE();
-        const absolute_time_t timeout = make_timeout_time_us(*timeout_us);
-        const uint64_t target = to_us_since_boot(timeout);
-        uint32_t hi_target = (uint32_t)(target >> 32u);
-        uint32_t hi = timer->timerawh;
-    
-        // ??????
-
-        return (hi >= hi_target && (timer->timerawl >= (uint32_t) target || hi != hi_target));
-
-}
