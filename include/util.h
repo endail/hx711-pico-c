@@ -41,6 +41,32 @@ extern "C" {
 #define UTIL_BREAKIF(COND) if(COND) break
 #define UTIL_CONTINUEIF(COND) if(COND) continue
 
+// https://stackoverflow.com/a/3208376
+#define UTIL_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define UTIL_BYTE_TO_BINARY(byte)  \
+  ((byte) & 0x80 ? '1' : '0'), \
+  ((byte) & 0x40 ? '1' : '0'), \
+  ((byte) & 0x20 ? '1' : '0'), \
+  ((byte) & 0x10 ? '1' : '0'), \
+  ((byte) & 0x08 ? '1' : '0'), \
+  ((byte) & 0x04 ? '1' : '0'), \
+  ((byte) & 0x02 ? '1' : '0'), \
+  ((byte) & 0x01 ? '1' : '0')
+
+// define these since they're not included by default
+// and they're helpful
+#ifndef UINT8_WIDTH
+#define UINT8_WIDTH                         8u
+#endif
+
+#ifndef UINT16_WIDTH
+#define UINT16_WIDTH                        16u
+#endif
+
+#ifndef UINT32_WIDTH
+#define UINT32_WIDTH                        32u
+#endif
+
 #define UTIL__DECL_IN_RANGE_FUNC(TYPE) \
 bool util_ ## TYPE ##_in_range( \
     const TYPE val, \
@@ -60,7 +86,6 @@ UTIL__DEF_IN_RANGE_FUNC(uint32_t)
 UTIL__DEF_IN_RANGE_FUNC(int)
 UTIL__DEF_IN_RANGE_FUNC(uint)
 UTIL__DEF_IN_RANGE_FUNC(size_t)
-
 #undef UTIL__DECL_IN_RANGE_FUNC
 #undef UTIL__DEF_IN_RANGE_FUNC
 
@@ -115,38 +140,14 @@ inline uint ## BIT_COUNT ##_t util_set_bits ## BIT_COUNT ( \
 UTIL__DEF_GET_BITS_FUNC(8)
 UTIL__DEF_GET_BITS_FUNC(16)
 UTIL__DEF_GET_BITS_FUNC(32)
+#undef UTIL__DECL_GET_BITS_FUNC
 #undef UTIL__DEF_GET_BITS_FUNC
 
 UTIL__DEF_SET_BITS_FUNC(8)
 UTIL__DEF_SET_BITS_FUNC(16)
 UTIL__DEF_SET_BITS_FUNC(32)
+#undef UTIL__DECL_SET_BITS_FUNC
 #undef UTIL__DEF_SET_BITS_FUNC
-
-// https://stackoverflow.com/a/3208376
-#define UTIL_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define UTIL_BYTE_TO_BINARY(byte)  \
-  ((byte) & 0x80 ? '1' : '0'), \
-  ((byte) & 0x40 ? '1' : '0'), \
-  ((byte) & 0x20 ? '1' : '0'), \
-  ((byte) & 0x10 ? '1' : '0'), \
-  ((byte) & 0x08 ? '1' : '0'), \
-  ((byte) & 0x04 ? '1' : '0'), \
-  ((byte) & 0x02 ? '1' : '0'), \
-  ((byte) & 0x01 ? '1' : '0')
-
-// define these since they're not included by default
-// and they're helpful
-#ifndef UINT8_WIDTH
-#define UINT8_WIDTH                         8u
-#endif
-
-#ifndef UINT16_WIDTH
-#define UINT16_WIDTH                        16u
-#endif
-
-#ifndef UINT32_WIDTH
-#define UINT32_WIDTH                        32u
-#endif
 
 // NUM_DMA_IRQS defined in pico sdk
 #define UTIL_NUM_DMA_IRQS                   NUM_DMA_IRQS
