@@ -25,13 +25,13 @@ src/hx711_i2c_slave.c:151:9: style: Variable 'interrupt_status_cb918069_eadf_49b
 src/hx711_i2c_slave.c:179:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/hx711_multi.c:590:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/hx711_multi.c:589:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+src/hx711_multi.c:745:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
             UTIL_INTERRUPTS_OFF_BLOCK(
             ^
-src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
+src/hx711_multi.c:859:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
 src/spifixedframe.c:349:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
@@ -61,7 +61,7 @@ include/spifixedframe.h:234:20: note: Function 'spifixedframe_req_resp' argument
 src/spifixedframe.c:230:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
     uint8_t* const resp_bytes,
                    ^
-src/util.c:546:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/util.c:550:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
 src/util.c:58:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
