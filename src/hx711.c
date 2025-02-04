@@ -127,138 +127,142 @@ void hx711_init(
 
 }
 
-void hx711_close(hx711_t* const hx) {
+void hx711_close(
+    hx711_t* const hx) {
 
-    // state machines do not have to be running in order
-    // to close
-    assert(hx711__is_initd(hx));
+        // state machines do not have to be running in order
+        // to close
+        assert(hx711__is_initd(hx));
 
-    HX711_MUTEX_BLOCK(hx->_mut, 
+        HX711_MUTEX_BLOCK(hx->_mut, 
 
-        pio_sm_set_enabled(
-            hx->_pio,
-            hx->_reader_sm,
-            false);
+            pio_sm_set_enabled(
+                hx->_pio,
+                hx->_reader_sm,
+                false);
 
-        pio_sm_unclaim(
-            hx->_pio,
-            hx->_reader_sm);
+            pio_sm_unclaim(
+                hx->_pio,
+                hx->_reader_sm);
 
-        pio_remove_program(
-            hx->_pio,
-            hx->_reader_prog,
-            hx->_reader_offset);
+            pio_remove_program(
+                hx->_pio,
+                hx->_reader_prog,
+                hx->_reader_offset);
 
-    );
-
-}
-
-void hx711_set_gain(hx711_t* const hx, const hx711_gain_t gain) {
-
-    assert(hx711__is_state_machine_enabled(hx));
-    assert(hx711_is_gain_valid(gain));
-
-    const uint32_t pioGain = hx711_gain_to_pio_gain(gain);
-
-    assert(hx711_is_pio_gain_valid(pioGain));
-
-    HX711_MUTEX_BLOCK(hx->_mut, 
-
-        /**
-         * Before putting anything in the TX FIFO buffer,
-         * assume the worst-case scenario which is that
-         * there's something already in there. There ought
-         * not to be, but clearing it ensures the following
-         * pio_sm_put* call does not need to block as this
-         * function to change the gain should take precedence.
-         */
-        pio_sm_drain_tx_fifo(
-            hx->_pio,
-            hx->_reader_sm);
-
-        pio_sm_put(
-            hx->_pio,
-            hx->_reader_sm,
-            pioGain);
-
-        /**
-         * At this point the current value in the RX FIFO will
-         * have been calculated based on whatever the previous
-         * set gain was. So, the RX FIFO needs to be cleared.
-         * 
-         * NOTE: checking for whether the RX FIFO is not empty
-         * won't work. A conversion may have already begun
-         * before any bits have been moved into the ISR.
-         * 
-         * UPDATE: the worst-case scenario here is that the
-         * pio_sm_put call has occurred after the pio "pull",
-         * because we then need to wait until the following
-         * "pull" in the state machine. If this happens:
-         * 
-         * 1. there may already be a value in the RX FIFO; and
-         * 2. another value will need to be read and discarded
-         * following which the new gain will be set.
-         * 
-         * To handle 1.: Clear the RX FIFO with a non-blocking
-         * read. If the RX FIFO is empty, no harm done because
-         * the call won't block.
-         * 
-         * To handle 2.: Read the "next" value with a blocking
-         * read to ensure the "next, next" value will be set
-         * to the desired gain.
-         */
-
-        // 1. clear the RX FIFO with the non-blocking read
-        pio_sm_get(
-            hx->_pio,
-            hx->_reader_sm);
-
-        // 2. wait until the value from the currently-set gain
-        // can be safely read and discarded
-        pio_sm_get_blocking(
-            hx->_pio,
-            hx->_reader_sm);
-
-        /**
-         * Immediately following the above blocking call, the
-         * state machine will pull in the data in the
-         * pio_sm_put call above and pulse the HX711 the
-         * correct number of times to set the desired gain.
-         * 
-         * No further communication with the state machine
-         * from this function is required. Any other function(s)
-         * wishing to obtain a value from the HX711 need only
-         * block until one is there (or check the RX FIFO level).
-         */
-
-    );
+        );
 
 }
 
-int32_t hx711_get_value(hx711_t* const hx) {
+void hx711_set_gain(
+    hx711_t* const hx,
+    const hx711_gain_t gain) {
 
-    assert(hx711__is_state_machine_enabled(hx));
+        assert(hx711__is_state_machine_enabled(hx));
+        assert(hx711_is_gain_valid(gain));
 
-    uint32_t rawVal;
+        const uint32_t pioGain = hx711_gain_to_pio_gain(gain);
 
-    HX711_MUTEX_BLOCK(hx->_mut, 
+        assert(hx711_is_pio_gain_valid(pioGain));
 
-        /**
-         * Block until a value is available
-         * 
-         * NOTE: remember that reading from the RX FIFO
-         * simultaneously clears it. That's why we can keep
-         * calling this function hx711_get_value and be
-         * assured we'll be getting a new value each time,
-         * even if the RX FIFO is currently empty.
-         */
-        rawVal = pio_sm_get_blocking(
-            hx->_pio,
-            hx->_reader_sm);
+        HX711_MUTEX_BLOCK(hx->_mut, 
 
-    );
+            /**
+             * Before putting anything in the TX FIFO buffer,
+             * assume the worst-case scenario which is that
+             * there's something already in there. There ought
+             * not to be, but clearing it ensures the following
+             * pio_sm_put* call does not need to block as this
+             * function to change the gain should take precedence.
+             */
+            pio_sm_drain_tx_fifo(
+                hx->_pio,
+                hx->_reader_sm);
 
-    return hx711_convert_raw(rawVal);
+            pio_sm_put(
+                hx->_pio,
+                hx->_reader_sm,
+                pioGain);
+
+            /**
+             * At this point the current value in the RX FIFO will
+             * have been calculated based on whatever the previous
+             * set gain was. So, the RX FIFO needs to be cleared.
+             * 
+             * NOTE: checking for whether the RX FIFO is not empty
+             * won't work. A conversion may have already begun
+             * before any bits have been moved into the ISR.
+             * 
+             * UPDATE: the worst-case scenario here is that the
+             * pio_sm_put call has occurred after the pio "pull",
+             * because we then need to wait until the following
+             * "pull" in the state machine. If this happens:
+             * 
+             * 1. there may already be a value in the RX FIFO; and
+             * 2. another value will need to be read and discarded
+             * following which the new gain will be set.
+             * 
+             * To handle 1.: Clear the RX FIFO with a non-blocking
+             * read. If the RX FIFO is empty, no harm done because
+             * the call won't block.
+             * 
+             * To handle 2.: Read the "next" value with a blocking
+             * read to ensure the "next, next" value will be set
+             * to the desired gain.
+             */
+
+            // 1. clear the RX FIFO with the non-blocking read
+            pio_sm_get(
+                hx->_pio,
+                hx->_reader_sm);
+
+            // 2. wait until the value from the currently-set gain
+            // can be safely read and discarded
+            pio_sm_get_blocking(
+                hx->_pio,
+                hx->_reader_sm);
+
+            /**
+             * Immediately following the above blocking call, the
+             * state machine will pull in the data in the
+             * pio_sm_put call above and pulse the HX711 the
+             * correct number of times to set the desired gain.
+             * 
+             * No further communication with the state machine
+             * from this function is required. Any other function(s)
+             * wishing to obtain a value from the HX711 need only
+             * block until one is there (or check the RX FIFO level).
+             */
+
+        );
+
+}
+
+int32_t hx711_get_value(
+    hx711_t* const hx) {
+
+        assert(hx711__is_state_machine_enabled(hx));
+
+        uint32_t rawVal;
+
+        HX711_MUTEX_BLOCK(hx->_mut, 
+
+            /**
+             * Block until a value is available
+             * 
+             * NOTE: remember that reading from the RX FIFO
+             * simultaneously clears it. That's why we can keep
+             * calling this function hx711_get_value and be
+             * assured we'll be getting a new value each time,
+             * even if the RX FIFO is currently empty.
+             */
+            rawVal = pio_sm_get_blocking(
+                hx->_pio,
+                hx->_reader_sm);
+
+        );
+
+        return hx711_convert_raw(rawVal);
 
 }
 
@@ -317,18 +321,20 @@ bool hx711_get_value_noblock(
 
 }
 
-bool hx711__is_initd(hx711_t* const hx) {
-    return hx != NULL &&
-        hx->_pio != NULL &&
+bool hx711__is_initd(
+    hx711_t* const hx) {
+        return hx != NULL &&
+            hx->_pio != NULL &&
 #ifndef HX711_NO_MUTEX
-        mutex_is_initialized(&hx->_mut) &&
+            mutex_is_initialized(&hx->_mut) &&
 #endif
-        pio_sm_is_claimed(hx->_pio, hx->_reader_sm);
+            pio_sm_is_claimed(hx->_pio, hx->_reader_sm);
 }
 
-bool hx711__is_state_machine_enabled(hx711_t* const hx) {
-    return hx711__is_initd(hx) &&
-        util_pio_sm_is_enabled(hx->_pio, hx->_reader_sm);
+bool hx711__is_state_machine_enabled(
+    hx711_t* const hx) {
+        return hx711__is_initd(hx) &&
+            util_pio_sm_is_enabled(hx->_pio, hx->_reader_sm);
 }
 
 void hx711_power_up(
@@ -397,56 +403,58 @@ void hx711_power_up(
 
 }
 
-void hx711_power_down(hx711_t* const hx) {
+void hx711_power_down(
+    hx711_t* const hx) {
 
-    //don't have to have SMs running; just check for init
-    assert(hx711__is_initd(hx));
+        //don't have to have SMs running; just check for init
+        assert(hx711__is_initd(hx));
 
-    HX711_MUTEX_BLOCK(hx->_mut, 
+        HX711_MUTEX_BLOCK(hx->_mut, 
 
-        //1. stop the state machine
-        pio_sm_set_enabled(
-            hx->_pio,
-            hx->_reader_sm,
-            false);
+            //1. stop the state machine
+            pio_sm_set_enabled(
+                hx->_pio,
+                hx->_reader_sm,
+                false);
 
-        /**
-         * 2. set clock pin high to start the power down
-         * process
-         *
-         * NOTE: the HX711 chip requires the clock pin to
-         * be held high for 60+ us
-         * calling functions should therefore do:
-         * 
-         * hx711_power_down(&hx);
-         * hx711_wait_power_down();
-         */
-        gpio_put(
-            hx->_clock_pin,
-            true);
+            /**
+             * 2. set clock pin high to start the power down
+             * process
+             *
+             * NOTE: the HX711 chip requires the clock pin to
+             * be held high for 60+ us
+             * calling functions should therefore do:
+             * 
+             * hx711_power_down(&hx);
+             * hx711_wait_power_down();
+             */
+            gpio_put(
+                hx->_clock_pin,
+                true);
 
-    );
+        );
 
 }
 
-uint32_t hx711_gain_to_pio_gain(const hx711_gain_t gain) {
+uint32_t hx711_gain_to_pio_gain(
+    const hx711_gain_t gain) {
 
-    /**
-     * gain value is 0-based and calculated by:
-     * gain = clock pulses - 24 - 1
-     * ie. gain of 128 is 25 clock pulses, so
-     * gain = 25 - 24 - 1
-     * gain = 0
-     */
+        /**
+         * gain value is 0-based and calculated by:
+         * gain = clock pulses - 24 - 1
+         * ie. gain of 128 is 25 clock pulses, so
+         * gain = 25 - 24 - 1
+         * gain = 0
+         */
 
-    assert(hx711_is_gain_valid(gain));
+        assert(hx711_is_gain_valid(gain));
 
-    const uint32_t clockPulses =
-        hx711_get_clock_pulses(gain) - HX711_READ_BITS - 1;
+        const uint32_t clockPulses =
+            hx711_get_clock_pulses(gain) - HX711_READ_BITS - 1;
 
-    assert(hx711_is_pio_gain_valid(clockPulses));
+        assert(hx711_is_pio_gain_valid(clockPulses));
 
-    return clockPulses;
+        return clockPulses;
 
 }
 
