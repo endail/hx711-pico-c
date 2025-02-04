@@ -25,7 +25,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <strings.h>
 #include <hardware/pio.h>
 #include <pico/mutex.h>
 #include <pico/platform.h>

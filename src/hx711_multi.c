@@ -32,7 +32,6 @@
 #include <pico/types.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <strings.h>
 #include "../include/hx711.h"
 #include "../include/hx711_multi.h"
 #include "../include/util.h"
@@ -707,9 +706,11 @@ void hx711_multi_get_values(
         assert(!hx711_multi__async_is_running(hxm));
 
         hx711_multi_async_start(hxm);
+
         while(!hx711_multi_async_done(hxm)) {
             tight_loop_contents();
         }
+
         hx711_multi_async_get_values(hxm, values);
 
 }

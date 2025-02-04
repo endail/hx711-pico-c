@@ -178,7 +178,9 @@ bool util_dma_channel_wait_for_finish_timeout(
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
-            UTIL_RETURNIF(!dma_channel_is_busy(channel), true);
+            if(!dma_channel_is_busy(channel)) {
+                return true;
+            }
         }
 
         return false;
@@ -471,7 +473,9 @@ bool util_pio_interrupt_wait_cleared_timeout(
         assert(!is_nil_time(*end));
 
         while(!time_reached(*end)) {
-            UTIL_RETURNIF(!pio_interrupt_get(pio, pio_interrupt_num), true);
+            if(!pio_interrupt_get(pio, pio_interrupt_num)) {
+                return true;
+            }
         }
 
         return false;
