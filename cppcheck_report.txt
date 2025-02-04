@@ -34,40 +34,40 @@ src/hx711_multi.c:744:13: style: Variable 'interrupt_status_cb918069_eadf_49bc_9
 src/hx711_multi.c:858:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_4' is assigned a value that is never used. [unreadVariable]
         HX711_MUTEX_BLOCK(hxm->_mut,
         ^
-src/spifixedframe.c:337:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
+src/spifixedframe.c:349:34: style: Condition 'byteIndex<expected_bytes_len' is always true [knownConditionTrueFalse]
                     if(byteIndex < expected_bytes_len) {
                                  ^
-src/spifixedframe.c:323:30: note: Assuming condition 'byteIndex>=expected_bytes_len' is false
+src/spifixedframe.c:335:30: note: Assuming condition 'byteIndex>=expected_bytes_len' is false
                 if(byteIndex >= expected_bytes_len) {
                              ^
-src/spifixedframe.c:337:34: note: Condition 'byteIndex<expected_bytes_len' is always true
+src/spifixedframe.c:349:34: note: Condition 'byteIndex<expected_bytes_len' is always true
                     if(byteIndex < expected_bytes_len) {
                                  ^
-src/spifixedframe.c:216:26: style:inconclusive: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'. [funcArgNamesDifferent]
+src/spifixedframe.c:228:26: style:inconclusive: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'. [funcArgNamesDifferent]
     const uint8_t* const req_bytes,
                          ^
-include/spifixedframe.h:201:26: note: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'.
+include/spifixedframe.h:214:26: note: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'.
     const uint8_t* const req,
                          ^
-src/spifixedframe.c:216:26: note: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'.
+src/spifixedframe.c:228:26: note: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'.
     const uint8_t* const req_bytes,
                          ^
-src/spifixedframe.c:218:20: style:inconclusive: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'. [funcArgNamesDifferent]
+src/spifixedframe.c:230:20: style:inconclusive: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'. [funcArgNamesDifferent]
     uint8_t* const resp_bytes,
                    ^
-include/spifixedframe.h:203:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
+include/spifixedframe.h:216:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
     uint8_t* const resp,
                    ^
-src/spifixedframe.c:218:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
+src/spifixedframe.c:230:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
     uint8_t* const resp_bytes,
                    ^
-src/util.c:545:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/util.c:546:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/util.c:57:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:58:0: information: Skipping configuration 'DMA_IRQ_2' since the value of 'DMA_IRQ_2' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
     DMA_IRQ_2
 ^
-src/util.c:61:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
+src/util.c:62:0: information: Skipping configuration 'DMA_IRQ_3' since the value of 'DMA_IRQ_3' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly. [ConfigurationNotChecked]
     DMA_IRQ_3
 ^
 tests/i2c_master.c:48:9: warning: %li in format string (no. 1) requires 'long' but the argument type is 'signed int'. [invalidPrintfArgType_sint]
