@@ -46,7 +46,7 @@ src/spifixedframe.c:349:34: note: Condition 'byteIndex<expected_bytes_len' is al
 src/spifixedframe.c:228:26: style:inconclusive: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'. [funcArgNamesDifferent]
     const uint8_t* const req_bytes,
                          ^
-include/spifixedframe.h:214:26: note: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'.
+include/spifixedframe.h:232:26: note: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'.
     const uint8_t* const req,
                          ^
 src/spifixedframe.c:228:26: note: Function 'spifixedframe_req_resp' argument 2 names different: declaration 'req' definition 'req_bytes'.
@@ -55,7 +55,7 @@ src/spifixedframe.c:228:26: note: Function 'spifixedframe_req_resp' argument 2 n
 src/spifixedframe.c:230:20: style:inconclusive: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'. [funcArgNamesDifferent]
     uint8_t* const resp_bytes,
                    ^
-include/spifixedframe.h:216:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
+include/spifixedframe.h:234:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
     uint8_t* const resp,
                    ^
 src/spifixedframe.c:230:20: note: Function 'spifixedframe_req_resp' argument 4 names different: declaration 'resp' definition 'resp_bytes'.
