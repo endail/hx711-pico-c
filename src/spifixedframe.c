@@ -384,14 +384,11 @@ spifixedframe_error_t spifixedframe_write_frames(
         SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_len);
 
         const absolute_time_t timeout = make_timeout_time_us(timeout_us);
-        spifixedframe_buffer_t* const buffer = spifixedframe_create_buffers(frames_len);
+        //spifixedframe_buffer_t* const buffer = spifixedframe_create_buffers(frames_len);
+        spifixedframe_buffer_t buffer[frames_len];
 
         // note: all 16 bits in each frame are set to 0 if not used,
         // so malloc is OK instead of calloc
-
-        if(buffer == NULL) {
-            return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
-        }
 
         spifixedframe_serialise_frames(
             frames,
@@ -399,7 +396,6 @@ spifixedframe_error_t spifixedframe_write_frames(
             frames_len);
 
         if(!util_spi_is_writable_timeout(spi, &timeout)) {
-            free(buffer);
             return SPIFIXEDFRAME_ERROR_TIMEOUT;
         }
 
@@ -407,8 +403,6 @@ spifixedframe_error_t spifixedframe_write_frames(
             spi,
             buffer,
             frames_len);
-
-        free(buffer);
 
         if(spiCode > 0 && (size_t)spiCode == frames_len) {
             return SPIFIXEDFRAME_ERROR_OK;
@@ -436,20 +430,15 @@ spifixedframe_error_t spifixedframe_read_frames(
         SPIFIXEDFRAME_CHECK_FRAME_COUNT(frames_len);
 
         const absolute_time_t timeout = make_timeout_time_us(timeout_us);
-        spifixedframe_buffer_t* const inbuffer = spifixedframe_create_buffers(frames_len);
         spifixedframe_buffer_t outbuffer;
+        spifixedframe_buffer_t inbuffer[frames_len];
 
         spifixedframe_serialise_frames(
             &SPIFIXEDFRAME_NULL_FRAME,
             &outbuffer,
             1);
 
-        if(inbuffer == NULL) {
-            return SPIFIXEDFRAME_ERROR_DYNAMIC_MEMORY_FAIL;
-        }
-
         if(!util_spi_is_readable_timeout(spi, &timeout)) {
-            free(inbuffer);
             return SPIFIXEDFRAME_ERROR_TIMEOUT;
         }
 
@@ -462,11 +451,6 @@ spifixedframe_error_t spifixedframe_read_frames(
         // if read succeeded, create the frames from the buffer
         if(spiCode > 0 && (size_t)spiCode == frames_len) {
             spifixedframe_deserialise_frames(inbuffer, frames, frames_len);
-        }
-
-        free(inbuffer);
-
-        if(spiCode > 0 && (size_t)spiCode == frames_len) {
             return SPIFIXEDFRAME_ERROR_OK;
         }
 
