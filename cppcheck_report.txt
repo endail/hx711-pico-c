@@ -1,28 +1,28 @@
 include/hx711_i2c_slave.h:96:16: warning: Size of pointer 'ctrl' used instead of size of its data. [pointerSize]
         memcpy(ctrl, &hx_i2c->_memory, sizeof(ctrl));
                ^
-src/hx711_i2c_slave.c:55:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:56:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == NULL) {
                                    ^
 src/hx711_i2c_slave.c:78:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i] == slave) {
                                    ^
-src/hx711_i2c_slave.c:103:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
+src/hx711_i2c_slave.c:102:36: error: Array 'hx711_i2c__slave_map[1]' accessed at index 3, which is out of bounds. [arrayIndexOutOfBounds]
             if(hx711_i2c__slave_map[i]->_i2c == i2c) {
                                    ^
 src/hx711_i2c_slave.c:94:16: error: Uninitialized variable: *slave [uninitvar]
         assert(*slave != NULL);
                ^
-src/hx711_i2c_slave.c:193:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
+src/hx711_i2c_slave.c:192:41: note: Calling function 'hx711_i2c__slave_get_slave', 2nd argument '&hx_i2c' value is <Uninit>
         hx711_i2c__slave_get_slave(i2c, &hx_i2c);
                                         ^
 src/hx711_i2c_slave.c:94:16: note: Uninitialized variable: *slave
         assert(*slave != NULL);
                ^
-src/hx711_i2c_slave.c:151:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
+src/hx711_i2c_slave.c:150:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
-src/hx711_i2c_slave.c:179:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
+src/hx711_i2c_slave.c:178:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_2' is assigned a value that is never used. [unreadVariable]
         UTIL_INTERRUPTS_OFF_BLOCK(
         ^
 src/hx711_multi.c:589:9: style: Variable 'interrupt_status_cb918069_eadf_49bc_9d8c_a8a4defad20c_0' is assigned a value that is never used. [unreadVariable]
