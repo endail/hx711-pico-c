@@ -89,48 +89,48 @@ UTIL__DEF_IN_RANGE_FUNC(size_t)
 #undef UTIL__DECL_IN_RANGE_FUNC
 #undef UTIL__DEF_IN_RANGE_FUNC
 
-#define UTIL__DECL_GET_BITS_FUNC(BIT_COUNT) \
-uint ## BIT_COUNT ##_t util_get_bits ## BIT_COUNT ( \
-    const uint ## BIT_COUNT ##_t value, \
-    const uint ## BIT_COUNT ##_t startbit, \
-    const uint ## BIT_COUNT ##_t len);
+#define UTIL__DECL_GET_BITS_FUNC(BIT_WIDTH) \
+uint ## BIT_WIDTH ##_t util_get_bits ## BIT_WIDTH ( \
+    const uint ## BIT_WIDTH ##_t value, \
+    const uint ## BIT_WIDTH ##_t startbit, \
+    const uint ## BIT_WIDTH ##_t len);
 
-#define UTIL__DECL_SET_BITS_FUNC(BIT_COUNT) \
-uint ## BIT_COUNT ##_t util_set_bits ## BIT_COUNT ( \
-    uint ## BIT_COUNT ##_t value, \
-    const uint ## BIT_COUNT ##_t startbit, \
-    const uint ## BIT_COUNT ##_t len, \
-    const uint ## BIT_COUNT ##_t bits);
+#define UTIL__DECL_SET_BITS_FUNC(BIT_WIDTH) \
+uint ## BIT_WIDTH ##_t util_set_bits ## BIT_WIDTH ( \
+    uint ## BIT_WIDTH ##_t value, \
+    const uint ## BIT_WIDTH ##_t startbit, \
+    const uint ## BIT_WIDTH ##_t len, \
+    const uint ## BIT_WIDTH ##_t bits);
 
-#define UTIL__DEF_GET_BITS_FUNC(BIT_COUNT) \
-inline uint ## BIT_COUNT ##_t util_get_bits ## BIT_COUNT ( \
-    const uint ## BIT_COUNT ##_t value, \
-    const uint ## BIT_COUNT ##_t startbit, \
-    const uint ## BIT_COUNT ##_t len) { \
+#define UTIL__DEF_GET_BITS_FUNC(BIT_WIDTH) \
+inline uint ## BIT_WIDTH ##_t util_get_bits ## BIT_WIDTH ( \
+    const uint ## BIT_WIDTH ##_t value, \
+    const uint ## BIT_WIDTH ##_t startbit, \
+    const uint ## BIT_WIDTH ##_t len) { \
         \
-        assert(util_uint_in_range(startbit, 0, UINT ## BIT_COUNT ##_WIDTH - 1)); \
-        assert(util_uint_in_range(len, 1, UINT ## BIT_COUNT ##_WIDTH)); \
-        assert((startbit + len) <= UINT ## BIT_COUNT ##_WIDTH); \
+        assert(util_uint_in_range(startbit, 0, UINT ## BIT_WIDTH ##_WIDTH - 1)); \
+        assert(util_uint_in_range(len, 1, UINT ## BIT_WIDTH ##_WIDTH)); \
+        assert((startbit + len) <= UINT ## BIT_WIDTH ##_WIDTH); \
         \
-        const uint ## BIT_COUNT ##_t mask = ((1 << len) - 1) << startbit; \
-        const uint ## BIT_COUNT ##_t extracted = (value & mask) >> startbit; \
+        const uint ## BIT_WIDTH ##_t mask = ((1 << len) - 1) << startbit; \
+        const uint ## BIT_WIDTH ##_t extracted = (value & mask) >> startbit; \
         \
         return extracted; \
         \
 }
 
-#define UTIL__DEF_SET_BITS_FUNC(BIT_COUNT) \
-inline uint ## BIT_COUNT ##_t util_set_bits ## BIT_COUNT ( \
-    uint ## BIT_COUNT ##_t value, \
-    const uint ## BIT_COUNT ##_t startbit, \
-    const uint ## BIT_COUNT ##_t len, \
-    const uint ## BIT_COUNT ##_t bits) { \
+#define UTIL__DEF_SET_BITS_FUNC(BIT_WIDTH) \
+inline uint ## BIT_WIDTH ##_t util_set_bits ## BIT_WIDTH ( \
+    uint ## BIT_WIDTH ##_t value, \
+    const uint ## BIT_WIDTH ##_t startbit, \
+    const uint ## BIT_WIDTH ##_t len, \
+    const uint ## BIT_WIDTH ##_t bits) { \
         \
-        assert(util_uint_in_range(startbit, 0, UINT ## BIT_COUNT ##_WIDTH - 1)); \
-        assert(util_uint_in_range(len, 1, UINT ## BIT_COUNT ##_WIDTH)); \
-        assert((startbit + len) <= UINT ## BIT_COUNT ##_WIDTH); \
+        assert(util_uint_in_range(startbit, 0, UINT ## BIT_WIDTH ##_WIDTH - 1)); \
+        assert(util_uint_in_range(len, 1, UINT ## BIT_WIDTH ##_WIDTH)); \
+        assert((startbit + len) <= UINT ## BIT_WIDTH ##_WIDTH); \
         \
-        const uint ## BIT_COUNT ##_t mask = ((1 << len) - 1) << startbit; \
+        const uint ## BIT_WIDTH ##_t mask = ((1 << len) - 1) << startbit; \
         value &= ~mask; \
         value |= (bits << startbit); \
         return value; \

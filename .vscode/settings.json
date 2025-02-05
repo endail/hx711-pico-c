@@ -61,7 +61,8 @@
         "typeinfo": "cpp",
         "types.h": "c",
         "malloc.h": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "pico.h": "c"
     },
     "C_Cpp.default.cppStandard": "",
     "C_Cpp.default.cStandard": ""
