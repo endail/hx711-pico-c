@@ -34,6 +34,8 @@
 #include "../include/hx711_i2c_slave.h"
 #include "../include/util.h"
 
+static_assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
+
 hx711_i2c_slave_t* hx711_i2c__slave_map[] = {
     NULL, //...
 };
@@ -44,7 +46,6 @@ bool hx711_i2c__slave_add_slave(
     hx711_i2c_slave_t* const slave) {
 
         assert(slave != NULL);
-        assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
         assert(hx711_i2c__slave_map != NULL);
 
         bool success = false;
@@ -69,7 +70,6 @@ void hx711_i2c__slave_remove_slave(
     const hx711_i2c_slave_t* const slave) {
 
         assert(slave != NULL);
-        assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
         assert(hx711_i2c__slave_map != NULL);
 
         mutex_enter_blocking(&hx711_i2c__slave_mutex);
@@ -92,7 +92,6 @@ bool hx711_i2c__slave_get_slave(
         assert(i2c != NULL);
         assert(slave != NULL);
         assert(*slave != NULL);
-        assert(HX711_I2C_SLAVE_MAP_SIZE > 0);
         assert(hx711_i2c__slave_map != NULL);
 
         bool success = false;

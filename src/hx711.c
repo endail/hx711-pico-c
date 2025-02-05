@@ -282,9 +282,13 @@ bool hx711_get_value_timeout(
 
         HX711_MUTEX_BLOCK(hx->_mut, 
             while(!time_reached(endTime)) {
-                if((success = hx711__try_get_value(hx->_pio, hx->_reader_sm, &tempVal))) {
+
+                success = hx711__try_get_value(hx->_pio, hx->_reader_sm, &tempVal);
+
+                if(success) {
                     break;
                 }
+
             }
         );
 

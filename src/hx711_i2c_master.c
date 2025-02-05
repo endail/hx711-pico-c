@@ -107,7 +107,9 @@ hx711_i2c_error_t hx711_i2c_deserialise_request(
         const uint8_t raw_crc = *ptr;
 
         // and check if crcs match
-        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_I2C_ERROR_CRC_FAIL);
+        if(calcd_crc == raw_crc) {
+            return HX711_I2C_ERROR_CRC_FAIL;
+        }
 
         return HX711_I2C_ERROR_OK;
 
@@ -138,7 +140,9 @@ hx711_i2c_error_t hx711_i2c_deserialise_control(
         memcpy(&raw_crc, ptr, sizeof(raw_crc));
 
         // and check if crcs match
-        UTIL_RETURNIF(calcd_crc != raw_crc, HX711_I2C_ERROR_CRC_FAIL);
+        if(calcd_crc != raw_crc) {
+            return HX711_I2C_ERROR_CRC_FAIL;
+        }
 
         return HX711_I2C_ERROR_OK;
 
@@ -249,6 +253,7 @@ hx711_i2c_error_t hx711_i2c_master_get_control(
 
         switch(code) {
         case HX711_I2C_REMOTE_CONTROL_TOTAL_BYTES:
+            // if correct number of bytes, break out
             break;
         case PICO_ERROR_IO:
         case PICO_ERROR_TIMEOUT:
@@ -314,6 +319,7 @@ hx711_i2c_error_t hx711_i2c_master_power_up(
 
         switch(code) {
         case HX711_I2C_REMOTE_REQUEST_TOTAL_BYTES:
+            // if correct number of bytes, break out
             return HX711_I2C_ERROR_OK;
         case PICO_ERROR_IO:
         case PICO_ERROR_TIMEOUT:
